@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import AppBar from "@material-ui/core/AppBar";
@@ -23,6 +23,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import AddIcon from '@material-ui/icons/Add';
+import Avatar from '@material-ui/core/Avatar';
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
@@ -35,6 +36,7 @@ import datastoreService from "../services/datastore";
 import DialogGoOffline from "./dialogs/go-offline";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 import ConfigLogo from "./config-logo";
+import avatarService from "../services/avatar";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -74,6 +76,25 @@ const useStyles = makeStyles((theme) => ({
         marginRight: "10px",
         display: "inline",
     },
+    avatar: {
+        width: 25,
+        height: 25,
+        marginLeft: '6px',
+        marginRight: '6px',
+    },
+    avatarPlaceholder: {
+        width: 25,
+        height: 25,
+        //backgroundColor: '#2dbb93',
+        backgroundColor: '#999',
+        paddingTop: '6px',
+        marginLeft: '6px',
+        marginRight: '6px',
+        color: 'white',
+        "& > *:first-child": {
+            fontSize: '28px'
+        },
+    },
 }));
 
 const Topbar = (props) => {
@@ -85,13 +106,19 @@ const Topbar = (props) => {
     const [goOfflineOpen, setGoOfflineOpen] = React.useState(false);
     const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
     const [datastores, setDatastores] = React.useState([]);
+    const [profilePic, setProfilePic] = useState("");
 
 
     let isSubscribed = true;
     React.useEffect(() => {
         reloadDatastoreOverview();
+        loadAvatar();
         return () => (isSubscribed = false);
     }, []);
+
+    const loadAvatar = async () => {
+        setProfilePic(await avatarService.readAvatarCached() || '')
+    }
 
     const reloadDatastoreOverview = () => {
 
@@ -243,7 +270,15 @@ const Topbar = (props) => {
                                     color="primary"
                                     className={classes.topMenuButton}
                                 >
-                                    <AccountCircleIcon />
+                                    {
+                                        profilePic ? (
+                                            <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                        ) : (
+                                            <Avatar className={classes.avatarPlaceholder}>
+                                                <i className="fa fa-user" aria-hidden="true"></i>
+                                            </Avatar>
+                                        )
+                                    }
                                 </IconButton>
                             </Hidden>
                             <Hidden smDown>
@@ -257,6 +292,15 @@ const Topbar = (props) => {
                                     disableElevation
                                     className={classes.topMenuButton}
                                     endIcon={<ExpandMoreIcon />}
+                                    startIcon={
+                                        profilePic ? (
+                                                <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                            ) : (
+                                                <Avatar className={classes.avatarPlaceholder}>
+                                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                                </Avatar>
+                                            )
+                                    }
                                 >
                                     {store.getState().user.username}
                                 </Button>

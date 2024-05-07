@@ -5,6 +5,70 @@ import apiClient from "./api-client";
 import store from "./store";
 
 
+let avatarSingleton;
+
+/**
+ * Helper function that acts as a singleton to load the avatar data url.
+ * @returns {Promise}
+ * @private
+ */
+function readAvatarCached() {
+    if (!avatarSingleton) {
+        avatarSingleton = _readAvatarCached();
+    }
+    return avatarSingleton;
+}
+
+/**
+ * Converts an image url ot a data url
+ *
+ * @param imageUrl
+ * @returns {Promise<unknown>}
+ */
+async function imageUrlToDataUrl(imageUrl) {
+    let response;
+    try {
+        response = await fetch(imageUrl);
+    } catch (error) {
+        return;
+    }
+    if (!response.ok) {
+        return;
+    }
+
+    let blob;
+    try {
+        blob = await response.blob();
+    } catch (error) {
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve();
+        reader.readAsDataURL(blob);
+    });
+}
+
+/**
+ * Returns the data url of the avatar of the current user
+ *
+ * @returns {Promise} Returns a list of avatars
+ */
+async function _readAvatarCached() {
+    let avatars;
+    try {
+        avatars = await avatarService.readAvatars();
+    } catch (error) {
+        return
+    }
+    if (!avatars || avatars.length <= 0) {
+        return;
+    }
+    const path = "/avatar-image/" + store.getState().user.userId + "/" + avatars[0].id + "/";
+    return imageUrlToDataUrl(store.getState().server.url + path);
+}
 
 /**
  * Fetches the list of all avatars of this user (eather one or none) so that one can check if one already cached the avatar
@@ -40,6 +104,7 @@ function createAvatar(mimeType, dataBase64) {
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
+        avatarSingleton = undefined;
         return data.data;
     };
 
@@ -68,6 +133,7 @@ function deleteAvatar(avatarId) {
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
+        avatarSingleton = undefined;
         return data.data;
     };
 
@@ -80,6 +146,7 @@ function deleteAvatar(avatarId) {
 
 
 const avatarService = {
+    readAvatarCached: readAvatarCached,
     readAvatars: readAvatars,
     createAvatar: createAvatar,
     deleteAvatar: deleteAvatar,

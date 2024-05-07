@@ -79,7 +79,7 @@ function ProfilePicture() {
 
 
     React.useEffect(() => {
-        loadAvatar()
+        loadAvatar();
     }, []);
 
     const loadAvatar = async () => {
