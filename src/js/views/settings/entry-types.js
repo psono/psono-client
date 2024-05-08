@@ -5,7 +5,6 @@ import { Checkbox, Grid } from "@material-ui/core";
 
 import { Check } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
-import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import {useSelector} from "react-redux";
 import Button from "@material-ui/core/Button";
@@ -113,7 +112,7 @@ const SettingsEntryTypesView = (props) => {
     }, [settingsDatastore]);
 
     const save = (event) => {
-        action.setShownEntriesConfig(
+        action().setShownEntriesConfig(
             showWebsitePassword,
             showApplicationPassword,
             showTOTPAuthenticator,

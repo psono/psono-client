@@ -47,7 +47,7 @@ import DialogGenerateNewSshKey from "./generate-new-ssh-key";
 import DialogImportSshKeyAsText from "./import-ssh-key-as-text";
 import SelectFieldFileDestination from "../select-field/file-destination";
 import GridContainerErrors from "../grid-container-errors";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
@@ -207,7 +207,7 @@ const DialogNewEntry = (props) => {
     const [type, setType] = useState("website_password");
 
     const hasCallback = ["file", "elster_certificate"].indexOf(type) === -1 &&  // files have no callbacks
-        !store.getState().server.disableCallbacks;
+        !getStore().getState().server.disableCallbacks;
 
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);

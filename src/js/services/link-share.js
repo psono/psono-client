@@ -2,7 +2,7 @@
  * linkShare collects all functions to edit / update / create link shares and to work with them.
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import fileTransfer from "./file-transfer";
@@ -16,8 +16,8 @@ import helper from "./helper";
 //  * @returns {Promise} Promise with the link shares
 //  */
 // function readLinkShare(linkShareId) {
-//     const token = store.getState().user.token;
-//     const sessionSecretKey = store.getState().user.sessionSecretKey;
+//     const token = getStore().getState().user.token;
+//     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 //
 //     const onSuccess = function (result) {
 //         result.data.private_key = cryptoLibrary.decryptSecretKey(result.data.private_key, result.data.private_key_nonce);
@@ -40,8 +40,8 @@ import helper from "./helper";
  * @returns {Promise} Promise with the link shares
  */
 function readLinkShares() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -162,8 +162,8 @@ function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
  * @returns {Promise} Promise with the new link_secret_id
  */
 function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowedReads, passphrase, validTill) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -200,8 +200,8 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
  * @returns {Promise} Promise with the new id
  */
 function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, validTill) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -223,8 +223,8 @@ function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, val
  * @returns {Promise} Promise
  */
 function deleteLinkShare(linkShareId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;

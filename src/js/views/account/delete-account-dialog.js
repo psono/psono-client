@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import user from "../../services/user";
 import MuiAlert from "@material-ui/lab/Alert";
 import ButtonDanger from "../../components/button-danger";
@@ -29,7 +29,7 @@ const DeleteAccountDialog = (props) => {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
 
-    const showPassword = ["LDAP", "AUTHKEY"].indexOf(store.getState().user.authentication) !== -1;
+    const showPassword = ["LDAP", "AUTHKEY"].indexOf(getStore().getState().user.authentication) !== -1;
 
     const deleteAccount = () => {
         setErrors([]);

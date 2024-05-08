@@ -34,7 +34,7 @@ import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import user from "../../services/user";
 import widgetService from "../../services/widget";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -523,7 +523,7 @@ const PopupView = (props) => {
         browserClient.closePopup();
     };
     const clear = (event) => {
-        action.setLastPopupSearch("");
+        action().setLastPopupSearch("");
     };
     const editItem = (item) => {
         browserClient.openTab("index.html#!/datastore/edit/" + item.type + "/" + item.secret_id);
@@ -582,7 +582,7 @@ const PopupView = (props) => {
                             marginTop: "5px",
                         }}
                     >
-                        {store.getState().user.serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
+                        {getStore().getState().user.serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
                     </MuiAlert>
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
@@ -801,7 +801,7 @@ const PopupView = (props) => {
                     }}
                     value={search}
                     onChange={(event) => {
-                        action.setLastPopupSearch(event.target.value);
+                        action().setLastPopupSearch(event.target.value);
                     }}
                     InputProps={{
                         endAdornment: search && (

@@ -16,7 +16,7 @@ import converterService from "../../services/converter";
 import host from "../../services/host";
 import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,11 +56,11 @@ const LostPasswordViewForm = (props) => {
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
-    const [username, setUsername] = useState(store.getState().user.username);
+    const [username, setUsername] = useState(getStore().getState().user.username);
     const [code1, setCode1] = useState("");
     const [code2, setCode2] = useState("");
     const [words, setWords] = useState("");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const [domain, setDomain] = useState("");

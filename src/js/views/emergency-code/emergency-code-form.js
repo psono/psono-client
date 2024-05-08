@@ -17,7 +17,7 @@ import host from "../../services/host";
 import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
 import action from "../../actions/bound-action-creators";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 
 const useStyles = makeStyles((theme) => ({
@@ -63,7 +63,7 @@ const EmergencyCodeViewForm = (props) => {
     const [code1, setCode1] = useState("");
     const [code2, setCode2] = useState("");
     const [words, setWords] = useState("");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [serverCheck, setServerCheck] = useState({});
     const [domain, setDomain] = useState("");
     const [errors, setErrors] = useState([]);
@@ -141,7 +141,7 @@ const EmergencyCodeViewForm = (props) => {
 
     const armEmergencyCode = () => {
         setErrors([]);
-        action.setServerUrl(server);
+        action().setServerUrl(server);
 
         let parsedUrl = helperService.parseUrl(server);
         let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
@@ -177,7 +177,7 @@ const EmergencyCodeViewForm = (props) => {
 
         const onSuccess = function (serverCheck) {
             setServerCheck(serverCheck);
-            action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+            action().setServerInfo(serverCheck.info, serverCheck.verify_key);
             console.log(serverCheck.status);
             if (serverCheck.status !== "matched") {
                 setView(serverCheck.status);

@@ -3,7 +3,7 @@
  */
 
 import datastore from "./datastore";
-import store from "./store";
+import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
 
 /**
@@ -23,30 +23,30 @@ function getSettingsDatastore() {
             setting_password_numbers: "0123456789",
             setting_password_special_chars: ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
         };
-        if (typeof store.getState().server.compliancePasswordGeneratorDefaultPasswordLength !== "undefined") {
-            data["setting_password_length"] = store.getState().server.compliancePasswordGeneratorDefaultPasswordLength;
+        if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength !== "undefined") {
+            data["setting_password_length"] = getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength;
         }
-        if (typeof store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase !== "undefined") {
+        if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultLettersUppercase !== "undefined") {
             data["setting_password_letters_uppercase"] =
-                store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase;
+                getStore().getState().server.compliancePasswordGeneratorDefaultLettersUppercase;
         }
-        if (typeof store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase !== "undefined") {
+        if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultLettersLowercase !== "undefined") {
             data["setting_password_letters_lowercase"] =
-                store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase;
+                getStore().getState().server.compliancePasswordGeneratorDefaultLettersLowercase;
         }
-        if (typeof store.getState().server.compliancePasswordGeneratorDefaultNumbers !== "undefined") {
-            data["setting_password_numbers"] = store.getState().server.compliancePasswordGeneratorDefaultNumbers;
+        if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultNumbers !== "undefined") {
+            data["setting_password_numbers"] = getStore().getState().server.compliancePasswordGeneratorDefaultNumbers;
         }
-        if (typeof store.getState().server.compliancePasswordGeneratorDefaultSpecialChars !== "undefined") {
+        if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultSpecialChars !== "undefined") {
             data["setting_password_special_chars"] =
-                store.getState().server.compliancePasswordGeneratorDefaultSpecialChars;
+                getStore().getState().server.compliancePasswordGeneratorDefaultSpecialChars;
         }
-        action.settingsDatastoreLoaded(data);
+        action().settingsDatastoreLoaded(data);
 
         if (Array.isArray(results)) {
             // if the user has no settings datastore then this function will return an dict, e.g. {'datastore_id': '...'}
             results.forEach((result) => (data[result["key"]] = result["value"]));
-            action.settingsDatastoreLoaded(data);
+            action().settingsDatastoreLoaded(data);
         }
 
         return results;

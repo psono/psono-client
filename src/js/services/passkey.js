@@ -8,7 +8,7 @@ import helper from "./helper";
 import secretService from "./secret";
 import notificationBarService from "./notification-bar";
 import user from "./user";
-import store from "./store";
+import { getStore } from "./store";
 
 let publicSuffixList;
 
@@ -682,7 +682,7 @@ async function navigatorCredentialsCreate(options, origin) {
 
     const isLoggedIn = user.isLoggedIn();
 
-    if (isLoggedIn && !store.getState().settingsDatastore.showPasskey) {
+    if (isLoggedIn && !getStore().getState().settingsDatastore.showPasskey) {
         throw new PasskeyException('PASSKEY_DISABLED', i18n.t('PASSKEY_DISABLED'));
     }
 

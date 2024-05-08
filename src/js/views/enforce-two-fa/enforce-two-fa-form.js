@@ -6,7 +6,7 @@ import Button from "@material-ui/core/Button";
 import GridContainerErrors from "../../components/grid-container-errors";
 import MuiAlert from "@material-ui/lab/Alert";
 import userService from "../../services/user";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "../account/multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "../account/multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
@@ -93,7 +93,7 @@ const EnforceTwoFaViewForm = (props) => {
             autoComplete="off"
         >
             <Grid container>
-                {store.getState().server.allowedSecondFactors.indexOf("google_authenticator") !== -1 && (
+                {getStore().getState().server.allowedSecondFactors.indexOf("google_authenticator") !== -1 && (
                     <Grid container style={{ marginBottom: "8px" }}>
                         <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                             {t("TOTP")}
@@ -113,7 +113,7 @@ const EnforceTwoFaViewForm = (props) => {
                     </Grid>
                 )}
 
-                {store.getState().server.allowedSecondFactors.indexOf("yubikey_otp") !== -1 && (
+                {getStore().getState().server.allowedSecondFactors.indexOf("yubikey_otp") !== -1 && (
                     <Grid container style={{ marginBottom: "8px" }}>
                         <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                             {t("YUBIKEY_OTP")}
@@ -129,7 +129,7 @@ const EnforceTwoFaViewForm = (props) => {
                     </Grid>
                 )}
 
-                {store.getState().server.allowedSecondFactors.indexOf("duo") !== -1 && (
+                {getStore().getState().server.allowedSecondFactors.indexOf("duo") !== -1 && (
                     <Grid container style={{ marginBottom: "8px" }}>
                         <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                             {t("DUO_PUSH_OR_CODE")}

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { BarLoader } from "react-spinners";
 import browserClient from "../../services/browser-client";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import userService from "../../services/user";
 
@@ -49,7 +49,7 @@ const ActivationForm = (props) => {
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [activateInProgress, setActivateInProgress] = useState(false);
     const [activationCode, setActivationCode] = useState(props.activationCode || "");
     const [errors, setErrors] = useState([]);

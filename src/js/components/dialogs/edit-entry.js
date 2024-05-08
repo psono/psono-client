@@ -45,7 +45,7 @@ import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import DialogHistory from "./history";
 import notification from "../../services/notification";
 import cryptoLibrary from "../../services/crypto-library";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
@@ -223,7 +223,7 @@ const DialogEditEntry = (props) => {
     const itemBlueprint = itemBlueprintService.getEntryTypes().find((entryType) => entryType.value === item.type);
     const hasHistory = !hideShowHistory && ["file"].indexOf(item.type) === -1; // only files have no history
     const hasCallback = ["file"].indexOf(item.type) === -1 &&  // files have no callbacks
-        !store.getState().server.disableCallbacks;
+        !getStore().getState().server.disableCallbacks;
     const showGeneratePassword = item.share_rights && item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidPasskey = Boolean(passkeyTitle);
@@ -1026,7 +1026,7 @@ const DialogEditEntry = (props) => {
                         open={Boolean(anchorElMoreMenu)}
                         onClose={handleClose}
                     >
-                        {!store.getState().server.complianceDisableLinkShares && (<MenuItem onClick={onLinkShare}>
+                        {!getStore().getState().server.complianceDisableLinkShares && (<MenuItem onClick={onLinkShare}>
                             <ListItemIcon className={classes.listItemIcon}>
                                 <LinkIcon className={classes.icon} fontSize="small"/>
                             </ListItemIcon>
@@ -1034,7 +1034,7 @@ const DialogEditEntry = (props) => {
                                 {t("LINK_SHARE")}
                             </Typography>
                         </MenuItem>)}
-                        {!store.getState().server.complianceDisableLinkShares && item.share_rights.write && props.onDeleteItem && <Divider className={classes.divider} />}
+                        {!getStore().getState().server.complianceDisableLinkShares && item.share_rights.write && props.onDeleteItem && <Divider className={classes.divider} />}
                         {item.share_rights.write && props.onDeleteItem && <MenuItem onClick={onDelete}>
                             <ListItemIcon className={classes.listItemIcon}>
                                 <DeleteIcon className={classes.icon} fontSize="small" />

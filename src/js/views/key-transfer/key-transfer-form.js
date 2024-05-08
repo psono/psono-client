@@ -11,7 +11,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
 import userService from "../../services/user";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import ButtonDanger from "../../components/button-danger";
 import serverSecretService from "../../services/server-secret";
 import TextField from "@material-ui/core/TextField";
@@ -97,8 +97,8 @@ const KeyTransferForm = (props) => {
         let testError = helperService.isValidPassword(
             password,
             passwordRepeat,
-            store.getState().server.complianceMinMasterPasswordLength,
-            store.getState().server.complianceMinMasterPasswordComplexity,
+            getStore().getState().server.complianceMinMasterPasswordLength,
+            getStore().getState().server.complianceMinMasterPasswordComplexity,
         );
 
         if (testError) {

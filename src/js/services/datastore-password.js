@@ -10,7 +10,7 @@ import shareLinkService from "./share-link";
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
 import i18n from "../i18n";
-import store from "./store";
+import { getStore } from "./store";
 
 const registrations = {};
 let _shareIndex = {};
@@ -29,7 +29,7 @@ const specialMinCount = 1;
 function isStrongEnough(password) {
     if (
         uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount >
-        store.getState().settingsDatastore.passwordLength
+        getStore().getState().settingsDatastore.passwordLength
     ) {
         //password can never comply, so we skip check
         return true;
@@ -40,7 +40,7 @@ function isStrongEnough(password) {
         passwordLettersLowercase = '',
         passwordNumbers = '',
         passwordSpecialChars = '',
-    } = store.getState().settingsDatastore;
+    } = getStore().getState().settingsDatastore;
 
     const uc = password.match(
         new RegExp("([" + escapeRegExp(passwordLettersUppercase) + "])", "g")
@@ -121,23 +121,23 @@ function generate(passwordLength, passwordLettersUppercase, passwordLettersLower
     let password = "";
 
     if (typeof(passwordLength) === "undefined") {
-        passwordLength = store.getState().settingsDatastore.passwordLength
+        passwordLength = getStore().getState().settingsDatastore.passwordLength
     }
 
     if (typeof(passwordLettersUppercase) === "undefined") {
-        passwordLettersUppercase = store.getState().settingsDatastore.passwordLettersUppercase
+        passwordLettersUppercase = getStore().getState().settingsDatastore.passwordLettersUppercase
     }
 
     if (typeof(passwordLettersLowercase) === "undefined") {
-        passwordLettersLowercase = store.getState().settingsDatastore.passwordLettersLowercase
+        passwordLettersLowercase = getStore().getState().settingsDatastore.passwordLettersLowercase
     }
 
     if (typeof(passwordNumbers) === "undefined") {
-        passwordNumbers = store.getState().settingsDatastore.passwordNumbers
+        passwordNumbers = getStore().getState().settingsDatastore.passwordNumbers
     }
 
     if (typeof(passwordSpecialChars) === "undefined") {
-        passwordSpecialChars = store.getState().settingsDatastore.passwordSpecialChars
+        passwordSpecialChars = getStore().getState().settingsDatastore.passwordSpecialChars
     }
 
     while (!isStrongEnough(password)) {

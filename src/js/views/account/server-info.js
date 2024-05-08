@@ -10,7 +10,7 @@ import Divider from "@material-ui/core/Divider";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Grid } from "@material-ui/core";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import TextFieldQrCode from "../../components/text-field/qr";
 
@@ -46,7 +46,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_API_VERSION")}
                     name="api"
                     autoComplete="off"
-                    value={store.getState().server.api}
+                    value={getStore().getState().server.api}
                     readOnly
                     InputProps={{
                         classes: {
@@ -64,7 +64,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_VERSION")}
                     name="version"
                     autoComplete="off"
-                    value={store.getState().server.version}
+                    value={getStore().getState().server.version}
                     readOnly
                     InputProps={{
                         classes: {
@@ -82,7 +82,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_SIGNATURE")}
                     name="verifyKey"
                     autoComplete="off"
-                    value={store.getState().server.verifyKey}
+                    value={getStore().getState().server.verifyKey}
                     readOnly
                     InputProps={{
                         classes: {
@@ -100,7 +100,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_AUDIT_LOGGING")}
                     name="logAudit"
                     autoComplete="off"
-                    value={store.getState().server.logAudit}
+                    value={getStore().getState().server.logAudit}
                     readOnly
                     InputProps={{
                         classes: {
@@ -118,7 +118,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_PUBLIC_KEY")}
                     name="publicKey"
                     autoComplete="off"
-                    value={store.getState().server.publicKey}
+                    value={getStore().getState().server.publicKey}
                     readOnly
                     InputProps={{
                         classes: {
@@ -136,7 +136,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_LICENSE_TYPE")}
                     name="type"
                     autoComplete="off"
-                    value={store.getState().server.type}
+                    value={getStore().getState().server.type}
                     readOnly
                     InputProps={{
                         classes: {
@@ -154,7 +154,7 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_MAX_USERS")}
                     name="licenseMaxUsers"
                     autoComplete="off"
-                    value={store.getState().server.licenseMaxUsers}
+                    value={getStore().getState().server.licenseMaxUsers}
                     readOnly
                     InputProps={{
                         classes: {
@@ -173,8 +173,8 @@ const AccountOverviewView = (props) => {
                     name="licenseValidFrom"
                     autoComplete="off"
                     value={
-                        store.getState().server.licenseValidFrom
-                            ? new Date(store.getState().server.licenseValidFrom * 1000)
+                        getStore().getState().server.licenseValidFrom
+                            ? new Date(getStore().getState().server.licenseValidFrom * 1000)
                             : "N/A"
                     }
                     readOnly
@@ -195,8 +195,8 @@ const AccountOverviewView = (props) => {
                     name="licenseValidTill"
                     autoComplete="off"
                     value={
-                        store.getState().server.licenseValidTill
-                            ? new Date(store.getState().server.licenseValidTill * 1000)
+                        getStore().getState().server.licenseValidTill
+                            ? new Date(getStore().getState().server.licenseValidTill * 1000)
                             : "N/A"
                     }
                     readOnly

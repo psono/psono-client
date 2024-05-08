@@ -30,7 +30,7 @@ import { Link } from "react-router-dom";
 
 import FrameControls from "./frame-controls";
 
-import store from "../services/store";
+import { getStore } from "../services/store";
 import offlineCache from "../services/offline-cache";
 import datastoreService from "../services/datastore";
 import DialogGoOffline from "./dialogs/go-offline";
@@ -302,7 +302,7 @@ const Topbar = (props) => {
                                             )
                                     }
                                 >
-                                    {store.getState().user.username}
+                                    {getStore().getState().user.username}
                                 </Button>
                             </Hidden>
                             <Menu
@@ -344,7 +344,7 @@ const Topbar = (props) => {
                                         <Typography variant="body2">{t("OTHER")}</Typography>
                                     </MenuItem>
                                 )}
-                                {!offlineCache.isActive() && !store.getState().server.complianceDisableOfflineMode && (
+                                {!offlineCache.isActive() && !getStore().getState().server.complianceDisableOfflineMode && (
                                     <MenuItem onClick={goOffline}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <AirplanemodeActiveIcon className={classes.icon} />
@@ -352,7 +352,7 @@ const Topbar = (props) => {
                                         <Typography variant="body2">{t("GO_OFFLINE")}</Typography>
                                     </MenuItem>
                                 )}
-                                {offlineCache.isActive() && !store.getState().server.complianceDisableOfflineMode && (
+                                {offlineCache.isActive() && !getStore().getState().server.complianceDisableOfflineMode && (
                                     <MenuItem onClick={goOnline}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <AirplanemodeActiveIcon className={classes.icon} />

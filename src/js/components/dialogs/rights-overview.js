@@ -21,7 +21,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import shareService from "../../services/share";
 import TabPanel from "../tab-panel";
 import Table from "../table";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import helper from "../../services/helper";
 import DialogVerify from "./verify";
 import DialogNewShare from "./new-share";
@@ -154,7 +154,7 @@ const DialogRightsOverview = (props) => {
         if (!right) {
             right = shareDetails.group_share_rights.find((right) => right.id === rightId);
         }
-        if (store.getState().user.username === right.username) {
+        if (getStore().getState().user.username === right.username) {
             setVerifyDeleteOwnShareRightData({ right: right });
             setVerifyDeleteOwnShareRightOpen(true);
         } else {
@@ -421,7 +421,7 @@ const DialogRightsOverview = (props) => {
             right = shareDetails.group_share_rights.find((right) => right.id === rightId);
         }
 
-        if (type === "grant" && store.getState().user.username === right.username) {
+        if (type === "grant" && getStore().getState().user.username === right.username) {
             setVerifyToggleOwnGrantData({ right: right, type: type });
             setVerifyToggleOwnGrantOpen(true);
         } else {
@@ -638,10 +638,10 @@ const DialogRightsOverview = (props) => {
     };
 
     const hasNoAdminGroups = groupShareRights.filter((groupRight) => groupRight[4]).length === 0;
-    const ownRightsAreAdmin = userShareRights.filter((userRight) => userRight[1] === store.getState().user.username && userRight[4]).length === 1;
+    const ownRightsAreAdmin = userShareRights.filter((userRight) => userRight[1] === getStore().getState().user.username && userRight[4]).length === 1;
     const hasOnlyOneAdmin = userShareRights.filter((userRight) => userRight[4] && userRight[5]).length < 2;
     const hideNewShare =
-        store.getState().server.complianceDisableShares ||
+        getStore().getState().server.complianceDisableShares ||
         offlineCache.isActive() ||
         (item.hasOwnProperty("share_rights") && item.share_rights.grant === false);
 

@@ -2,7 +2,7 @@
  * Service to manage the avatars and avatar related functions
  */
 import apiClient from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 
 
 let avatarSingleton;
@@ -66,8 +66,8 @@ async function _readAvatarCached() {
     if (!avatars || avatars.length <= 0) {
         return;
     }
-    const path = "/avatar-image/" + store.getState().user.userId + "/" + avatars[0].id + "/";
-    return imageUrlToDataUrl(store.getState().server.url + path);
+    const path = "/avatar-image/" + getStore().getState().user.userId + "/" + avatars[0].id + "/";
+    return imageUrlToDataUrl(getStore().getState().server.url + path);
 }
 
 /**
@@ -77,8 +77,8 @@ async function _readAvatarCached() {
  * @returns {Promise} Returns a list of avatars
  */
 function readAvatars() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data.avatars;
@@ -100,8 +100,8 @@ function readAvatars() {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createAvatar(mimeType, dataBase64) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         avatarSingleton = undefined;
@@ -129,8 +129,8 @@ function createAvatar(mimeType, dataBase64) {
  * @returns {Promise} Returns whether the delete was successful or not
  */
 function deleteAvatar(avatarId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         avatarSingleton = undefined;

@@ -11,7 +11,7 @@ import sha256 from "js-sha256";
 
 import helperService from "./helper";
 import converterService from "./converter";
-import store from "./store";
+import { getStore } from "./store";
 
 
 class InvalidRecoveryCodeException extends Error {
@@ -578,7 +578,7 @@ function getTotpToken(key, period, algorithm, digits) {
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
 function encryptPrivateKey(data, publicKey) {
-    return encryptDataPublicKey(data, publicKey, store.getState().user.userPrivateKey);
+    return encryptDataPublicKey(data, publicKey, getStore().getState().user.userPrivateKey);
 }
 
 /**
@@ -591,7 +591,7 @@ function encryptPrivateKey(data, publicKey) {
  * @returns {string} The decrypted data
  */
 function decryptPrivateKey(text, nonce, publicKey) {
-    return decryptDataPublicKey(text, nonce, publicKey, store.getState().user.userPrivateKey);
+    return decryptDataPublicKey(text, nonce, publicKey, getStore().getState().user.userPrivateKey);
 }
 
 /**
@@ -602,7 +602,7 @@ function decryptPrivateKey(text, nonce, publicKey) {
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
 function encryptSecretKey(data) {
-    return encryptData(data, store.getState().user.userSecretKey);
+    return encryptData(data, getStore().getState().user.userSecretKey);
 }
 
 /**
@@ -614,7 +614,7 @@ function encryptSecretKey(data) {
  * @returns {string} The decrypted data
  */
 function decryptSecretKey(text, nonce) {
-    return decryptData(text, nonce, store.getState().user.userSecretKey);
+    return decryptData(text, nonce, getStore().getState().user.userSecretKey);
 }
 
 

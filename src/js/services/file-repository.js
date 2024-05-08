@@ -2,7 +2,7 @@
  * managerFileRepository collects all functions to edit / update / create file repositories and to work with them.
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import apiClientService from "./api-client";
 
 /**
@@ -13,8 +13,8 @@ import apiClientService from "./api-client";
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function accept(fileRepositoryRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -37,8 +37,8 @@ function accept(fileRepositoryRightId) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function decline(fileRepositoryRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -64,8 +64,8 @@ function decline(fileRepositoryRightId) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function createGroupFileRepositoryRight(fileRepositoryId, groupId, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -90,8 +90,8 @@ function createGroupFileRepositoryRight(fileRepositoryId, groupId, read, write, 
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -113,8 +113,8 @@ function updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, gran
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function deleteGroupFileRepositoryRight(fileRepositoryRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -140,8 +140,8 @@ function deleteGroupFileRepositoryRight(fileRepositoryRightId) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -166,8 +166,8 @@ function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant)
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -189,8 +189,8 @@ function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function deleteFileRepositoryRight(fileRepositoryRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -221,7 +221,7 @@ function getPossibleTypes() {
         { value: "other_s3", title: "Other S3 compatible storage" },
     ]
 
-    const allowedFileRepositoryTypes = store.getState().server.allowedFileRepositoryTypes
+    const allowedFileRepositoryTypes = getStore().getState().server.allowedFileRepositoryTypes
 
     for (let i = fileRepositoryTypes.length - 1; i >= 0; i--) {
         if (!allowedFileRepositoryTypes.includes(fileRepositoryTypes[i]['value'])) {
@@ -238,14 +238,14 @@ function getPossibleTypes() {
  * @returns {Promise} Promise with the file repositories
  */
 function readFileRepository(fileRepositoryId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         if (result.data.hasOwnProperty("file_repository_rights")) {
             for (let i = 0; i < result.data["file_repository_rights"].length; i++) {
                 result.data["file_repository_rights"][i]["own_user"] =
-                    result.data["file_repository_rights"][i]["user_id"] === store.getState().user.userId;
+                    result.data["file_repository_rights"][i]["user_id"] === getStore().getState().user.userId;
             }
         }
         return result.data;
@@ -263,8 +263,8 @@ function readFileRepository(fileRepositoryId) {
  * @returns {Promise} Promise with the file repositories
  */
 function readFileRepositories() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data.file_repositories;
@@ -332,8 +332,8 @@ function createFileRepository(
     doKey,
     doSecret
 ) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         const fileRepositoryId = result.data["file_repository_id"];
@@ -437,8 +437,8 @@ function updateFileRepository(
     doHey,
     doSecret
 ) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     return apiClientService.updateFileRepository(
         token,
@@ -480,8 +480,8 @@ function updateFileRepository(
  * @returns {Promise} Promise
  */
 function deleteFileRepository(fileRepositoryId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
         return result.data;
@@ -498,7 +498,7 @@ function deleteFileRepository(fileRepositoryId) {
  * By default it will return false (indicate enabled file repositories)
  */
 function fileRepositoriesDisabled() {
-    return store.getState().server.complianceDisableFileRepositories;
+    return getStore().getState().server.complianceDisableFileRepositories;
 }
 
 /**

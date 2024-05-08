@@ -8,7 +8,7 @@ import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import host from "./host";
 import notification from "./notification";
-import store from "./store";
+import { getStore } from "./store";
 import device from "./device";
 import storage from "./storage";
 import apiClient from "./api-client";
@@ -30,7 +30,7 @@ let redirectOnTwoFaMissing;
  */
 function activateCode(activationCode, server) {
 
-    action.setServerUrl(server);
+    action().setServerUrl(server);
 
     const onSuccess = function () {
         return {
@@ -64,12 +64,12 @@ function activateCode(activationCode, server) {
  */
 function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect) {
     redirectOnTwoFaMissing = twoFaRedirect;
-    action.setServerUrl(server);
+    action().setServerUrl(server);
     let parsedUrl = helperService.parseUrl(server);
 
     username = helperService.formFullUsername(username, parsedUrl["full_domain_without_www"]);
-    action.setUserUsername(username);
-    action.setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
+    action().setUserUsername(username);
+    action().setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
 
     return host.checkHost(server).then((response) => {
         return response;
@@ -174,7 +174,7 @@ function initiateOidcLoginNewTab(provider, remember, trust_device, two_fa_redire
  * @returns {Promise}
  */
 function samlLogin(samlTokenId, defaultAuthentication) {
-    const serverPublicKey = store.getState().server.publicKey;
+    const serverPublicKey = getStore().getState().server.publicKey;
     const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
@@ -199,7 +199,7 @@ function samlLogin(samlTokenId, defaultAuthentication) {
     const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
-    const trustDevice = store.getState().user.trustDevice;
+    const trustDevice = getStore().getState().user.trustDevice;
     if (trustDevice) {
         sessionDuration = 24 * 60 * 60 * 30;
     }
@@ -222,8 +222,8 @@ function samlLogin(samlTokenId, defaultAuthentication) {
  */
 function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
     redirectOnTwoFaMissing = twoFaRedirect;
-    action.setServerUrl(server);
-    action.setUserInfo1(rememberMe, trustDevice, "SAML");
+    action().setServerUrl(server);
+    action().setUserInfo1(rememberMe, trustDevice, "SAML");
 
     return host.checkHost(server).then((response) => {
         return response;
@@ -255,7 +255,7 @@ function getSamlRedirectUrl(providerId) {
  * @returns {Promise}
  */
 function oidcLogin(oidcTokenId, defaultAuthentication) {
-    const serverPublicKey = store.getState().server.publicKey;
+    const serverPublicKey = getStore().getState().server.publicKey;
     const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
@@ -280,7 +280,7 @@ function oidcLogin(oidcTokenId, defaultAuthentication) {
     const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
-    const trustDevice = store.getState().user.trustDevice;
+    const trustDevice = getStore().getState().user.trustDevice;
     if (trustDevice) {
         sessionDuration = 24 * 60 * 60 * 30;
     }
@@ -303,8 +303,8 @@ function oidcLogin(oidcTokenId, defaultAuthentication) {
  */
 function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
     redirectOnTwoFaMissing = twoFaRedirect;
-    action.setServerUrl(server);
-    action.setUserInfo1(rememberMe, trustDevice, "OIDC");
+    action().setServerUrl(server);
+    action().setUserInfo1(rememberMe, trustDevice, "OIDC");
 
     return host.checkHost(server).then((response) => {
         return response;
@@ -334,8 +334,8 @@ function getOidcRedirectUrl(providerId) {
  * @returns Promise Returns a promise with the login status
  */
 function gaVerify(gaToken) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
@@ -354,8 +354,8 @@ function gaVerify(gaToken) {
  * @returns Promise Returns a promise with the login status
  */
 function duoVerify(duoToken) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
@@ -374,8 +374,8 @@ function duoVerify(duoToken) {
  * @returns Promise Returns a promise with the login status
  */
 function yubikeyOtpVerify(yubikeyOtp) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
@@ -392,9 +392,9 @@ function yubikeyOtpVerify(yubikeyOtp) {
  * @returns Promise Returns a promise with the the final activate token was successful or not
  */
 function activateToken() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
-    const userSauce = store.getState().user.userSauce;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const userSauce = getStore().getState().user.userSauce;
 
     const onSuccess = function (activationData) {
         // decrypt user secret key
@@ -410,7 +410,7 @@ function activateToken() {
             serverSecretExists = activationData.data.user.server_secret_exists;
         }
 
-        action.setUserInfo3(activationData.data.user.id, activationData.data.user.email, userSecretKey, serverSecretExists);
+        action().setUserInfo3(activationData.data.user.id, activationData.data.user.email, userSecretKey, serverSecretExists);
 
         // no need anymore for the public / private session keys
         sessionPassword = "";
@@ -502,9 +502,9 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
     // encrypt the validator as verification
     verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
-    action.setUserUsername(decrypted_response_data.user.username);
+    action().setUserUsername(decrypted_response_data.user.username);
 
-    action.setUserInfo2(
+    action().setUserInfo2(
         user_private_key,
         decrypted_response_data.user.public_key,
         sessionSecretKey,
@@ -520,17 +520,17 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
     }
 
     if (decrypted_response_data.user.policies) {
-        action.setServerPolicy(decrypted_response_data.user.policies);
+        action().setServerPolicy(decrypted_response_data.user.policies);
     }
 
-    action.setHasTwoFactor(decrypted_response_data.required_multifactors > 0);
+    action().setHasTwoFactor(decrypted_response_data.required_multifactors > 0);
 
     return decrypted_response_data;
 }
 
 function login(password, serverInfo, sendPlain) {
-    const username = store.getState().user.username;
-    const trustDevice = store.getState().user.trustDevice;
+    const username = getStore().getState().user.username;
+    const trustDevice = getStore().getState().user.trustDevice;
     const serverPublicKey = serverInfo.info.public_key;
 
     const authkey = cryptoLibrary.generateAuthkey(username, password);
@@ -583,15 +583,15 @@ function login(password, serverInfo, sendPlain) {
  * @returns {Promise} Returns a promise with the result
  */
 function logout(msg = "", postLogoutRedirectUri = "") {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = async function (result) {
-        action.disableOfflineMode();
+        action().disableOfflineMode();
         storage.removeAll();
         storage.save();
         browserClient.emit("logout", null);
-        action.logout(store.getState().user.rememberMe);
+        action().logout(getStore().getState().user.rememberMe);
         if (msg) {
             notification.infoSend(msg);
         }
@@ -613,7 +613,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
         storage.removeAll();
         storage.save();
         browserClient.emit("logout", null);
-        action.logout(store.getState().user.rememberMe);
+        action().logout(getStore().getState().user.rememberMe);
         if (msg) {
             notification.infoSend(msg);
         }
@@ -632,7 +632,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
  * @returns {boolean} Returns whether a user is logged in
  */
 function isLoggedIn() {
-    return store.getState().user.isLoggedIn;
+    return getStore().getState().user.isLoggedIn;
 }
 
 /**
@@ -643,10 +643,10 @@ function isLoggedIn() {
  * @returns {Promise} Returns a promise with the result
  */
 function deleteAccount(password) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const authkey = cryptoLibrary.generateAuthkey(store.getState().user.username, password);
+    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
     const onSuccess = function () {
         logout();
@@ -657,7 +657,7 @@ function deleteAccount(password) {
     };
 
     let pass;
-    if (store.getState().user.authentication === "LDAP") {
+    if (getStore().getState().user.authentication === "LDAP") {
         pass = password;
     }
 
@@ -679,8 +679,8 @@ function deleteAccount(password) {
  * @returns {Promise} Returns a promise with the update status
  */
 function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce, language) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     return apiClient.updateUser(
         token,
         sessionSecretKey,
@@ -730,11 +730,11 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
             }
 
-            authkeyOld = cryptoLibrary.generateAuthkey(store.getState().user.username, oldPassword);
-            newAuthkey = cryptoLibrary.generateAuthkey(store.getState().user.username, newPassword);
-            userPrivateKey = store.getState().user.userPrivateKey;
-            userSecretKey = store.getState().user.userSecretKey;
-            userSauce = store.getState().user.userSauce;
+            authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, oldPassword);
+            newAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, newPassword);
+            userPrivateKey = getStore().getState().user.userPrivateKey;
+            userSecretKey = getStore().getState().user.userSecretKey;
+            userSauce = getStore().getState().user.userSauce;
 
             privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce);
             secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce);
@@ -778,10 +778,10 @@ function saveNewEmail(newEmail, verificationPassword) {
         return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
     }
 
-    const authkeyOld = cryptoLibrary.generateAuthkey(store.getState().user.username, verificationPassword);
+    const authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, verificationPassword);
 
     const onSuccess = function (data) {
-        action.setEmail(newEmail);
+        action().setEmail(newEmail);
         return { msgs: ["SAVE_SUCCESS"] };
     };
     const onError = function () {
@@ -835,8 +835,8 @@ function saveNewLanguage(language) {
  * @returns {Promise} Returns a promise with the recovery_enable status
  */
 function recoveryEnable(username, recoveryCode, server) {
-    action.setUserUsername(username);
-    action.setServerUrl(server);
+    action().setUserUsername(username);
+    action().setServerUrl(server);
 
     const onSuccess = function (data) {
         const recovery_data = JSON.parse(
@@ -849,7 +849,7 @@ function recoveryEnable(username, recoveryCode, server) {
         );
 
         if (data.data.policies) {
-            action.setServerPolicy(data.data.policies);
+            action().setServerPolicy(data.data.policies);
         }
 
         return {
@@ -919,8 +919,8 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
  * @returns {Promise} Returns a promise with the emergency code activation status
  */
 function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey) {
-    action.setUserUsername(username);
-    action.setServerUrl(server);
+    action().setUserUsername(username);
+    action().setServerUrl(server);
 
     let userSauce;
     let policies;
@@ -972,7 +972,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
                 )
             );
 
-            action.setUserInfo2(
+            action().setUserInfo2(
                 emergency_data.user_private_key,
                 loginInfo.user_public_key,
                 loginInfo.session_secret_key,
@@ -981,7 +981,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
                 authentication,
             );
             if (policies) {
-                action.setServerPolicy(policies);
+                action().setServerPolicy(policies);
             }
 
             let serverSecretExists = false;
@@ -992,7 +992,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
                 }
             }
 
-            action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey, serverSecretExists);
+            action().setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey, serverSecretExists);
 
             return {
                 status: "active",
@@ -1017,9 +1017,9 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
  * @return {boolean} Returns whether the user should be forced to setup two factor
  */
 function requireTwoFaSetup() {
-    return !store.getState().user.hasTwoFactor
-        && store.getState().server.complianceEnforce2fa
-        && store.getState().server.allowedSecondFactors.length > 0;
+    return !getStore().getState().user.hasTwoFactor
+        && getStore().getState().server.complianceEnforce2fa
+        && getStore().getState().server.allowedSecondFactors.length > 0;
 }
 
 /**
@@ -1028,8 +1028,8 @@ function requireTwoFaSetup() {
  * @return {boolean} Returns whether the user should be forced to configure a server secret or not
  */
 function requireServerSecret() {
-    const authentication = store.getState().user.authentication;
-    const complianceServerSecrets = store.getState().server.complianceServerSecrets.toLowerCase();
+    const authentication = getStore().getState().user.authentication;
+    const complianceServerSecrets = getStore().getState().server.complianceServerSecrets.toLowerCase();
 
     const lookupTable = {
         'auto': {
@@ -1069,7 +1069,7 @@ function requireServerSecret() {
  * @return {boolean} Returns whether the user should be forced to setup two factor
  */
 function requireServerSecretModification() {
-    const serverSecretExists = store.getState().user.serverSecretExists;
+    const serverSecretExists = getStore().getState().user.serverSecretExists;
     return requireServerSecret() !== serverSecretExists;
 }
 
@@ -1080,8 +1080,8 @@ function requireServerSecretModification() {
  * @returns {Promise} Returns a promise with the sessions
  */
 function getSessions() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data["sessions"];
@@ -1100,8 +1100,8 @@ function getSessions() {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteSession(sessionId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         // pass

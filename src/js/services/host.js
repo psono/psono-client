@@ -2,7 +2,7 @@
  * Service to manage the host
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import apiClient from "./api-client";
@@ -15,7 +15,7 @@ import action from "../actions/bound-action-creators";
  * @returns {*} The known hosts
  */
 function getKnownHosts() {
-    return store.getState().persistent.knownHosts;
+    return getStore().getState().persistent.knownHosts;
 }
 /**
  * Returns the current host
@@ -23,7 +23,7 @@ function getKnownHosts() {
  * @returns {*} The current host
  */
 function getCurrentHost() {
-    return store.getState().server;
+    return getStore().getState().server;
 }
 /**
  * Returns the url of the current host
@@ -31,7 +31,7 @@ function getCurrentHost() {
  * @returns {*} The current host url
  */
 function getCurrentHostUrl() {
-    return store.getState().server.url;
+    return getStore().getState().server.url;
 }
 
 /**
@@ -40,7 +40,7 @@ function getCurrentHostUrl() {
  * @param {array} newKnownHosts List of the new servers
  */
 function updateKnownHosts(newKnownHosts) {
-    action.setKnownHosts(newKnownHosts);
+    action().setKnownHosts(newKnownHosts);
 }
 
 /**
@@ -175,9 +175,9 @@ function loadRemoteConfig(web_client_url, server_url) {
         }
 
         // we store the loaded configuration
-        action.setRemoteConfigJson(config);
-        action.setUserUsername("");
-        action.setServerUrl("");
+        action().setRemoteConfigJson(config);
+        action().setUserUsername("");
+        action().setServerUrl("");
         browserClient.clearConfigCache();
     };
 

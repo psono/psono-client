@@ -14,7 +14,7 @@ import host from "../../services/host";
 import GridContainerErrors from "../../components/grid-container-errors";
 import action from "../../actions/bound-action-creators";
 import userService from "../../services/user";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 import cryptoLibrary from "../../services/crypto-library";
 
@@ -62,7 +62,7 @@ const RegisterForm = (props) => {
     const [view, setView] = useState("default");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const [domain, setDomain] = useState("");
@@ -133,7 +133,7 @@ const RegisterForm = (props) => {
                 setErrors(_errors);
             }
         }
-        action.setServerUrl(server);
+        action().setServerUrl(server);
 
         host.info().then(
             function (info) {

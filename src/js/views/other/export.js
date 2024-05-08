@@ -14,7 +14,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { Check } from "@material-ui/icons";
 import { BarLoader } from "react-spinners";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import exportService from "../../services/export";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TextFieldPassword from "../../components/text-field/password";
@@ -96,7 +96,7 @@ const OtherExportView = (props) => {
             setErrors(data.errors);
         };
 
-        const calculatedIncludeSharedItems = !store.getState().server.complianceDisableExportOfSharedItems && includeSharedItems;
+        const calculatedIncludeSharedItems = !getStore().getState().server.complianceDisableExportOfSharedItems && includeSharedItems;
 
         exportService.exportDatastore(exportFormat, includeTrashBinItems, calculatedIncludeSharedItems, exportFormat === 'json' ? password : '').then(onSuccess, onError);
     };
@@ -181,7 +181,7 @@ const OtherExportView = (props) => {
                 />{" "}
                 {t("INCLUDE_TRASH_BIN_ENTRIES")}
             </Grid>
-            {!store.getState().server.complianceDisableExportOfSharedItems && (<Grid item xs={12} sm={12} md={12}>
+            {!getStore().getState().server.complianceDisableExportOfSharedItems && (<Grid item xs={12} sm={12} md={12}>
                 <Checkbox
                     tabIndex={1}
                     checked={includeSharedItems}

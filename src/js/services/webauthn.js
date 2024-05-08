@@ -3,7 +3,7 @@
  */
 
 import apiClientService from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
 import helperService from "./helper";
 
@@ -26,8 +26,8 @@ function getOrigin() {
  * @returns {Promise} Returns a promise with the user information
  */
 function createWebauthn(title) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data;
@@ -44,8 +44,8 @@ function createWebauthn(title) {
  * @returns {Promise} Returns a promise with a list of all webauthns
  */
 function readWebauthn() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function (request) {
         return request.data["webauthns"];
     };
@@ -64,10 +64,10 @@ function readWebauthn() {
  * @returns {Promise} Returns a promise with true or false
  */
 function activateWebauthn(webauthnId, credential) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
-        action.setHasTwoFactor(true);
+        action().setHasTwoFactor(true);
         return true;
     };
     const onError = function (data) {
@@ -87,8 +87,8 @@ function activateWebauthn(webauthnId, credential) {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteWebauthn(webauthnId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
         return true;
     };
@@ -104,8 +104,8 @@ function deleteWebauthn(webauthnId) {
  * @returns {Promise} Returns a promise with the user information
  */
 function verifyWebauthnInit() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data;
@@ -124,8 +124,8 @@ function verifyWebauthnInit() {
  * @returns {Promise} Returns a promise with the user information
  */
 function verifyWebauthn(credential) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data;

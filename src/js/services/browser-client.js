@@ -3,7 +3,7 @@
  */
 
 import helperService from "./helper";
-import store from "./store";
+import { getStore } from "./store";
 import deviceService from "./device";
 
 
@@ -22,7 +22,7 @@ if (TARGET === "chrome") {
  * Registers a listener with browser.webRequest.onAuthRequired.addListener
  */
 function getRemoteConfigJson() {
-    return store.getState().persistent.remoteConfigJson;
+    return getStore().getState().persistent.remoteConfigJson;
 }
 
 /**
@@ -709,7 +709,7 @@ function disableBrowserPasswordSaving(value) {
             return false;
         }
 
-        let oldPMValue = store.getState().client.disableBrowserPm;
+        let oldPMValue = getStore().getState().client.disableBrowserPm;
         value = value !== undefined ? value : oldPMValue;
         if (TARGET === "firefox") {
             function onSet(result) {

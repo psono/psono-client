@@ -4,7 +4,7 @@
 import browserClient from "./browser-client";
 import browser from "./browser";
 import i18n from "../i18n";
-import store from "./store";
+import { getStore } from "./store";
 import datastorePasswordService from "./datastore-password";
 import offlineCache from "./offline-cache";
 import helper from "./helper";
@@ -104,7 +104,7 @@ function activate() {
         });
         browser.tabs.onRemoved.addListener(function (tabId) {
             numTabs--;
-            if (numTabs === 0 && !store.getState().user.trustDevice) {
+            if (numTabs === 0 && !getStore().getState().user.trustDevice) {
                 user.logout();
             }
         });
@@ -149,7 +149,7 @@ function activate() {
  * Updates the badge counter at the top
  */
 function  updateBadgeCounter() {
-    if (!store.getState().user.isLoggedIn || !activeTabUrl) {
+    if (!getStore().getState().user.isLoggedIn || !activeTabUrl) {
         browserClient.setBadgeText("");
     } else {
         searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
@@ -587,7 +587,7 @@ function onLogout(request, sender, sendResponse) {
  */
 function
     onIsLoggedIn(request, sender, sendResponse) {
-    sendResponse(store.getState().user.isLoggedIn);
+    sendResponse(getStore().getState().user.isLoggedIn);
 }
 
 /**
@@ -962,10 +962,10 @@ function readGpg(request, sender, sendResponse) {
         });
     }
 
-    const gpgHkpSearch = store.getState().settingsDatastore.gpgHkpSearch;
+    const gpgHkpSearch = getStore().getState().settingsDatastore.gpgHkpSearch;
 
     if (gpgHkpSearch && pgpSender && pgpSender.length) {
-        const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);
+        const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
         const options = {
             query: pgpSender,
         };

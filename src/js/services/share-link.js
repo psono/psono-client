@@ -3,7 +3,7 @@
  */
 
 import apiClient from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 
 /**
  * Create a link between a share and a datastore or another (parent-)share
@@ -16,8 +16,8 @@ import store from "./store";
  * @returns {promise} Returns a promise withe the new share link id
  */
 function createShareLink(linkId, shareId, parentShareId, parentDatastoreId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };
@@ -41,8 +41,8 @@ function createShareLink(linkId, shareId, parentShareId, parentDatastoreId) {
  * @returns {promise} Returns a promise with the status of the move
  */
 function moveShareLink(linkId, newParentShareId, newParentDatastoreId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };
@@ -63,8 +63,8 @@ function moveShareLink(linkId, newParentShareId, newParentDatastoreId) {
  * @returns {promise} Returns a promise with the status of the delete operation
  */
 function deleteShareLink(linkId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };

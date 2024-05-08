@@ -2,7 +2,7 @@
  * Emergency codes and all the functions to create / edit / delete them ...
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
@@ -13,8 +13,8 @@ import cryptoLibrary from "./crypto-library";
  * @returns {Promise} Returns a promise with the emergency codes
  */
 function readEmergencyCodes() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data["emegency_codes"];
@@ -34,16 +34,16 @@ function readEmergencyCodes() {
  * @returns {Promise} Returns a promise with the emergency code
  */
 function createEmergencyCode(title, leadTime) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const emergencyPassword = cryptoLibrary.generateRecoveryCode();
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(store.getState().user.username, emergencyPassword["base58"]);
+    const emergencyAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, emergencyPassword["base58"]);
     const emergencySauce = cryptoLibrary.generateUserSauce();
 
     const emergencyDataDec = {
-        user_private_key: store.getState().user.userPrivateKey,
-        user_secret_key: store.getState().user.userSecretKey,
+        user_private_key: getStore().getState().user.userPrivateKey,
+        user_secret_key: getStore().getState().user.userSecretKey,
     };
 
     const emergency_data = cryptoLibrary.encryptSecret(
@@ -54,7 +54,7 @@ function createEmergencyCode(title, leadTime) {
 
     const onSuccess = function () {
         return {
-            username: store.getState().user.username,
+            username: getStore().getState().user.username,
             emergency_password: helperService.splitStringInChunks(emergencyPassword["base58_checksums"], 13).join("-"),
             emergency_words: emergencyPassword["words"].join(" "),
         };
@@ -84,8 +84,8 @@ function createEmergencyCode(title, leadTime) {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteEmergencyCode(emergencyCodeId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         // pass

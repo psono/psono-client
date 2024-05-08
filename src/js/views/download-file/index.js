@@ -5,7 +5,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { useParams } from "react-router-dom";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import fileTransferService from "../../services/file-transfer";
 import ConfigLogo from "../../components/config-logo";
 
@@ -22,7 +22,7 @@ const DownloadFileView = (props) => {
     const [nextStep, setNextStep] = React.useState("");
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState([]);
-    const creditBuyAddress = store.getState().server.credit_buy_address;
+    const creditBuyAddress = getStore().getState().server.credit_buy_address;
     let { id } = useParams();
 
     let openRequests = 0;

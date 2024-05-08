@@ -2,7 +2,7 @@
  * Service to manage the history of a secret
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import apiClient from "./api-client";
 import cryptoLibraryService from "./crypto-library";
 
@@ -14,8 +14,8 @@ import cryptoLibraryService from "./crypto-library";
  * @returns {Promise} Returns a list of history items
  */
 function readSecretHistory(secretId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data.history;
@@ -37,8 +37,8 @@ function readSecretHistory(secretId) {
  * @returns {Promise} Returns a list of history items
  */
 function readHistory(secretHistoryId, secretKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (content) {
         const secret = JSON.parse(

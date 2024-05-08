@@ -5,7 +5,7 @@ import {
     SET_GPG_CONFIG,
     SET_GPG_DEFAULT_KEY,
 } from "../actions/action-types";
-import store from "../services/store";
+import { getStore } from "../services/store";
 
 function settingsDatastore(
     state = {

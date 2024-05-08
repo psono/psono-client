@@ -10,7 +10,7 @@ import offlineCache from "../services/offline-cache";
 import deviceService from "./device";
 import notification from "./notification";
 import storage from "./storage";
-import store from "./store";
+import { getStore } from "./store";
 
 /**
  * Encrypts the content and creates a new secret out of it.
@@ -22,8 +22,8 @@ import store from "./store";
  * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
  */
 function createSecretBulk(objects, parentDatastoreId, parentShareId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const encryptionKeyLookup = {};
 
@@ -80,8 +80,8 @@ function createSecretBulk(objects, parentDatastoreId, parentShareId) {
  * @returns {Promise} Returns a promise with the new secret_id
  */
 function createSecret(content, linkId, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const secretKey = cryptoLibrary.generateSecretKey();
 
     const jsonContent = JSON.stringify(content);
@@ -121,8 +121,8 @@ function createSecret(content, linkId, parentDatastoreId, parentShareId, callbac
  * @returns {Promise} Returns a promise withe decrypted content of the secret
  */
 function readSecret(secretId, secretKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         return Promise.reject(result);
     };
@@ -155,8 +155,8 @@ function readSecret(secretId, secretKey) {
  * @returns {Promise} Returns a promise with the secret id
  */
 function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, callbackPass) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const jsonContent = JSON.stringify(content);
 

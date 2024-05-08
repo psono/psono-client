@@ -24,7 +24,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import ContentCopy from "../icons/ContentCopy";
 
 import secretService from "../../services/secret";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import widgetService from "../../services/widget";
 
 const useStyles = makeStyles((theme) => ({
@@ -130,7 +130,7 @@ const DatastoreTreeItem = (props) => {
     };
 
     const hideNewShare =
-        (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
+        (getStore().getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         content.type === "user" ||
@@ -145,7 +145,7 @@ const DatastoreTreeItem = (props) => {
         offline ||
         !content.hasOwnProperty("type") ||
         (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
-        store.getState().server.complianceDisableLinkShares ||
+        getStore().getState().server.complianceDisableLinkShares ||
         content.type === "user" ||
         !props.onLinkShare;
     const hideCopyTotpToken =

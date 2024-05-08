@@ -1,5 +1,10 @@
-import store from "../services/store";
+import { getStore } from "../services/store";
 import actionCreators from "./action-creators";
 import { bindActionCreators } from "redux";
 
-export default bindActionCreators(actionCreators, store.dispatch);
+
+const useBoundActionCreators = () => {
+    return bindActionCreators(actionCreators, getStore().dispatch);
+};
+
+export default useBoundActionCreators;

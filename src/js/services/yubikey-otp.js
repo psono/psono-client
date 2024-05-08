@@ -3,7 +3,7 @@
  */
 
 import apiClient from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
 
 /**
@@ -15,11 +15,11 @@ import action from "../actions/bound-action-creators";
  * @returns {promise} Returns a promise with the user information
  */
 function createYubikeyOtp(title, otp) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function (request) {
         createYubikeyOtp;
-        action.setHasTwoFactor(true);
+        action().setHasTwoFactor(true);
         return {
             id: request.data["id"],
         };
@@ -36,8 +36,8 @@ function createYubikeyOtp(title, otp) {
  * @returns {promise} Returns a promise with a list of all yubikey otps
  */
 function readYubikeyOtp() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data["yubikey_otps"];
@@ -57,10 +57,10 @@ function readYubikeyOtp() {
  * @returns {promise} Returns a promise with true or false
  */
 function activateYubikeyOtp(yubikeyId, yubikeyOtp) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
-        action.setHasTwoFactor(true);
+        action().setHasTwoFactor(true);
         return true;
     };
     const onError = function () {
@@ -77,8 +77,8 @@ function activateYubikeyOtp(yubikeyId, yubikeyOtp) {
  * @returns {promise} Returns a promise with true or false
  */
 function deleteYubikeyOtp(yubikeyOtpId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
         return true;
     };

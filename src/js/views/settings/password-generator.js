@@ -43,7 +43,7 @@ const SettingsPasswordGeneratorView = (props) => {
     }, [settingsDatastore]);
 
     const save = (event) => {
-        action.setPasswordConfig(
+        action().setPasswordConfig(
             passwordLength,
             passwordLettersUppercase,
             passwordLettersLowercase,

@@ -20,7 +20,7 @@ import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
 
 import DatastoreTreeItem from "./datastore-tree-item";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     divider: {
@@ -105,7 +105,7 @@ const DatastoreTreeFolder = (props) => {
         }
     };
     const hideNewShare =
-        (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
+        (getStore().getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         !props.onShare;

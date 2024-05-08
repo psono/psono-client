@@ -2,7 +2,7 @@
  * The Datastore service collects all functions to edit / update / create a datastore and to work with it.
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
 import storage from "./storage";
 import cryptoLibrary from "./crypto-library";
@@ -19,9 +19,9 @@ let tempDatastoreKeyStorage = {};
  * @returns {Promise} Promise with the datastore overview
  */
 function getDatastoreOverview(forceFresh) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
-    const userDatastoreOverview = store.getState().user.userDatastoreOverview;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
 
     if ((typeof forceFresh === "undefined" || forceFresh === false) && userDatastoreOverview.datastores.length > 0) {
         // we have them in cache, so lets save the query
@@ -31,7 +31,7 @@ function getDatastoreOverview(forceFresh) {
     } else {
         // we dont have them in cache, so lets query and save them in cache for next time
         const onSuccess = function (result) {
-            action.setUserDatastoreOverview(result.data);
+            action().setUserDatastoreOverview(result.data);
             return result.data;
         };
         const onError = function () {
@@ -79,8 +79,8 @@ function getDatastoreId(type, forceFresh) {
  * @returns {Promise} Promise with the datastore that belongs to the given id
  */
 function getDatastoreWithId(datastoreId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -120,8 +120,8 @@ function getDatastoreWithId(datastoreId) {
  * @returns {Promise} A promise with result of the operation
  */
 function createDatastore(type, description, isDefault) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     //datastore does really not exist, lets create one and return it
     const secretKey = cryptoLibrary.generateSecretKey();
@@ -132,7 +132,7 @@ function createDatastore(type, description, isDefault) {
     };
 
     const onSuccess = function (result) {
-        const userDatastoreOverview = store.getState().user.userDatastoreOverview;
+        const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
         if (userDatastoreOverview) {
             if (isDefault) {
                 // New datastore is the new default, so update the existing list
@@ -151,7 +151,7 @@ function createDatastore(type, description, isDefault) {
                 is_default: isDefault,
             });
 
-            action.setUserDatastoreOverview({
+            action().setUserDatastoreOverview({
                 ...userDatastoreOverview,
             })
         }
@@ -172,10 +172,10 @@ function createDatastore(type, description, isDefault) {
  * @returns {Promise} A promise with result of the operation
  */
 function deleteDatastore(datastoreId, password) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const authkey = cryptoLibrary.generateAuthkey(store.getState().user.username, password);
+    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
     const onError = function (result) {
         return Promise.reject(result.data);
@@ -412,8 +412,8 @@ function encryptDatastore(datastoreId, content) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContentWithId(datastoreId, content) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -444,8 +444,8 @@ function saveDatastoreContentWithId(datastoreId, content) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreMeta(datastoreId, description, isDefault) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -453,7 +453,7 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
     const onSuccess = function (result) {
         // update our datastore overview cache
         let update_happened = false;
-        const userDatastoreOverview = store.getState().user.userDatastoreOverview;
+        const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
         for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
             if (
                 userDatastoreOverview.datastores[i].id === datastoreId &&
@@ -473,7 +473,7 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
             }
         }
 
-        action.setUserDatastoreOverview({
+        action().setUserDatastoreOverview({
             ...userDatastoreOverview,
         })
         return result.data;

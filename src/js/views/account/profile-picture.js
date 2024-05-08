@@ -19,7 +19,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import TextFieldQrCode from "../../components/text-field/qr";
 import GridContainerErrors from "../../components/grid-container-errors";
@@ -94,8 +94,8 @@ function ProfilePicture() {
         if (!avatars || avatars.length <= 0) {
             return;
         }
-        const path = "/avatar-image/" + store.getState().user.userId + "/" + avatars[0].id + "/";
-        setProfilePic(store.getState().server.url + path)
+        const path = "/avatar-image/" + getStore().getState().user.userId + "/" + avatars[0].id + "/";
+        setProfilePic(getStore().getState().server.url + path)
         setAvatarId(avatars[0].id);
     }
 
@@ -141,8 +141,8 @@ function ProfilePicture() {
         setQrContent(JSON.stringify({
             version: 2,
             config: {
-                'verify_key': store.getState().server.verifyKey,
-                'url': store.getState().server.url,
+                'verify_key': getStore().getState().server.verifyKey,
+                'url': getStore().getState().server.url,
             },
         }))
     };
@@ -218,7 +218,7 @@ function ProfilePicture() {
                         label={t("USER_ID")}
                         name="userId"
                         autoComplete="off"
-                        value={store.getState().user.userId}
+                        value={getStore().getState().user.userId}
                         readOnly
                         InputProps={{
                             classes: {
@@ -236,7 +236,7 @@ function ProfilePicture() {
                         label={t("USERNAME")}
                         name="username"
                         autoComplete="off"
-                        value={store.getState().user.username}
+                        value={getStore().getState().user.username}
                         readOnly
                         InputProps={{
                             classes: {
@@ -254,7 +254,7 @@ function ProfilePicture() {
                         label={t("E_MAIL")}
                         name="userEmail"
                         autoComplete="off"
-                        value={store.getState().user.userEmail}
+                        value={getStore().getState().user.userEmail}
                         readOnly
                         InputProps={{
                             classes: {
@@ -283,7 +283,7 @@ function ProfilePicture() {
                         label={t("PUBLIC_KEY")}
                         name="userPublicKey"
                         autoComplete="off"
-                        value={store.getState().user.userPublicKey}
+                        value={getStore().getState().user.userPublicKey}
                         readOnly
                         InputProps={{
                             classes: {

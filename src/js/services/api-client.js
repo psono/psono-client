@@ -4,7 +4,7 @@
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
 import device from "./device";
-import store from "./store";
+import { getStore } from "./store";
 import user from "./user";
 import i18n from "../i18n";
 
@@ -41,7 +41,7 @@ const decryptData = function (sessionSecretKey, data, url, method) {
 };
 
 function call(method, endpoint, body, headers, sessionSecretKey) {
-    const url = store.getState().server.url + endpoint;
+    const url = getStore().getState().server.url + endpoint;
 
     if (sessionSecretKey && body !== null) {
         body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);

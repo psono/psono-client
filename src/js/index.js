@@ -13,8 +13,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-
-import store from "./services/store";
+import { initStore } from "./services/store";
 import datastoreSettingService from "./services/datastore-setting";
 import i18n from "./i18n";
 import theme from "./theme";
@@ -36,39 +35,41 @@ function loadSettingsDatastore(dispatch, getState) {
         datastoreSettingService.getSettingsDatastore();
     }
 }
-
-let persistor = persistStore(store, null, () => {
-    store.dispatch(loadSettingsDatastore);
-});
 const customHistory = createBrowserHistory();
 
+async function initAndRenderApp() {
+    const store = await initStore();
+    let persistor = persistStore(store, null, () => {
+        store.dispatch(loadSettingsDatastore);
+    });
 
-const App = () => {
-    return (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <Provider store={store}>
-                <Suspense fallback="loading...">
-                    <PersistGate loading={<HashLoader />} persistor={persistor}>
-                        <I18nextProvider i18n={i18n}>
-                            <ThemeProvider theme={theme}>
-                                <CssBaseline />
-                                <HashRouter history={customHistory} hashType={"hashbang"}>
-                                    <DownloadBanner />
-                                    <IndexView />
-                                </HashRouter>
-                            </ThemeProvider>
-                        </I18nextProvider>
-                    </PersistGate>
-                </Suspense>
-            </Provider>
-        </MuiPickersUtilsProvider>
-    );
-};
+    const App = () => {
+        return (
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <Provider store={store}>
+                    <Suspense fallback="loading...">
+                        <PersistGate loading={<HashLoader />} persistor={persistor}>
+                            <I18nextProvider i18n={i18n}>
+                                <ThemeProvider theme={theme}>
+                                    <CssBaseline />
+                                    <HashRouter history={customHistory} hashType={"hashbang"}>
+                                        <DownloadBanner />
+                                        <IndexView />
+                                    </HashRouter>
+                                </ThemeProvider>
+                            </I18nextProvider>
+                        </PersistGate>
+                    </Suspense>
+                </Provider>
+            </MuiPickersUtilsProvider>
+        );
+    };
 
-export default App;
+    const container = document.getElementById("app");
+    render(<App />, container);
+}
 
-const container = document.getElementById("app");
-render(<App />, container);
+initAndRenderApp();
 
 console.log("%cDanger:", "color:red;font-size:40px;");
 console.log(

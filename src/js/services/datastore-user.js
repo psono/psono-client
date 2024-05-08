@@ -4,7 +4,7 @@
 
 import datastoreService from "./datastore";
 import helper from "./helper";
-import store from "./store";
+import { getStore } from "./store";
 import apiClient from "./api-client";
 import datastorePasswordService from "./datastore-password";
 
@@ -138,8 +138,8 @@ function saveDatastoreContent(content, paths) {
  * @returns {Promise} Returns a promise with the user information
  */
 function searchUser(username, email) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     return apiClient.searchUser(token, sessionSecretKey, undefined, username, email);
 }

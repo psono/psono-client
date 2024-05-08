@@ -2,7 +2,7 @@
  * Service to manage the history of a secret
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import action from "../actions/bound-action-creators";
@@ -13,13 +13,13 @@ import action from "../actions/bound-action-creators";
  * @returns {Promise} Returns a list of history items
  */
 function createServerSecret() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
-    const userSecretKey = store.getState().user.userSecretKey;
-    const userPrivateKey = store.getState().user.userPrivateKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const userSecretKey = getStore().getState().user.userSecretKey;
+    const userPrivateKey = getStore().getState().user.userPrivateKey;
 
     const onSuccess = function (data) {
-        action.setServerSecretExists(true);
+        action().setServerSecretExists(true);
         return data.data;
     };
 
@@ -40,20 +40,20 @@ function createServerSecret() {
  * @returns {Promise} Returns a list of history items
  */
 function deleteServerSecret(password) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const username = store.getState().user.username;
-    const userSecretKey = store.getState().user.userSecretKey;
-    const userPrivateKey = store.getState().user.userPrivateKey;
-    const userSauce = store.getState().user.userSauce;
+    const username = getStore().getState().user.username;
+    const userSecretKey = getStore().getState().user.userSecretKey;
+    const userPrivateKey = getStore().getState().user.userPrivateKey;
+    const userSauce = getStore().getState().user.userSauce;
 
     const privateKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
     const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
     const authkey = cryptoLibrary.generateAuthkey(username, password);
 
     const onSuccess = function (content) {
-        action.setServerSecretExists(false);
+        action().setServerSecretExists(false);
         return content.data;
     };
 

@@ -5,7 +5,7 @@ import { UAParser } from "ua-parser-js";
 import cryptoLibrary from "./crypto-library";
 import action from "../actions/bound-action-creators";
 
-import store from "./store";
+import { getStore } from "./store";
 
 let fingerprint;
 let browserData;
@@ -28,10 +28,10 @@ function activate() {
  */
 function getDeviceFingerprint() {
     if (fingerprint == null) {
-        fingerprint = store.getState().persistent.fingerprint;
+        fingerprint = getStore().getState().persistent.fingerprint;
         if (fingerprint == null) {
             fingerprint = cryptoLibrary.generateUuid();
-            action.setFingerprint(fingerprint);
+            action().setFingerprint(fingerprint);
         }
     }
 

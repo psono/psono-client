@@ -80,7 +80,7 @@ const SettingsGeneralView = (props) => {
                     tabIndex={1}
                     checked={disableBrowserPm}
                     onChange={(event) => {
-                        action.setDisableBrowserPm(event.target.checked);
+                        action().setDisableBrowserPm(event.target.checked);
                         browserClientService.disableBrowserPasswordSaving(event.target.checked);
                     }}
                     checkedIcon={<Check className={classes.checkedIcon}/>}

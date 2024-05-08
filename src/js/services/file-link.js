@@ -3,7 +3,7 @@
  */
 
 import apiClient from "../services/api-client";
-import store from "./store";
+import { getStore } from "./store";
 
 let timeout = 0;
 /**
@@ -61,8 +61,8 @@ function resetFileLinkTimeout() {
  * @returns {Promise} Returns promise with the status of the move
  */
 function moveFileLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     if (onOpenRequest) {
         onOpenRequest()
@@ -93,8 +93,8 @@ function moveFileLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequ
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteFileLink(linkId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };

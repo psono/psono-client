@@ -3,7 +3,7 @@
  */
 
 import apiClientService from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 import secretService from "./secret";
 
 let timeout = 0;
@@ -69,8 +69,8 @@ function resetSecretLinkTimeout() {
  * @returns {Promise} Returns promise with the status of the move
  */
 function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     if (onOpenRequest) {
         onOpenRequest()
@@ -101,8 +101,8 @@ function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRe
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteSecretLink(linkId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass

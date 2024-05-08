@@ -14,7 +14,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import ssh from 'ed25519-keygen/ssh';
 
 import GridContainerErrors from "../grid-container-errors";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import cryptoLibraryService from "../../services/crypto-library";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +29,7 @@ const DialogGenerateNewSshKey = (props) => {
     const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
     const [title, setTitle] = useState("");
-    const [email, setEmail] = useState(store.getState().user.userEmail);
+    const [email, setEmail] = useState(getStore().getState().user.userEmail);
     const [errors, setErrors] = useState([]);
 
     const generateSshKey = async () => {
