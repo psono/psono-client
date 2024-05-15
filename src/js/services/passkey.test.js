@@ -3,6 +3,7 @@ import converterService from "./converter";
 import datastorePasswordService from "./datastore-password";
 import notificationBarService from "./notification-bar";
 import user from "./user";
+import {initStore} from "./store";
 
 function mockFetch() {
     return jest.fn().mockImplementation(() =>
@@ -143,7 +144,7 @@ describe('Service: passkey test suite', function() {
         user.isLoggedIn.mockImplementation(() => true);
         notificationBarService.create = jest.fn();
         notificationBarService.create.mockImplementation((title, description, buttons, autoClose, onAutoClose) => buttons[0].onClick());
-
+        await initStore();
         const navigatorCredentials = await passkeyService.navigatorCredentialsCreate({
                 "publicKey": {
                     "rp": {
