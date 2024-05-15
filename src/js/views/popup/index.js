@@ -1,3 +1,9 @@
+import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+
 import { Checkbox, Divider, FormHelperText, Grid } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
@@ -18,12 +24,10 @@ import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import StorageRoundedIcon from "@material-ui/icons/StorageRounded";
 import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyRounded';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import StorageIcon from "@material-ui/icons/Storage";
 import MuiAlert from "@material-ui/lab/Alert";
-import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import ContentCopy from "../../components/icons/ContentCopy";
@@ -35,6 +39,17 @@ import secretService from "../../services/secret";
 import user from "../../services/user";
 import widgetService from "../../services/widget";
 import { getStore } from "../../services/store";
+import datastoreService from "../../services/datastore";
+import Badge from "@material-ui/core/Badge";
+import SettingsIcon from "@material-ui/icons/Settings";
+import Avatar from "@material-ui/core/Avatar";
+import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
+import DialogChangeAccount from "../../components/dialogs/change-account";
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import offlineCache from "../../services/offline-cache";
+import AddIcon from "@material-ui/icons/Add";
+import CreateDatastoresDialog from "../other/create-datastores-dialog";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -147,7 +162,38 @@ const useStyles = makeStyles((theme) => ({
     },
     widePopper: {
         width: "max-content",
-    }
+    },
+    menuButton: {
+        textTransform: "none",
+        padding: "4px",
+    },
+    menuButtonSlim: {
+        paddingTop: "4px",
+        paddingBottom: "4px",
+        paddingLeft: "0px",
+        paddingRight: "0px",
+        minWidth: "10px",
+    },
+    overlayIcon: {
+        position: 'absolute',
+        width: '0.6em',
+        height: '0.6em',
+        bottom: 4,
+        right: 4,
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: '50%',
+        color: theme.palette.secondary.main,
+        border: `1px solid ${theme.palette.background.paper}`,
+    },
+    overlayedIcon: {
+        width: 25,
+        height: 25,
+        //backgroundColor: '#2dbb93',
+        backgroundColor: '#999',
+        marginLeft: '0px',
+        marginRight: '0px',
+        color: 'white',
+    },
 }));
 
 const PopupItem = (props) => {
@@ -371,6 +417,7 @@ PopupItem.propTypes = {
 const PopupView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default))
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const [unlockOfflineCache, setUnlockOfflineCache] = React.useState(false);
@@ -395,6 +442,59 @@ const PopupView = (props) => {
     let isSubscribed = true;
     const passwordFilter = helper.getPasswordFilter(search);
     const [url, setUrl] = React.useState();
+    const [changeAccountOpen, setChangeAccountOpen] = React.useState(false);
+    const [datastores, setDatastores] = React.useState([]);
+    const [anchorDatastoreMenuEl, setAnchorDatastoreMenuEl] = React.useState(null);
+    const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
+
+
+    useEffect(() => {
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        }
+    }, [passwordDatastore]);
+
+    const reloadDatastoreOverview = () => {
+
+        datastoreService.getDatastoreOverview().then(function (overview) {
+            if (!isSubscribed) {
+                return
+            }
+            const newDatastores=[];
+            for (let i = 0; i < overview.datastores.length; i++) {
+                if (overview.datastores[i]['type'] === 'password') {
+                    newDatastores.push(overview.datastores[i]);
+                }
+            }
+            setDatastores(newDatastores);
+
+        });
+    };
+
+    const onCreateDatastore = (rowData) => {
+        setCreateDatastoreOpen(true);
+        closeDatastoreMenu();
+    };
+
+    const onDatastoreSwitchClick = (datastore) => {
+        closeDatastoreMenu();
+        datastoreService.saveDatastoreMeta(datastore.id, datastore.description, true).then(function (result) {
+            reloadDatastoreOverview();
+        })
+    };
+
+    const openDatastoreMenu = (event) => {
+        setAnchorDatastoreMenuEl(event.currentTarget);
+    };
+    const closeDatastoreMenu = () => {
+        setAnchorDatastoreMenuEl(null);
+    };
+
+    const openChangeAccount = (event) => {
+        setChangeAccountOpen(true)
+    };
 
     useHotkeys('alt+b', () => {
         // copy username
@@ -441,13 +541,13 @@ const PopupView = (props) => {
         } else {
             datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
         }
-        return () => (isSubscribed = false);
-    }, []);
 
-    useEffect(() => {
         browserClient.getActiveTabUrl().then((url) => {
             setUrl(helper.parseUrl(url));
         });
+
+        reloadDatastoreOverview();
+        return () => (isSubscribed = false);
     }, []);
 
     const onUnlockOfflineCacheClosed = () => {
@@ -833,38 +933,114 @@ const PopupView = (props) => {
                 <Divider classes={{ root: classes.divider }} />
                 <Grid container spacing={1}>
                     <Grid item>
-                        <Tooltip title={t("OPEN_DATASTORE")} placement="top">
-                            <Button variant="contained" color="primary" onClick={openDatastore}>
-                                <StorageRoundedIcon />
-                            </Button>
-                        </Tooltip>
+                        <ButtonGroup variant="contained" color="primary" disableElevation aria-label="datastore menu">
+                            <Tooltip title={t("OPEN_DATASTORE")} placement="top">
+                                <Button onClick={openDatastore} className={classes.menuButton}>
+                                    <StorageRoundedIcon />
+                                </Button>
+                            </Tooltip>
+                            {datastores && datastores.length > 1 && <Tooltip title={t("CHANGE_DATASTORE")} placement="top">
+                                <Button
+                                    onClick={openDatastoreMenu}
+                                    className={`${classes.menuButton} ${classes.menuButtonSlim}`}
+                                >
+                                    <KeyboardArrowUpIcon/>
+                                </Button>
+                            </Tooltip>}
+                        </ButtonGroup>
+                        <Menu
+                            id="datastore-menu"
+                            anchorEl={anchorDatastoreMenuEl}
+                            keepMounted
+                            open={Boolean(anchorDatastoreMenuEl)}
+                            onClose={closeDatastoreMenu}
+                            anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}
+                            transformOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                            }}
+                        >
+                            {datastores.map((datastore, index) => {
+                                return (
+                                    <MenuItem onClick={() => {onDatastoreSwitchClick(datastore)}} key={index}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            {datastore.is_default ? (<CheckBoxIcon className={classes.icon}/>) : (
+                                                <CheckBoxOutlineBlankIcon className={classes.icon}/>)}
+
+                                        </ListItemIcon>
+                                        <Typography variant="body2">{datastore.description}</Typography>
+                                    </MenuItem>
+                                );
+                            })}
+                            {!offlineCache.isActive() && (
+                                [
+                                    <Divider key={'divider'}/>,
+                                    <MenuItem onClick={onCreateDatastore} key={'create-datastore'}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            <AddIcon className={classes.icon}/>
+                                        </ListItemIcon>
+                                        <Typography variant="body2">{t("CREATE_NEW_DATASTORE")}</Typography>
+                                    </MenuItem>]
+                            )}
+                        </Menu>
                     </Grid>
                     <Grid item>
                         <Tooltip title={t("BOOKMARK")} placement="top">
-                            <Button variant="outlined" color="primary" onClick={bookmark}>
+                            <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
                                 <BookmarkBorderRoundedIcon />
                             </Button>
                         </Tooltip>
                     </Grid>
                     <Grid item>
                         <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
-                            <Button variant="outlined" color="primary" onClick={showGeneratePassword}>
+                            <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
                                 <VpnKeyRoundedIcon />
                             </Button>
                         </Tooltip>
                     </Grid>
                     <Grid item style={{ marginLeft: "auto" }}>
-                        <Tooltip title={t("LOGOUT")} placement="top">
-                            <Button variant="outlined" color="primary" onClick={logout}>
-                                <ExitToAppRoundedIcon />
-                            </Button>
-                        </Tooltip>
+                        <ButtonGroup variant="outlined" color="primary" disableElevation aria-label="main menu">
+                            <Tooltip title={t("CHANGE_ACCOUNT")} placement="top">
+                                <Button
+                                    onClick={openChangeAccount}
+                                    className={classes.menuButton}
+                                >
+                                    <Badge
+                                        overlap="circular"
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                        badgeContent={
+                                            <SettingsIcon className={classes.overlayIcon} />
+                                        }
+                                    >
+                                        <Avatar className={classes.overlayedIcon}>
+                                            <SupervisorAccountIcon />
+                                        </Avatar>
+                                    </Badge>
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title={t("LOGOUT")} placement="top">
+                                <Button onClick={logout} className={classes.menuButton}>
+                                    <ExitToAppRoundedIcon />
+                                </Button>
+                            </Tooltip>
+                        </ButtonGroup>
                     </Grid>
                 </Grid>
             </Grid>
+            {changeAccountOpen && <DialogChangeAccount open={changeAccountOpen} onClose={() => setChangeAccountOpen(false)} />}
             {unlockOfflineCache && (
                 <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
             )}
+            {createDatastoreOpen && <CreateDatastoresDialog {...props} open={createDatastoreOpen} onClose={() => {
+                setCreateDatastoreOpen(false);
+                reloadDatastoreOverview();
+            }} />}
         </Grid>
     );
 };

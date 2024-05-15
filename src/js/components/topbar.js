@@ -303,50 +303,50 @@ const Topbar = (props) => {
                         </div>)}
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
-                                <ButtonGroup variant="contained" color="primary" disableElevation aria-label="outlined primary button group">
-                                <IconButton
-                                    variant="contained"
-                                    onClick={openTopMenu}
-                                    color="primary"
-                                    className={classes.topMenuButton}
-                                >
-                                    {
-                                        profilePic ? (
-                                            <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
-                                        ) : (
-                                            <Avatar className={classes.avatarPlaceholder}>
-                                                <i className="fa fa-user" aria-hidden="true"></i>
-                                            </Avatar>
-                                        )
-                                    }
-                                </IconButton>
-                                <IconButton
-                                    variant="contained"
-                                    onClick={openChangeAccount}
-                                    color="primary"
-                                    className={classes.topMenuButton}
-                                >
-                                    <Badge
-                                        overlap="circular"
-                                        anchorOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right',
-                                        }}
-                                        badgeContent={
-                                            <SettingsIcon className={classes.overlayIcon} />
-                                        }
+                                <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
+                                    <IconButton
+                                        variant="contained"
+                                        onClick={openTopMenu}
+                                        color="primary"
+                                        className={classes.topMenuButton}
                                     >
-                                        <Avatar className={classes.overlayedIcon}>
-                                            <SupervisorAccountIcon />
-                                        </Avatar>
-                                    </Badge>
-                                </IconButton>
+                                        {
+                                            profilePic ? (
+                                                <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                            ) : (
+                                                <Avatar className={classes.avatarPlaceholder}>
+                                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                                </Avatar>
+                                            )
+                                        }
+                                    </IconButton>
+                                    <IconButton
+                                        variant="contained"
+                                        onClick={openChangeAccount}
+                                        color="primary"
+                                        className={classes.topMenuButton}
+                                    >
+                                        <Badge
+                                            overlap="circular"
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                            }}
+                                            badgeContent={
+                                                <SettingsIcon className={classes.overlayIcon} />
+                                            }
+                                        >
+                                            <Avatar className={classes.overlayedIcon}>
+                                                <SupervisorAccountIcon />
+                                            </Avatar>
+                                        </Badge>
+                                    </IconButton>
                                 </ButtonGroup>
                             </Hidden>
                             <Hidden smDown>
                                 <div className={classes.signInTextContainer}>
                                     {t("SIGNED_IN_AS")}&nbsp;
-                                    <ButtonGroup variant="contained" color="primary" disableElevation aria-label="outlined primary button group">
+                                    <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
                                         <Button
                                             aria-controls="top-menu"
                                             aria-haspopup="true"
