@@ -7,17 +7,6 @@ import { getStore } from "./store";
 import deviceService from "./device";
 
 
-const registrations = {};
-const events = ["login", "logout"];
-
-if (TARGET === "chrome") {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        for (let i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
-            registrations[request.event][i](request.data);
-        }
-    });
-}
-
 /**
  * Registers a listener with browser.webRequest.onAuthRequired.addListener
  */
@@ -574,36 +563,6 @@ function emitSec(event, data, fnc) {
     }
 }
 
-/**
- * registers for an event with a function
- *
- * @param {string} event The event
- * @param {function} myFunction The callback function
- *
- * @returns {boolean} Returns if the registration was successful
- */
-function on(event, myFunction) {
-    if (TARGET === "firefox") {
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-    } else if (TARGET === "chrome") {
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-    } else {
-        if (events.indexOf(event) === -1) return false;
-
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-        return true;
-    }
-}
-
 
 let configSingleton;
 
@@ -918,7 +877,6 @@ const browserClientService = {
     emitTab: emitTab,
     getURL: getURL,
     emitSec: emitSec,
-    on: on,
     getConfig: getConfig,
     passwordSavingControlledByThisExtension: passwordSavingControlledByThisExtension,
     disableBrowserPasswordSaving: disableBrowserPasswordSaving,

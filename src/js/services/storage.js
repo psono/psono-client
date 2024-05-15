@@ -8,7 +8,7 @@ const registrations = {};
 
 const dbConfig = {
     "state": localforage.createInstance({
-        name: "state",
+        name: "state", // that's redux persist storage.
     }),
     "file-downloads": localforage.createInstance({
         name: "file-downloads",
@@ -88,7 +88,7 @@ function where(db, filterFunction) {
                 return result;
             }
             return dbConfig[db].iterate(function (value, key, iterationNumber) {
-                if (filterFunction(value)) {
+                if (filterFunction(value, key)) {
                     result.push(value);
                 }
                 if (iterationNumber === numberOfKeys) {
@@ -100,6 +100,17 @@ function where(db, filterFunction) {
             // This code runs if there were any errors
             console.log(err);
         });
+}
+
+/**
+ * Get the list of all keys in the database.
+ *
+ * @param {string} db The database
+ *
+ * @returns {Promise} Returns the list of all keys
+ */
+function keys(db) {
+    return dbConfig[db].keys();
 }
 
 /**
@@ -241,6 +252,7 @@ const storageService = {
     update: update,
     upsert: upsert,
     where: where,
+    keys: keys,
     findKey: findKey,
     remove: remove,
     removeAll: removeAll,

@@ -9,7 +9,7 @@ import { BarLoader } from "react-spinners";
 import browserClient from "../../services/browser-client";
 import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
-import userService from "../../services/user";
+import user from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -105,12 +105,12 @@ const ActivationForm = (props) => {
                 }
             }
         }
-        userService.activateCode(activationCode, server)
+        user.activateCode(activationCode, server)
             .then(onSuccess, onError);
     };
 
     const logout = async () => {
-        userService.logout();
+        user.logout();
     };
 
     let formContent;

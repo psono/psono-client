@@ -147,7 +147,7 @@ async function isRegistrableDomainSuffix(hostSuffixString, originalHost) {
  * @returns {Promise} The filtered database objects
  */
 function searchPasskeys(rpId, allowedIds) {
-    const filter = function (leaf) {
+    const filter = function (leaf, key) {
         if (leaf.type !== "passkey") {
             return false;
         }

@@ -24,6 +24,19 @@ initSentry()
 import IndexView from "./views/index";
 import DownloadBanner from "./components/download-banner";
 
+
+
+const channel = new BroadcastChannel("account");
+// Add an event listener to handle incoming messages
+channel.onmessage = function (event) {
+    if (!event.data.hasOwnProperty("event")) {
+        return;
+    }
+    if (event.data.event === 'reinitialize-app') {
+        initAndRenderApp()
+    }
+};
+
 /**
  * Loads the datastore
  * @param dispatch
@@ -37,11 +50,16 @@ function loadSettingsDatastore(dispatch, getState) {
 }
 const customHistory = createBrowserHistory();
 
+let currentPersistor = null;
+let currentStore = null;
+
 async function initAndRenderApp() {
     const store = await initStore();
     let persistor = persistStore(store, null, () => {
         store.dispatch(loadSettingsDatastore);
     });
+    currentStore = store;
+    currentPersistor = persistor;
 
     const App = () => {
         return (

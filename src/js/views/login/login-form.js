@@ -95,7 +95,6 @@ const LoginViewForm = (props) => {
     const [serverCheck, setServerCheck] = useState({});
     const [samlProvider, setSamlProvider] = useState([]);
     const [oidcProvider, setOidcProvider] = useState([]);
-    const [authenticationMethods, setAuthenticationMethods] = useState([]);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
     const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
@@ -117,6 +116,7 @@ const LoginViewForm = (props) => {
                 }
             );
         }
+
         browserClient.getConfig().then(onNewConfigLoaded);
     }, []);
 
@@ -507,7 +507,6 @@ const LoginViewForm = (props) => {
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
-        setAuthenticationMethods(authenticationMethods);
         setAllowCustomServer(allowCustomServer);
         setAllowUsernamePasswordLogin(allowUsernamePasswordLogin);
         setAuthkeyEnabled(authkeyEnabled);

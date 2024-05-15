@@ -15,6 +15,8 @@ import apiClient from "./api-client";
 import browserClientService from "./browser-client";
 
 import i18n from "../i18n";
+import accountService from "./account";
+import avatarService from "./avatar";
 
 let sessionPassword = "";
 let verification = {};
@@ -418,6 +420,9 @@ function activateToken() {
 
         browserClient.emit("login", null);
 
+        accountService.broadcastReinitializeAppEvent();
+
+
         return {
             response: "success",
         };
@@ -579,22 +584,34 @@ function login(password, serverInfo, sendPlain) {
  * Initiates the logout, deletes all data including user tokens and session secrets
  *
  * @param {string} msg An optional message to display
- * @param {string|undefined} [postLogoutRedirectUri] An optional message to display
+ * @param {string|undefined} [postLogoutRedirectUri] An optional post logout redirect url
  * @returns {Promise} Returns a promise with the result
  */
-function logout(msg = "", postLogoutRedirectUri = "") {
+function logout(msg = "", postLogoutRedirectUri = undefined) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = async function (result) {
+    async function logoutLocal() {
+        await accountService.updateInfoCurrent({
+            'username': "",
+            'isLoggedIn': false,
+            'server': "",
+            'avatar': '',
+        });
+        await accountService.logoutAll()
         action().disableOfflineMode();
         storage.removeAll();
         storage.save();
-        browserClient.emit("logout", null);
         action().logout(getStore().getState().user.rememberMe);
         if (msg) {
             notification.infoSend(msg);
         }
+    }
+
+    const onSuccess = async function (result) {
+        await logoutLocal();
+
+        accountService.broadcastReinitializeAppEvent();
 
         const response = {
             "response": "success",
@@ -607,16 +624,9 @@ function logout(msg = "", postLogoutRedirectUri = "") {
         return response;
     };
 
-    const onError = function () {
+    const onError = async function () {
         //session expired, so let's delete the local data
-
-        storage.removeAll();
-        storage.save();
-        browserClient.emit("logout", null);
-        action().logout(getStore().getState().user.rememberMe);
-        if (msg) {
-            notification.infoSend(msg);
-        }
+        await logoutLocal();
 
         return {
             "response": "success",
@@ -1109,7 +1119,7 @@ function deleteSession(sessionId) {
     const onError = function () {
         // pass
     };
-    return apiClient.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
+    return apiClient.logout(token, sessionSecretKey, sessionId, '').then(onSuccess, onError);
 }
 
 /**

@@ -16,8 +16,6 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
-import converterService from "./converter";
-import helperService from "./helper";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -668,7 +666,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
 function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
     const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
-    return storage.where("datastore-password-leafs", filter);
+    return storage.where("datastore-password-leafs", (value, key) => filter(value));
 }
 
 /**
@@ -677,7 +675,7 @@ function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  * @returns {Promise} The database objects
  */
 function searchCreditCard() {
-    const filter = (leaf) => leaf.type === "credit_card";
+    const filter = (leaf, key) => leaf.type === "credit_card";
 
     return storage.where("datastore-password-leafs", filter);
 }
@@ -708,7 +706,7 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
         return;
     }
 
-    storage.where("datastore-password-leafs", (leaf) => leaf.type === "elster_certificate").then(function (leafs) {
+    storage.where("datastore-password-leafs", (leaf, key) => leaf.type === "elster_certificate").then(function (leafs) {
         const update = [];
 
         for (let ii = 0; ii < leafs.length; ii++) {
@@ -1177,7 +1175,7 @@ function oidcSamlRedirectDetected(request, sender, sendResponse) {
  */
 function searchDatastore(text) {
     const password_filter = helper.getPasswordFilter(text);
-    return storage.where("datastore-password-leafs", password_filter).then(function (leafs) {
+    return storage.where("datastore-password-leafs", (value, key) => password_filter(value)).then(function (leafs) {
         const entries = [];
         let datastore_entry;
         for (let i = 0; i < leafs.length; i++) {

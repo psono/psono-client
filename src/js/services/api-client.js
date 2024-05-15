@@ -40,8 +40,8 @@ const decryptData = function (sessionSecretKey, data, url, method) {
     return data;
 };
 
-function call(method, endpoint, body, headers, sessionSecretKey) {
-    const url = getStore().getState().server.url + endpoint;
+function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect) {
+    const url = serverUrl + endpoint;
 
     if (sessionSecretKey && body !== null) {
         body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
@@ -50,7 +50,7 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
     if (sessionSecretKey && headers && headers.hasOwnProperty("Authorization")) {
         const validator = {
             request_time: new Date().toISOString(),
-            request_device_fingerprint: device.getDeviceFingerprint(),
+            request_device_fingerprint: deviceFingerprint,
         };
         headers["Authorization-Validator"] = JSON.stringify(
             cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
@@ -96,6 +96,10 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
                 return;
             }
 
+            if (typeof sideEffect === "function") {
+                sideEffect(rawResponse);
+            }
+
             let data = await rawResponse.text();
             if (data) {
                 try {
@@ -118,30 +122,13 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
                 console.log(rawResponse);
                 console.log(data);
 
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                if (rawResponse.status === 401 && user.isLoggedIn()) {
-                    // session expired, lets log the user out
-                    user.logout(i18n.t("SESSION_EXPIRED"));
-                }
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
                     }
                     return reject({errors: ["RESSOURCE_NOT_FOUND"]});
                 }
-                if (rawResponse.status === 423 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
-                if (rawResponse.status === 502 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
-                if (rawResponse.status === 503 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
+
                 if (rawResponse.status >= 500) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
@@ -156,7 +143,6 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
             try {
                 decryptedData = decryptData(sessionSecretKey, data, url, req.method)
             } catch (e) {
-                user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
                 return reject({errors: ["UNENCRYPTED_RESPONSE_RECEIVED"]})
             }
             if (rawResponse.ok) {
@@ -166,6 +152,32 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
             }
         });
     });
+}
+
+function call(method, endpoint, body, headers, sessionSecretKey) {
+    const serverUrl = getStore().getState().server.url;
+    const deviceFingerprint = device.getDeviceFingerprint();
+    const sideEffect = (rawResponse) => {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (rawResponse.status === 401 && user.isLoggedIn()) {
+            // session expired, lets log the user out
+            user.logout(i18n.t("SESSION_EXPIRED"));
+        }
+        if (rawResponse.status === 423 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+        if (rawResponse.status === 502 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+        if (rawResponse.status === 503 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+    }
+    return _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
 }
 
 /**
@@ -475,15 +487,15 @@ function createEmergencyCode(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} emergency_code_id The emergency code id to delete
+ * @param {uuid} emergencyCodeId The emergency code id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
+function deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId) {
     const endpoint = "/emergencycode/";
     const method = "DELETE";
     const data = {
-        emergency_code_id: emergency_code_id,
+        emergency_code_id: emergencyCodeId,
     };
 
     const headers = {
@@ -499,16 +511,16 @@ function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string|undefined} [session_id] An optional session ID to log out
+ * @param {string|undefined} [sessionId] An optional session ID to log out
  * @param {string|undefined} [postLogoutRedirectUri] An optional url to redirect to upon logout
  *
  * @returns {Promise} Returns a promise with the logout status
  */
-function logout(token, sessionSecretKey, session_id, postLogoutRedirectUri) {
+function logout(token, sessionSecretKey, sessionId, postLogoutRedirectUri) {
     const endpoint = "/authentication/logout/";
     const method = "POST";
     const data = {
-        session_id: session_id,
+        session_id: sessionId,
         post_logout_redirect_uri: postLogoutRedirectUri,
     };
     const headers = {
@@ -519,18 +531,45 @@ function logout(token, sessionSecretKey, session_id, postLogoutRedirectUri) {
 }
 
 /**
+ * Ajax POST request to destroy the token and logout the user
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string|undefined} [sessionId] An optional session ID to log out
+ * @param {string|undefined} [postLogoutRedirectUri] An optional url to redirect to upon logout
+ * @param {string} serverUrl The URL of the server e.g. https://example.com/server
+ * @param {string} deviceFingerprint The deviceFingerprint used during the creation of the session
+ * @param {function|undefined} [sideEffect] The a function that receives the raw response and may be used to trigger side effects, like the logout of a user based on the response's status code
+ *
+ * @returns {Promise} Returns a promise with the logout status
+ */
+function statelessLogout(token, sessionSecretKey, sessionId, postLogoutRedirectUri, serverUrl, deviceFingerprint, sideEffect) {
+    const endpoint = "/authentication/logout/";
+    const method = "POST";
+    const data = {
+        session_id: sessionId,
+        post_logout_redirect_uri: postLogoutRedirectUri,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return _statelessCall(method, endpoint, data, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
+}
+
+/**
  * Ajax POST request to the backend with the email and authkey, returns nothing but an email is sent to the user
  * with an activation_code for the email
  *
  * @param {string} email email address of the user
  * @param {string} username username of the user (in email format)
  * @param {string} authkey authkey gets generated by generate_authkey(email, password)
- * @param {string} public_key public_key of the public/private key pair for asymmetric encryption (sharing)
- * @param {string} private_key private_key of the public/private key pair, encrypted with encrypt_secret
+ * @param {string} publicKey publicKey of the public/private key pair for asymmetric encryption (sharing)
+ * @param {string} privateKey private_key of the public/private key pair, encrypted with encrypt_secret
  * @param {string} privateKeyNonce the nonce for decrypting the encrypted private_key
  * @param {string} secretKey secretKey for symmetric encryption, encrypted with encrypt_secret
  * @param {string} secretKeyNonce the nonce for decrypting the encrypted secretKey
- * @param {string} user_sauce the random user sauce used
+ * @param {string} userSauce the random user sauce used
  * @param {string} base_url the base url for the activation link creation
  *
  * @returns {Promise} promise
@@ -539,12 +578,12 @@ function register(
     email,
     username,
     authkey,
-    public_key,
-    private_key,
+    publicKey,
+    privateKey,
     privateKeyNonce,
     secretKey,
     secretKeyNonce,
-    user_sauce,
+    userSauce,
     base_url
 ) {
     const endpoint = "/authentication/register/";
@@ -553,12 +592,12 @@ function register(
         email: email,
         username: username,
         authkey: authkey,
-        public_key: public_key,
-        private_key: private_key,
+        public_key: publicKey,
+        private_key: privateKey,
         private_key_nonce: privateKeyNonce,
         secret_key: secretKey,
         secret_key_nonce: secretKeyNonce,
-        user_sauce: user_sauce,
+        user_sauce: userSauce,
         base_url: base_url,
     };
     const headers = null;
@@ -3529,6 +3568,7 @@ const apiClientService = {
     readEmergencyCodes: readEmergencyCodes,
     createEmergencyCode: createEmergencyCode,
     deleteEmergencyCode: deleteEmergencyCode,
+    statelessLogout: statelessLogout,
     logout: logout,
     register: register,
     verifyEmail: verifyEmail,

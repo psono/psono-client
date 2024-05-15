@@ -7,7 +7,6 @@ import action from "../actions/bound-action-creators";
 
 import { getStore } from "./store";
 
-let fingerprint;
 let browserData;
 
 activate();
@@ -27,12 +26,10 @@ function activate() {
  * @returns {string} Fingerprint of the device
  */
 function getDeviceFingerprint() {
+    let fingerprint = getStore().getState().persistent.fingerprint;
     if (fingerprint == null) {
-        fingerprint = getStore().getState().persistent.fingerprint;
-        if (fingerprint == null) {
-            fingerprint = cryptoLibrary.generateUuid();
-            action().setFingerprint(fingerprint);
-        }
+        fingerprint = cryptoLibrary.generateUuid();
+        action().setFingerprint(fingerprint);
     }
 
     return fingerprint;
