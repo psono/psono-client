@@ -222,7 +222,7 @@ function server(
                 compliancePasswordGeneratorDefaultSpecialChars:
                     action.info.compliance_password_generator_default_special_chars,
                 complianceServerSecrets:
-                    action.info.compliance_server_secrets,
+                    action.info.compliance_server_secrets || 'auto',
                 licenseId: action.info.license_id,
                 licenseMaxUsers: action.info.license_max_users,
                 licenseMode: action.info.license_mode,
