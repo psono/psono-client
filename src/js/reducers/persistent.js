@@ -16,6 +16,7 @@ function persistent(
     state = {
         knownHosts: defaultKnownHosts,
         autoApproveLdap: {},
+        remoteConfigWebClientUrl: null,
         remoteConfigJson: null,
         fingerprint: null,
     },
@@ -32,6 +33,7 @@ function persistent(
             });
         case SET_REMOTE_CONFIG_JSON:
             return Object.assign({}, state, {
+                remoteConfigWebClientUrl: action.remoteConfigWebClientUrl,
                 remoteConfigJson: action.remoteConfigJson,
             });
         case SET_FINGERPRINT:

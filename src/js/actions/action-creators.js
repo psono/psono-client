@@ -407,10 +407,11 @@ function setFingerprint(fingerprint) {
     };
 }
 
-function setRemoteConfigJson(remoteConfigJson) {
+function setRemoteConfigJson(remoteConfigWebClientUrl, remoteConfigJson) {
     return (dispatch) => {
         dispatch({
             type: SET_REMOTE_CONFIG_JSON,
+            remoteConfigWebClientUrl: remoteConfigWebClientUrl,
             remoteConfigJson: remoteConfigJson,
         });
     };

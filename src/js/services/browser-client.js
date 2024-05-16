@@ -564,7 +564,7 @@ function emitSec(event, data, fnc) {
 }
 
 
-let configSingleton;
+let configSingleton = {};
 
 /**
  * Helper function that acts as a singleton to load the config only once.
@@ -572,10 +572,11 @@ let configSingleton;
  * @private
  */
 function loadConfig() {
-    if (!configSingleton) {
-        configSingleton = _loadConfig();
+    const remoteConfigWebClientUrl = getStore().getState().persistent.remoteConfigWebClientUrl || "";
+    if (!configSingleton.hasOwnProperty(remoteConfigWebClientUrl) || !configSingleton[remoteConfigWebClientUrl]) {
+        configSingleton[remoteConfigWebClientUrl] = _loadConfig();
     }
-    return configSingleton;
+    return configSingleton[remoteConfigWebClientUrl];
 }
 
 /**
@@ -601,7 +602,7 @@ async function getConfig(key) {
  * Clears the config cache
  */
 function clearConfigCache() {
-    configSingleton = undefined;
+    configSingleton = {};
 }
 
 /**

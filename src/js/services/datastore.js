@@ -11,6 +11,36 @@ import apiClient from "./api-client";
 
 let tempDatastoreKeyStorage = {};
 
+function _getDatastoreOverview() {
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+    // we dont have them in cache, so lets query and save them in cache for next time
+    const onSuccess = function (result) {
+        action().setUserDatastoreOverview(result.data);
+        return result.data;
+    };
+    const onError = function () {
+        // pass
+    };
+
+    return apiClient.readDatastore(token, sessionSecretKey).then(onSuccess, onError);
+}
+
+const datastoreOverview = {};
+/**
+ returns a promise with the version string
+ * @returns {Promise}
+ * @private
+ */
+function _getDatastoreOverviewSingleton() {
+    const userId = getStore().getState().user.userId;
+    if (!datastoreOverview.hasOwnProperty(userId) || !datastoreOverview[userId]) {
+        datastoreOverview[userId] = _getDatastoreOverview();
+    }
+    return datastoreOverview[userId];
+}
+
 /**
  * Returns the overview of all datastores that belong to this user
  *
@@ -19,8 +49,6 @@ let tempDatastoreKeyStorage = {};
  * @returns {Promise} Promise with the datastore overview
  */
 function getDatastoreOverview(forceFresh) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
 
     if ((typeof forceFresh === "undefined" || forceFresh === false) && userDatastoreOverview.datastores.length > 0) {
@@ -28,17 +56,11 @@ function getDatastoreOverview(forceFresh) {
         return new Promise(function (resolve) {
             resolve(userDatastoreOverview);
         });
+    } else if (typeof forceFresh === "undefined" || forceFresh === false) {
+        // we have them in cache, so lets save the query
+        return _getDatastoreOverviewSingleton()
     } else {
-        // we dont have them in cache, so lets query and save them in cache for next time
-        const onSuccess = function (result) {
-            action().setUserDatastoreOverview(result.data);
-            return result.data;
-        };
-        const onError = function () {
-            // pass
-        };
-
-        return apiClient.readDatastore(token, sessionSecretKey).then(onSuccess, onError);
+        return _getDatastoreOverview();
     }
 }
 

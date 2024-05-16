@@ -420,9 +420,6 @@ function activateToken() {
 
         browserClient.emit("login", null);
 
-        accountService.broadcastReinitializeAppEvent();
-
-
         return {
             response: "success",
         };

@@ -150,19 +150,19 @@ function checkHost(server, preApprovedVerifyKey) {
  * Loads a remote config. It takes an url of a remote web client and loads its config.
  * It persists the config so it does not need to be loaded multiple times
  *
- * @param {string} web_client_url The url of a web client without trailing slash
- * @param {string} server_url The default url of the server
+ * @param {string} webClientUrl The url of a web client without trailing slash
+ * @param {string} serverUrl The default url of the server
  *
  * @returns {Promise} Result of the check
  */
-function loadRemoteConfig(web_client_url, server_url) {
+function loadRemoteConfig(webClientUrl, serverUrl) {
 
     const onSuccess = async function (data) {
         const config = await data.json();
         // we need to preserve the base_url and the backend server as they are optional and the original web
         // client would create them dynamically
         if (!config.hasOwnProperty("base_url")) {
-            config["base_url"] = web_client_url;
+            config["base_url"] = webClientUrl;
         }
 
         if (config.hasOwnProperty("backend_servers")) {
@@ -170,12 +170,13 @@ function loadRemoteConfig(web_client_url, server_url) {
                 if (config["backend_servers"][i].hasOwnProperty("url")) {
                     continue;
                 }
-                config["backend_servers"][i]["url"] = server_url;
+                config["backend_servers"][i]["url"] = serverUrl;
             }
         }
 
+
         // we store the loaded configuration
-        action().setRemoteConfigJson(config);
+        action().setRemoteConfigJson(webClientUrl, config);
         action().setUserUsername("");
         action().setServerUrl("");
         browserClient.clearConfigCache();
@@ -186,7 +187,7 @@ function loadRemoteConfig(web_client_url, server_url) {
         return Promise.reject(data);
     };
 
-    return fetch(web_client_url + "/config.json").then(onSuccess, onError);
+    return fetch(webClientUrl + "/config.json").then(onSuccess, onError);
 }
 
 /**

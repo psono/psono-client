@@ -5,7 +5,7 @@ import apiClient from "./api-client";
 import { getStore } from "./store";
 
 
-let avatarSingleton;
+const avatarSingleton = {};
 
 /**
  * Helper function that acts as a singleton to load the avatar data url.
@@ -13,10 +13,11 @@ let avatarSingleton;
  * @private
  */
 function readAvatarCached() {
-    if (!avatarSingleton) {
-        avatarSingleton = _readAvatarCached();
+    const userId = getStore().getState().user.userId;
+    if (!avatarSingleton.hasOwnProperty(userId) || !avatarSingleton[userId]) {
+        avatarSingleton[userId] = _readAvatarCached();
     }
-    return avatarSingleton;
+    return avatarSingleton[userId];
 }
 
 /**

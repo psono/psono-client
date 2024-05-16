@@ -86,6 +86,10 @@ export const initStore = async () => {
                     ...state.server,
                     complianceServerSecrets: 'auto',
                 },
+                persistent: {
+                    ...state.persistent,
+                    remoteConfigWebClientUrl: null,
+                },
             }
         },
     }
