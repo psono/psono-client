@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { BarLoader } from "react-spinners";
 import browserClient from "../../services/browser-client";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
-import userService from "../../services/user";
+import user from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -49,7 +49,7 @@ const ActivationForm = (props) => {
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [activateInProgress, setActivateInProgress] = useState(false);
     const [activationCode, setActivationCode] = useState(props.activationCode || "");
     const [errors, setErrors] = useState([]);
@@ -105,12 +105,12 @@ const ActivationForm = (props) => {
                 }
             }
         }
-        userService.activateCode(activationCode, server)
+        user.activateCode(activationCode, server)
             .then(onSuccess, onError);
     };
 
     const logout = async () => {
-        userService.logout();
+        user.logout();
     };
 
     let formContent;

@@ -16,7 +16,7 @@ import IconButton from "@material-ui/core/IconButton";
 import GridContainerErrors from "../grid-container-errors";
 import Table from "../table";
 import helperService from "../../services/helper";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import datastoreUserService from "../../services/datastore-user";
 import cryptoLibrary from "../../services/crypto-library";
@@ -70,9 +70,9 @@ const DialogNewUser = (props) => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [domain, setDomain] = useState("");
-    const allowUserSearchByUsernamePartial = store.getState().server.allowUserSearchByUsernamePartial;
-    const allowUserSearchByEmail = store.getState().server.allowUserSearchByEmail;
-    const serverUrl = store.getState().server.url;
+    const allowUserSearchByUsernamePartial = getStore().getState().server.allowUserSearchByUsernamePartial;
+    const allowUserSearchByEmail = getStore().getState().server.allowUserSearchByEmail;
+    const serverUrl = getStore().getState().server.url;
     const [errors, setErrors] = useState([]);
     const [visualUsername, setVisualUsername] = useState("");
     const [foundUsername, setFoundUsername] = useState("");
@@ -111,7 +111,7 @@ const DialogNewUser = (props) => {
         setFoundPublicKey(publicKey);
         if (avatarId) {
             const path = "/avatar-image/" + userId + "/" + avatarId + "/";
-            setProfilePic(store.getState().server.url + path)
+            setProfilePic(getStore().getState().server.url + path)
         } else {
             setProfilePic("");
         }

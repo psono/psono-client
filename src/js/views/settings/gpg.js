@@ -51,7 +51,7 @@ const SettingsGpgView = (props) => {
                 label: gpgDefaultKey.label,
             };
         }
-        action.setGpgConfig(newGpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch);
+        action().setGpgConfig(newGpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch);
     };
     return (
         <Grid container>

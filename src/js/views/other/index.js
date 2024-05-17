@@ -14,7 +14,7 @@ import OtherSessionsView from "./sessions";
 import OtherDatastoresView from "./datastores";
 import OtherApiKeysView from "./api-keys";
 import OtherFileRepositoriesView from "./file-repositories";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import OtherKnownHostsView from "./known-hosts";
 import OtherExportView from "./export";
 import OtherImportView from "./import";
@@ -51,7 +51,7 @@ const OtherView = (props) => {
                                 to={"/other/data-stores"}
                                 onClick={() => setValue("/other/data-stores")}
                             />
-                            {!store.getState().server.complianceDisableApiKeys && (
+                            {!getStore().getState().server.complianceDisableApiKeys && (
                                 <Tab
                                     label={t("API_KEYS")}
                                     value="/other/api-keys"
@@ -60,7 +60,7 @@ const OtherView = (props) => {
                                     onClick={() => setValue("/other/api-keys")}
                                 />
                             )}
-                            {!store.getState().server.complianceDisableFileRepositories && (
+                            {!getStore().getState().server.complianceDisableFileRepositories && (
                                 <Tab
                                     label={t("FILE_REPOSITORIES")}
                                     value="/other/file-repositories"
@@ -76,7 +76,7 @@ const OtherView = (props) => {
                                 to={"/other/known-hosts"}
                                 onClick={() => setValue("/other/known-hosts")}
                             />
-                            {!store.getState().server.complianceDisableExport && (
+                            {!getStore().getState().server.complianceDisableExport && (
                                 <Tab
                                     label={t("EXPORT")}
                                     value="/other/export"
@@ -100,12 +100,12 @@ const OtherView = (props) => {
                     <TabPanel value={value} index={"/other/data-stores"}>
                         <OtherDatastoresView {...props} />
                     </TabPanel>
-                    {!store.getState().server.complianceDisableApiKeys && (
+                    {!getStore().getState().server.complianceDisableApiKeys && (
                         <TabPanel value={value} index={"/other/api-keys"}>
                             <OtherApiKeysView {...props} />
                         </TabPanel>
                     )}
-                    {!store.getState().server.complianceDisableFileRepositories && (
+                    {!getStore().getState().server.complianceDisableFileRepositories && (
                         <TabPanel value={value} index={"/other/file-repositories"}>
                             <OtherFileRepositoriesView {...props} />
                         </TabPanel>
@@ -113,7 +113,7 @@ const OtherView = (props) => {
                     <TabPanel value={value} index={"/other/known-hosts"}>
                         <OtherKnownHostsView {...props} />
                     </TabPanel>
-                    {!store.getState().server.complianceDisableExport && (
+                    {!getStore().getState().server.complianceDisableExport && (
                         <TabPanel value={value} index={"/other/export"}>
                             <OtherExportView {...props} />
                         </TabPanel>

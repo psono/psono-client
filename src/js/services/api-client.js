@@ -4,7 +4,7 @@
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
 import device from "./device";
-import store from "./store";
+import { getStore } from "./store";
 import user from "./user";
 import i18n from "../i18n";
 
@@ -40,8 +40,8 @@ const decryptData = function (sessionSecretKey, data, url, method) {
     return data;
 };
 
-function call(method, endpoint, body, headers, sessionSecretKey) {
-    const url = store.getState().server.url + endpoint;
+function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect) {
+    const url = serverUrl + endpoint;
 
     if (sessionSecretKey && body !== null) {
         body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
@@ -50,7 +50,7 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
     if (sessionSecretKey && headers && headers.hasOwnProperty("Authorization")) {
         const validator = {
             request_time: new Date().toISOString(),
-            request_device_fingerprint: device.getDeviceFingerprint(),
+            request_device_fingerprint: deviceFingerprint,
         };
         headers["Authorization-Validator"] = JSON.stringify(
             cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
@@ -96,6 +96,10 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
                 return;
             }
 
+            if (typeof sideEffect === "function") {
+                sideEffect(rawResponse);
+            }
+
             let data = await rawResponse.text();
             if (data) {
                 try {
@@ -118,30 +122,13 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
                 console.log(rawResponse);
                 console.log(data);
 
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                if (rawResponse.status === 401 && user.isLoggedIn()) {
-                    // session expired, lets log the user out
-                    user.logout(i18n.t("SESSION_EXPIRED"));
-                }
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
                     }
                     return reject({errors: ["RESSOURCE_NOT_FOUND"]});
                 }
-                if (rawResponse.status === 423 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
-                if (rawResponse.status === 502 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
-                if (rawResponse.status === 503 && user.isLoggedIn()) {
-                    // server error, lets log the user out
-                    user.logout(rawResponse.statusText);
-                }
+
                 if (rawResponse.status >= 500) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
@@ -156,7 +143,6 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
             try {
                 decryptedData = decryptData(sessionSecretKey, data, url, req.method)
             } catch (e) {
-                user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
                 return reject({errors: ["UNENCRYPTED_RESPONSE_RECEIVED"]})
             }
             if (rawResponse.ok) {
@@ -166,6 +152,32 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
             }
         });
     });
+}
+
+function call(method, endpoint, body, headers, sessionSecretKey) {
+    const serverUrl = getStore().getState().server.url;
+    const deviceFingerprint = device.getDeviceFingerprint();
+    const sideEffect = (rawResponse) => {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (rawResponse.status === 401 && user.isLoggedIn()) {
+            // session expired, lets log the user out
+            user.logout(i18n.t("SESSION_EXPIRED"));
+        }
+        if (rawResponse.status === 423 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+        if (rawResponse.status === 502 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+        if (rawResponse.status === 503 && user.isLoggedIn()) {
+            // server error, lets log the user out
+            user.logout(rawResponse.statusText);
+        }
+    }
+    return _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
 }
 
 /**
@@ -475,15 +487,15 @@ function createEmergencyCode(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} emergency_code_id The emergency code id to delete
+ * @param {uuid} emergencyCodeId The emergency code id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
+function deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId) {
     const endpoint = "/emergencycode/";
     const method = "DELETE";
     const data = {
-        emergency_code_id: emergency_code_id,
+        emergency_code_id: emergencyCodeId,
     };
 
     const headers = {
@@ -499,16 +511,16 @@ function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string|undefined} [session_id] An optional session ID to log out
+ * @param {string|undefined} [sessionId] An optional session ID to log out
  * @param {string|undefined} [postLogoutRedirectUri] An optional url to redirect to upon logout
  *
  * @returns {Promise} Returns a promise with the logout status
  */
-function logout(token, sessionSecretKey, session_id, postLogoutRedirectUri) {
+function logout(token, sessionSecretKey, sessionId, postLogoutRedirectUri) {
     const endpoint = "/authentication/logout/";
     const method = "POST";
     const data = {
-        session_id: session_id,
+        session_id: sessionId,
         post_logout_redirect_uri: postLogoutRedirectUri,
     };
     const headers = {
@@ -519,18 +531,45 @@ function logout(token, sessionSecretKey, session_id, postLogoutRedirectUri) {
 }
 
 /**
+ * Ajax POST request to destroy the token and logout the user
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string|undefined} [sessionId] An optional session ID to log out
+ * @param {string|undefined} [postLogoutRedirectUri] An optional url to redirect to upon logout
+ * @param {string} serverUrl The URL of the server e.g. https://example.com/server
+ * @param {string} deviceFingerprint The deviceFingerprint used during the creation of the session
+ * @param {function|undefined} [sideEffect] The a function that receives the raw response and may be used to trigger side effects, like the logout of a user based on the response's status code
+ *
+ * @returns {Promise} Returns a promise with the logout status
+ */
+function statelessLogout(token, sessionSecretKey, sessionId, postLogoutRedirectUri, serverUrl, deviceFingerprint, sideEffect) {
+    const endpoint = "/authentication/logout/";
+    const method = "POST";
+    const data = {
+        session_id: sessionId,
+        post_logout_redirect_uri: postLogoutRedirectUri,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return _statelessCall(method, endpoint, data, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
+}
+
+/**
  * Ajax POST request to the backend with the email and authkey, returns nothing but an email is sent to the user
  * with an activation_code for the email
  *
  * @param {string} email email address of the user
  * @param {string} username username of the user (in email format)
  * @param {string} authkey authkey gets generated by generate_authkey(email, password)
- * @param {string} public_key public_key of the public/private key pair for asymmetric encryption (sharing)
- * @param {string} private_key private_key of the public/private key pair, encrypted with encrypt_secret
- * @param {string} private_key_nonce the nonce for decrypting the encrypted private_key
- * @param {string} secret_key secret_key for symmetric encryption, encrypted with encrypt_secret
- * @param {string} secret_key_nonce the nonce for decrypting the encrypted secret_key
- * @param {string} user_sauce the random user sauce used
+ * @param {string} publicKey publicKey of the public/private key pair for asymmetric encryption (sharing)
+ * @param {string} privateKey private_key of the public/private key pair, encrypted with encrypt_secret
+ * @param {string} privateKeyNonce the nonce for decrypting the encrypted private_key
+ * @param {string} secretKey secretKey for symmetric encryption, encrypted with encrypt_secret
+ * @param {string} secretKeyNonce the nonce for decrypting the encrypted secretKey
+ * @param {string} userSauce the random user sauce used
  * @param {string} base_url the base url for the activation link creation
  *
  * @returns {Promise} promise
@@ -539,12 +578,12 @@ function register(
     email,
     username,
     authkey,
-    public_key,
-    private_key,
-    private_key_nonce,
-    secret_key,
-    secret_key_nonce,
-    user_sauce,
+    publicKey,
+    privateKey,
+    privateKeyNonce,
+    secretKey,
+    secretKeyNonce,
+    userSauce,
     base_url
 ) {
     const endpoint = "/authentication/register/";
@@ -553,12 +592,12 @@ function register(
         email: email,
         username: username,
         authkey: authkey,
-        public_key: public_key,
-        private_key: private_key,
-        private_key_nonce: private_key_nonce,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
-        user_sauce: user_sauce,
+        public_key: publicKey,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        user_sauce: userSauce,
         base_url: base_url,
     };
     const headers = null;
@@ -595,9 +634,9 @@ function verifyEmail(activation_code) {
  * @param {string} authkey The new authkey
  * @param {string} authkey_old The old authkey
  * @param {string} private_key The (encrypted) private key
- * @param {string} private_key_nonce The nonce for the private key
- * @param {string} secret_key The (encrypted) secret key
- * @param {string} secret_key_nonce The nonce for the secret key
+ * @param {string} privateKeyNonce The nonce for the private key
+ * @param {string} secretKey The (encrypted) secret key
+ * @param {string} secretKeyNonce The nonce for the secret key
  * @param {string} language The language
  *
  * @returns {Promise} Returns a promise with the update status
@@ -609,9 +648,9 @@ function updateUser(
     authkey,
     authkey_old,
     private_key,
-    private_key_nonce,
-    secret_key,
-    secret_key_nonce,
+    privateKeyNonce,
+    secretKey,
+    secretKeyNonce,
     language,
 ) {
     const endpoint = "/user/update/";
@@ -621,9 +660,9 @@ function updateUser(
         authkey: authkey,
         authkey_old: authkey_old,
         private_key: private_key,
-        private_key_nonce: private_key_nonce,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
+        private_key_nonce: privateKeyNonce,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
         language: language,
     };
     const headers = {
@@ -761,12 +800,12 @@ function setPassword(username, recovery_authkey, update_data, update_data_nonce)
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid|undefined} [datastore_id=null] (optional) the datastore ID
+ * @param {uuid|undefined} [datastoreId=null] (optional) the datastore ID
  *
  * @returns {Promise} Returns a promise with the encrypted datastore
  */
-function readDatastore(token, sessionSecretKey, datastore_id) {
-    const endpoint = "/datastore/" + (!datastore_id ? "" : datastore_id + "/");
+function readDatastore(token, sessionSecretKey, datastoreId) {
+    const endpoint = "/datastore/" + (!datastoreId ? "" : datastoreId + "/");
     const method = "GET";
     const data = null;
     const headers = {
@@ -781,12 +820,12 @@ function readDatastore(token, sessionSecretKey, datastore_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} secret_id the secret ID
+ * @param {uuid} secretId the secret ID
  *
  * @returns {Promise} promise
  */
-function readSecretHistory(token, sessionSecretKey, secret_id) {
-    const endpoint = "/secret/history/" + secret_id + "/";
+function readSecretHistory(token, sessionSecretKey, secretId) {
+    const endpoint = "/secret/history/" + secretId + "/";
     const method = "GET";
     const data = null;
     const headers = {
@@ -824,11 +863,11 @@ function readHistory(token, sessionSecretKey, secret_history_id) {
  * @param {string} sessionSecretKey The session secret key
  * @param {string} type the type of the datastore
  * @param {string} description the description of the datastore
- * @param {string|undefined} [encrypted_data] (optional) data for the new datastore
- * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
- * @param {string|undefined} [is_default] (optional) Is the new default datastore of this type
- * @param {string} encrypted_data_secret_key encrypted secret key
- * @param {string} encrypted_data_secret_key_nonce nonce for secret key
+ * @param {string|undefined} [encryptedData] (optional) data for the new datastore
+ * @param {string|undefined} [encryptedDataNonce] (optional) nonce for data, necessary if data is provided
+ * @param {string|undefined} [isDefault] (optional) Is the new default datastore of this type
+ * @param {string} encryptedDataSecretKey encrypted secret key
+ * @param {string} encryptedDataSecretKeyNonce nonce for secret key
  *
  * @returns {Promise} promise
  */
@@ -837,22 +876,22 @@ function createDatastore(
     sessionSecretKey,
     type,
     description,
-    encrypted_data,
-    encrypted_data_nonce,
-    is_default,
-    encrypted_data_secret_key,
-    encrypted_data_secret_key_nonce
+    encryptedData,
+    encryptedDataNonce,
+    isDefault,
+    encryptedDataSecretKey,
+    encryptedDataSecretKeyNonce
 ) {
     const endpoint = "/datastore/";
     const method = "PUT";
     const data = {
         type: type,
         description: description,
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
-        is_default: is_default,
-        secret_key: encrypted_data_secret_key,
-        secret_key_nonce: encrypted_data_secret_key_nonce,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
+        is_default: isDefault,
+        secret_key: encryptedDataSecretKey,
+        secret_key_nonce: encryptedDataSecretKeyNonce,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -866,16 +905,16 @@ function createDatastore(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} datastore_id The datastore id
+ * @param {uuid} datastoreId The datastore id
  * @param {string} authkey The authkey of the user
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-function deleteDatastore(token, sessionSecretKey, datastore_id, authkey) {
+function deleteDatastore(token, sessionSecretKey, datastoreId, authkey) {
     const endpoint = "/datastore/";
     const method = "DELETE";
     const data = {
-        datastore_id: datastore_id,
+        datastore_id: datastoreId,
         authkey: authkey,
     };
     const headers = {
@@ -891,11 +930,11 @@ function deleteDatastore(token, sessionSecretKey, datastore_id, authkey) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} datastore_id the datastore ID
- * @param {string|undefined} [encrypted_data] (optional) data for the datastore
- * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
- * @param {string|undefined} [encrypted_data_secret_key] (optional) encrypted secret key, wont update on the server if not provided
- * @param {string|undefined} [encrypted_data_secret_key_nonce] (optional) nonce for secret key, wont update on the server if not provided
+ * @param {uuid} datastoreId the datastore ID
+ * @param {string|undefined} [encryptedData] (optional) data for the datastore
+ * @param {string|undefined} [encryptedDataNonce] (optional) nonce for data, necessary if data is provided
+ * @param {string|undefined} [encryptedDataSecretKey] (optional) encrypted secret key, wont update on the server if not provided
+ * @param {string|undefined} [encryptedDataSecretKeyNonce] (optional) nonce for secret key, wont update on the server if not provided
  * @param {string|undefined} [description] (optional) The new description of the datastore
  * @param {boolean|undefined} [is_default] (optional) Is this the new default datastore
  *
@@ -904,22 +943,22 @@ function deleteDatastore(token, sessionSecretKey, datastore_id, authkey) {
 function writeDatastore(
     token,
     sessionSecretKey,
-    datastore_id,
-    encrypted_data,
-    encrypted_data_nonce,
-    encrypted_data_secret_key,
-    encrypted_data_secret_key_nonce,
+    datastoreId,
+    encryptedData,
+    encryptedDataNonce,
+    encryptedDataSecretKey,
+    encryptedDataSecretKeyNonce,
     description,
     is_default
 ) {
     const endpoint = "/datastore/";
     const method = "POST";
     const data = {
-        datastore_id: datastore_id,
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
-        secret_key: encrypted_data_secret_key,
-        secret_key_nonce: encrypted_data_secret_key_nonce,
+        datastore_id: datastoreId,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
+        secret_key: encryptedDataSecretKey,
+        secret_key_nonce: encryptedDataSecretKeyNonce,
         description: description,
         is_default: is_default,
     };
@@ -935,12 +974,12 @@ function writeDatastore(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} secret_id secret ID
+ * @param {uuid} secretId secret ID
  *
  * @returns {Promise} promise
  */
-function readSecret(token, sessionSecretKey, secret_id) {
-    const endpoint = "/secret/" + secret_id + "/";
+function readSecret(token, sessionSecretKey, secretId) {
+    const endpoint = "/secret/" + secretId + "/";
     const method = "GET";
     const data = null;
     const headers = {
@@ -959,25 +998,25 @@ function readSecret(token, sessionSecretKey, secret_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string} encrypted_data data for the new secret
- * @param {string} encrypted_data_nonce nonce for data, necessary if data is provided
- * @param {string} link_id the local id of the share in the datastructure
- * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
- * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+ * @param {string} encryptedData data for the new secret
+ * @param {string} encryptedDataNonce nonce for data, necessary if data is provided
+ * @param {string} linkId the local id of the share in the datastructure
+ * @param {string|undefined} [parentDatastoreId] (optional) id of the parent datastore, may be left empty if the share resides in a share
+ * @param {string|undefined} [parentShareId] (optional) id of the parent share, may be left empty if the share resides in the datastore
  * @param {string} callback_url The callback ULR
  * @param {string} callback_user The callback user
  * @param {string} callback_pass The callback password
  *
- * @returns {Promise} Returns a promise with the new secret_id
+ * @returns {Promise} Returns a promise with the new secretId
  */
 function createSecret(
     token,
     sessionSecretKey,
-    encrypted_data,
-    encrypted_data_nonce,
-    link_id,
-    parent_datastore_id,
-    parent_share_id,
+    encryptedData,
+    encryptedDataNonce,
+    linkId,
+    parentDatastoreId,
+    parentShareId,
     callback_url,
     callback_user,
     callback_pass
@@ -985,14 +1024,46 @@ function createSecret(
     const endpoint = "/secret/";
     const method = "PUT";
     const data = {
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
-        link_id: link_id,
-        parent_datastore_id: parent_datastore_id,
-        parent_share_id: parent_share_id,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
+        link_id: linkId,
+        parent_datastore_id: parentDatastoreId,
+        parent_share_id: parentShareId,
         callback_url: callback_url,
         callback_user: callback_user,
         callback_pass: callback_pass,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax PUT request to create a secret with the token as authentication together with the encrypted data and nonce
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {array} secrets The secrets with their content to create
+ * @param {string|undefined} [parentDatastoreId] (optional) id of the parent datastore, may be left empty if the share resides in a share
+ * @param {string|undefined} [parentShareId] (optional) id of the parent share, may be left empty if the share resides in the datastore
+ *
+ * @returns {Promise} Returns a promise with the new secretId
+ */
+function createSecretBulk(
+    token,
+    sessionSecretKey,
+    secrets,
+    parentDatastoreId,
+    parentShareId
+) {
+    const endpoint = "/bulk-secret/";
+    const method = "PUT";
+    const data = {
+        parent_datastore_id: parentDatastoreId,
+        parent_share_id: parentShareId,
+        secrets: secrets,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1006,9 +1077,9 @@ function createSecret(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} secret_id the secret ID
- * @param {string|undefined} [encrypted_data] (optional) data for the new secret
- * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+ * @param {uuid} secretId the secret ID
+ * @param {string|undefined} [encryptedData] (optional) data for the new secret
+ * @param {string|undefined} [encryptedDataNonce] (optional) nonce for data, necessary if data is provided
  * @param {string} callback_url The callback ULR
  * @param {string} callback_user The callback user
  * @param {string} callback_pass The callback password
@@ -1018,9 +1089,9 @@ function createSecret(
 function writeSecret(
     token,
     sessionSecretKey,
-    secret_id,
-    encrypted_data,
-    encrypted_data_nonce,
+    secretId,
+    encryptedData,
+    encryptedDataNonce,
     callback_url,
     callback_user,
     callback_pass
@@ -1028,9 +1099,9 @@ function writeSecret(
     const endpoint = "/secret/";
     const method = "POST";
     const data = {
-        secret_id: secret_id,
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
+        secret_id: secretId,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
         callback_url: callback_url,
         callback_user: callback_user,
         callback_pass: callback_pass,
@@ -1047,19 +1118,19 @@ function writeSecret(
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id the link id
- * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
- * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+ * @param {uuid} linkId the link id
+ * @param {uuid|undefined} [newParentShareId=null] (optional) new parent share ID, necessary if no newParentDatastoreId is provided
+ * @param {uuid|undefined} [newParentDatastoreId=null] (optional) new datastore ID, necessary if no newParentShareId is provided
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLink(token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
+function moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
     const endpoint = "/secret/link/";
     const method = "POST";
     const data = {
-        link_id: link_id,
-        new_parent_share_id: new_parent_share_id,
-        new_parent_datastore_id: new_parent_datastore_id,
+        link_id: linkId,
+        new_parent_share_id: newParentShareId,
+        new_parent_datastore_id: newParentDatastoreId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1073,15 +1144,15 @@ function moveSecretLink(token, sessionSecretKey, link_id, new_parent_share_id, n
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id The link id
+ * @param {uuid} linkId The link id
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-function deleteSecretLink(token, sessionSecretKey, link_id) {
+function deleteSecretLink(token, sessionSecretKey, linkId) {
     const endpoint = "/secret/link/";
     const method = "DELETE";
     const data = {
-        link_id: link_id,
+        link_id: linkId,
     };
     const headers = {
         "Content-Type": "application/json",
@@ -1096,19 +1167,19 @@ function deleteSecretLink(token, sessionSecretKey, link_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id the link id
- * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
- * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+ * @param {uuid} linkId the link id
+ * @param {uuid|undefined} [newParentShareId=null] (optional) new parent share ID, necessary if no newParentDatastoreId is provided
+ * @param {uuid|undefined} [newParentDatastoreId=null] (optional) new datastore ID, necessary if no newParentShareId is provided
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLink(token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
+function moveFileLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
     const endpoint = "/file/link/";
     const method = "POST";
     const data = {
-        link_id: link_id,
-        new_parent_share_id: new_parent_share_id,
-        new_parent_datastore_id: new_parent_datastore_id,
+        link_id: linkId,
+        new_parent_share_id: newParentShareId,
+        new_parent_datastore_id: newParentDatastoreId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1122,15 +1193,15 @@ function moveFileLink(token, sessionSecretKey, link_id, new_parent_share_id, new
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id The link id
+ * @param {uuid} linkId The link id
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-function deleteFileLink(token, sessionSecretKey, link_id) {
+function deleteFileLink(token, sessionSecretKey, linkId) {
     const endpoint = "/file/link/";
     const method = "DELETE";
     const data = {
-        link_id: link_id,
+        link_id: linkId,
     };
     const headers = {
         "Content-Type": "application/json",
@@ -1185,38 +1256,38 @@ function readShares(token, sessionSecretKey) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string|undefined} [encrypted_data] (optional) The data for the new share
- * @param {string|undefined} [encrypted_data_nonce] (optional) The nonce for data, necessary if data is provided
+ * @param {string|undefined} [encryptedData] (optional) The data for the new share
+ * @param {string|undefined} [encryptedDataNonce] (optional) The nonce for data, necessary if data is provided
  * @param {string} key encrypted key used by the encryption
- * @param {string} key_nonce nonce for key, necessary if a key is provided
- * @param {string|undefined} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
- * @param {string|undefined} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
- * @param {string} link_id the local id of the share in the datastructure
+ * @param {string} keyNonce nonce for key, necessary if a key is provided
+ * @param {string|undefined} [parentShareId] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+ * @param {string|undefined} [parentDatastoreId] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+ * @param {string} linkId the local id of the share in the datastructure
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
 function createShare(
     token,
     sessionSecretKey,
-    encrypted_data,
-    encrypted_data_nonce,
+    encryptedData,
+    encryptedDataNonce,
     key,
-    key_nonce,
-    parent_share_id,
-    parent_datastore_id,
-    link_id
+    keyNonce,
+    parentShareId,
+    parentDatastoreId,
+    linkId
 ) {
     const endpoint = "/share/";
     const method = "POST";
     const data = {
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
         key: key,
-        key_nonce: key_nonce,
+        key_nonce: keyNonce,
         key_type: "symmetric",
-        parent_share_id: parent_share_id,
-        parent_datastore_id: parent_datastore_id,
-        link_id: link_id,
+        parent_share_id: parentShareId,
+        parent_datastore_id: parentDatastoreId,
+        link_id: linkId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1231,18 +1302,18 @@ function createShare(
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {uuid} share_id the share ID
- * @param {string|undefined} [encrypted_data] (optional) data for the new share
- * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+ * @param {string|undefined} [encryptedData] (optional) data for the new share
+ * @param {string|undefined} [encryptedDataNonce] (optional) nonce for data, necessary if data is provided
  *
  * @returns {Promise} Returns a promise with the status of the update
  */
-function writeShare(token, sessionSecretKey, share_id, encrypted_data, encrypted_data_nonce) {
+function writeShare(token, sessionSecretKey, share_id, encryptedData, encryptedDataNonce) {
     const endpoint = "/share/";
     const method = "PUT";
     const data = {
         share_id: share_id,
-        data: encrypted_data,
-        data_nonce: encrypted_data_nonce,
+        data: encryptedData,
+        data_nonce: encryptedDataNonce,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1303,7 +1374,7 @@ function readShareRightsOverview(token, sessionSecretKey) {
  * @param {uuid} [user_id] (optional) The target user's user ID
  * @param {uuid} [group_id] (optional) The target group's group ID
  * @param {string} key The encrypted share secret, encrypted with the public key of the target user
- * @param {string} key_nonce The unique nonce for decryption
+ * @param {string} keyNonce The unique nonce for decryption
  * @param {bool} read read permission
  * @param {bool} write write permission
  * @param {bool} grant grant permission
@@ -1321,7 +1392,7 @@ function createShareRight(
     user_id,
     group_id,
     key,
-    key_nonce,
+    keyNonce,
     read,
     write,
     grant
@@ -1337,7 +1408,7 @@ function createShareRight(
         user_id: user_id,
         group_id: group_id,
         key: key,
-        key_nonce: key_nonce,
+        key_nonce: keyNonce,
         read: read,
         write: write,
         grant: grant,
@@ -1433,18 +1504,18 @@ function readShareRightsInheritOverview(token, sessionSecretKey) {
  * @param {string} sessionSecretKey The session secret key
  * @param {uuid} share_right_id The share right id
  * @param {string} key The encrypted key of the share
- * @param {string} key_nonce The nonce of the key
+ * @param {string} keyNonce The nonce of the key
  * @param {string} key_type The type of the key (default: symmetric)
  *
  * @returns {Promise} promise
  */
-function acceptShareRight(token, sessionSecretKey, share_right_id, key, key_nonce, key_type) {
+function acceptShareRight(token, sessionSecretKey, share_right_id, key, keyNonce, key_type) {
     const endpoint = "/share/right/accept/";
     const method = "POST";
     const data = {
         share_right_id: share_right_id,
         key: key,
-        key_nonce: key_nonce,
+        key_nonce: keyNonce,
         key_type: key_type,
     };
     const headers = {
@@ -1758,19 +1829,19 @@ function deleteGa(token, sessionSecretKey, google_authenticator_id) {
  * @param {boolean} use_system_wide_duo Indicates whether to use the system wide duo or not
  * @param {string} title The title of the duo
  * @param {string} integration_key The integration_key of the duo
- * @param {string} secret_key The secret_key of the duo
+ * @param {string} secretKey The secretKey of the duo
  * @param {string} host The host of the duo
  *
  * @returns {Promise} Returns a promise with the secret
  */
-function createDuo(token, sessionSecretKey, use_system_wide_duo, title, integration_key, secret_key, host) {
+function createDuo(token, sessionSecretKey, use_system_wide_duo, title, integration_key, secretKey, host) {
     const endpoint = "/user/duo/";
     const method = "PUT";
     const data = {
         use_system_wide_duo: use_system_wide_duo,
         title: title,
         integration_key: integration_key,
-        secret_key: secret_key,
+        secret_key: secretKey,
         host: host,
     };
     const headers = {
@@ -1948,21 +2019,21 @@ const deleteYubikeyOtp = function (token, sessionSecretKey, yubikey_otp_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id the link id
+ * @param {uuid} linkId the link id
  * @param {uuid} share_id the share ID
- * @param {uuid|undefined} [parent_share_id=null] (optional) parent share ID, necessary if no parent_datastore_id is provided
- * @param {uuid|undefined} [parent_datastore_id=null] (optional) parent datastore ID, necessary if no parent_share_id is provided
+ * @param {uuid|undefined} [parentShareId=null] (optional) parent share ID, necessary if no parentDatastoreId is provided
+ * @param {uuid|undefined} [parentDatastoreId=null] (optional) parent datastore ID, necessary if no parentShareId is provided
  *
  * @returns {Promise} promise
  */
-const createShareLink = function (token, sessionSecretKey, link_id, share_id, parent_share_id, parent_datastore_id) {
+const createShareLink = function (token, sessionSecretKey, linkId, share_id, parentShareId, parentDatastoreId) {
     const endpoint = "/share/link/";
     const method = "PUT";
     const data = {
-        link_id: link_id,
+        link_id: linkId,
         share_id: share_id,
-        parent_share_id: parent_share_id,
-        parent_datastore_id: parent_datastore_id,
+        parent_share_id: parentShareId,
+        parent_datastore_id: parentDatastoreId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -1977,19 +2048,19 @@ const createShareLink = function (token, sessionSecretKey, link_id, share_id, pa
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id the link id
- * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
- * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+ * @param {uuid} linkId the link id
+ * @param {uuid|undefined} [newParentShareId=null] (optional) new parent share ID, necessary if no newParentDatastoreId is provided
+ * @param {uuid|undefined} [newParentDatastoreId=null] (optional) new datastore ID, necessary if no newParentShareId is provided
  *
  * @returns {Promise} promise
  */
-const moveShareLink = function (token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
+const moveShareLink = function (token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
     const endpoint = "/share/link/";
     const method = "POST";
     const data = {
-        link_id: link_id,
-        new_parent_share_id: new_parent_share_id,
-        new_parent_datastore_id: new_parent_datastore_id,
+        link_id: linkId,
+        new_parent_share_id: newParentShareId,
+        new_parent_datastore_id: newParentDatastoreId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -2003,15 +2074,15 @@ const moveShareLink = function (token, sessionSecretKey, link_id, new_parent_sha
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_id The Link ID
+ * @param {uuid} linkId The Link ID
  *
  * @returns {Promise} promise
  */
-const deleteShareLink = function (token, sessionSecretKey, link_id) {
+const deleteShareLink = function (token, sessionSecretKey, linkId) {
     const endpoint = "/share/link/";
     const method = "DELETE";
     const data = {
-        link_id: link_id,
+        link_id: linkId,
     };
     const headers = {
         "Content-Type": "application/json",
@@ -2069,13 +2140,13 @@ const readApiKeySecrets = function (token, sessionSecretKey, api_key_id) {
  * @param {string} title title of the new api_key
  * @param {string} public_key The public key of the api key
  * @param {string} private_key encrypted private key of the api_key
- * @param {string} private_key_nonce nonce for private key
- * @param {string} secret_key encrypted secret key of the api_key
- * @param {string} secret_key_nonce nonce for secret key
- * @param {string} user_private_key encrypted private key of the user
- * @param {string} user_private_key_nonce nonce for private key
- * @param {string} user_secret_key encrypted secret key of the user
- * @param {string} user_secret_key_nonce nonce for secret key
+ * @param {string} privateKeyNonce nonce for private key
+ * @param {string} secretKey encrypted secret key of the api_key
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} userPrivateKey encrypted private key of the user
+ * @param {string} userPrivateKeyNonce nonce for private key
+ * @param {string} userSecretKey encrypted secret key of the user
+ * @param {string} userSecretKeyNonce nonce for secret key
  * @param {bool} restrict_to_secrets Restrict to secrets
  * @param {bool} allow_insecure_access Allow insecure access
  * @param {bool} read Allow read access
@@ -2090,13 +2161,13 @@ const createApiKey = function (
     title,
     public_key,
     private_key,
-    private_key_nonce,
-    secret_key,
-    secret_key_nonce,
-    user_private_key,
-    user_private_key_nonce,
-    user_secret_key,
-    user_secret_key_nonce,
+    privateKeyNonce,
+    secretKey,
+    secretKeyNonce,
+    userPrivateKey,
+    userPrivateKeyNonce,
+    userSecretKey,
+    userSecretKeyNonce,
     restrict_to_secrets,
     allow_insecure_access,
     read,
@@ -2109,13 +2180,13 @@ const createApiKey = function (
         title: title,
         public_key: public_key,
         private_key: private_key,
-        private_key_nonce: private_key_nonce,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
-        user_private_key: user_private_key,
-        user_private_key_nonce: user_private_key_nonce,
-        user_secret_key: user_secret_key,
-        user_secret_key_nonce: user_secret_key_nonce,
+        private_key_nonce: privateKeyNonce,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        user_private_key: userPrivateKey,
+        user_private_key_nonce: userPrivateKeyNonce,
+        user_secret_key: userSecretKey,
+        user_secret_key_nonce: userSecretKeyNonce,
         restrict_to_secrets: restrict_to_secrets,
         allow_insecure_access: allow_insecure_access,
         read: read,
@@ -2136,11 +2207,11 @@ const createApiKey = function (
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {uuid} api_key_id The id of the api key
- * @param {uuid} secret_id The id of the secret
+ * @param {uuid} secretId The id of the secret
  * @param {string} title encrypted title of the api_key
  * @param {string} title_nonce nonce for title
- * @param {string} secret_key encrypted secret key of the api_key
- * @param {string} secret_key_nonce nonce for secret key
+ * @param {string} secretKey encrypted secret key of the api_key
+ * @param {string} secretKeyNonce nonce for secret key
  *
  * @returns {Promise} promise
  */
@@ -2148,21 +2219,21 @@ const addSecretToApiKey = function (
     token,
     sessionSecretKey,
     api_key_id,
-    secret_id,
+    secretId,
     title,
     title_nonce,
-    secret_key,
-    secret_key_nonce
+    secretKey,
+    secretKeyNonce
 ) {
     const endpoint = "/api-key/secret/";
     const method = "PUT";
     const data = {
         api_key_id: api_key_id,
-        secret_id: secret_id,
+        secret_id: secretId,
         title: title,
         title_nonce: title_nonce,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
     };
 
     const headers = {
@@ -2717,34 +2788,34 @@ const declineFileRepositoryRight = function (token, sessionSecretKey, fileReposi
 /**
  * Ajax PUT request to upload a file to an file repository with the token as authentication
  *
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
 const fileRepositoryUpload = function (
-    file_transfer_id,
-    file_transfer_secret_key,
-    chunk_size,
-    chunk_position,
-    hash_checksum
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
 ) {
     const endpoint = "/file-repository/upload/";
     const method = "PUT";
     const data = {
-        chunk_size: chunk_size,
-        chunk_position: chunk_position,
-        hash_checksum: hash_checksum,
+        chunk_size: chunkSize,
+        chunk_position: chunkPosition,
+        hash_checksum: hashChecksum,
     };
 
     const headers = {
-        Authorization: "Filetransfer " + file_transfer_id,
+        Authorization: "Filetransfer " + fileTransferId,
     };
 
-    return call(method, endpoint, data, headers, file_transfer_secret_key);
+    return call(method, endpoint, data, headers, fileTransferSecretKey);
 };
 
 /**
@@ -3054,12 +3125,12 @@ const declineMembership = function (token, sessionSecretKey, membership_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string} file_id The id of the file
+ * @param {string} fileId The id of the file
  *
- * @returns {Promise} Returns a promise with the new file_id and file_transfer_id
+ * @returns {Promise} Returns a promise with the new fileId and fileTransferId
  */
-const readFile = function (token, sessionSecretKey, file_id) {
-    const endpoint = "/file/" + file_id + "/";
+const readFile = function (token, sessionSecretKey, fileId) {
+    const endpoint = "/file/" + fileId + "/";
     const method = "GET";
     const data = null;
     const headers = {
@@ -3077,12 +3148,12 @@ const readFile = function (token, sessionSecretKey, file_id) {
  * @param {string|undefined} shard_id (optional) The id of the target shard
  * @param {string|undefined} fileRepositoryId (optional) The id of the target file repository
  * @param {int} size The size of the complete file in bytes
- * @param {int} chunk_count The amount of chunks that this file is split into
- * @param {string} link_id the local id of the file in the datastructure
- * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
- * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+ * @param {int} chunkCount The amount of chunks that this file is split into
+ * @param {string} linkId the local id of the file in the datastructure
+ * @param {string|undefined} [parentDatastoreId] (optional) id of the parent datastore, may be left empty if the share resides in a share
+ * @param {string|undefined} [parentShareId] (optional) id of the parent share, may be left empty if the share resides in the datastore
  *
- * @returns {Promise} Returns a promise with the new file_id and file_transfer_id
+ * @returns {Promise} Returns a promise with the new fileId and fileTransferId
  */
 const createFile = function (
     token,
@@ -3090,10 +3161,10 @@ const createFile = function (
     shard_id,
     fileRepositoryId,
     size,
-    chunk_count,
-    link_id,
-    parent_datastore_id,
-    parent_share_id
+    chunkCount,
+    linkId,
+    parentDatastoreId,
+    parentShareId
 ) {
     const endpoint = "/file/";
     const method = "PUT";
@@ -3101,10 +3172,10 @@ const createFile = function (
         shard_id: shard_id,
         file_repository_id: fileRepositoryId,
         size: size,
-        chunk_count: chunk_count,
-        link_id: link_id,
-        parent_datastore_id: parent_datastore_id,
-        parent_share_id: parent_share_id,
+        chunk_count: chunkCount,
+        link_id: linkId,
+        parent_datastore_id: parentDatastoreId,
+        parent_share_id: parentShareId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -3162,11 +3233,11 @@ const readShards = function (token, sessionSecretKey) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} secret_id The id of the secret
- * @param {uuid} file_id The id of the file
+ * @param {uuid} secretId The id of the secret
+ * @param {uuid} fileId The id of the file
  * @param {string} node The encrypted node in hex format
  * @param {string} node_nonce The nonce of the encrypted node in hex format
- * @param {string} public_title The public title of the link share
+ * @param {string} publicTitle The public title of the link share
  * @param {int|null} allowed_reads The amount of allowed access requests before this link secret becomes invalid
  * @param {string|null} passphrase The passphrase to protect the link secret
  * @param {string|null} valid_till The valid till time in iso format
@@ -3176,11 +3247,11 @@ const readShards = function (token, sessionSecretKey) {
 const createLinkShare = function (
     token,
     sessionSecretKey,
-    secret_id,
-    file_id,
+    secretId,
+    fileId,
     node,
     node_nonce,
-    public_title,
+    publicTitle,
     allowed_reads,
     passphrase,
     valid_till
@@ -3188,11 +3259,11 @@ const createLinkShare = function (
     const endpoint = "/link-share/";
     const method = "PUT";
     const data = {
-        secret_id: secret_id,
-        file_id: file_id,
+        secret_id: secretId,
+        file_id: fileId,
         node: node,
         node_nonce: node_nonce,
-        public_title: public_title,
+        public_title: publicTitle,
         allowed_reads: allowed_reads,
         passphrase: passphrase,
         valid_till: valid_till,
@@ -3229,31 +3300,31 @@ const readLinkShare = function (token, sessionSecretKey) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_share_id The id of the link share
- * @param {string} public_title The news public_title of the link share
- * @param {int|null} allowed_reads The new amount of allowed access requests before this link secret becomes invalid
+ * @param {uuid} linkShareId The id of the link share
+ * @param {string} publicTitle The news publicTitle of the link share
+ * @param {int|null} allowedReads The new amount of allowed access requests before this link secret becomes invalid
  * @param {string|null} passphrase The new passphrase to protect the link secret
- * @param {string|null} valid_till The new valid till time in iso format
+ * @param {string|null} validTill The new valid till time in iso format
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
 const updateLinkShare = function (
     token,
     sessionSecretKey,
-    link_share_id,
-    public_title,
-    allowed_reads,
+    linkShareId,
+    publicTitle,
+    allowedReads,
     passphrase,
-    valid_till
+    validTill
 ) {
     const endpoint = "/link-share/";
     const method = "POST";
     const data = {
-        link_share_id: link_share_id,
-        public_title: public_title,
-        allowed_reads: allowed_reads,
+        link_share_id: linkShareId,
+        public_title: publicTitle,
+        allowed_reads: allowedReads,
         passphrase: passphrase,
-        valid_till: valid_till,
+        valid_till: validTill,
     };
 
     const headers = {
@@ -3268,15 +3339,15 @@ const updateLinkShare = function (
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} link_share_id The link share id to delete
+ * @param {uuid} linkShareId The link share id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteLinkShare = function (token, sessionSecretKey, link_share_id) {
+const deleteLinkShare = function (token, sessionSecretKey, linkShareId) {
     const endpoint = "/link-share/";
     const method = "DELETE";
     const data = {
-        link_share_id: link_share_id,
+        link_share_id: linkShareId,
     };
 
     const headers = {
@@ -3290,16 +3361,16 @@ const deleteLinkShare = function (token, sessionSecretKey, link_share_id) {
 /**
  * Ajax POST request with the token as authentication to access the secret behind a link share
  *
- * @param {uuid} link_share_id The link share id
+ * @param {uuid} linkShareId The link share id
  * @param {string|null} [passphrase=null] (optional) The passphrase
  *
  * @returns {Promise} promise
  */
-const linkShareAccess = function (link_share_id, passphrase) {
+const linkShareAccess = function (linkShareId, passphrase) {
     const endpoint = "/link-share-access/";
     const method = "POST";
     const data = {
-        link_share_id: link_share_id,
+        link_share_id: linkShareId,
         passphrase: passphrase,
     };
     const headers = null;
@@ -3313,17 +3384,17 @@ const linkShareAccess = function (link_share_id, passphrase) {
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {Array} entries All the details about each entry
- * @param {boolean} check_haveibeenpwned Whether haveibeenpwned was used or not
+ * @param {boolean} checkHaveibeenpwned Whether haveibeenpwned was used or not
  * @param {string} authkey The authkey of the user if the masterpassword was tested
  *
  * @returns {Promise} promise
  */
-const sendSecurityReport = function (token, sessionSecretKey, entries, check_haveibeenpwned, authkey) {
+const sendSecurityReport = function (token, sessionSecretKey, entries, checkHaveibeenpwned, authkey) {
     const endpoint = "/user/security-report/";
     const method = "POST";
     const data = {
         entries: entries,
-        check_haveibeenpwned: check_haveibeenpwned,
+        check_haveibeenpwned: checkHaveibeenpwned,
         authkey: authkey,
     };
     const headers = {
@@ -3405,6 +3476,82 @@ const deleteAvatar = function (token, sessionSecretKey, avatarId) {
     return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
+/**
+ * Ajax POST request to create the user's server secret with the token as authentication
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} privateKey The user's unencrypted private key
+ * @param {string} secretKey The user's unencrypted secret key
+ *
+ * @returns {Promise} promise
+ */
+const createServerSecret = function (
+    token,
+    sessionSecretKey,
+    secretKey,
+    privateKey,
+) {
+    const endpoint = "/server-secret/";
+    const method = "POST";
+    const data = {
+        secret_key: secretKey,
+        private_key: privateKey,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax DELETE request to delete the user's server secret
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} authkey The avatar id to delete
+ * @param {string} secretKey encrypted secret key of the group
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} privateKey encrypted private key of the group
+ * @param {string} privateKeyNonce nonce for private key
+ * @param {string} userSauce the random user sauce used
+ *
+ * @returns {Promise} Returns a promise which can succeed or fail
+ */
+const deleteServerSecret = function (
+    token,
+    sessionSecretKey,
+    authkey,
+    privateKey,
+    privateKeyNonce,
+    secretKey,
+    secretKeyNonce,
+    userSauce,
+    // hashingAlgorithm,
+    // hashingParameters
+) {
+    const endpoint = "/server-secret/";
+    const method = "DELETE";
+    const data = {
+        authkey: authkey,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        user_sauce: userSauce,
+        // hashing_algorithm: hashingAlgorithm,
+        // hashing_parameters: hashingParameters,
+    };
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
 
 const apiClientService = {
     info: info,
@@ -3421,6 +3568,7 @@ const apiClientService = {
     readEmergencyCodes: readEmergencyCodes,
     createEmergencyCode: createEmergencyCode,
     deleteEmergencyCode: deleteEmergencyCode,
+    statelessLogout: statelessLogout,
     logout: logout,
     register: register,
     verifyEmail: verifyEmail,
@@ -3439,6 +3587,7 @@ const apiClientService = {
     readSecret: readSecret,
     writeSecret: writeSecret,
     createSecret: createSecret,
+    createSecretBulk: createSecretBulk,
     moveSecretLink: moveSecretLink,
     deleteSecretLink: deleteSecretLink,
     moveFileLink: moveFileLink,
@@ -3522,6 +3671,8 @@ const apiClientService = {
     readAvatar: readAvatar,
     createAvatar: createAvatar,
     deleteAvatar: deleteAvatar,
+    createServerSecret: createServerSecret,
+    deleteServerSecret: deleteServerSecret,
 };
 
 export default apiClientService;

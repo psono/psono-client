@@ -16,7 +16,7 @@ import * as openpgp from "openpgp";
 import { BarLoader } from "react-spinners";
 
 import GridContainerErrors from "../grid-container-errors";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import datastorePasswordService from "../../services/datastore-password";
 
 const useStyles = makeStyles((theme) => ({
@@ -82,9 +82,9 @@ const DialogDecryptGpgMessage = (props) => {
             });
         }
         // TODO check how this logic works in the old client. pgpSender is always an empty list
-        const gpgHkpSearch = store.getState().settingsDatastore.gpgHkpSearch;
+        const gpgHkpSearch = getStore().getState().settingsDatastore.gpgHkpSearch;
         if (gpgHkpSearch && pgpSender && pgpSender.length) {
-            const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);
+            const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
             const options = {
                 query: pgpSender,
             };

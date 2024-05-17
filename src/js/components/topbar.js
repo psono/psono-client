@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import AppBar from "@material-ui/core/AppBar";
@@ -8,7 +8,8 @@ import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import MenuIcon from "@material-ui/icons/Menu";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import Badge from '@material-ui/core/Badge';
 import StorageIcon from '@material-ui/icons/Storage';
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
@@ -23,18 +24,22 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import AddIcon from '@material-ui/icons/Add';
+import Avatar from '@material-ui/core/Avatar';
 import Typography from "@material-ui/core/Typography";
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
 
 import FrameControls from "./frame-controls";
 
-import store from "../services/store";
+import { getStore } from "../services/store";
 import offlineCache from "../services/offline-cache";
 import datastoreService from "../services/datastore";
 import DialogGoOffline from "./dialogs/go-offline";
+import DialogChangeAccount from "./dialogs/change-account";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 import ConfigLogo from "./config-logo";
+import avatarService from "../services/avatar";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -74,6 +79,55 @@ const useStyles = makeStyles((theme) => ({
         marginRight: "10px",
         display: "inline",
     },
+    avatar: {
+        width: 25,
+        height: 25,
+        marginLeft: '6px',
+        marginRight: '6px',
+    },
+    avatarPlaceholder: {
+        width: 25,
+        height: 25,
+        //backgroundColor: '#2dbb93',
+        backgroundColor: '#999',
+        paddingTop: '6px',
+        marginLeft: '6px',
+        marginRight: '6px',
+        color: 'white',
+        "& > *:first-child": {
+            fontSize: '28px'
+        },
+    },
+    overlayIcon: {
+        position: 'absolute',
+        width: '0.6em',
+        height: '0.6em',
+        bottom: 4,
+        right: 4,
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: '50%',
+        color: theme.palette.secondary.main,
+        border: `1px solid ${theme.palette.background.paper}`,
+    },
+    overlayedIcon: {
+        width: 25,
+        height: 25,
+        //backgroundColor: '#2dbb93',
+        backgroundColor: '#999',
+        marginLeft: '0px',
+        marginRight: '0px',
+        color: 'white',
+    },
+    toolbar: {
+        display: 'flex',
+        alignItems: 'center',  // Align items vertically in the middle
+        justifyContent: 'space-between'  // This might be adjusted based on your design
+    },
+    signInTextContainer: {
+        display: 'flex',
+        alignItems: 'center',  // Align text and button vertically
+        marginRight: theme.spacing(2), // Adds some spacing between this text and whatever comes next
+    },
 }));
 
 const Topbar = (props) => {
@@ -83,15 +137,22 @@ const Topbar = (props) => {
     const [anchorTopMenuEl, setAnchorTopMenuEl] = React.useState(null);
     const [anchorDatastoreMenuEl, setAnchorDatastoreMenuEl] = React.useState(null);
     const [goOfflineOpen, setGoOfflineOpen] = React.useState(false);
+    const [changeAccountOpen, setChangeAccountOpen] = React.useState(false);
     const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
     const [datastores, setDatastores] = React.useState([]);
+    const [profilePic, setProfilePic] = useState("");
 
 
     let isSubscribed = true;
     React.useEffect(() => {
         reloadDatastoreOverview();
+        loadAvatar();
         return () => (isSubscribed = false);
     }, []);
+
+    const loadAvatar = async () => {
+        setProfilePic(await avatarService.readAvatarCached() || '')
+    }
 
     const reloadDatastoreOverview = () => {
 
@@ -112,6 +173,10 @@ const Topbar = (props) => {
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    const openChangeAccount = (event) => {
+        setChangeAccountOpen(true)
     };
 
     const openTopMenu = (event) => {
@@ -157,6 +222,7 @@ const Topbar = (props) => {
             <Container maxWidth="lg">
                 <Toolbar
                     disableGutters={true}
+                    className={classes.toolbar}
                 >
                     <IconButton
                         color="inherit"
@@ -168,7 +234,7 @@ const Topbar = (props) => {
                         <MenuIcon />
                     </IconButton>
                     <a className={classes.topLogo} href="index.html">
-                        <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
+                        <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} height="100%" />
                     </a>
                     <div style={{ width: "100%" }}>
                         {datastores && datastores.length > 1 && (<div style={{float: "left"}}>
@@ -237,29 +303,92 @@ const Topbar = (props) => {
                         </div>)}
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
-                                <IconButton
-                                    variant="contained"
-                                    onClick={openTopMenu}
-                                    color="primary"
-                                    className={classes.topMenuButton}
-                                >
-                                    <AccountCircleIcon />
-                                </IconButton>
+                                <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
+                                    <IconButton
+                                        variant="contained"
+                                        onClick={openTopMenu}
+                                        color="primary"
+                                        className={classes.topMenuButton}
+                                    >
+                                        {
+                                            profilePic ? (
+                                                <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                            ) : (
+                                                <Avatar className={classes.avatarPlaceholder}>
+                                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                                </Avatar>
+                                            )
+                                        }
+                                    </IconButton>
+                                    <IconButton
+                                        variant="contained"
+                                        onClick={openChangeAccount}
+                                        color="primary"
+                                        className={classes.topMenuButton}
+                                    >
+                                        <Badge
+                                            overlap="circular"
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                            }}
+                                            badgeContent={
+                                                <SettingsIcon className={classes.overlayIcon} />
+                                            }
+                                        >
+                                            <Avatar className={classes.overlayedIcon}>
+                                                <SupervisorAccountIcon />
+                                            </Avatar>
+                                        </Badge>
+                                    </IconButton>
+                                </ButtonGroup>
                             </Hidden>
                             <Hidden smDown>
-                                <div className={classes.signInText}>{t("SIGNED_IN_AS")}</div>
-                                <Button
-                                    variant="contained"
-                                    aria-controls="top-menu"
-                                    aria-haspopup="true"
-                                    onClick={openTopMenu}
-                                    color="primary"
-                                    disableElevation
-                                    className={classes.topMenuButton}
-                                    endIcon={<ExpandMoreIcon />}
-                                >
-                                    {store.getState().user.username}
-                                </Button>
+                                <div className={classes.signInTextContainer}>
+                                    {t("SIGNED_IN_AS")}&nbsp;
+                                    <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
+                                        <Button
+                                            aria-controls="top-menu"
+                                            aria-haspopup="true"
+                                            onClick={openTopMenu}
+                                            className={classes.topMenuButton}
+                                            endIcon={<ExpandMoreIcon />}
+                                            startIcon={
+                                                profilePic ? (
+                                                    <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                                ) : (
+                                                    <Avatar className={classes.avatarPlaceholder}>
+                                                        <i className="fa fa-user" aria-hidden="true"></i>
+                                                    </Avatar>
+                                                )
+                                            }
+                                        >
+                                            {getStore().getState().user.username}
+                                        </Button>
+                                        <Button
+                                            aria-label="change account"
+                                            aria-haspopup="menu"
+                                            onClick={openChangeAccount}
+                                            className={classes.topMenuButton}
+                                            style={{ position: 'relative' }}  // Ensure relative positioning for proper overlay
+                                        >
+                                            <Badge
+                                                overlap="circular"
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right',
+                                                }}
+                                                badgeContent={
+                                                    <SettingsIcon className={classes.overlayIcon} />
+                                                }
+                                            >
+                                                <Avatar className={classes.overlayedIcon}>
+                                                    <SupervisorAccountIcon />
+                                                </Avatar>
+                                            </Badge>
+                                        </Button>
+                                    </ButtonGroup>
+                                </div>
                             </Hidden>
                             <Menu
                                 id="top-menu"
@@ -300,7 +429,7 @@ const Topbar = (props) => {
                                         <Typography variant="body2">{t("OTHER")}</Typography>
                                     </MenuItem>
                                 )}
-                                {!offlineCache.isActive() && !store.getState().server.complianceDisableOfflineMode && (
+                                {!offlineCache.isActive() && !getStore().getState().server.complianceDisableOfflineMode && (
                                     <MenuItem onClick={goOffline}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <AirplanemodeActiveIcon className={classes.icon} />
@@ -308,7 +437,7 @@ const Topbar = (props) => {
                                         <Typography variant="body2">{t("GO_OFFLINE")}</Typography>
                                     </MenuItem>
                                 )}
-                                {offlineCache.isActive() && !store.getState().server.complianceDisableOfflineMode && (
+                                {offlineCache.isActive() && !getStore().getState().server.complianceDisableOfflineMode && (
                                     <MenuItem onClick={goOnline}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <AirplanemodeActiveIcon className={classes.icon} />
@@ -329,6 +458,7 @@ const Topbar = (props) => {
                 </Toolbar>
             </Container>
             {goOfflineOpen && <DialogGoOffline open={goOfflineOpen} onClose={() => setGoOfflineOpen(false)} />}
+            {changeAccountOpen && <DialogChangeAccount open={changeAccountOpen} onClose={() => setChangeAccountOpen(false)} />}
             {createDatastoreOpen && <CreateDatastoresDialog {...props} open={createDatastoreOpen} onClose={() => {
                 setCreateDatastoreOpen(false);
                 reloadDatastoreOverview();

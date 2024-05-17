@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import Hidden from '@material-ui/core/Hidden';
 
 import browserClient from "../../services/browser-client";
-import {BarLoader, ClipLoader} from "react-spinners";
+import {ClipLoader} from "react-spinners";
 import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
@@ -42,7 +42,9 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         marginLeft: '5px',
-        height: "38px"
+        height: "38px",
+        whiteSpace: "nowrap",
+        minWidth: "32px",
     },
     close: {
         color: "#b1b6c1",
@@ -95,7 +97,7 @@ const NotificationBarView = (props) => {
             <Hidden xsDown>
                 <div className={classes.logoImg}>
                     <a href="https://psono.com" target="_blank">
-                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
                     </a>
                 </div>
             </Hidden>

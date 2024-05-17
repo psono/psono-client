@@ -3,26 +3,15 @@
  */
 
 import helperService from "./helper";
-import store from "./store";
+import { getStore } from "./store";
 import deviceService from "./device";
 
-
-const registrations = {};
-const events = ["login", "logout"];
-
-if (TARGET === "chrome") {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        for (let i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
-            registrations[request.event][i](request.data);
-        }
-    });
-}
 
 /**
  * Registers a listener with browser.webRequest.onAuthRequired.addListener
  */
 function getRemoteConfigJson() {
-    return store.getState().persistent.remoteConfigJson;
+    return getStore().getState().persistent.remoteConfigJson;
 }
 
 /**
@@ -574,38 +563,8 @@ function emitSec(event, data, fnc) {
     }
 }
 
-/**
- * registers for an event with a function
- *
- * @param {string} event The event
- * @param {function} myFunction The callback function
- *
- * @returns {boolean} Returns if the registration was successful
- */
-function on(event, myFunction) {
-    if (TARGET === "firefox") {
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-    } else if (TARGET === "chrome") {
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-    } else {
-        if (events.indexOf(event) === -1) return false;
 
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-        return true;
-    }
-}
-
-
-let configSingleton;
+let configSingleton = {};
 
 /**
  * Helper function that acts as a singleton to load the config only once.
@@ -613,10 +572,11 @@ let configSingleton;
  * @private
  */
 function loadConfig() {
-    if (!configSingleton) {
-        configSingleton = _loadConfig();
+    const remoteConfigWebClientUrl = getStore().getState().persistent.remoteConfigWebClientUrl || "";
+    if (!configSingleton.hasOwnProperty(remoteConfigWebClientUrl) || !configSingleton[remoteConfigWebClientUrl]) {
+        configSingleton[remoteConfigWebClientUrl] = _loadConfig();
     }
-    return configSingleton;
+    return configSingleton[remoteConfigWebClientUrl];
 }
 
 /**
@@ -642,7 +602,7 @@ async function getConfig(key) {
  * Clears the config cache
  */
 function clearConfigCache() {
-    configSingleton = undefined;
+    configSingleton = {};
 }
 
 /**
@@ -709,7 +669,7 @@ function disableBrowserPasswordSaving(value) {
             return false;
         }
 
-        let oldPMValue = store.getState().client.disableBrowserPm;
+        let oldPMValue = getStore().getState().client.disableBrowserPm;
         value = value !== undefined ? value : oldPMValue;
         if (TARGET === "firefox") {
             function onSet(result) {
@@ -918,7 +878,6 @@ const browserClientService = {
     emitTab: emitTab,
     getURL: getURL,
     emitSec: emitSec,
-    on: on,
     getConfig: getConfig,
     passwordSavingControlledByThisExtension: passwordSavingControlledByThisExtension,
     disableBrowserPasswordSaving: disableBrowserPasswordSaving,

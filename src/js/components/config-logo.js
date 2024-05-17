@@ -5,7 +5,7 @@ import browserClient from "../services/browser-client";
 
 
 const ConfigLogo = (props) => {
-    const { defaultLogo, configKey } = props;
+    const { defaultLogo, configKey, ...rest } = props;
     const [imageSrc, setImageSrc] = useState(defaultLogo);
 
     let isSubscribed = true;
@@ -21,7 +21,7 @@ const ConfigLogo = (props) => {
         }
     };
     return (
-        <img alt="Psono" src={imageSrc} height="100%"/>
+        <img alt="Psono" src={imageSrc} {...rest} />
     );
 };
 

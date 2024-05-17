@@ -7,7 +7,7 @@ import browserClient from "./browser-client";
 import offscreenDocument from "./offscreen-document";
 import storage from "./storage";
 import action from "../actions/bound-action-creators";
-import store from "./store";
+import { getStore } from "./store";
 
 let encryptionKey = "";
 const onSetEncryptionKeyRegistrations = [];
@@ -29,7 +29,7 @@ function activate() {
  * @returns {boolean} promise
  */
 function isActive() {
-    const offline_mode = store.getState().client.offlineMode;
+    const offline_mode = getStore().getState().client.offlineMode;
 
     if (offline_mode === null) {
         return false;
@@ -44,7 +44,7 @@ function isActive() {
  * @returns {boolean} promise
  */
 function isEncrypted() {
-    return store.getState().client.offlineCacheEncryptionKey !== null;
+    return getStore().getState().client.offlineCacheEncryptionKey !== null;
 }
 
 /**
@@ -74,8 +74,8 @@ function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
-    const encryptionKeyEncrypted = store.getState().client.offlineCacheEncryptionKey;
-    const encryptionKeySalt = store.getState().client.offlineCacheEncryptionSalt;
+    const encryptionKeyEncrypted = getStore().getState().client.offlineCacheEncryptionKey;
+    const encryptionKeySalt = getStore().getState().client.offlineCacheEncryptionSalt;
     if (!encryptionKeyEncrypted || !encryptionKeySalt) {
         return true;
     }
@@ -131,7 +131,7 @@ function setEncryptionPassword(password) {
         password,
         offlineCacheEncryptionSalt
     );
-    action.setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
+    action().setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
     browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
 }
 
@@ -197,14 +197,14 @@ function get(url, method) {
  * Enables the offline cache
  */
 function enable() {
-    action.enableOfflineMode();
+    action().enableOfflineMode();
 }
 
 /**
  * Disables the offline cache
  */
 function disable() {
-    action.disableOfflineMode();
+    action().disableOfflineMode();
 }
 
 /**

@@ -15,7 +15,7 @@ import TextField from "@material-ui/core/TextField";
 
 import Table from "../../components/table";
 import emergencyCode from "../../services/emmergency-code";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import MuiAlert from "@material-ui/lab/Alert";
 import Divider from "@material-ui/core/Divider";
 import ContentCopy from "../../components/icons/ContentCopy";
@@ -75,7 +75,7 @@ const EmergencyCodesDialog = (props) => {
     const generate = () => {
         emergencyCode.createEmergencyCode(person, leadTime * 3600).then(
             function (createdEmergencyCode) {
-                createdEmergencyCode["url"] = store.getState().server.webClient + "/emergency-code.html";
+                createdEmergencyCode["url"] = getStore().getState().server.webClient + "/emergency-code.html";
                 setNewEmergencyCode(createdEmergencyCode);
                 setView("step2");
                 setPerson("");

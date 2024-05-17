@@ -14,7 +14,7 @@ import apiOtherS3 from "./api-other-s3";
 import apiGCP from "./api-gcp";
 import apiDO from "./api-aws";
 import apiFileserver from "./api-fileserver";
-import store from "./store";
+import { getStore } from "./store";
 import storage from "./storage";
 import offlineCache from "./offline-cache";
 
@@ -28,8 +28,8 @@ const registrations = {};
  * @returns {Promise} promise
  */
 function readFile(fileId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -55,8 +55,8 @@ function readFile(fileId) {
  * @returns {Promise} promise
  */
 function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -457,8 +457,8 @@ function upload(
  * @returns {Promise} promise with all the shards
  */
 function readShards() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         return Promise.reject(result.data);
     };

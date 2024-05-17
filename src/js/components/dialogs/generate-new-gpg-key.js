@@ -16,7 +16,7 @@ import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 
 import GridContainerErrors from "../grid-container-errors";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -47,7 +47,7 @@ const DialogGenerateNewGpgKey = (props) => {
     const [generating, setGenerating] = useState(false);
     const [title, setTitle] = useState("");
     const [name, setName] = useState("");
-    const [email, setEmail] = useState(store.getState().user.userEmail);
+    const [email, setEmail] = useState(getStore().getState().user.userEmail);
     const [publishPublicKey, setPublishPublicKey] = useState(false);
     const [errors, setErrors] = useState([]);
 
@@ -63,7 +63,7 @@ const DialogGenerateNewGpgKey = (props) => {
         openpgp.generateKey(options).then(
             function (key) {
                 if (publishPublicKey) {
-                    const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);
+                    const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
                     hkp.upload(key.publicKeyArmored).then(
                         function () {
                             onNewGpgKeysGenerated(title, name, email, key.privateKey, key.publicKey);

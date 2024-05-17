@@ -21,7 +21,7 @@ import { Doughnut } from "react-chartjs-2";
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
@@ -88,12 +88,12 @@ const SecurityReportView = (props) => {
     const { t } = useTranslation();
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
-    const userAuthentication = store.getState().user.authentication;
-    const hideSendToServer = store.getState().server.disableCentralSecurityReports;
-    const showRecoveryCodeAdvise = !store.getState().server.complianceDisableRecoveryCodes;
+    const userAuthentication = getStore().getState().user.authentication;
+    const hideSendToServer = getStore().getState().server.disableCentralSecurityReports;
+    const showRecoveryCodeAdvise = !getStore().getState().server.complianceDisableRecoveryCodes;
     const disableSendToSeverChoice =
-        store.getState().server.disableCentralSecurityReports ||
-        store.getState().server.complianceEnforceCentralSecurityReports;
+        getStore().getState().server.disableCentralSecurityReports ||
+        getStore().getState().server.complianceEnforceCentralSecurityReports;
     const requireMasterPassword = ["LDAP", "AUTHKEY"].indexOf(userAuthentication) !== -1;
     const [passwordStrengthData, setPasswordStrengthData] = React.useState({});
     const [passwordDuplicateData, setPasswordDuplicateData] = React.useState({});
@@ -112,8 +112,8 @@ const SecurityReportView = (props) => {
     const [haveibeenpwnedPercentageComplete, setHaveibeenpwnedPercentageComplete] = React.useState(0);
 
     const [sendToServer, setSendToServer] = useState(
-        store.getState().server.complianceEnforceCentralSecurityReports &&
-            !store.getState().server.disableCentralSecurityReports
+        getStore().getState().server.complianceEnforceCentralSecurityReports &&
+            !getStore().getState().server.disableCentralSecurityReports
     );
 
     let openSecretRequests = 0;

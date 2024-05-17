@@ -5,6 +5,7 @@
 
 import React from 'react';
 import device from "../services/device";
+import {initStore} from "./store";
 
 describe('Service: device test suite', function () {
 
@@ -12,7 +13,8 @@ describe('Service: device test suite', function () {
         expect(device).toBeDefined();
     });
 
-    it('getDeviceFingerprint', function () {
+    it('getDeviceFingerprint', async function () {
+        await initStore()
         expect(device.getDeviceFingerprint()).toEqual(expect.any(String));
     });
 

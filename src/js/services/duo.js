@@ -3,7 +3,7 @@
  */
 
 import apiClient from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
 
 /**
@@ -18,8 +18,8 @@ import action from "../actions/bound-action-creators";
  * @returns {Promise} Returns a promise with the user information
  */
 function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function (request) {
         return {
             id: request.data["id"],
@@ -40,8 +40,8 @@ function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
  * @returns {Promise} Returns a promise with a list of all duos
  */
 function readDuo() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function (request) {
         return request.data["duos"];
     };
@@ -60,10 +60,10 @@ function readDuo() {
  * @returns {Promise} Returns a promise with true or false
  */
 function activateDuo(duoId, duoToken) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
-        action.setHasTwoFactor(true);
+        action().setHasTwoFactor(true);
         return true;
     };
     const onError = function () {
@@ -80,8 +80,8 @@ function activateDuo(duoId, duoToken) {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteDuo(duoId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onSuccess = function () {
         return true;
     };

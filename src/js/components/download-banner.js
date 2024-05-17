@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import GetAppIcon from "@material-ui/icons/GetApp";
 
 import browserClient from "../services/browser-client";
 import deviceService from "../services/device";
@@ -77,7 +75,7 @@ const DownloadBanner = (props) => {
     };
 
     const hideDownloadBanner = (event) => {
-        action.setHideDownloadBanner(true);
+        action().setHideDownloadBanner(true);
         event.preventDefault();
     };
 

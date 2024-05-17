@@ -8,7 +8,7 @@ import datastoreService from "./datastore";
 import statusService from "./status";
 import cryptoLibrary from "./crypto-library";
 import apiClient from "./api-client";
-import store from "./store";
+import { getStore } from "./store";
 import apiPwnedpasswordsService from "./api-pwnedpasswords";
 
 const registrations = {};
@@ -529,7 +529,7 @@ function summarizeUser(analysis) {
         const users = result.data;
         if (Object.prototype.toString.call(users) === "[object Array]") {
             users.map((user) => {
-                if (user.username === store.getState().user.username) {
+                if (user.username === getStore().getState().user.username) {
                     console.log(user);
                     analysis["user_summary"]["multifactor_auth_enabled"] = user.multifactor_auth_enabled;
                     analysis["user_summary"]["recovery_code_enabled"] = user.recovery_code_enabled;
@@ -543,7 +543,7 @@ function summarizeUser(analysis) {
         return analysis;
     };
 
-    return datastoreUserService.searchUser(store.getState().user.username).then(onSuccess, onError);
+    return datastoreUserService.searchUser(getStore().getState().user.username).then(onSuccess, onError);
 
 }
 
@@ -610,12 +610,12 @@ function generateSecurityReport(password, checkHaveibeenpwned) {
  * @returns {Promise} Returns a promise to indicate the success of this or not
  */
 function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const entries = [];
 
-    const authkey = cryptoLibrary.generateAuthkey(store.getState().user.username, masterPassword);
+    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, masterPassword);
 
     for (let i = 0; i < analysis["passwords"].length; i++) {
         entries.push({

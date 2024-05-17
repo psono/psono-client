@@ -18,7 +18,7 @@ import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import datastoreGpgUserService from "../../services/datastore-gpg-user";
 import datastoreService from "../../services/datastore";
 import helper from "../../services/helper";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import Table from "../table";
 
 import HKP from "@openpgp/hkp-client";
@@ -78,7 +78,7 @@ const DialogGpgAddressBook = (props) => {
     const searchPublicKeyServer = (searchEmail) => {
         setErrors([]);
 
-        const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);
+        const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
         const options = {
             query: searchEmail,
         };

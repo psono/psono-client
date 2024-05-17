@@ -33,6 +33,7 @@ const defaultCompliancePasswordGeneratorDefaultLettersUppercase = "ABCDEFGHIJKLM
 const defaultCompliancePasswordGeneratorDefaultLettersLowercase = "abcdefghijklmnopqrstuvwxyz";
 const defaultCompliancePasswordGeneratorDefaultNumbers = "0123456789";
 const defaultCompliancePasswordGeneratorDefaultSpecialChars = ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\";
+const defaultComplianceServerSecrets = "auto";
 const defaultLicenseId = "";
 const defaultLicenseMode = "";
 const defaultLicenseType = "";
@@ -95,6 +96,7 @@ function server(
         compliancePasswordGeneratorDefaultLettersLowercase: defaultCompliancePasswordGeneratorDefaultLettersLowercase,
         compliancePasswordGeneratorDefaultNumbers: defaultCompliancePasswordGeneratorDefaultNumbers,
         compliancePasswordGeneratorDefaultSpecialChars: defaultCompliancePasswordGeneratorDefaultSpecialChars,
+        complianceServerSecrets: defaultComplianceServerSecrets,
         licenseId: defaultLicenseId,
         licenseMaxUsers: defaultLicenseMaxUsers,
         licenseMode: defaultLicenseMode,
@@ -158,6 +160,7 @@ function server(
                     defaultCompliancePasswordGeneratorDefaultLettersLowercase,
                 compliancePasswordGeneratorDefaultNumbers: defaultCompliancePasswordGeneratorDefaultNumbers,
                 compliancePasswordGeneratorDefaultSpecialChars: defaultCompliancePasswordGeneratorDefaultSpecialChars,
+                complianceServerSecrets: defaultComplianceServerSecrets,
                 licenseId: defaultLicenseId,
                 licenseMaxUsers: defaultLicenseMaxUsers,
                 licenseMode: defaultLicenseMode,
@@ -218,6 +221,8 @@ function server(
                 compliancePasswordGeneratorDefaultNumbers: action.info.compliance_password_generator_default_numbers,
                 compliancePasswordGeneratorDefaultSpecialChars:
                     action.info.compliance_password_generator_default_special_chars,
+                complianceServerSecrets:
+                    action.info.compliance_server_secrets || 'auto',
                 licenseId: action.info.license_id,
                 licenseMaxUsers: action.info.license_max_users,
                 licenseMode: action.info.license_mode,
@@ -305,6 +310,9 @@ function server(
             }
             if (action.policy.hasOwnProperty('compliance_password_generator_default_special_chars')) {
                 data['compliancePasswordGeneratorDefaultSpecialChars'] = action.policy.compliance_password_generator_default_special_chars;
+            }
+            if (action.policy.hasOwnProperty('compliance_server_secrets')) {
+                data['complianceServerSecrets'] = action.policy.compliance_server_secrets;
             }
             if (action.policy.hasOwnProperty('allowed_file_repository_types')) {
                 data['allowedFileRepositoryTypes'] = action.policy.allowed_file_repository_types;

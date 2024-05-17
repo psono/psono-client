@@ -8,7 +8,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Paper from "@material-ui/core/Paper";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
@@ -54,7 +54,7 @@ const AccountView = (props) => {
                                         to={"/account/server-info"}
                                         onClick={() => setValue("/account/server-info")}
                                     />
-                                    {store.getState().user.authentication === "AUTHKEY" && (
+                                    {getStore().getState().user.authentication === "AUTHKEY" && (
                                         <Tab
                                             label={t("CHANGE_E_MAIL")}
                                             value="/account/change-email"
@@ -63,7 +63,7 @@ const AccountView = (props) => {
                                             onClick={() => setValue("/account/change-email")}
                                         />
                                     )}
-                                    {store.getState().user.authentication === "AUTHKEY" && (
+                                    {getStore().getState().user.authentication === "AUTHKEY" && (
                                         <Tab
                                             label={t("CHANGE_PASSWORD")}
                                             value="/account/change-password"
@@ -72,7 +72,7 @@ const AccountView = (props) => {
                                             onClick={() => setValue("/account/change-password")}
                                         />
                                     )}
-                                    {store.getState().server.allowedSecondFactors.length !== 0 && (
+                                    {getStore().getState().server.allowedSecondFactors.length !== 0 && (
                                         <Tab
                                             label={t("MULTIFACTOR_AUTHENTICATION")}
                                             value="/account/multifactor-authentication"
@@ -81,7 +81,7 @@ const AccountView = (props) => {
                                             onClick={() => setValue("/account/multifactor-authentication")}
                                         />
                                     )}
-                                    {!store.getState().server.complianceDisableEmergencyCodes && (
+                                    {!getStore().getState().server.complianceDisableEmergencyCodes && (
                                         <Tab
                                             label={t("EMERGENCY_CODES")}
                                             value="/account/emergency-codes"
@@ -90,7 +90,7 @@ const AccountView = (props) => {
                                             onClick={() => setValue("/account/emergency-codes")}
                                         />
                                     )}
-                                    {!store.getState().server.complianceDisableRecoveryCodes && (
+                                    {!getStore().getState().server.complianceDisableRecoveryCodes && (
                                         <Tab
                                             label={t("GENERATE_PASSWORD_RECOVERY")}
                                             value="/account/recovery-codes"
@@ -99,7 +99,7 @@ const AccountView = (props) => {
                                             onClick={() => setValue("/account/recovery-codes")}
                                         />
                                     )}
-                                    {!store.getState().server.complianceDisableDeleteAccount && (
+                                    {!getStore().getState().server.complianceDisableDeleteAccount && (
                                         <Tab
                                             label={t("DELETE_ACCOUNT")}
                                             value="/account/delete-account"
@@ -113,32 +113,32 @@ const AccountView = (props) => {
                             <TabPanel value={value} index={"/account/server-info"}>
                                 <AccountOverviewView {...props} />
                             </TabPanel>
-                            {store.getState().user.authentication === "AUTHKEY" && (
+                            {getStore().getState().user.authentication === "AUTHKEY" && (
                                 <TabPanel value={value} index={"/account/change-email"}>
                                     <AccountChangeEmailView {...props} />
                                 </TabPanel>
                             )}
-                            {store.getState().user.authentication === "AUTHKEY" && (
+                            {getStore().getState().user.authentication === "AUTHKEY" && (
                                 <TabPanel value={value} index={"/account/change-password"}>
                                     <AccountChangePasswordView {...props} />
                                 </TabPanel>
                             )}
-                            {store.getState().server.allowedSecondFactors.length !== 0 && (
+                            {getStore().getState().server.allowedSecondFactors.length !== 0 && (
                                 <TabPanel value={value} index={"/account/multifactor-authentication"}>
                                     <MultifactorAuthenticationView {...props} />
                                 </TabPanel>
                             )}
-                            {!store.getState().server.complianceDisableEmergencyCodes && (
+                            {!getStore().getState().server.complianceDisableEmergencyCodes && (
                                 <TabPanel value={value} index={"/account/emergency-codes"}>
                                     <AccountEmergencyCodesView {...props} />
                                 </TabPanel>
                             )}
-                            {!store.getState().server.complianceDisableRecoveryCodes && (
+                            {!getStore().getState().server.complianceDisableRecoveryCodes && (
                                 <TabPanel value={value} index={"/account/recovery-codes"}>
                                     <AccountPasswordRecoveryCodesView {...props} />
                                 </TabPanel>
                             )}
-                            {!store.getState().server.complianceDisableDeleteAccount && (
+                            {!getStore().getState().server.complianceDisableDeleteAccount && (
                                 <TabPanel value={value} index={"/account/delete-account"}>
                                     <AccountDeleteAccountView {...props} />
                                 </TabPanel>

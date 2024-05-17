@@ -3,6 +3,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     SET_EMAIL,
     SET_USER_DATASTORE_OVERVIEW,
@@ -25,6 +26,7 @@ function user(
         hasTwoFactor: false,
         authentication: "",
         userSecretKey: "",
+        serverSecretExists: false,
         userPrivateKey: "",
         userPublicKey: "",
         sessionSecretKey: "",
@@ -62,6 +64,11 @@ function user(
                 userId: action.userId,
                 userEmail: action.userEmail,
                 userSecretKey: action.userSecretKey,
+                serverSecretExists: action.serverSecretExists,
+            });
+        case SET_SERVER_SECRET_EXISTS:
+            return Object.assign({}, state, {
+                serverSecretExists: action.serverSecretExists,
             });
         case SET_HAS_TWO_FACTOR:
             return Object.assign({}, state, {
@@ -84,6 +91,7 @@ function user(
                 hasTwoFactor: false,
                 authentication: "",
                 userSecretKey: "",
+                serverSecretExists: false,
                 userPrivateKey: "",
                 userEmail: "",
                 userId: "",

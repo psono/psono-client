@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React from "react";
 import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 
-import browserClient from "../services/browser-client";
 import deviceService from "../services/device";
-import action from "../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     container: {

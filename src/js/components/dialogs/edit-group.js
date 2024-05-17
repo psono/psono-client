@@ -22,7 +22,7 @@ import format from "../../services/date";
 
 import groupsService from "../../services/groups";
 import datastoreUserService from "../../services/datastore-user";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import helper from "../../services/helper";
 import TabPanel from "../tab-panel";
 import Table from "../table";
@@ -117,7 +117,7 @@ const DialogEditGroup = (props) => {
 
         const onSuccess = function (groupDetails) {
             if (!isSubscribed) return;
-            const userId = store.getState().user.userId;
+            const userId = getStore().getState().user.userId;
             setGroup(groupDetails);
             setGroupName(groupDetails.name);
             setOriginalGroupName(groupDetails.name);
@@ -293,7 +293,7 @@ const DialogEditGroup = (props) => {
 
     const toggleGroupAdmin = (userId) => {
         const user = users.find((user) => user.id === userId);
-        if (store.getState().user.username === user.name) {
+        if (getStore().getState().user.username === user.name) {
             setToggleOwnGroupAdminId(userId);
         } else {
             return updateMembership(user);

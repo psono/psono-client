@@ -4,7 +4,7 @@
 
 import cryptoLibrary from "../services/crypto-library";
 import apiClient from "../services/api-client";
-import store from "./store";
+import { getStore } from "./store";
 import datastoreService from "./datastore";
 import secretLinkService from "./secret-link";
 import fileLinkService from "./file-link";
@@ -21,8 +21,8 @@ const registrations = {};
  * @returns {Promise} Returns a promise with the decrypted content of the share
  */
 function readShare(shareId, secretKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -44,8 +44,8 @@ function readShare(shareId, secretKey) {
  * @returns {Promise} Returns a list of all shares
  */
 function readShares() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -92,8 +92,8 @@ function readShares() {
  * @returns {Promise} Returns a promise with the status of the update
  */
 function writeShare(shareId, content, secretKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     if (content.hasOwnProperty("id")) {
         delete content.id;
@@ -121,8 +121,8 @@ function writeShare(shareId, content, secretKey) {
  * @returns {Promise} Returns a promise with the status and the new share id
  */
 function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRequest, onClosedRequest) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const child_shares = [];
     registrations["get_all_child_shares"](content, 1, child_shares, []);
@@ -192,8 +192,8 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
  * @returns {Promise} Returns a promise with all the specific rights
  */
 function readShareRights(shareId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -212,8 +212,8 @@ function readShareRights(shareId) {
  * @returns {Promise} Returns a promise with the share rights overview
  */
 function readShareRightsOverview() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -244,8 +244,8 @@ function readShareRightsOverview() {
  * @returns {Promise} Returns a promise with the new share right id
  */
 function createShareRight(title, type, shareId, userId, groupId, publicKey, secretKey, key, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     let encrypted_key, encrypted_title, encrypted_type;
 
     const onError = function (result) {
@@ -299,8 +299,8 @@ function createShareRight(title, type, shareId, userId, groupId, publicKey, secr
  * @returns {Promise} Returns a promise with the update status
  */
 function updateShareRight(shareId, userId, groupId, read, write, grant) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -325,8 +325,8 @@ function updateShareRight(shareId, userId, groupId, read, write, grant) {
  * @returns {Promise} Returns a promise with the status of the delete
  */
 function deleteShareRight(userShareRightId, groupShareRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass
@@ -375,8 +375,8 @@ function decryptShare(encryptedShare, secretKey) {
  * @returns {Promise} Returns a promise with the share content
  */
 function acceptShareRight(shareRightId, text, nonce, publicKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const secret_key = cryptoLibrary.decryptPrivateKey(text, nonce, publicKey);
 
@@ -417,8 +417,8 @@ function acceptShareRight(shareRightId, text, nonce, publicKey) {
  * @returns {Promise} Returns a promise with the status of the decline
  */
 function declineShareRight(shareRightId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onError = function (result) {
         // pass

@@ -15,7 +15,7 @@ import TextField from "@material-ui/core/TextField";
 
 import Table from "../../components/table";
 import duo from "../../services/duo";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TextFieldQrCode from "../../components/text-field/qr";
 
@@ -88,7 +88,7 @@ const MultifactorAuthenticatorDuo = (props) => {
 
     const create = () => {
         duo.createDuo(
-            store.getState().server.systemWideDuoExists,
+            getStore().getState().server.systemWideDuoExists,
             title || undefined,
             integrationKey || undefined,
             secretKey || undefined,
@@ -200,7 +200,7 @@ const MultifactorAuthenticatorDuo = (props) => {
             {view === "create_step0" && (
                 <DialogContent>
                     <Grid container>
-                        {!store.getState().server.systemWideDuoExists && (
+                        {!getStore().getState().server.systemWideDuoExists && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
                                     className={classes.textField}
@@ -219,7 +219,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 />
                             </Grid>
                         )}
-                        {!store.getState().server.systemWideDuoExists && (
+                        {!getStore().getState().server.systemWideDuoExists && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
                                     className={classes.textField}
@@ -237,7 +237,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 />
                             </Grid>
                         )}
-                        {!store.getState().server.systemWideDuoExists && (
+                        {!getStore().getState().server.systemWideDuoExists && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
                                     className={classes.textField}
@@ -255,7 +255,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 />
                             </Grid>
                         )}
-                        {!store.getState().server.systemWideDuoExists && (
+                        {!getStore().getState().server.systemWideDuoExists && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
                                     className={classes.textField}
@@ -280,7 +280,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 color="primary"
                                 onClick={create}
                                 disabled={
-                                    !store.getState().server.systemWideDuoExists &&
+                                    !getStore().getState().server.systemWideDuoExists &&
                                     (!title || !integrationKey || !secretKey || !host)
                                 }
                             >

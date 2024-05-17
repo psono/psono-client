@@ -4,7 +4,7 @@
 import browserClient from "./browser-client";
 import browser from "./browser";
 import i18n from "../i18n";
-import store from "./store";
+import { getStore } from "./store";
 import datastorePasswordService from "./datastore-password";
 import offlineCache from "./offline-cache";
 import helper from "./helper";
@@ -16,8 +16,6 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
-import converterService from "./converter";
-import helperService from "./helper";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -104,7 +102,7 @@ function activate() {
         });
         browser.tabs.onRemoved.addListener(function (tabId) {
             numTabs--;
-            if (numTabs === 0 && !store.getState().user.trustDevice) {
+            if (numTabs === 0 && !getStore().getState().user.trustDevice) {
                 user.logout();
             }
         });
@@ -149,7 +147,7 @@ function activate() {
  * Updates the badge counter at the top
  */
 function  updateBadgeCounter() {
-    if (!store.getState().user.isLoggedIn || !activeTabUrl) {
+    if (!getStore().getState().user.isLoggedIn || !activeTabUrl) {
         browserClient.setBadgeText("");
     } else {
         searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
@@ -587,7 +585,7 @@ function onLogout(request, sender, sendResponse) {
  */
 function
     onIsLoggedIn(request, sender, sendResponse) {
-    sendResponse(store.getState().user.isLoggedIn);
+    sendResponse(getStore().getState().user.isLoggedIn);
 }
 
 /**
@@ -668,7 +666,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
 function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
     const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
-    return storage.where("datastore-password-leafs", filter);
+    return storage.where("datastore-password-leafs", (value, key) => filter(value));
 }
 
 /**
@@ -677,7 +675,7 @@ function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  * @returns {Promise} The database objects
  */
 function searchCreditCard() {
-    const filter = (leaf) => leaf.type === "credit_card";
+    const filter = (leaf, key) => leaf.type === "credit_card";
 
     return storage.where("datastore-password-leafs", filter);
 }
@@ -708,7 +706,7 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
         return;
     }
 
-    storage.where("datastore-password-leafs", (leaf) => leaf.type === "elster_certificate").then(function (leafs) {
+    storage.where("datastore-password-leafs", (leaf, key) => leaf.type === "elster_certificate").then(function (leafs) {
         const update = [];
 
         for (let ii = 0; ii < leafs.length; ii++) {
@@ -962,10 +960,10 @@ function readGpg(request, sender, sendResponse) {
         });
     }
 
-    const gpgHkpSearch = store.getState().settingsDatastore.gpgHkpSearch;
+    const gpgHkpSearch = getStore().getState().settingsDatastore.gpgHkpSearch;
 
     if (gpgHkpSearch && pgpSender && pgpSender.length) {
-        const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);
+        const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
         const options = {
             query: pgpSender,
         };
@@ -1177,7 +1175,7 @@ function oidcSamlRedirectDetected(request, sender, sendResponse) {
  */
 function searchDatastore(text) {
     const password_filter = helper.getPasswordFilter(text);
-    return storage.where("datastore-password-leafs", password_filter).then(function (leafs) {
+    return storage.where("datastore-password-leafs", (value, key) => password_filter(value)).then(function (leafs) {
         const entries = [];
         let datastore_entry;
         for (let i = 0; i < leafs.length; i++) {

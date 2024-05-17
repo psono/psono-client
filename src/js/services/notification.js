@@ -1,6 +1,6 @@
 import action from "../actions/bound-action-creators";
 import browserClient from "./browser-client";
-import store from "./store";
+import { getStore } from "./store";
 
 /**
  * Sends an info message
@@ -8,7 +8,7 @@ import store from "./store";
  * @param {array} message The message to send
  */
 function infoSend(message) {
-    action.sendNotification(message, "info");
+    action().sendNotification(message, "info");
 }
 
 /**
@@ -17,14 +17,14 @@ function infoSend(message) {
  * @param {array} message The message to send
  */
 function errorSend(message) {
-    action.sendNotification(message, "danger");
+    action().sendNotification(message, "danger");
 }
 
 /**
  * Resets messages
  */
 function reset() {
-    action.setNotifications([]);
+    action().setNotifications([]);
 }
 
 /**
@@ -33,7 +33,7 @@ function reset() {
  * @param {array} messages The message to set
  */
 function set(messages) {
-    action.setNotifications(messages);
+    action().setNotifications(messages);
 }
 
 /**
@@ -61,7 +61,7 @@ function push(notificationType, notificationContent) {
         return;
     }
 
-    if (store.getState().client.notificationOnCopy) {
+    if (getStore().getState().client.notificationOnCopy) {
         browserClient.notify(notificationContent);
     }
 }

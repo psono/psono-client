@@ -2,7 +2,7 @@
  * Service to manage the host
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import apiClient from "./api-client";
@@ -15,7 +15,7 @@ import action from "../actions/bound-action-creators";
  * @returns {*} The known hosts
  */
 function getKnownHosts() {
-    return store.getState().persistent.knownHosts;
+    return getStore().getState().persistent.knownHosts;
 }
 /**
  * Returns the current host
@@ -23,7 +23,7 @@ function getKnownHosts() {
  * @returns {*} The current host
  */
 function getCurrentHost() {
-    return store.getState().server;
+    return getStore().getState().server;
 }
 /**
  * Returns the url of the current host
@@ -31,7 +31,7 @@ function getCurrentHost() {
  * @returns {*} The current host url
  */
 function getCurrentHostUrl() {
-    return store.getState().server.url;
+    return getStore().getState().server.url;
 }
 
 /**
@@ -40,7 +40,7 @@ function getCurrentHostUrl() {
  * @param {array} newKnownHosts List of the new servers
  */
 function updateKnownHosts(newKnownHosts) {
-    action.setKnownHosts(newKnownHosts);
+    action().setKnownHosts(newKnownHosts);
 }
 
 /**
@@ -150,19 +150,19 @@ function checkHost(server, preApprovedVerifyKey) {
  * Loads a remote config. It takes an url of a remote web client and loads its config.
  * It persists the config so it does not need to be loaded multiple times
  *
- * @param {string} web_client_url The url of a web client without trailing slash
- * @param {string} server_url The default url of the server
+ * @param {string} webClientUrl The url of a web client without trailing slash
+ * @param {string} serverUrl The default url of the server
  *
  * @returns {Promise} Result of the check
  */
-function loadRemoteConfig(web_client_url, server_url) {
+function loadRemoteConfig(webClientUrl, serverUrl) {
 
     const onSuccess = async function (data) {
         const config = await data.json();
         // we need to preserve the base_url and the backend server as they are optional and the original web
         // client would create them dynamically
         if (!config.hasOwnProperty("base_url")) {
-            config["base_url"] = web_client_url;
+            config["base_url"] = webClientUrl;
         }
 
         if (config.hasOwnProperty("backend_servers")) {
@@ -170,14 +170,15 @@ function loadRemoteConfig(web_client_url, server_url) {
                 if (config["backend_servers"][i].hasOwnProperty("url")) {
                     continue;
                 }
-                config["backend_servers"][i]["url"] = server_url;
+                config["backend_servers"][i]["url"] = serverUrl;
             }
         }
 
+
         // we store the loaded configuration
-        action.setRemoteConfigJson(config);
-        action.setUserUsername("");
-        action.setServerUrl("");
+        action().setRemoteConfigJson(webClientUrl, config);
+        action().setUserUsername("");
+        action().setServerUrl("");
         browserClient.clearConfigCache();
     };
 
@@ -186,7 +187,7 @@ function loadRemoteConfig(web_client_url, server_url) {
         return Promise.reject(data);
     };
 
-    return fetch(web_client_url + "/config.json").then(onSuccess, onError);
+    return fetch(webClientUrl + "/config.json").then(onSuccess, onError);
 }
 
 /**

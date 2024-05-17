@@ -32,7 +32,6 @@ const OpenSecretView = (props) => {
             });
         }
     };
-
     return (
         <div className="loading-lock">
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>

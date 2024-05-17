@@ -15,7 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 import add from "date-fns/add";
 import cryptoLibraryService from "../../services/crypto-library";
 import linkShareService from "../../services/link-share";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import hostService from "../../services/host";
 import converter from "../../services/converter";
 import ContentCopy from "../icons/ContentCopy";
@@ -125,7 +125,7 @@ const DialogCreateLinkShare = (props) => {
 
         const onSuccess = function (result) {
             hostService.info().then(function (info) {
-                const encodedServerUrl = converter.toBase58(converter.encodeUtf8(store.getState().server.url));
+                const encodedServerUrl = converter.toBase58(converter.encodeUtf8(getStore().getState().server.url));
                 setLinkShareAccessUrl(
                     info["data"]["decoded_info"]["web_client"] +
                         "/link-share-access.html#!/link-share-access/" +
@@ -135,7 +135,7 @@ const DialogCreateLinkShare = (props) => {
                         "/" +
                         encodedServerUrl +
                         "/" +
-                        store.getState().server.verifyKey
+                        getStore().getState().server.verifyKey
                 );
             });
         };

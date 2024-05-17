@@ -75,7 +75,13 @@ const OtherImportView = (props) => {
         const onError = function (data) {
             console.log(data);
             setMessages([]);
-            setErrors(data.errors);
+            if (data.hasOwnProperty('errors')) {
+                if (data.errors[0] === 'RESSOURCE_NOT_FOUND') {
+                    setErrors(['FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE'])
+                } else {
+                    setErrors(data.errors);
+                }
+            }
             openRequests = 0;
             closedRequest = 0;
             setProcessing(false);

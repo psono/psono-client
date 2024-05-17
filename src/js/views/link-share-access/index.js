@@ -8,7 +8,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import TextField from "@material-ui/core/TextField";
 import MuiAlert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import converter from "../../services/converter";
 import hostService from "../../services/host";
@@ -51,7 +51,7 @@ const LinkShareAccessView = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
     const [percentageComplete, setPercentageComplete] = useState(0);
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [nextStep, setNextStep] = useState("");
     const [allowCustomServer, setAllowCustomServer] = useState(false);
     const [serverCheck, setServerCheck] = useState({});
@@ -60,7 +60,7 @@ const LinkShareAccessView = (props) => {
     const [passphraseRequired, setPassphraseRequired] = useState(false);
     const [view, setView] = useState("default");
     const [errors, setErrors] = useState([]);
-    const creditBuyAddress = store.getState().server.credit_buy_address;
+    const creditBuyAddress = getStore().getState().server.credit_buy_address;
     let { linkShareId, linkShareSecret, backendServerUrl, verifyKey } = useParams();
 
     const [editEntryOpen, setEditEntryOpen] = useState(false);
@@ -108,14 +108,14 @@ const LinkShareAccessView = (props) => {
     }, []);
 
     function initiateLinkShareAccess(serverUrl) {
-        action.setServerUrl(serverUrl);
+        action().setServerUrl(serverUrl);
         const onError = function () {
             setErrors(["SERVER_OFFLINE"]);
         };
 
         const onSuccess = function (serverCheck) {
             setServerCheck(serverCheck);
-            action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+            action().setServerInfo(serverCheck.info, serverCheck.verify_key);
             if (serverCheck.status !== "matched") {
                 setView(serverCheck.status);
                 return;
@@ -183,7 +183,7 @@ const LinkShareAccessView = (props) => {
 
     return (
         <div className={"progress-box " + classes.textCenter}>
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>

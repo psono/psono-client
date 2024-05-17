@@ -8,7 +8,7 @@ import helper from "./helper";
 import secretService from "./secret";
 import notificationBarService from "./notification-bar";
 import user from "./user";
-import store from "./store";
+import { getStore } from "./store";
 
 let publicSuffixList;
 
@@ -28,7 +28,7 @@ class PasskeyException extends Error {
  * @returns {Promise} promise
  */
 async function loadPublicSuffixList() {
-    const response = await fetch("public-suffix-list.json");
+    const response = await fetch("/data/public-suffix-list.json");
     return response.json()
 }
 
@@ -147,7 +147,7 @@ async function isRegistrableDomainSuffix(hostSuffixString, originalHost) {
  * @returns {Promise} The filtered database objects
  */
 function searchPasskeys(rpId, allowedIds) {
-    const filter = function (leaf) {
+    const filter = function (leaf, key) {
         if (leaf.type !== "passkey") {
             return false;
         }
@@ -284,7 +284,6 @@ async function navigatorCredentialsGet(options, origin) {
         // Note: An RP ID is based on a host's domain name. It does not itself include a scheme or port, as an origin does.
         rpId = parsedOrigin.full_domain;
     }
-
     if (!await isRegistrableDomainSuffix(rpId, parsedOrigin.full_domain)) {
         throw new PasskeyException('RP_ID_NOT_ALLOWED', i18n.t('RP_ID_NOT_ALLOWED'));
     }
@@ -306,7 +305,7 @@ async function navigatorCredentialsGet(options, origin) {
         )
     }
     if (!isLoggedIn) {
-        throw new PasskeyException('USER_NOT_LOGGED_IN', i18n.t('USER_DENIED_REQUEST'));
+        throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'));
     }
 
     let credentials = await searchPasskeys(rpId, allowCredentialIds);
@@ -595,7 +594,7 @@ function createNotificationAsync(title, description, timeout) {
                 },
                 {
                     title: i18n.t("BYPASS_PSONO"),
-                    onClick: () => reject(new PasskeyException('USER_INSTRUCTION_BYPASS_PSONO', i18n.t('USER_INSTRUCTION_BYPASS_PSONO'))),
+                    onClick: () => reject(new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))),
                 },
             ],
             timeout,
@@ -682,7 +681,7 @@ async function navigatorCredentialsCreate(options, origin) {
 
     const isLoggedIn = user.isLoggedIn();
 
-    if (isLoggedIn && !store.getState().settingsDatastore.showPasskey) {
+    if (isLoggedIn && !getStore().getState().settingsDatastore.showPasskey) {
         throw new PasskeyException('PASSKEY_DISABLED', i18n.t('PASSKEY_DISABLED'));
     }
 

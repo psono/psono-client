@@ -2,7 +2,7 @@
  * Recovery codes and all the functions to create / edit / delete them ...
  */
 
-import store from "./store";
+import { getStore } from "./store";
 import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
@@ -13,16 +13,16 @@ import cryptoLibrary from "./crypto-library";
  * @returns {promise} Returns a promise with the username, recovery_code_id and private_key to decrypt the saved data
  */
 function recoveryGenerateInformation() {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const recoveryPassword = cryptoLibrary.generateRecoveryCode();
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(store.getState().user.username, recoveryPassword["base58"]);
+    const recoveryAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, recoveryPassword["base58"]);
     const recoverySauce = cryptoLibrary.generateUserSauce();
 
     const recovery_data_dec = {
-        user_private_key: store.getState().user.userPrivateKey,
-        user_secret_key: store.getState().user.userSecretKey,
+        user_private_key: getStore().getState().user.userPrivateKey,
+        user_secret_key: getStore().getState().user.userSecretKey,
     };
 
     const recovery_data = cryptoLibrary.encryptSecret(
@@ -33,7 +33,7 @@ function recoveryGenerateInformation() {
 
     const onSuccess = function () {
         return {
-            username: store.getState().user.username,
+            username: getStore().getState().user.username,
             recovery_password: helperService.splitStringInChunks(recoveryPassword["base58_checksums"], 13).join("-"),
             recovery_words: recoveryPassword["words"].join(" "),
         };

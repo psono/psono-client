@@ -141,7 +141,7 @@ const ClassWebAccessibleFido2 = function () {
         }
         if (response.error) {
             console.log(response.error);
-            if (response.error.hasOwnProperty('errorType') &&  new Set(['BYPASS_PSONO', 'USER_INSTRUCTION_BYPASS_PSONO', 'PASSKEY_DISABLED']).has(response.error.errorType)) {
+            if (response.error.hasOwnProperty('errorType') &&  new Set(['BYPASS_PSONO', 'PASSKEY_DISABLED']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsCreateIndex[response.eventId].options;
                 return eventNavigatorCredentialsCreateIndex[response.eventId].resolve(originalNavigatorCredentialsCreate(options));
             }
@@ -192,7 +192,7 @@ const ClassWebAccessibleFido2 = function () {
         }
         if (response.error) {
             console.log(response.error);
-            if (response.error.hasOwnProperty('errorType') && new Set(['USER_INSTRUCTION_BYPASS_PSONO', 'BYPASS_PSONO']).has(response.error.errorType)) {
+            if (response.error.hasOwnProperty('errorType') && new Set(['BYPASS_PSONO']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsGetIndex[response.eventId].options;
                 return eventNavigatorCredentialsGetIndex[response.eventId].resolve(originalNavigatorCredentialsGet(options));
             }
@@ -296,7 +296,6 @@ const ClassWebAccessibleFido2 = function () {
      * @param options
      */
     function mockedNavigatorCredentialsGet (options) {
-
         return new Promise(function(resolve, reject) {
 
             const eventId = toHex(window.crypto.getRandomValues(new Uint8Array(16)));
@@ -325,7 +324,6 @@ const ClassWebAccessibleFido2 = function () {
                     'eventId': eventId,
                 },
             }, window.location.origin);
-
         })
     }
 }

@@ -17,7 +17,7 @@ import host from "../../services/host";
 import deviceService from "../../services/device";
 import webauthnService from "../../services/webauthn";
 import converterService from "../../services/converter";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
@@ -69,11 +69,10 @@ const LoginViewForm = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     const history = useHistory();
-
     const [view, setView] = useState("default");
-    const [username, setUsername] = useState(store.getState().user.username);
+    const [username, setUsername] = useState(getStore().getState().user.username);
     const [password, setPassword] = useState("");
-    const [server, setServer] = useState(store.getState().server.url);
+    const [server, setServer] = useState(getStore().getState().server.url);
     const [rememberMe, setRememberMe] = useState(false);
     const [providerId, setProviderId] = useState(0);
     const [trustDevice, setTrustDevice] = useState(false);
@@ -96,9 +95,9 @@ const LoginViewForm = (props) => {
     const [serverCheck, setServerCheck] = useState({});
     const [samlProvider, setSamlProvider] = useState([]);
     const [oidcProvider, setOidcProvider] = useState([]);
-    const [authenticationMethods, setAuthenticationMethods] = useState([]);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
+    const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
 
     React.useEffect(() => {
         if (props.samlTokenId) {
@@ -117,6 +116,7 @@ const LoginViewForm = (props) => {
                 }
             );
         }
+
         browserClient.getConfig().then(onNewConfigLoaded);
     }, []);
 
@@ -125,10 +125,28 @@ const LoginViewForm = (props) => {
     }, [multifactors]);
 
 
-    const handleLogin = (requiredMultifactors) => {
-        action.setHasTwoFactor(requiredMultifactors.length > 0);
-        setMultifactors(requiredMultifactors);
+    const handleLogin = (loginDetails) => {
+        if (loginDetails.hasOwnProperty("required_multifactors")) {
+            const requiredMultifactors = loginDetails["required_multifactors"];
+            action().setHasTwoFactor(requiredMultifactors.length > 0);
+            setMultifactors(requiredMultifactors);
+        }
+        if (loginDetails.hasOwnProperty('require_password')) {
+            setDecryptLoginDataFunction(() => loginDetails["require_password"]);
+        }
     }
+
+    const decryptData = () => {
+        const loginDetails = decryptLoginDataFunction(password);
+        if (loginDetails.hasOwnProperty("required_multifactors")) {
+            const requiredMultifactors = loginDetails["required_multifactors"];
+            action().setHasTwoFactor(requiredMultifactors.length > 0);
+            setMultifactors(requiredMultifactors);
+        }
+        if (loginDetails.hasOwnProperty('require_password')) {
+            setErrors(['PASSWORD_INCORRECT'])
+        }
+    };
 
     const hasLdapAuth = (serverCheck) => {
         return (
@@ -147,7 +165,7 @@ const LoginViewForm = (props) => {
         user.duoVerify(duoCode).then(
             () => {
                 let requiredMultifactors = [...multifactors];
-                if (store.getState().server.multifactorEnabled) {
+                if (getStore().getState().server.multifactorEnabled) {
                     helperService.removeFromArray(requiredMultifactors, "duo_2fa");
                 } else {
                     requiredMultifactors = [];
@@ -182,7 +200,7 @@ const LoginViewForm = (props) => {
 
                 const onSuccess = async function (successful) {
                     let requiredMultifactors = [...multifactors];
-                    if (store.getState().server.multifactorEnabled) {
+                    if (getStore().getState().server.multifactorEnabled) {
                         helperService.removeFromArray(requiredMultifactors, "webauthn_2fa");
                     } else {
                         requiredMultifactors = [];
@@ -241,7 +259,7 @@ const LoginViewForm = (props) => {
     };
 
     const handleMfa = (multifactors) => {
-        if (store.getState().server.multifactorEnabled === false && multifactors.length > 1) {
+        if (getStore().getState().server.multifactorEnabled === false && multifactors.length > 1) {
             // show choose multifactor screen as only one is required to be solved
             setView("pick_second_factor");
             setLoginLoading(false);
@@ -262,7 +280,7 @@ const LoginViewForm = (props) => {
     };
 
     const requirementCheckMfa = (multifactors) => {
-        if (!store.getState().user.token) {
+        if (!getStore().getState().user.token) {
             return;
         }
         if (multifactors.length === 0) {
@@ -317,7 +335,7 @@ const LoginViewForm = (props) => {
                 onError
             );
         } else if (hasLdapAuth(serverCheck)) {
-            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
+            if (getStore().getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                 const userPassword = password;
                 setPassword("");
 
@@ -365,7 +383,7 @@ const LoginViewForm = (props) => {
 
         const onSuccess = function () {
             let requiredMultifactors = [...multifactors];
-            if (store.getState().server.multifactorEnabled) {
+            if (getStore().getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "google_authenticator_2fa");
             } else {
                 requiredMultifactors = [];
@@ -382,7 +400,7 @@ const LoginViewForm = (props) => {
 
         const onSuccess = function () {
             let requiredMultifactors = [...multifactors];
-            if (store.getState().server.multifactorEnabled) {
+            if (getStore().getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "yubikey_otp_2fa");
             } else {
                 requiredMultifactors = [];
@@ -403,7 +421,7 @@ const LoginViewForm = (props) => {
 
         const onSuccess = function () {
             let requiredMultifactors = [...multifactors];
-            if (store.getState().server.multifactorEnabled) {
+            if (getStore().getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "duo_2fa");
             } else {
                 requiredMultifactors = [];
@@ -445,9 +463,9 @@ const LoginViewForm = (props) => {
         return nextLoginStep(false, serverCheck);
     };
     const approveSendPlain = () => {
-        const autoApproveLdap = helperService.duplicateObject(store.getState().persistent.autoApproveLdap);
+        const autoApproveLdap = helperService.duplicateObject(getStore().getState().persistent.autoApproveLdap);
         autoApproveLdap[serverCheck.server_url] = true;
-        action.setAutoApproveLdap(autoApproveLdap);
+        action().setAutoApproveLdap(autoApproveLdap);
         return nextLoginStep(true, serverCheck);
     };
 
@@ -489,7 +507,6 @@ const LoginViewForm = (props) => {
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
-        setAuthenticationMethods(authenticationMethods);
         setAllowCustomServer(allowCustomServer);
         setAllowUsernamePasswordLogin(allowUsernamePasswordLogin);
         setAuthkeyEnabled(authkeyEnabled);
@@ -513,7 +530,7 @@ const LoginViewForm = (props) => {
 
     const remoteConfig = (event) => {
         event.preventDefault();
-        action.setServerUrl(server);
+        action().setServerUrl(server);
         setErrors([]);
 
         const onError = function (error) {
@@ -523,7 +540,7 @@ const LoginViewForm = (props) => {
 
         const onSuccess = function (serverCheck) {
             setServerCheck(serverCheck);
-            action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+            action().setServerInfo(serverCheck.info, serverCheck.verify_key);
 
             if (serverCheck.status !== "matched") {
                 setView(serverCheck.status);
@@ -561,7 +578,7 @@ const LoginViewForm = (props) => {
             .then(
                 (serverCheck) => {
                     setServerCheck(serverCheck);
-                    action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+                    action().setServerInfo(serverCheck.info, serverCheck.verify_key);
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else {
@@ -615,7 +632,7 @@ const LoginViewForm = (props) => {
             .then(
                 (serverCheck) => {
                     setServerCheck(serverCheck);
-                    action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+                    action().setServerInfo(serverCheck.info, serverCheck.verify_key);
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else {
@@ -673,11 +690,11 @@ const LoginViewForm = (props) => {
             .then(
                 (serverCheck) => {
                     setServerCheck(serverCheck);
-                    action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+                    action().setServerInfo(serverCheck.info, serverCheck.verify_key);
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else if (hasLdapAuth(serverCheck)) {
-                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
+                        if (getStore().getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                             return nextLoginStep(true, serverCheck);
                         } else {
                             setView("ask_send_plain");
@@ -717,7 +734,58 @@ const LoginViewForm = (props) => {
 
     let formContent;
 
-    if (view === "default") {
+    if (decryptLoginDataFunction !== null) {
+        formContent = (
+            <>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="info"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {t("ENTER_PASSWORD_TO_DECRYPT_YOUR_DATASTORE")}
+                        </MuiAlert>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense"
+                            id="password"
+                            label={t("PASSWORD")}
+                            InputProps={{
+                                type: "password",
+                            }}
+                            name="password"
+                            autoComplete="off"
+                            value={password}
+                            onChange={(event) => {
+                                setPassword(event.target.value);
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={decryptData}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
+                            {t("DECRYPT")}
+                        </Button>
+                        <Button variant="contained" onClick={cancel}>
+                            {t("CANCEL")}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
+            </>
+        )
+    } else if (view === "default") {
         formContent = (
             <>
                 {oidcProvider.map((provider, i) => {

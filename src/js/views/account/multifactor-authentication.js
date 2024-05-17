@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "./multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "./multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorWebauthn from "./multifactor-authentication-webauthn";
@@ -63,7 +63,7 @@ const MultifactorAuthenticationView = (props) => {
                 </Grid>
             </Grid>
 
-            {store.getState().server.allowedSecondFactors.indexOf("google_authenticator") !== -1 && (
+            {getStore().getState().server.allowedSecondFactors.indexOf("google_authenticator") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                         {/*{t("TOTP_LIKE_QUANT_GA_MS", {'quant_authenticator': '<a href="https://google.com">Quant</a>'})}*/}
@@ -86,7 +86,7 @@ const MultifactorAuthenticationView = (props) => {
                 </Grid>
             )}
 
-            {store.getState().server.allowedSecondFactors.indexOf("yubikey_otp") !== -1 && (
+            {getStore().getState().server.allowedSecondFactors.indexOf("yubikey_otp") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                         {t("YUBIKEY_OTP")}
@@ -101,7 +101,7 @@ const MultifactorAuthenticationView = (props) => {
                     )}
                 </Grid>
             )}
-            {browserClient.getClientType() !== "firefox_extension" && !deviceService.isElectron() && store.getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
+            {browserClient.getClientType() !== "firefox_extension" && !deviceService.isElectron() && getStore().getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                         {t("FIDO2_WEBAUTHN")}
@@ -117,7 +117,7 @@ const MultifactorAuthenticationView = (props) => {
                 </Grid>
             )}
 
-            {store.getState().server.allowedSecondFactors.indexOf("duo") !== -1 && (
+            {getStore().getState().server.allowedSecondFactors.indexOf("duo") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                         {t("DUO_PUSH_OR_CODE")}

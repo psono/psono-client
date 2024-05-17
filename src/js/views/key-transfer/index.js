@@ -1,19 +1,17 @@
 import React from "react";
-import EmergencyCodeViewForm from "./emergency-code-form";
-import { useParams } from "react-router-dom";
+import KeyTransferForm from "./key-transfer-form";
 import ConfigLogo from "../../components/config-logo";
 
-const EmergencyCodeView = (props) => {
-    let { samlTokenId, oidcTokenId } = useParams();
+const EnforceTwoFaView = (props) => {
     return (
-        <div className={"lostpasswordbox dark"}>
+        <div className={"loginbox dark"}>
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>
-            <EmergencyCodeViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId}/>
+            <KeyTransferForm/>
         </div>
     );
 };
 
-export default EmergencyCodeView;
+export default EnforceTwoFaView;

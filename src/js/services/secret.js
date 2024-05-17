@@ -10,8 +10,62 @@ import offlineCache from "../services/offline-cache";
 import deviceService from "./device";
 import notification from "./notification";
 import storage from "./storage";
-import store from "./store";
+import { getStore } from "./store";
 
+/**
+ * Encrypts the content and creates a new secret out of it.
+ *
+ * @param {array} objects The content of the new secret
+ * @param {uuid|undefined} [parentDatastoreId] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+ * @param {uuid|undefined} [parentShareId] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+ *
+ * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
+ */
+function createSecretBulk(objects, parentDatastoreId, parentShareId) {
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+    const encryptionKeyLookup = {};
+
+    const bulkObjects = objects.map(function(o) {
+
+        const secretKey = cryptoLibrary.generateSecretKey();
+        encryptionKeyLookup[o.linkId] = secretKey;
+        const jsonContent = JSON.stringify(o.content);
+
+        const c = cryptoLibrary.encryptData(jsonContent, secretKey);
+
+        return {
+            'data': c.text,
+            'data_nonce': c.nonce,
+            'link_id': o.linkId,
+            'callback_url': o.callbackUrl,
+            'callback_user': o.callbackUser,
+            'callback_pass': o.callbackPass,
+        }
+    })
+
+
+    const onError = function (result) {
+        return Promise.reject(result);
+    };
+
+    const onSuccess = function (response) {
+        return response.data.secrets.map(function(s) {
+            return { secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id }
+        })
+    };
+
+    return apiClient
+        .createSecretBulk(
+            token,
+            sessionSecretKey,
+            bulkObjects,
+            parentDatastoreId,
+            parentShareId
+        )
+        .then(onSuccess, onError);
+}
 /**
  * Encrypts the content and creates a new secret out of it.
  *
@@ -26,8 +80,8 @@ import store from "./store";
  * @returns {Promise} Returns a promise with the new secret_id
  */
 function createSecret(content, linkId, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const secretKey = cryptoLibrary.generateSecretKey();
 
     const jsonContent = JSON.stringify(content);
@@ -67,8 +121,8 @@ function createSecret(content, linkId, parentDatastoreId, parentShareId, callbac
  * @returns {Promise} Returns a promise withe decrypted content of the secret
  */
 function readSecret(secretId, secretKey) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
         return Promise.reject(result);
     };
@@ -101,8 +155,8 @@ function readSecret(secretId, secretKey) {
  * @returns {Promise} Returns a promise with the secret id
  */
 function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, callbackPass) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const jsonContent = JSON.stringify(content);
 
@@ -129,6 +183,9 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
  */
 function redirectSecret(type, secretId) {
     return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+        if (leaf === null) {
+            return;
+        }
         const onError = function (result) {
             // pass
         };
@@ -329,6 +386,7 @@ function copyCreditCardPin(item) {
 }
 
 const secretService = {
+    createSecretBulk: createSecretBulk,
     createSecret: createSecret,
     readSecret: readSecret,
     writeSecret: writeSecret,

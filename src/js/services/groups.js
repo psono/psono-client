@@ -5,7 +5,7 @@ import cryptoLibraryService from "./crypto-library";
 import apiClient from "./api-client";
 import datastorePasswordService from "./datastore-password";
 import helper from "./helper";
-import store from "./store";
+import { getStore } from "./store";
 import shareService from "./share";
 
 let groups_cache = [];
@@ -121,8 +121,8 @@ function decrypt_private_key(groupId, encryptedMessage, encryptedMessageNonce, p
  * @returns {Promise} Returns the details of a group
  */
 function readGroup(groupId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data;
@@ -143,8 +143,8 @@ function readGroup(groupId) {
  * @returns {Promise} Returns a list of groups
  */
 function readGroups(forceFresh) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     if ((typeof forceFresh === "undefined" || forceFresh === false) && groups_cache.length > 0) {
         return Promise.resolve(helper.duplicateObject(groups_cache));
@@ -170,8 +170,8 @@ function readGroups(forceFresh) {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createGroup(name) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         groups_cache.push(helper.duplicateObject(data.data));
@@ -211,8 +211,8 @@ function createGroup(name) {
  * @returns {Promise} Returns whether the update was successful or not
  */
 function updateGroup(groupId, name) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         for (let i = 0; i < groups_cache.length; i++) {
@@ -240,8 +240,8 @@ function updateGroup(groupId, name) {
  * @returns {Promise} Returns whether the delete was successful or not
  */
 function deleteGroup(groupId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         helper.removeFromArray(groups_cache, groupId, function (a, b) {
@@ -265,8 +265,8 @@ function deleteGroup(groupId) {
  * @returns {Promise} Returns a list of groups rights
  */
 function readGroupRights(groupId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data;
@@ -321,8 +321,8 @@ function getOutstandingGroupShares() {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createMembership(user, group, groupAdmin, shareAdmin) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (request) {
         return request.data;
@@ -387,8 +387,8 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
  * @returns {Promise} Returns whether the deletion was successful or not
  */
 function updateMembership(membershipId, groupAdmin, shareAdmin) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data;
@@ -411,8 +411,8 @@ function updateMembership(membershipId, groupAdmin, shareAdmin) {
  * @returns {Promise} Returns whether the deletion was successful or not
  */
 function deleteMembership(membershipId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data;
@@ -478,8 +478,8 @@ function decryptGroupShares(groupId, shares) {
  * @returns {Promise} Returns the decrypted share
  */
 function acceptMembership(membershipId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         let group_id;
@@ -525,8 +525,8 @@ function acceptMembership(membershipId) {
  * @returns {Promise} Returns whether the declination was successful or not
  */
 function declineMembership(membershipId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
         return data.data;

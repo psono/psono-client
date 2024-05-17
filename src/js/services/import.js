@@ -201,42 +201,6 @@ function updateDatastore(parsedData) {
     });
 }
 
-/**
- * creates all the necessary secrets
- *
- * @param {object} parsedData The parsed data object
- * @param {string} datastoreId The ID of the password datastore
- *
- * @returns {*} Returns the parsed data on completion
- */
-function createSecret(parsedData, datastoreId) {
-    if (parsedData["data"]["secrets"].length < 1) {
-        return parsedData;
-    }
-
-    const popped_secret = parsedData["data"]["secrets"].pop();
-
-    // now lets construct our new secret
-    const secret = {};
-    for (let property in popped_secret) {
-        if (!popped_secret.hasOwnProperty(property)) {
-            continue;
-        }
-        if (!property.startsWith(popped_secret["type"])) {
-            continue;
-        }
-        secret[property] = popped_secret[property];
-        delete popped_secret[property];
-    }
-
-    return secretService.createSecret(secret, popped_secret["id"], datastoreId, undefined).then(function (e) {
-        popped_secret["secret_id"] = e.secret_id;
-        popped_secret["secret_key"] = e.secret_key;
-
-        emit("create-secret-complete", {});
-        return createSecret(parsedData, datastoreId);
-    });
-}
 
 /**
  * Initiates the creation of all secrets and links it to the password datastore
@@ -246,12 +210,50 @@ function createSecret(parsedData, datastoreId) {
  * @returns {*} Returns the parsed data on completion
  */
 function createSecrets(parsedData) {
-    for (let i = 0; i < parsedData["data"]["secrets"].length; i++) {
-        emit("create-secret-started", {});
-    }
+    emit("create-secret-started", {});
 
     return datastorePasswordService.getPasswordDatastore().then(function (datastore) {
-        return createSecret(parsedData, datastore["datastore_id"]);
+        const objects = parsedData["data"]["secrets"].map(function(poppedSecret) {
+            const content = {};
+            const linkId = poppedSecret['id'];
+            for (let property in poppedSecret) {
+                if (!poppedSecret.hasOwnProperty(property)) {
+                    continue;
+                }
+                if (!property.startsWith(poppedSecret["type"])) {
+                    continue;
+                }
+                content[property] = poppedSecret[property];
+                delete poppedSecret[property];
+            }
+
+            return {
+                'linkId': linkId,
+                'content': content,
+                'callbackUrl': undefined,
+                'callbackUser': undefined,
+                'callbackPass': undefined,
+            };
+        })
+
+        return secretService.createSecretBulk(objects, datastore["datastore_id"], undefined).then(function (dbSecrets) {
+            const lookupIndex = {};
+            for (var i = 0; i < dbSecrets.length; i++) {
+                lookupIndex[dbSecrets[i]['link_id']] = {
+                    'secret_id': dbSecrets[i]['secret_id'],
+                    'secret_key': dbSecrets[i]['secret_key'],
+                }
+            }
+
+            parsedData["data"]["secrets"].map(function(poppedSecret) {
+                poppedSecret["secret_id"] = lookupIndex[poppedSecret.id]['secret_id'];
+                poppedSecret["secret_key"] = lookupIndex[poppedSecret.id]['secret_key'];
+            })
+            emit("create-secret-complete", {});
+            return parsedData;
+        }, function (result) {
+            return Promise.reject(result)
+        });
     });
 }
 

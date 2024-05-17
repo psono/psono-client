@@ -5,6 +5,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     LOGOUT,
     SET_SERVER_URL,
@@ -34,7 +35,7 @@ import {
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
-import store from "../services/store";
+import { getStore } from "../services/store";
 
 function setUserUsername(username) {
     return (dispatch) => {
@@ -68,13 +69,22 @@ function setUserInfo2(userPrivateKey, userPublicKey, sessionSecretKey, token, us
         });
     };
 }
-function setUserInfo3(userId, userEmail, userSecretKey) {
+function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
     return (dispatch) => {
         dispatch({
             type: SET_USER_INFO_3,
             userId: userId,
             userEmail,
             userSecretKey,
+            serverSecretExists,
+        });
+    };
+}
+function setServerSecretExists(serverSecretExists) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SERVER_SECRET_EXISTS,
+            serverSecretExists: serverSecretExists,
         });
     };
 }
@@ -230,26 +240,26 @@ function setPasswordConfig(
     passwordSpecialChars
 ) {
     datastoreSettingService.saveSettingsDatastore([
-        { key: "setting_show_website_password", value: store.getState().settingsDatastore.showWebsitePassword },
-        { key: "setting_show_application_password", value: store.getState().settingsDatastore.showApplicationPassword },
-        { key: "setting_show_totp", value: store.getState().settingsDatastore.showTOTPAuthenticator },
-        { key: "setting_show_passkey", value: store.getState().settingsDatastore.showPasskey },
-        { key: "setting_show_note", value: store.getState().settingsDatastore.showNote },
-        { key: "setting_show_environment_variables", value: store.getState().settingsDatastore.showEnvironmentVariables },
-        { key: "setting_show_ssh_own_key", value: store.getState().settingsDatastore.showSSHKey },
-        { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
-        { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
-        { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
-        { key: "setting_show_elster_certificate", value: store.getState().settingsDatastore.showElsterCertificate },
-        { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
+        { key: "setting_show_website_password", value: getStore().getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: getStore().getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: getStore().getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_passkey", value: getStore().getState().settingsDatastore.showPasskey },
+        { key: "setting_show_note", value: getStore().getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: getStore().getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: getStore().getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
+        { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: passwordLength },
         { key: "setting_password_letters_uppercase", value: passwordLettersUppercase },
         { key: "setting_password_letters_lowercase", value: passwordLettersLowercase },
         { key: "setting_password_numbers", value: passwordNumbers },
         { key: "setting_password_special_chars", value: passwordSpecialChars },
-        { key: "gpg_default_key", value: store.getState().settingsDatastore.gpgDefaultKey },
-        { key: "gpg_hkp_key_server", value: store.getState().settingsDatastore.gpgHkpKeyServer },
-        { key: "gpg_hkp_search", value: store.getState().settingsDatastore.gpgHkpSearch },
+        { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
     ]);
     return (dispatch) => {
         dispatch({
@@ -289,20 +299,20 @@ function setShownEntriesConfig(
         { key: "setting_show_bookmark", value: showBookmark },
         { key: "setting_show_elster_certificate", value: showElsterCertificate },
         { key: "setting_show_file", value: showFile },
-        { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
+        { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
         {
             key: "setting_password_letters_uppercase",
-            value: store.getState().settingsDatastore.passwordLettersUppercase,
+            value: getStore().getState().settingsDatastore.passwordLettersUppercase,
         },
         {
             key: "setting_password_letters_lowercase",
-            value: store.getState().settingsDatastore.passwordLettersLowercase,
+            value: getStore().getState().settingsDatastore.passwordLettersLowercase,
         },
-        { key: "setting_password_numbers", value: store.getState().settingsDatastore.passwordNumbers },
-        { key: "setting_password_special_chars", value: store.getState().settingsDatastore.passwordSpecialChars },
-        { key: "gpg_default_key", value: store.getState().settingsDatastore.gpgDefaultKey },
-        { key: "gpg_hkp_key_server", value: store.getState().settingsDatastore.gpgHkpKeyServer },
-        { key: "gpg_hkp_search", value: store.getState().settingsDatastore.gpgHkpSearch },
+        { key: "setting_password_numbers", value: getStore().getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: getStore().getState().settingsDatastore.passwordSpecialChars },
+        { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
     ]);
     return (dispatch) => {
         dispatch({
@@ -324,29 +334,29 @@ function setShownEntriesConfig(
 }
 function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
     datastoreSettingService.saveSettingsDatastore([
-        { key: "setting_show_website_password", value: store.getState().settingsDatastore.showWebsitePassword },
-        { key: "setting_show_application_password", value: store.getState().settingsDatastore.showApplicationPassword },
-        { key: "setting_show_totp", value: store.getState().settingsDatastore.showTOTPAuthenticator },
-        { key: "setting_show_passkey", value: store.getState().settingsDatastore.showPasskey },
-        { key: "setting_show_note", value: store.getState().settingsDatastore.showNote },
-        { key: "setting_show_environment_variables", value: store.getState().settingsDatastore.showEnvironmentVariables },
-        { key: "setting_show_ssh_own_key", value: store.getState().settingsDatastore.showSSHKey },
-        { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
-        { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
-        { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
-        { key: "setting_show_elster_certificate", value: store.getState().settingsDatastore.showElsterCertificate },
-        { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
-        { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
+        { key: "setting_show_website_password", value: getStore().getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: getStore().getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: getStore().getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_passkey", value: getStore().getState().settingsDatastore.showPasskey },
+        { key: "setting_show_note", value: getStore().getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: getStore().getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: getStore().getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
+        { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
+        { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
         {
             key: "setting_password_letters_uppercase",
-            value: store.getState().settingsDatastore.passwordLettersUppercase,
+            value: getStore().getState().settingsDatastore.passwordLettersUppercase,
         },
         {
             key: "setting_password_letters_lowercase",
-            value: store.getState().settingsDatastore.passwordLettersLowercase,
+            value: getStore().getState().settingsDatastore.passwordLettersLowercase,
         },
-        { key: "setting_password_numbers", value: store.getState().settingsDatastore.passwordNumbers },
-        { key: "setting_password_special_chars", value: store.getState().settingsDatastore.passwordSpecialChars },
+        { key: "setting_password_numbers", value: getStore().getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: getStore().getState().settingsDatastore.passwordSpecialChars },
         { key: "gpg_default_key", value: gpgDefaultKey },
         { key: "gpg_hkp_key_server", value: gpgHkpKeyServer },
         { key: "gpg_hkp_search", value: gpgHkpSearch },
@@ -397,10 +407,11 @@ function setFingerprint(fingerprint) {
     };
 }
 
-function setRemoteConfigJson(remoteConfigJson) {
+function setRemoteConfigJson(remoteConfigWebClientUrl, remoteConfigJson) {
     return (dispatch) => {
         dispatch({
             type: SET_REMOTE_CONFIG_JSON,
+            remoteConfigWebClientUrl: remoteConfigWebClientUrl,
             remoteConfigJson: remoteConfigJson,
         });
     };
@@ -440,6 +451,7 @@ const actionCreators = {
     setUserInfo1,
     setUserInfo2,
     setUserInfo3,
+    setServerSecretExists,
     setHasTwoFactor,
     setEmail,
     setUserDatastoreOverview,

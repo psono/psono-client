@@ -222,7 +222,7 @@ const PopupPgpWriteView = (props) => {
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">
-                            <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
+                            <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} height="100%" />
                         </a>
                         <div style={{ width: "100%" }}>
                             <div style={{ float: "right" }}>

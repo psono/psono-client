@@ -5,7 +5,7 @@ import { Checkbox, Grid } from "@material-ui/core";
 
 import { Check } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
-import store from "../../services/store";
+import { getStore } from "../../services/store";
 import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 const SettingsNotificationView = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
-    const [notificationOnCopy, setNotificationOnCopy] = useState(store.getState().client.notificationOnCopy);
+    const [notificationOnCopy, setNotificationOnCopy] = useState(getStore().getState().client.notificationOnCopy);
 
     return (
         <Grid container>
@@ -45,7 +45,7 @@ const SettingsNotificationView = (props) => {
                     checked={notificationOnCopy}
                     onChange={(event) => {
                         setNotificationOnCopy(event.target.checked);
-                        action.setNotificationOnCopy(event.target.checked);
+                        action().setNotificationOnCopy(event.target.checked);
                     }}
                     checkedIcon={<Check className={classes.checkedIcon} />}
                     icon={<Check className={classes.uncheckedIcon} />}
