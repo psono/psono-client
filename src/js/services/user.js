@@ -171,17 +171,16 @@ function initiateOidcLoginNewTab(provider, remember, trust_device, two_fa_redire
  * Will try to use the token to authenticate and login
  *
  * @param {string} samlTokenId The saml token id
- * @param {string} defaultAuthentication The default authentication if not provided by the server
  *
  * @returns {Promise}
  */
-function samlLogin(samlTokenId, defaultAuthentication) {
+function samlLogin(samlTokenId) {
     const serverPublicKey = getStore().getState().server.publicKey;
     const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
     const onSuccess = function (response) {
-        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication);
+        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'SAML');
     };
 
     const onError = function (response) {
@@ -252,17 +251,16 @@ function getSamlRedirectUrl(providerId) {
  * Will try to use the token to authenticate and login
  *
  * @param {string} oidcTokenId The oidc token id
- * @param {string} defaultAuthentication The default authentication if not provided by the server
  *
  * @returns {Promise}
  */
-function oidcLogin(oidcTokenId, defaultAuthentication) {
+function oidcLogin(oidcTokenId) {
     const serverPublicKey = getStore().getState().server.publicKey;
     const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
     const onSuccess = function (response) {
-        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication);
+        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'OIDC');
     };
 
     const onError = function (response) {
