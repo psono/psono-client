@@ -219,7 +219,7 @@
   "ACCOUNT_NOT_VERIFIED": "Account not verified",
   "USER_INACTIVE_OR_DELETED": "User inactive or deleted",
   "FILE_TRANSFER_INVALID": "File transfer invalid",
-  "UNKNOW_FILE_REPOSITORY_TYPE": "Unknown file repository type",
+  "UNKNOWN_FILE_REPOSITORY_TYPE": "Unknown file repository type",
   "EITHER_SECRET_OR_FILE_REQUIRED_NOT_BOTH": "Either secret or file required, not both",
   "EITHER_SECRET_OR_FILE_REQUIRED": "Either secret or file required",
   "ENTER_PASSPHRASE": "Enter the passphrase:",

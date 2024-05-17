@@ -635,7 +635,7 @@ function fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashCheck
         } else if (result.data.type === "do_spaces") {
             return apiDO.download(result.data.url).then(onSuccess, onError);
         } else {
-            return Promise.reject("UNKNOW_FILE_REPOSITORY_TYPE");
+            return Promise.reject("UNKNOWN_FILE_REPOSITORY_TYPE");
         }
     };
 
