@@ -28,7 +28,7 @@ class PasskeyException extends Error {
  * @returns {Promise} promise
  */
 async function loadPublicSuffixList() {
-    const response = await fetch("public-suffix-list.json");
+    const response = await fetch("/data/public-suffix-list.json");
     return response.json()
 }
 
@@ -284,7 +284,6 @@ async function navigatorCredentialsGet(options, origin) {
         // Note: An RP ID is based on a host's domain name. It does not itself include a scheme or port, as an origin does.
         rpId = parsedOrigin.full_domain;
     }
-
     if (!await isRegistrableDomainSuffix(rpId, parsedOrigin.full_domain)) {
         throw new PasskeyException('RP_ID_NOT_ALLOWED', i18n.t('RP_ID_NOT_ALLOWED'));
     }
