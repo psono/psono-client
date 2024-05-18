@@ -21,7 +21,7 @@ function getSettingsDatastore() {
             setting_password_letters_uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             setting_password_letters_lowercase: "abcdefghijklmnopqrstuvwxyz",
             setting_password_numbers: "0123456789",
-            setting_password_special_chars: ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
+            setting_password_special_chars: ",.-;:_#'+*~!\"$%&/@()=?{[]}\\",
         };
         if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength !== "undefined") {
             data["setting_password_length"] = getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength;

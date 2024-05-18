@@ -13,7 +13,7 @@ function settingsDatastore(
         passwordLettersUppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         passwordLettersLowercase: "abcdefghijklmnopqrstuvwxyz",
         passwordNumbers: "0123456789",
-        passwordSpecialChars: ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
+        passwordSpecialChars: ",.-;:_#'+*~!\"$%&/@()=?{[]}\\",
         gpgDefaultKey: null,
         gpgHkpKeyServer: "https://keyserver.ubuntu.com",
         gpgHkpSearch: true,
@@ -49,7 +49,7 @@ function settingsDatastore(
                     : "0123456789",
                 passwordSpecialChars: action.data.hasOwnProperty("setting_password_special_chars")
                     ? action.data.setting_password_special_chars
-                    : ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
+                    : ",.-;:_#'+*~!\"$%&/@()=?{[]}\\",
                 gpgDefaultKey: action.data.hasOwnProperty("gpg_default_key") ? action.data.gpg_default_key : null,
                 gpgHkpKeyServer: action.data.hasOwnProperty("gpg_hkp_key_server")
                     ? action.data.gpg_hkp_key_server
