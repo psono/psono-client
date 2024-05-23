@@ -23,6 +23,23 @@ describe('Service: helper test suite', function() {
         });
     });
 
+    it('parse_url www domain', function() {
+        expect(
+            helperService.parseUrl('https://')
+        ).toEqual({
+            scheme: null,
+            authority: null,
+            authority_without_www: null,
+            base_url: null,
+            full_domain: null,
+            full_domain_without_www: null,
+            port: null,
+            path: null,
+            query: null,
+            fragment: null
+        });
+    });
+
     it('parse_url top lvl domain', function() {
         expect(
             helperService.parseUrl('https://example.com/url-part/#is-not-part')
