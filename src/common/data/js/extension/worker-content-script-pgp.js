@@ -41,7 +41,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
             getReceiver: function (node) {
                 return [];
             },
-            getContentEditableFields: function (node) {
+            getContentEditableFields: function () {
                 const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
                 const visibleElements = Array.from(elements).filter(function(el) {
                     return el.offsetWidth > 0 && el.offsetHeight > 0;
@@ -64,7 +64,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
             getReceiver: function (node) {
                 return [];
             },
-            getContentEditableFields: function (node) {
+            getContentEditableFields: function () {
                 const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
                 const visibleElements = Array.from(elements).filter(function(el) {
                     return el.offsetWidth > 0 && el.offsetHeight > 0;
@@ -87,7 +87,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
             getReceiver: function (node) {
                 return [];
             },
-            getContentEditableFields: function (node) {
+            getContentEditableFields: function () {
                 const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
                 const visibleElements = Array.from(elements).filter(function(el) {
                     return el.offsetWidth > 0 && el.offsetHeight > 0;
@@ -110,7 +110,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
             getReceiver: function (node) {
                 return [];
             },
-            getContentEditableFields: function (node) {
+            getContentEditableFields: function () {
                 const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
                 const visibleElements = Array.from(elements).filter(function(el) {
                     return el.offsetWidth > 0 && el.offsetHeight > 0;
@@ -125,6 +125,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
     });
 
     function activate() {
+        if (base.inIframe()) {
+            return;
+        }
         base.registerObserver(analyze_document);
     }
 
@@ -253,9 +256,8 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
             return;
         }
         const fields = hoster.getContentEditableFields();
-
         for (let i = 0; i < fields.length; ++i) {
-            if (fields[i].classList.contains(".psono-add_pgp_message_writers-covered")) {
+            if (fields[i].classList.contains("psono-add_pgp_message_writers-covered")) {
                 continue;
             }
             add_pgp_message_writer(hoster, fields[i]);
