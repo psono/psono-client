@@ -5,7 +5,7 @@ import apiClient from "./api-client";
 import { getStore } from "./store";
 
 
-const avatarSingleton = {};
+let avatarSingleton = {};
 
 /**
  * Helper function that acts as a singleton to load the avatar data url.
@@ -105,7 +105,11 @@ function createAvatar(mimeType, dataBase64) {
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
-        avatarSingleton = undefined;
+        const userId = getStore().getState().user.userId;
+        if (avatarSingleton.hasOwnProperty(userId)) {
+            delete avatarSingleton[userId];
+        }
+
         return data.data;
     };
 
@@ -134,7 +138,10 @@ function deleteAvatar(avatarId) {
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const onSuccess = function (data) {
-        avatarSingleton = undefined;
+        const userId = getStore().getState().user.userId;
+        if (avatarSingleton.hasOwnProperty(userId)) {
+            delete avatarSingleton[userId];
+        }
         return data.data;
     };
 
