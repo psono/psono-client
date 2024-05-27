@@ -1229,7 +1229,7 @@ const LoginViewForm = (props) => {
             <>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <p>{t("ENTER_YOUR_GOOGLE_AUTHENTICATOR_CODE")}</p>
+                        <p>{t("ENTER_YOUR_TOTP_CODE")}</p>
                     </Grid>
                 </Grid>
                 <Grid container>
@@ -1239,7 +1239,7 @@ const LoginViewForm = (props) => {
                             variant="outlined"
                             margin="dense"
                             id="gaToken"
-                            label={t("GOOGLE_AUTHENTICATOR_CODE")}
+                            label={t("TOTP_CODE")}
                             name="gaToken"
                             autoComplete="off"
                             required
