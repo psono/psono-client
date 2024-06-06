@@ -526,8 +526,12 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContent(type, description, content) {
-    if (content.hasOwnProperty("datastore_id")) {
-        return saveDatastoreContentWithId(content["datastore_id"], content);
+
+    const duplicate = helperService.duplicateObject(content);
+    hideSubShareContent(duplicate);
+
+    if (duplicate.hasOwnProperty("datastore_id")) {
+        return saveDatastoreContentWithId(duplicate["datastore_id"], duplicate);
     }
 
     const onError = function (result) {
@@ -535,7 +539,7 @@ function saveDatastoreContent(type, description, content) {
     };
 
     const onSuccess = function (datastore_id) {
-        return saveDatastoreContentWithId(datastore_id, content);
+        return saveDatastoreContentWithId(datastore_id, duplicate);
     };
 
     return getDatastoreId(type).then(onSuccess, onError);
@@ -682,6 +686,10 @@ function findInDatastore(path, datastore) {
  */
 function hideSubShareContent(share) {
     const allowedProps = ["id", "name", "share_id", "share_secret_key", "deleted"];
+
+    if (!share || !share.hasOwnProperty("share_index")) {
+        return
+    }
 
     for (let share_id in share.share_index) {
         if (!share.share_index.hasOwnProperty(share_id)) {
