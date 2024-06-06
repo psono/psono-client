@@ -77,7 +77,7 @@ function newFolderSave(parent, path, dataStructure, manager, name) {
             if (closest_share_info["relative_path"].length === 0) {
                 parent = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closest_share_info["relative_path"],
                     content.data
                 );
@@ -110,7 +110,7 @@ function newFolderSave(parent, path, dataStructure, manager, name) {
             if (closest_share_info["relative_path"].length === 0) {
                 parent = datastore;
             } else {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
                 parent = search[0][search[1]];
             }
 
@@ -148,7 +148,7 @@ function editFolderSave(node, path, dataStructure, manager) {
             if (closest_share_info["relative_path"].length === 0) {
                 folder = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closest_share_info["relative_path"],
                     content.data
                 );
@@ -174,7 +174,7 @@ function editFolderSave(node, path, dataStructure, manager) {
             if (closest_share_info["relative_path"].length === 0) {
                 folder = datastore;
             } else {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
                 folder = search[0][search[1]];
             }
 
@@ -244,7 +244,7 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
             if (closestShareInfo["relative_path"].length === 0) {
                 parent = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closestShareInfo["relative_path"],
                     content.data
                 );
@@ -277,7 +277,7 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
             if (closestShareInfo["relative_path"].length === 0) {
                 parent = datastore;
             } else {
-                const search = datastorePasswordService.findInDatastore(closestShareInfo["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closestShareInfo["relative_path"], datastore);
                 parent = search[0][search[1]];
             }
 
@@ -316,7 +316,7 @@ function editItemSave(datastore, newContent, path, manager) {
                 // handle special case that we have an entry that is also a share
                 node = content.data
             } else {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], content.data);
                 node = search[0][search[1]];
             }
 
@@ -347,7 +347,7 @@ function editItemSave(datastore, newContent, path, manager) {
         };
 
         onSuccess = function (datastore) {
-            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+            const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
             const node = search[0][search[1]];
 
             // we delete all keys from the existing object and copy all the new ones
@@ -554,7 +554,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType, onOpenRe
         let target = datastore;
         if (targetPath !== null && typeof targetPath !== "undefined" && targetPath.length !== 0) {
             // find drop zone
-            const val1 = datastorePasswordService.findInDatastore(targetPath, datastore);
+            const val1 = datastoreService.findInDatastore(targetPath, datastore);
             target = val1[0][val1[1]];
         }
 
@@ -562,7 +562,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType, onOpenRe
         // find element
         let val2;
         try {
-            val2 = datastorePasswordService.findInDatastore(itemPath, datastore);
+            val2 = datastoreService.findInDatastore(itemPath, datastore);
             element = val2[0][val2[1]];
         } catch (e) {
             return;
@@ -740,7 +740,7 @@ function markItemAsDeleted(datastore, path, datastoreType) {
     const element_path_that_changed = path.slice();
     element_path_that_changed.pop();
 
-    const search = datastorePasswordService.findInDatastore(path.slice(), datastore);
+    const search = datastoreService.findInDatastore(path.slice(), datastore);
     let element = search[0][search[1]];
 
     element["deleted"] = true;
@@ -753,7 +753,7 @@ function markItemAsDeleted(datastore, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closest_share_info["relative_path"],
                     content.data
                 );
@@ -778,7 +778,7 @@ function markItemAsDeleted(datastore, path, datastoreType) {
             };
 
             onSuccess = function (datastore) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
                 element = search[0][search[1]];
 
                 element["deleted"] = true;
@@ -807,7 +807,7 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
     const element_path_that_changed = path.slice();
     element_path_that_changed.pop();
 
-    const search = datastorePasswordService.findInDatastore(path.slice(), datastore);
+    const search = datastoreService.findInDatastore(path.slice(), datastore);
     let element = search[0][search[1]];
 
     delete element["deleted"];
@@ -820,7 +820,7 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closest_share_info["relative_path"],
                     content.data
                 );
@@ -845,7 +845,7 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
             };
 
             onSuccess = function (datastore) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
                 element = search[0][search[1]];
 
                 delete element["deleted"];
@@ -950,7 +950,7 @@ function cloneItem(datastore, item, path) {
                     relative_path_to_parent.pop();
 
                     // search the original item and prepare it
-                    let search = datastorePasswordService.findInDatastore(
+                    let search = datastoreService.findInDatastore(
                         closest_share_info["relative_path"],
                         content.data
                     );
@@ -969,7 +969,7 @@ function cloneItem(datastore, item, path) {
                     if (relative_path_to_parent.length === 0) {
                         parent = content.data;
                     } else {
-                        search = datastorePasswordService.findInDatastore(relative_path_to_parent, content.data);
+                        search = datastoreService.findInDatastore(relative_path_to_parent, content.data);
                         parent = search[0][search[1]];
                     }
 
@@ -981,7 +981,7 @@ function cloneItem(datastore, item, path) {
                     if (relative_path_to_parent.length === 0) {
                         parent = closest_share;
                     } else {
-                        search = datastorePasswordService.findInDatastore(relative_path_to_parent, closest_share);
+                        search = datastoreService.findInDatastore(relative_path_to_parent, closest_share);
                         parent = search[0][search[1]];
                     }
 
@@ -1012,7 +1012,7 @@ function cloneItem(datastore, item, path) {
                     relative_path_to_parent.pop();
 
                     // search the original item and prepare it
-                    let search = datastorePasswordService.findInDatastore(
+                    let search = datastoreService.findInDatastore(
                         closest_share_info["relative_path"],
                         datastore
                     );
@@ -1031,7 +1031,7 @@ function cloneItem(datastore, item, path) {
                     if (relative_path_to_parent.length === 0) {
                         parent = datastore;
                     } else {
-                        search = datastorePasswordService.findInDatastore(relative_path_to_parent, datastore);
+                        search = datastoreService.findInDatastore(relative_path_to_parent, datastore);
                         parent = search[0][search[1]];
                     }
 
@@ -1085,7 +1085,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
     const element_path_that_changed = path.slice();
     element_path_that_changed.pop();
 
-    const search = datastorePasswordService.findInDatastore(path.slice(), datastore);
+    const search = datastoreService.findInDatastore(path.slice(), datastore);
 
     const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 1);
 
@@ -1105,7 +1105,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(
+                const search = datastoreService.findInDatastore(
                     closest_share_info["relative_path"],
                     content.data
                 );
@@ -1187,7 +1187,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
             };
 
             onSuccess = function (datastore) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                const search = datastoreService.findInDatastore(closest_share_info["relative_path"], datastore);
                 const element = search[0][search[1]];
 
                 if (element.hasOwnProperty("share_id")) {

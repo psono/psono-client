@@ -617,6 +617,96 @@ function filterDatastoreContent(content) {
     return contentCopy;
 }
 
+/**
+ * Searches a folder and expects to find an element (item or folder) with a specific searchId.
+ * It will return a tuple with the list of elements holding the element together with the index.
+ *
+ * @param {object} folder The folder to search
+ * @param {uuid} searchId The id of the element one is looking for
+ *
+ * @returns {[]} Returns a tuple of the containing list and index or raises an error if not found
+ */
+function findObject(folder, searchId) {
+    let n, l;
+
+    if (folder.hasOwnProperty("folders")) {
+        // check if the object is a folder, if yes return the folder list and the index
+        for (n = 0, l = folder.folders.length; n < l; n++) {
+            if (folder.folders[n].id === searchId) {
+                return [folder.folders, n];
+            }
+        }
+    }
+    if (folder.hasOwnProperty("items")) {
+        // check if its a file, if yes return the file list and the index
+        for (n = 0, l = folder.items.length; n < l; n++) {
+            if (folder.items[n].id === searchId) {
+                return [folder.items, n];
+            }
+        }
+    }
+    // something went wrong, couldn't find the item / folder here
+    throw new RangeError("ObjectNotFound");
+}
+
+/**
+ * Go through the datastore recursive to find the object specified with the path
+ *
+ * @param {Array} path The path to the object you search as list of ids (length > 0)
+ * @param {TreeObject} datastore The datastore object tree
+ *
+ * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
+ */
+function findInDatastore(path, datastore) {
+    const to_search = path[0];
+    let n, l;
+    const rest = path.slice(1);
+
+    if (rest.length === 0) {
+        // found the parent
+        return findObject(datastore, to_search);
+    }
+
+    for (n = 0, l = datastore.folders.length; n < l; n++) {
+        if (datastore.folders[n].id === to_search) {
+            return findInDatastore(rest, datastore.folders[n]);
+        }
+    }
+    throw new RangeError("ObjectNotFound");
+}
+
+/**
+ * Searches all sub shares and hides (deletes) the content of those
+ *
+ * @param {TreeObject} share The share tree object which we want to modify
+ */
+function hideSubShareContent(share) {
+    const allowedProps = ["id", "name", "share_id", "share_secret_key", "deleted"];
+
+    for (let share_id in share.share_index) {
+        if (!share.share_index.hasOwnProperty(share_id)) {
+            continue;
+        }
+
+        for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
+            const path_copy = share.share_index[share_id].paths[i].slice();
+            const search = findInDatastore(path_copy, share);
+
+            const obj = search[0][search[1]];
+
+            for (let prop in obj) {
+                if (!obj.hasOwnProperty(prop)) {
+                    continue;
+                }
+                if (allowedProps.indexOf(prop) > -1) {
+                    continue;
+                }
+                delete obj[prop];
+            }
+        }
+    }
+}
+
 const datastoreService = {
     getDatastoreOverview: getDatastoreOverview,
     getDatastoreId: getDatastoreId,
@@ -634,5 +724,7 @@ const datastoreService = {
     encryptDatastore: encryptDatastore,
     filter: filter,
     filterDatastoreContent: filterDatastoreContent,
+    hideSubShareContent: hideSubShareContent,
+    findInDatastore: findInDatastore,
 };
 export default datastoreService;

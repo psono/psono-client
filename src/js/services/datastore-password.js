@@ -216,7 +216,7 @@ function updateParents(obj, parentShareId, parentDatastoreId) {
  */
 function updatePathsWithData(datastore, path, content, parentShareRights, parentShareId, parentDatastoreId) {
     const path_copy = path.slice();
-    const search = findInDatastore(path_copy, datastore);
+    const search = datastoreService.findInDatastore(path_copy, datastore);
     const obj = search[0][search[1]];
 
     // update share_rights in share object
@@ -340,7 +340,7 @@ function _readShares(datastore, shareRightsDict) {
 
                 for (let i = share_index[share_id].paths.length - 1; i >= 0; i--) {
                     const path_copy = share_index[share_id].paths[i].slice();
-                    const search = findInDatastore(path_copy, datastore);
+                    const search = datastoreService.findInDatastore(path_copy, datastore);
                     const sub_datastore = search[0][search[1]];
 
                     // Break potential loops
@@ -461,38 +461,6 @@ function _readShares(datastore, shareRightsDict) {
             localResolve();
         });
     });
-}
-
-/**
- * Searches all sub shares and hides (deletes) the content of those
- *
- * @param {TreeObject} share The share tree object which we want to modify
- */
-function hideSubShareContent(share) {
-    const allowedProps = ["id", "name", "share_id", "share_secret_key", "deleted"];
-
-    for (let share_id in share.share_index) {
-        if (!share.share_index.hasOwnProperty(share_id)) {
-            continue;
-        }
-
-        for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
-            const path_copy = share.share_index[share_id].paths[i].slice();
-            const search = findInDatastore(path_copy, share);
-
-            const obj = search[0][search[1]];
-
-            for (let prop in obj) {
-                if (!obj.hasOwnProperty(prop)) {
-                    continue;
-                }
-                if (allowedProps.indexOf(prop) > -1) {
-                    continue;
-                }
-                delete obj[prop];
-            }
-        }
-    }
 }
 
 /**
@@ -664,7 +632,7 @@ function saveDatastoreContent(datastore, paths) {
         }
 
         const duplicate = helperService.duplicateObject(closest_shares[prop]);
-        hideSubShareContent(duplicate);
+        datastoreService.hideSubShareContent(duplicate);
         if (prop === "datastore") {
             promises.push(datastoreService.saveDatastoreContent(type, description, duplicate));
         } else {
@@ -884,64 +852,6 @@ function bookmarkActiveTab() {
 }
 
 /**
- * Searches a folder and expects to find an element (item or folder) with a specific searchId.
- * It will return a tuple with the list of elements holding the element together with the index.
- *
- * @param {object} folder The folder to search
- * @param {uuid} searchId The id of the element one is looking for
- *
- * @returns {[]} Returns a tuple of the containing list and index or raises an error if not found
- */
-function findObject(folder, searchId) {
-    let n, l;
-
-    if (folder.hasOwnProperty("folders")) {
-        // check if the object is a folder, if yes return the folder list and the index
-        for (n = 0, l = folder.folders.length; n < l; n++) {
-            if (folder.folders[n].id === searchId) {
-                return [folder.folders, n];
-            }
-        }
-    }
-    if (folder.hasOwnProperty("items")) {
-        // check if its a file, if yes return the file list and the index
-        for (n = 0, l = folder.items.length; n < l; n++) {
-            if (folder.items[n].id === searchId) {
-                return [folder.items, n];
-            }
-        }
-    }
-    // something went wrong, couldn't find the item / folder here
-    throw new RangeError("ObjectNotFound");
-}
-
-/**
- * Go through the datastore recursive to find the object specified with the path
- *
- * @param {Array} path The path to the object you search as list of ids (length > 0)
- * @param {TreeObject} datastore The datastore object tree
- *
- * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
- */
-function findInDatastore(path, datastore) {
-    const to_search = path[0];
-    let n, l;
-    const rest = path.slice(1);
-
-    if (rest.length === 0) {
-        // found the parent
-        return findObject(datastore, to_search);
-    }
-
-    for (n = 0, l = datastore.folders.length; n < l; n++) {
-        if (datastore.folders[n].id === to_search) {
-            return findInDatastore(rest, datastore.folders[n]);
-        }
-    }
-    throw new RangeError("ObjectNotFound");
-}
-
-/**
  * Searches a datastore and returns the paths
  *
  * @param {*} toSearch The thing to search
@@ -1039,7 +949,7 @@ function getAllChildShares(obj, shareDistance, otherChildren, path) {
 function getAllChildSharesByPath(path, datastore, otherChildren, obj) {
     if (typeof obj === "undefined") {
         const path_copy = path.slice();
-        const search = findInDatastore(path_copy, datastore);
+        const search = datastoreService.findInDatastore(path_copy, datastore);
         obj = search[0][search[1]];
         return getAllChildShares(obj, 1, otherChildren, path);
     } else if (obj === false) {
@@ -1202,7 +1112,7 @@ function onShareAdded(shareId, path, datastore, distance) {
     let share;
     // add the the entry for the share in the share_index if not yet exists
     if (typeof parent_share.share_index[shareId] === "undefined") {
-        const search = findInDatastore(path_copy2, datastore);
+        const search = datastoreService.findInDatastore(path_copy2, datastore);
         share = search[0][search[1]];
 
         parent_share.share_index[shareId] = {
@@ -1413,7 +1323,7 @@ function analyzeBreadcrumbs(breadcrumbs, datastore) {
         const path_copy = breadcrumbs.id_breadcrumbs.slice();
         parent_path = breadcrumbs.id_breadcrumbs.slice();
         // find drop zone
-        const val1 = findInDatastore(breadcrumbs.id_breadcrumbs, datastore);
+        const val1 = datastoreService.findInDatastore(breadcrumbs.id_breadcrumbs, datastore);
         target = val1[0][val1[1]];
 
         // get the parent (share or datastore)
@@ -1726,7 +1636,6 @@ const datastorePasswordService = {
     savePasswordActiveTab: savePasswordActiveTab,
     savePasskey: savePasskey,
     bookmarkActiveTab: bookmarkActiveTab,
-    findInDatastore: findInDatastore,
     searchInDatastore: searchInDatastore,
     getAllChildSharesByPath: getAllChildSharesByPath,
     getAllChildShares: getAllChildShares,
