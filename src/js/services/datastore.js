@@ -529,6 +529,7 @@ function saveDatastoreContent(type, description, content) {
 
     const duplicate = helperService.duplicateObject(content);
     hideSubShareContent(duplicate);
+    normalizeShareContent(duplicate);
 
     if (duplicate.hasOwnProperty("datastore_id")) {
         return saveDatastoreContentWithId(duplicate["datastore_id"], duplicate);
@@ -569,57 +570,6 @@ function filter(folder, func) {
     }
 }
 
-/**
- * Creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
- *
- * @param {TreeObject} content The datastore content to filter
- *
- * @returns {TreeObject} Filtered copy of the content
- */
-function filterDatastoreContent(content) {
-    const contentCopy = helperService.duplicateObject(content);
-
-    const filter = [
-        "is_folder",
-        "expanded",
-        "expanded_temporary",
-        "is_expanded",
-        "filter",
-        "hidden",
-        "share_rights",
-        "path",
-        "parent_share_id",
-        "parent_datastore_id",
-    ];
-
-    const filterContent = function (content, filter) {
-        let i, m;
-
-        // test attributes in content
-        for (m = 0; m < filter.length; m++) {
-            if (content.hasOwnProperty(filter[m])) {
-                delete content[filter[m]];
-            }
-        }
-
-        // test items
-        for (i = 0; content.hasOwnProperty("items") && i < content.items.length; i++) {
-            for (m = 0; m < filter.length; m++) {
-                if (content.items[i].hasOwnProperty(filter[m])) {
-                    delete content.items[i][filter[m]];
-                }
-            }
-        }
-        // call self recursivly for folders
-        for (i = 0; content.hasOwnProperty("folders") && i < content.folders.length; i++) {
-            filterContent(content.folders[i], filter);
-        }
-    };
-
-    filterContent(contentCopy, filter);
-
-    return contentCopy;
-}
 
 /**
  * Searches a folder and expects to find an element (item or folder) with a specific searchId.
@@ -715,6 +665,38 @@ function hideSubShareContent(share) {
     }
 }
 
+/**
+ * Goes through the whole tree structure and removes artificially generated helper variables
+ *
+ * @param {TreeObject} share The share tree object which we want to modify
+ */
+function normalizeShareContent(share) {
+    let i;
+    const artificalProps = ["path", "is_folder", "hidden", "parent_share_id", "parent_datastore_id", "expanded", "expanded_temporary", "share_rights", "filter"];
+
+    for (const prop of artificalProps) {
+        if (share.hasOwnProperty(prop)) {
+            delete share[prop];
+        }
+    }
+
+    if (share.hasOwnProperty("items")) {
+        for (const item of share["items"]) {
+            for (const prop of artificalProps) {
+                if (item.hasOwnProperty(prop)) {
+                    delete item[prop];
+                }
+            }
+        }
+    }
+
+    if (share.hasOwnProperty("folders")) {
+        for (const folder of share["folders"]) {
+            normalizeShareContent(folder);
+        }
+    }
+}
+
 const datastoreService = {
     getDatastoreOverview: getDatastoreOverview,
     getDatastoreId: getDatastoreId,
@@ -731,8 +713,8 @@ const datastoreService = {
     saveDatastoreMeta: saveDatastoreMeta,
     encryptDatastore: encryptDatastore,
     filter: filter,
-    filterDatastoreContent: filterDatastoreContent,
     hideSubShareContent: hideSubShareContent,
+    normalizeShareContent: normalizeShareContent,
     findInDatastore: findInDatastore,
 };
 export default datastoreService;
