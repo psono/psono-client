@@ -26,7 +26,7 @@ import helper from "../../services/helper";
 import DialogVerify from "./verify";
 import DialogNewShare from "./new-share";
 import datastorePasswordService from "../../services/datastore-password";
-import itemBlueprintService from "../../services/item-blueprint";
+import datastoreService from "../../services/datastore";
 import groupsService from "../../services/groups";
 import DialogError from "./error";
 import DialogProgress from "./progress";
@@ -345,7 +345,7 @@ const DialogRightsOverview = (props) => {
                         );
 
                         // update datastore and / or possible parent shares
-                        const search = datastorePasswordService.findInDatastore(item_path, datastore);
+                        const search = datastoreService.findInDatastore(item_path, datastore);
 
                         if (typeof item.type === "undefined") {
                             // we have an item

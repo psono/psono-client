@@ -626,7 +626,7 @@ function decryptSecretKey(text, nonce) {
  * @returns {int} The strength of the provided password in bits
  */
 function calculatePasswordStrengthInBits(password) {
-    var specials = '-_#+*!§$%&=?@,.;:\'~"/(){}[]\\';
+    var specials = '-_#+*!§$%&=@;:\'~"(){}[]\\|,.<>/?';
     var numbers = '0123456789';
     var uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';

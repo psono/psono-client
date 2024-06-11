@@ -62,22 +62,23 @@ function is_ipv4_address(address) {
  * parses an URL and returns an object with all details separated
  *
  * @param {String} url The url to be parsed
- * @returns {SplittedUrl} Returns the split up url
+ * @returns {object} Returns the split up url
  */
 function parseUrl(url) {
+    const empty = {
+        scheme: null,
+        authority: null,
+        authority_without_www: null,
+        base_url: null,
+        full_domain: null,
+        full_domain_without_www: null,
+        port: null,
+        path: null,
+        query: null,
+        fragment: null
+    };
     if (!url) {
-        return {
-            scheme: null,
-            authority: null,
-            authority_without_www: null,
-            base_url: null,
-            full_domain: null,
-            full_domain_without_www: null,
-            port: null,
-            path: null,
-            query: null,
-            fragment: null
-        };
+        return empty;
     }
 
     if (!url.includes("://")) {
@@ -85,7 +86,12 @@ function parseUrl(url) {
         url = 'http://' + url;
     }
 
-    const parsedUrl = new URL(url);
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(url);
+    } catch (e) {
+        return empty;
+    }
 
     return {
         scheme: parsedUrl.protocol.slice(0,-1),

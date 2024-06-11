@@ -38,6 +38,7 @@ import DialogTrashBin from "../../components/dialogs/trash-bin";
 import DialogRightsOverview from "../../components/dialogs/rights-overview";
 import DialogError from "../../components/dialogs/error";
 import datastorePasswordService from "../../services/datastore-password";
+import datastoreService from "../../services/datastore";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
@@ -217,7 +218,7 @@ const DatastoreView = (props) => {
         if (paths.length === 0) {
             return;
         }
-        const search = datastorePasswordService.findInDatastore(paths[0], data);
+        const search = datastoreService.findInDatastore(paths[0], data);
         const node = search[0][search[1]];
 
         onEditEntry(node, paths[0]);
@@ -250,16 +251,6 @@ const DatastoreView = (props) => {
             newSecurityReport = "REQUIRED";
         }
     }
-
-
-
-    const onRightsOverview = (item, path) => {
-        setRightsOverviewData({
-            item: item,
-            path: path,
-        });
-        setRightsOverviewOpen(true);
-    };
 
     const onShare = (node, path) => {
         setRightsOverviewData({

@@ -19,7 +19,6 @@ function loadAfterStore(dispatch, getState) {
     backgroundService.activate()
 }
 async function activate() {
-    console.log("activate");
     const store = await initStore();
     persistStore(store, null, () => {
         if (!alreadyLoaded) {

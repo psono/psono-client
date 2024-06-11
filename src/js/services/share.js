@@ -9,6 +9,7 @@ import datastoreService from "./datastore";
 import secretLinkService from "./secret-link";
 import fileLinkService from "./file-link";
 import shareLinkService from "./share-link";
+import helperService from "./helper";
 
 const registrations = {};
 
@@ -95,14 +96,17 @@ function writeShare(shareId, content, secretKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    if (content.hasOwnProperty("id")) {
-        delete content.id;
+    const duplicate = helperService.duplicateObject(content);
+    datastoreService.hideSubShareContent(duplicate);
+
+    if (duplicate.hasOwnProperty("id")) {
+        delete duplicate.id;
     }
-    if (content.hasOwnProperty("share_rights")) {
-        delete content.share_rights;
+    if (duplicate.hasOwnProperty("share_rights")) {
+        delete duplicate.share_rights;
     }
 
-    const jsonContent = JSON.stringify(content);
+    const jsonContent = JSON.stringify(duplicate);
 
     const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
     return apiClient.writeShare(token, sessionSecretKey, shareId, encryptedData.text, encryptedData.nonce);

@@ -32,7 +32,7 @@ const defaultCompliancePasswordGeneratorDefaultPasswordLength = 20;
 const defaultCompliancePasswordGeneratorDefaultLettersUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const defaultCompliancePasswordGeneratorDefaultLettersLowercase = "abcdefghijklmnopqrstuvwxyz";
 const defaultCompliancePasswordGeneratorDefaultNumbers = "0123456789";
-const defaultCompliancePasswordGeneratorDefaultSpecialChars = ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\";
+const defaultCompliancePasswordGeneratorDefaultSpecialChars = ",.-;:_#'+*~!\"$%&/@()=?{[]}\\";
 const defaultComplianceServerSecrets = "auto";
 const defaultLicenseId = "";
 const defaultLicenseMode = "";

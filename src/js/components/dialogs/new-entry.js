@@ -886,7 +886,7 @@ const DialogNewEntry = (props) => {
                                         const parsedUrl = helperService.parseUrl(event.target.value);
                                         if (!event.target.value) {
                                             setWebsitePasswordUrlFilter("");
-                                        } else if (typeof parsedUrl.authority === "undefined") {
+                                        } else if (!parsedUrl.authority) {
                                             setWebsitePasswordUrlFilter("");
                                         } else {
                                             setWebsitePasswordUrlFilter(parsedUrl.authority);
