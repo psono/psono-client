@@ -137,7 +137,7 @@ const SettingsEntryTypesView = (props) => {
                 <p>{t("ENTRY_TYPES_DESCRIPTION")}</p>
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
-            {entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title))).map((entryType) => (<Grid item xs={12} sm={12} md={12}>
+            {entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title))).map((entryType) => (<Grid item xs={12} sm={12} md={12} key={entryType.value}>
                 <Checkbox
                     tabIndex={1}
                     checked={stateLookupDict[entryType.value].value}
