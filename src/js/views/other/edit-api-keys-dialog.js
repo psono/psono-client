@@ -2,24 +2,24 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Divider from "@material-ui/core/Divider";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Checkbox, Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import MuiAlert from "@material-ui/lab/Alert";
-import { Check } from "@material-ui/icons";
+import { makeStyles } from '@mui/styles';
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Divider from "@mui/material/Divider";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Checkbox, Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MuiAlert from '@mui/material/Alert'
+import { Check } from "@mui/icons-material";
 
 import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
@@ -166,7 +166,7 @@ const EditApiKeysDialog = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             label={"SECRET_ID"}
                             name="secretId"
                             autoComplete="off"
@@ -191,7 +191,7 @@ const EditApiKeysDialog = (props) => {
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => deleteSecret(tableMeta.rowData[0])}>
+                        <IconButton onClick={() => deleteSecret(tableMeta.rowData[0])} size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -226,7 +226,7 @@ const EditApiKeysDialog = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="title"
                             label={t("TITLE")}
                             name="title"
@@ -348,7 +348,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="apiKeyId"
                                         label={"API_KEY_ID"}
                                         name="apiKeyId"
@@ -366,7 +366,7 @@ const EditApiKeysDialog = (props) => {
                                                         aria-label="toggle api key id visibility"
                                                         onClick={() => setShowApiKeyId(!showApiKeyId)}
                                                         edge="end"
-                                                    >
+                                                        size="large">
                                                         {showApiKeyId ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
@@ -378,7 +378,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="apiKeyPrivateKey"
                                         label={"API_KEY_PRIVATE_KEY"}
                                         name="apiKeyPrivateKey"
@@ -396,7 +396,7 @@ const EditApiKeysDialog = (props) => {
                                                         aria-label="toggle api key id visibility"
                                                         onClick={() => setShowApiKeyPrivateKey(!showApiKeyPrivateKey)}
                                                         edge="end"
-                                                    >
+                                                        size="large">
                                                         {showApiKeyPrivateKey ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
@@ -408,7 +408,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="apiKeySecretKey"
                                         label={"API_KEY_SECRET_KEY"}
                                         name="apiKeySecretKey"
@@ -426,7 +426,7 @@ const EditApiKeysDialog = (props) => {
                                                         aria-label="toggle api key id visibility"
                                                         onClick={() => setShowApiKeySecretKey(!showApiKeySecretKey)}
                                                         edge="end"
-                                                    >
+                                                        size="large">
                                                         {showApiKeySecretKey ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
@@ -438,7 +438,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="serverUrl"
                                         label={"SERVER_URL"}
                                         name="serverUrl"
@@ -456,7 +456,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="serverPublicKey"
                                         label={"SERVER_PUBLIC_KEY"}
                                         name="serverPublicKey"
@@ -474,7 +474,7 @@ const EditApiKeysDialog = (props) => {
                                     <TextField
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="serverVerifyKey"
                                         label={"SERVER_SIGNATURE"}
                                         name="serverVerifyKey"

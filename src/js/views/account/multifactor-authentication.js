@@ -1,9 +1,9 @@
 import React from "react";
 import {Trans, useTranslation} from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
+import { makeStyles } from '@mui/styles';
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
+import Divider from "@mui/material/Divider";
 
 import { getStore } from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "./multifactor-authentication-google-authenticator";

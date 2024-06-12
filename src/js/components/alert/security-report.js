@@ -3,7 +3,7 @@ import { differenceInSeconds } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import MuiAlert from "@material-ui/lab/Alert";
+import MuiAlert from '@mui/material/Alert'
 import statusService from "../../services/status";
 
 function AlertSecurityReport(props) {

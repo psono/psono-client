@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import CheckIcon from "@material-ui/icons/Check";
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckIcon from "@mui/icons-material/Check";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
 
 import Table from "../../components/table";
 import duo from "../../services/duo";
@@ -165,7 +165,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                             onClick={() => {
                                 onDelete(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -205,7 +205,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="title"
                                     label={t("TITLE")}
                                     helperText={t("TITLE_OF_YOUR_DUO")}
@@ -224,7 +224,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="integrationKey"
                                     label={t("INTEGRATION_KEY")}
                                     name="integrationKey"
@@ -242,7 +242,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="secretKey"
                                     label={t("SECRET_KEY")}
                                     name="secretKey"
@@ -260,7 +260,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="host"
                                     label={t("HOST")}
                                     name="host"
@@ -298,7 +298,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                             <TextFieldQrCode
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 value={uri}
                             />
                         </Grid>
@@ -318,7 +318,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="code"
                                 label={t("CODE")}
                                 helperText={t("ONE_CODE_FOR_VALIDATION")}

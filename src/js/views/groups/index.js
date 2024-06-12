@@ -1,15 +1,15 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { makeStyles } from '@mui/styles';
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
@@ -217,7 +217,7 @@ const GroupsView = (props) => {
                                 !tableMeta.rowData[4] ||
                                 (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)
                             }
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -334,7 +334,7 @@ const GroupsView = (props) => {
                                 leaveGroup(tableMeta.rowData);
                             }}
                             disabled={(tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true) || (groupIndex[groupId] && groupIndex[groupId].forced_membership === true)}
-                        >
+                            size="large">
                             <ExitToAppIcon />
                         </IconButton>
                     );
@@ -358,7 +358,7 @@ const GroupsView = (props) => {
                                 !tableMeta.rowData[4] ||
                                 (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)
                             }
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

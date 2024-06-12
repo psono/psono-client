@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import Button from "@material-ui/core/Button";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import Button from "@mui/material/Button";
 
 import Table from "../../components/table";
 import fileRepositoryService from "../../services/file-repository";
@@ -159,7 +159,7 @@ const OtherFileRepositoriesView = (props) => {
                             }}
                             // prevent edit for not accepted (4) and not readable (5) file repositories
                             disabled={!tableMeta.rowData[4] || !tableMeta.rowData[5]}
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -180,7 +180,7 @@ const OtherFileRepositoriesView = (props) => {
                                 onDelete(tableMeta.rowData);
                             }}
                             disabled={!tableMeta.rowData[4] || !tableMeta.rowData[6] || !tableMeta.rowData[7]}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

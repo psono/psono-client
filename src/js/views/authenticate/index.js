@@ -1,10 +1,10 @@
 import React from "react";
 import {useTranslation} from "react-i18next";
 
-import {Grid} from "@material-ui/core";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import Button from "@material-ui/core/Button";
-import {makeStyles} from "@material-ui/core/styles";
+import {Grid} from "@mui/material";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import Button from "@mui/material/Button";
+import { makeStyles } from '@mui/styles';
 
 import FooterLinks from "../../components/footer-links";
 import ConfigLogo from "../../components/config-logo";

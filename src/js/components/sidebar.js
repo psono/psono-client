@@ -2,20 +2,21 @@ import React from "react";
 import { differenceInSeconds } from "date-fns";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import Drawer from "@material-ui/core/Drawer";
-import Hidden from "@material-ui/core/Hidden";
-import HomeIcon from "@material-ui/icons/Home";
-import ShareIcon from "@material-ui/icons/Share";
-import PersonIcon from "@material-ui/icons/Person";
-import GroupIcon from "@material-ui/icons/Group";
-import LinkIcon from "@material-ui/icons/Link";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import Badge from "@material-ui/core/Badge";
-import ListSubheader from "@material-ui/core/ListSubheader";
+import Drawer from "@mui/material/Drawer";
+import Hidden from "@mui/material/Hidden";
+import HomeIcon from "@mui/icons-material/Home";
+import ShareIcon from "@mui/icons-material/Share";
+import PersonIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
+import LinkIcon from "@mui/icons-material/Link";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from '@mui/styles';
+import Badge from "@mui/material/Badge";
+import ListSubheader from "@mui/material/ListSubheader";
 
 import FontAwesome from "react-fontawesome";
 import { Link } from "react-router-dom";
@@ -98,12 +99,14 @@ const useStyles = makeStyles((theme) => ({
     },
     subHeader: {
         color: "#b1b6c1",
+        backgroundColor: 'transparent',
     },
     version: {
         color: "#444851",
         margin: "10px",
         position: "absolute",
         bottom: "0",
+        fontSize: "14px",
     },
 }));
 
@@ -161,7 +164,7 @@ const Sidebar = (props) => {
 
     const drawer = (
         <div>
-            <Hidden xsDown>
+            <Hidden smDown>
                 <div className={classes.toolbar} />
             </Hidden>
             <List>
@@ -351,7 +354,7 @@ const Sidebar = (props) => {
                     {drawer}
                 </Drawer>
             </Hidden>
-            <Hidden xsDown>
+            <Hidden smDown>
                 <Drawer
                     classes={{
                         paper: classes.drawerPaper,

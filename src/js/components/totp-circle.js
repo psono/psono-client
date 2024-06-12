@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Button from "@material-ui/core/Button";
-import Box from "@material-ui/core/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { useHotkeys } from 'react-hotkeys-hook'
 

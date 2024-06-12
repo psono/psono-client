@@ -1,10 +1,10 @@
 import React from "react";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import fileRepository from "../../services/file-repository";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
     option: {
@@ -22,7 +22,7 @@ const SelectFieldFileRepositoryType = (props) => {
 
     const fileRepositoryTypes = fileRepository.getPossibleTypes();
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className } = props;
+    const { fullWidth, variant, size, margin, helperText, error, required, onChange, value, className } = props;
 
     let defaulValue = null;
     if (value && fileRepositoryTypes && fileRepositoryTypes.length) {
@@ -41,7 +41,6 @@ const SelectFieldFileRepositoryType = (props) => {
             getOptionLabel={(option) => {
                 return option ? option.title : "";
             }}
-            renderOption={(option) => <>{option ? option.title : ""}</>}
             onChange={(event, newValue) => {
                 if (newValue) {
                     onChange(newValue.value);
@@ -49,7 +48,7 @@ const SelectFieldFileRepositoryType = (props) => {
                     onChange("");
                 }
             }}
-            getOptionSelected={(option, value) => {
+            isOptionEqualToValue={(option, value) => {
                 if (option) {
                     return option.value === value.value;
                 } else {
@@ -65,6 +64,7 @@ const SelectFieldFileRepositoryType = (props) => {
                     required={required}
                     margin={margin}
                     variant={variant}
+                    size={size}
                     helperText={helperText}
                     error={error}
                     fullWidth={fullWidth}
@@ -89,6 +89,7 @@ SelectFieldFileRepositoryType.propTypes = {
     required: PropTypes.bool,
     helperText: PropTypes.string,
     variant: PropTypes.string,
+    size: PropTypes.string,
     margin: PropTypes.string,
     onChange: PropTypes.func,
     className: PropTypes.string,

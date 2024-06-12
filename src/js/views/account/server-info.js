@@ -1,14 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import Divider from "@material-ui/core/Divider";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import { Grid } from "@material-ui/core";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import Divider from "@mui/material/Divider";
+import DialogTitle from "@mui/material/DialogTitle";
+import { Grid } from "@mui/material";
 
 import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
@@ -41,7 +41,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="api"
                     label={t("SERVER_API_VERSION")}
                     name="api"
@@ -59,7 +59,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="version"
                     label={t("SERVER_VERSION")}
                     name="version"
@@ -77,7 +77,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="verifyKey"
                     label={t("SERVER_SIGNATURE")}
                     name="verifyKey"
@@ -95,7 +95,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="logAudit"
                     label={t("SERVER_AUDIT_LOGGING")}
                     name="logAudit"
@@ -113,7 +113,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="publicKey"
                     label={t("SERVER_PUBLIC_KEY")}
                     name="publicKey"
@@ -131,7 +131,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="type"
                     label={t("SERVER_LICENSE_TYPE")}
                     name="type"
@@ -149,7 +149,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="licenseMaxUsers"
                     label={t("SERVER_MAX_USERS")}
                     name="licenseMaxUsers"
@@ -167,7 +167,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="licenseValidFrom"
                     label={t("SERVER_LICENSE_VALID_FROM")}
                     name="licenseValidFrom"
@@ -189,7 +189,7 @@ const AccountOverviewView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="licenseValidTill"
                     label={t("SERVER_LICENSE_VALID_TILL")}
                     name="licenseValidTill"

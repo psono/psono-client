@@ -1,4 +1,4 @@
-import { createTheme } from "@material-ui/core/styles";
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
     palette: {
@@ -17,26 +17,35 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: ['"Open Sans"', "sans-serif"].join(","),
-        fontSize: 14,
+        fontSize: 13,
     },
-    overrides: {
+    components: {
         MuiToolbar: {
-            regular: {
-                height: "48px",
-                minHeight: "48px",
-                "@media(min-width:600px)": {
+            styleOverrides: {
+                regular: {
+                    height: "48px",
                     minHeight: "48px",
+                    "@media(min-width:600px)": {
+                        minHeight: "48px",
+                    },
                 },
             },
         },
         MUIDataTable: {
-            paper: {
-                boxShadow: "none",
+            styleOverrides: {
+                paper: {
+                    boxShadow: "none",
+                },
             },
         },
         MuiButton: {
-            containedPrimary: {
-                color: "white",
+            styleOverrides: {
+                containedPrimary: {
+                    color: "white",
+                },
+                root: {
+                    color: 'rgba(0, 0, 0, 0.87)', // Set default font color for all buttons
+                },
             },
         },
     },

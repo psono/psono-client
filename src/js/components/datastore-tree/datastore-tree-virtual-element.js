@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 import DatastoreTreeFolder from "./datastore-tree-folder";
 import DatastoreTreeItem from "./datastore-tree-item";
 

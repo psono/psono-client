@@ -4,23 +4,24 @@ import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
 import { ClipLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
-import PropTypes from "prop-types";
-import { alpha, makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import DeleteSweepIcon from "@material-ui/icons/DeleteSweep";
-import IconButton from "@material-ui/core/IconButton";
-import MenuOpenIcon from "@material-ui/icons/MenuOpen";
-import Divider from "@material-ui/core/Divider";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import Grid from "@material-ui/core/Grid";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Typography from "@material-ui/core/Typography";
-import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
-import AddIcon from "@material-ui/icons/Add";
-import withWidth from "@material-ui/core/withWidth";
+import { alpha } from "@mui/material/styles";
+import { makeStyles } from '@mui/styles';
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import IconButton from "@mui/material/IconButton";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Divider from "@mui/material/Divider";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Grid from "@mui/material/Grid";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Typography from "@mui/material/Typography";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import AddIcon from "@mui/icons-material/Add";
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
@@ -121,8 +122,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+function useWidth() {
+    const theme = useTheme();
+    const keys = [...theme.breakpoints.keys].reverse();
+    return (
+        keys.reduce((output, key) => {
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const matches = useMediaQuery(theme.breakpoints.up(key));
+            return !output && matches ? key : output;
+        }, null) || 'xs'
+    );
+}
+
+
 const DatastoreView = (props) => {
-    const { width } = props;
+    const width = useWidth();
     let { defaultSearch, secretType, secretId } = useParams();
     const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
     const serverStatus = useSelector((state) => state.server.status);
@@ -509,7 +523,7 @@ const DatastoreView = (props) => {
                                                 className={classes.iconButton}
                                                 aria-label="menu"
                                                 onClick={openMenu}
-                                            >
+                                                size="large">
                                                 <MenuOpenIcon/>
                                             </IconButton>
                                         )}
@@ -549,7 +563,7 @@ const DatastoreView = (props) => {
                                                     className={classes.iconButton}
                                                     aria-label="trash bin"
                                                     onClick={openTrashBin}
-                                                >
+                                                    size="large">
                                                     <DeleteSweepIcon/>
                                                 </IconButton>
                                             </>
@@ -739,8 +753,4 @@ const DatastoreView = (props) => {
     );
 };
 
-DatastoreView.propTypes = {
-    width: PropTypes.oneOf(["lg", "md", "sm", "xl", "xs"]).isRequired,
-};
-
-export default withWidth()(DatastoreView);
+export default DatastoreView;

@@ -1,18 +1,19 @@
 import React, { useState, useReducer } from "react";
 import { useTranslation } from "react-i18next";
-import { alpha, makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import MenuOpenIcon from "@material-ui/icons/MenuOpen";
-import Divider from "@material-ui/core/Divider";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Typography from "@material-ui/core/Typography";
-import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
+import { alpha } from "@mui/material/styles";
+import { makeStyles } from '@mui/styles';
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Divider from "@mui/material/Divider";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Typography from "@mui/material/Typography";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import { ClipLoader } from "react-spinners";
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
@@ -265,7 +266,7 @@ const TrustedUsersView = (props) => {
                                     className={classes.iconButton}
                                     aria-label="menu"
                                     onClick={openMenu}
-                                >
+                                    size="large">
                                     <MenuOpenIcon />
                                 </IconButton>
                                 <Menu

@@ -1,6 +1,6 @@
 import React from "react";
-import Container from "@material-ui/core/Container";
-import { makeStyles } from "@material-ui/core/styles";
+import Container from "@mui/material/Container";
+import { makeStyles } from '@mui/styles';
 
 import deviceService from "../services/device";
 
