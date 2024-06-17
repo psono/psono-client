@@ -1,4 +1,5 @@
 {
+  "ADD_TOTP": "Add TOTP",
   "LOGIN_PENDING": "Login pending",
   "ADD_ACCOUNT": "Add account",
   "CHANGE_ACCOUNT": "Change account",
@@ -551,6 +552,7 @@
   "CREDIT_CARD_NUMBER": "Credit Card Number",
   "SHOW_OR_HIDE": "Show / Hide",
   "SHOW_OR_HIDE_PASSWORD": "Show / Hide Password",
+  "SHOW_OR_HIDE_TOTP": "Show / Hide TOTP",
   "SHOW_OR_HIDE_PASSPHRASE": "Show / Hide Passphrase",
   "SHOW_OR_HIDE_PIN": "Show / Hide PIN",
   "GENERATE_PASSWORD": "Generate password",

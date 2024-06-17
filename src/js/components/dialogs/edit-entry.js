@@ -49,9 +49,11 @@ import { getStore } from "../../services/store";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
+import TextFieldTotp from "../text-field/totp";
 import converterService from "../../services/converter";
 import LinkIcon from "@mui/icons-material/Link";
 import DialogCreateLinkShare from "./create-link-share";
+import DialogAddTotp from "./add-totp";
 import Divider from "@mui/material/Divider";
 
 const useStyles = makeStyles((theme) => ({
@@ -129,6 +131,7 @@ const DialogEditEntry = (props) => {
     const offline = offlineCache.isActive();
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
+    const [addTotpOpen, setAddTotpOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
@@ -143,6 +146,10 @@ const DialogEditEntry = (props) => {
     const [websitePasswordNotes, setWebsitePasswordNotes] = useState("");
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
+    const [websitePasswordTotpPeriod, setWebsitePasswordTotpPeriod] = useState(30);
+    const [websitePasswordTotpAlgorithm, setWebsitePasswordTotpAlgorithm] = useState("SHA1");
+    const [websitePasswordTotpDigits, setWebsitePasswordTotpDigits] = useState(6);
+    const [websitePasswordTotpCode, setWebsitePasswordTotpCode] = useState("");
 
     const [passkeyTitle, setPasskeyTitle] = useState("");
     const [passkeyRpId, setPasskeyRpId] = useState("");
@@ -340,6 +347,27 @@ const DialogEditEntry = (props) => {
             } else {
                 setWebsitePasswordPassword("");
             }
+            if (data.hasOwnProperty("website_password_totp_period")) {
+                setWebsitePasswordTotpPeriod(data["website_password_totp_period"]);
+            } else {
+                setWebsitePasswordTotpPeriod(30);
+            }
+            if (data.hasOwnProperty("website_password_totp_algorithm")) {
+                setWebsitePasswordTotpAlgorithm(data["website_password_totp_algorithm"]);
+            } else {
+                setWebsitePasswordTotpAlgorithm("SHA1");
+            }
+            if (data.hasOwnProperty("website_password_totp_digits")) {
+                setWebsitePasswordTotpDigits(data["website_password_totp_digits"]);
+            } else {
+                setWebsitePasswordTotpDigits(6);
+            }
+            if (data.hasOwnProperty("website_password_totp_code")) {
+                setWebsitePasswordTotpCode(data["website_password_totp_code"]);
+            } else {
+                setWebsitePasswordTotpCode("");
+            }
+
             if (data.hasOwnProperty("website_password_notes")) {
                 setWebsitePasswordNotes(data["website_password_notes"]);
             } else {
@@ -664,6 +692,18 @@ const DialogEditEntry = (props) => {
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
             }
+            if (websitePasswordTotpPeriod) {
+                secretObject["website_password_totp_period"] = websitePasswordTotpPeriod;
+            }
+            if (websitePasswordTotpAlgorithm) {
+                secretObject["website_password_totp_algorithm"] = websitePasswordTotpAlgorithm;
+            }
+            if (websitePasswordTotpDigits) {
+                secretObject["website_password_totp_digits"] = websitePasswordTotpDigits;
+            }
+            if (websitePasswordTotpCode) {
+                secretObject["website_password_totp_code"] = websitePasswordTotpCode;
+            }
             if (websitePasswordNotes) {
                 secretObject["website_password_notes"] = websitePasswordNotes;
             }
@@ -966,14 +1006,6 @@ const DialogEditEntry = (props) => {
         fileReader.readAsArrayBuffer(event.target.files[0]);
     };
 
-    const openMenuMoreMenu = (event) => {
-        setAnchorElMoreMenu(event.currentTarget);
-    };
-
-    const openMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
     const handleClose = () => {
         setAnchorEl(null);
         setAnchorEl2(null);
@@ -1019,7 +1051,9 @@ const DialogEditEntry = (props) => {
                     <IconButton
                         aria-controls="more-menu"
                         aria-label="open more menu"
-                        onClick={openMenuMoreMenu}
+                        onClick={(event) => {
+                            setAnchorElMoreMenu(event.currentTarget);
+                        }}
                         size="large">
                         <MoreVertIcon />
                     </IconButton>
@@ -1191,7 +1225,9 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
                                         size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
@@ -1239,6 +1275,44 @@ const DialogEditEntry = (props) => {
                     {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                 </Grid>
             )}
+
+            {item.type === "website_password" && !websitePasswordTotpCode && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        startIcon={<PlaylistAddIcon />}
+                        onClick={() => {
+                            setAddTotpOpen(true);
+                        }}
+                    >
+                        {t("ADD_TOTP")}
+                    </Button>
+                </Grid>
+            )}
+
+            {item.type === "website_password" && websitePasswordTotpCode && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextFieldTotp
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="websitePasswordTotpCode"
+                        label={t("TOTP_CODE")}
+                        name="websitePasswordTotpCode"
+                        autoComplete="off"
+                        period={websitePasswordTotpPeriod}
+                        algorithm={websitePasswordTotpAlgorithm}
+                        digits={websitePasswordTotpDigits}
+                        code={websitePasswordTotpCode}
+                        onDelete={item.share_rights && item.share_rights.write ? () => {
+                            setWebsitePasswordTotpCode("");
+                            setWebsitePasswordTotpPeriod(30);
+                            setWebsitePasswordTotpAlgorithm("SHA1");
+                            setWebsitePasswordTotpDigits(6);
+                        } : null}
+                    />
+                </Grid>
+            )}
+
             {item.type === "website_password" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1323,7 +1397,9 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
                                         size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
@@ -2034,7 +2110,9 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
                                         size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
@@ -2164,7 +2242,9 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
                                         size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
@@ -2337,7 +2417,9 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
                                         size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
@@ -2564,6 +2646,24 @@ const DialogEditEntry = (props) => {
                     open={createLinkShareOpen}
                     onClose={() => setCreateLinkShareOpen(false)}
                     item={item}
+                />
+            )}
+
+            {addTotpOpen && (
+                <DialogAddTotp
+                    open={addTotpOpen}
+                    onClose={(
+                        totpPeriod,
+                        totpAlgorithm,
+                        totpDigits,
+                        totpCode,
+                    ) => {
+                        setWebsitePasswordTotpPeriod(totpPeriod);
+                        setWebsitePasswordTotpAlgorithm(totpAlgorithm);
+                        setWebsitePasswordTotpDigits(totpDigits);
+                        setWebsitePasswordTotpCode(totpCode);
+                        setAddTotpOpen(false)
+                    }}
                 />
             )}
         </Grid>

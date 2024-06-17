@@ -20,6 +20,12 @@ const theme = createTheme({
         fontSize: 13,
     },
     components: {
+        MuiTextField: {
+            defaultProps: {
+                margin: 'dense',
+                size: 'small',
+            },
+        },
         MuiToolbar: {
             styleOverrides: {
                 regular: {

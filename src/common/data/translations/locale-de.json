@@ -1,4 +1,5 @@
 {
+  "ADD_TOTP": "TOTP hinzufügen",
   "LOGIN_PENDING": "Anmeldung ausstehend",
   "ADD_ACCOUNT": "Account hinzufügen",
   "CHANGE_ACCOUNT": "Account wechseln",
@@ -551,6 +552,7 @@
   "CREDIT_CARD_NUMBER": "Kreditkartennummer",
   "SHOW_OR_HIDE": "Ein-/ausblenden",
   "SHOW_OR_HIDE_PASSWORD": "Passwort ein-/ausblenden",
+  "SHOW_OR_HIDE_TOTP": "TOTP ein-/ausblenden",
   "SHOW_OR_HIDE_PASSPHRASE": "Passphrase ein-/ausblenden",
   "SHOW_OR_HIDE_PIN": "PIN ein-/ausblenden",
   "GENERATE_PASSWORD": "Passwort generieren",
