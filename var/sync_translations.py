@@ -28,7 +28,6 @@ LANGUAGE_CODES = [
 ]
 
 FILE_PATHS = {
-    'de': 'src/common/data/translations/locale-de.json',
     'en': 'src/common/data/translations/locale-en.json',
 }
 
