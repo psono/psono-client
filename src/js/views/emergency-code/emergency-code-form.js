@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import {makeStyles} from "@material-ui/core/styles";
-import MuiAlert from "@material-ui/lab/Alert";
-import Button from "@material-ui/core/Button";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import { makeStyles } from '@mui/styles';
+import MuiAlert from '@mui/material/Alert'
+import Button from "@mui/material/Button";
 
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
@@ -49,6 +49,9 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         color: "white !important",
+    },
+    inputAdornment: {
+        color: "#b1b6c1",
     },
 }));
 
@@ -199,14 +202,14 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="username"
                             label={t("USERNAME")}
                             InputProps={{
                                 endAdornment:
                                     domain && !username.includes("@") ? (
-                                        <InputAdornment position="end">{"@" + domain}</InputAdornment>
-                                    ) : null,
+                                        <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
+                                ) : null,
                             }}
                             name="username"
                             autoComplete="off"
@@ -220,7 +223,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="code1"
                             placeholder="DdSLuiDcPuY2F"
                             name="code1"
@@ -235,7 +238,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="code2"
                             placeholder="Dsxf82sKQdqPs"
                             name="code2"
@@ -250,7 +253,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="words"
                             placeholder={t("OR_WORDLIST")}
                             name="words"
@@ -283,7 +286,7 @@ const EmergencyCodeViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
@@ -376,7 +379,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -435,7 +438,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -452,7 +455,7 @@ const EmergencyCodeViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="oldserver_fingerprint"
                             label={t("FINGERPRINT_OF_THE_OLD_SERVER")}
                             InputProps={{

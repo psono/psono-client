@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Grid, Checkbox } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import { Check } from "@material-ui/icons";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid, Checkbox } from "@mui/material";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import { Check } from "@mui/icons-material";
+import MuiAlert from '@mui/material/Alert'
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import { BarLoader } from "react-spinners";
 import { useHistory } from "react-router-dom";
 
@@ -62,6 +62,9 @@ const useStyles = makeStyles((theme) => ({
         padding: "9px",
         border: "1px solid #666",
         borderRadius: "3px",
+    },
+    inputAdornment: {
+        color: "#b1b6c1",
     },
 }));
 
@@ -753,7 +756,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="password"
                             label={t("PASSWORD")}
                             InputProps={{
@@ -872,13 +875,13 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
                                     endAdornment:
                                         domain && !username.includes("@") ? (
-                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
                                         ) : null,
                                 }}
                                 name="username"
@@ -899,7 +902,7 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="password"
                                 label={t("PASSWORD")}
                                 InputProps={{
@@ -1026,7 +1029,7 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
@@ -1057,7 +1060,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -1116,7 +1119,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -1133,7 +1136,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="oldserver_fingerprint"
                             label={t("FINGERPRINT_OF_THE_OLD_SERVER")}
                             InputProps={{
@@ -1237,7 +1240,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="gaToken"
                             label={t("TOTP_CODE")}
                             name="gaToken"
@@ -1286,7 +1289,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="yubikeyOtpToken"
                             label={t("YUBIKEY_TOKEN")}
                             name="yubikeyOtpToken"
@@ -1335,7 +1338,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="duoToken"
                             label={t("DUO_CODE")}
                             name="duoToken"

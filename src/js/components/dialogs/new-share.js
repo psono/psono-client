@@ -2,20 +2,20 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Checkbox, Grid } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import IconButton from "@material-ui/core/IconButton";
-import Divider from "@material-ui/core/Divider";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import IconButton from "@mui/material/IconButton";
+import Divider from "@mui/material/Divider";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 import helper from "../../services/helper";
 import datastoreUserService from "../../services/datastore-user";
@@ -183,7 +183,7 @@ const DialogNewShare = (props) => {
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "user")}>
+                        <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "user")} size="large">
                             {selectedUsers.indexOf(tableMeta.rowData[0]) > -1 ? (
                                 <CheckBoxIcon />
                             ) : (
@@ -224,7 +224,7 @@ const DialogNewShare = (props) => {
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "group")}>
+                        <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "group")} size="large">
                             {selectedGroups.indexOf(tableMeta.rowData[0]) > -1 ? (
                                 <CheckBoxIcon />
                             ) : (

@@ -1,10 +1,13 @@
 import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Button from "@material-ui/core/Button";
-import Box from "@material-ui/core/Box";
 import { useTranslation } from "react-i18next";
 import { useHotkeys } from 'react-hotkeys-hook'
+
+import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import IconButton from '@mui/material/IconButton';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import ContentCopy from "./icons/ContentCopy";
 import cryptoLibraryService from "../services/crypto-library";
@@ -83,6 +86,12 @@ const TotpCircle = (props) => {
                 >
                     {token}
                 </Button>
+                {props.onDelete && <IconButton
+                    aria-label="delete"
+                    onClick={props.onDelete}
+                >
+                    <DeleteOutlineIcon />
+                </IconButton>}
             </Box>
         </Box>
     );
@@ -100,6 +109,7 @@ TotpCircle.propTypes = {
     digits: PropTypes.number,
     algorithm: PropTypes.string,
     code: PropTypes.string,
+    onDelete: PropTypes.string,
 };
 
 export default TotpCircle;

@@ -1,10 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import Table from "../../components/table";
 import user from "../../services/user";
@@ -74,7 +74,7 @@ const OtherSessionsView = (props) => {
                             onClick={() => {
                                 onDelete(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

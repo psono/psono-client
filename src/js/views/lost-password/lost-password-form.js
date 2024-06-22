@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Grid } from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import MuiAlert from "@material-ui/lab/Alert";
-import Button from "@material-ui/core/Button";
+import { Grid } from "@mui/material";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import MuiAlert from '@mui/material/Alert'
+import Button from "@mui/material/Button";
 
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
@@ -48,6 +48,9 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         color: "white !important",
+    },
+    inputAdornment: {
+        color: "#b1b6c1",
     },
 }));
 
@@ -242,13 +245,13 @@ const LostPasswordViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
                                     endAdornment:
                                         domain && !username.includes("@") ? (
-                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
                                         ) : null,
                                 }}
                                 name="username"
@@ -263,7 +266,7 @@ const LostPasswordViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="code1"
                                 placeholder="DdSLuiDcPuY2F"
                                 name="code1"
@@ -278,7 +281,7 @@ const LostPasswordViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="code2"
                                 placeholder="Dsxf82sKQdqPs"
                                 name="code2"
@@ -293,7 +296,7 @@ const LostPasswordViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="words"
                                 placeholder={t("OR_WORDLIST")}
                                 name="words"
@@ -333,7 +336,7 @@ const LostPasswordViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
@@ -381,7 +384,7 @@ const LostPasswordViewForm = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="password"
                         label={t("NEW_PASSWORD")}
                         InputProps={{
@@ -399,7 +402,7 @@ const LostPasswordViewForm = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="passwordRepeat"
                         label={t("NEW_PASSWORD_REPEAT")}
                         InputProps={{

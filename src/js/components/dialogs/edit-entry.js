@@ -1,35 +1,35 @@
 import React, {useState} from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import MuiAlert from "@material-ui/lab/Alert";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import { Checkbox, Grid } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import MenuOpenIcon from "@material-ui/icons/MenuOpen";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Typography from "@material-ui/core/Typography";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
-import DeleteIcon from "@material-ui/icons/Delete";
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import OpenInNewIcon from "@material-ui/icons/OpenInNew";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import MuiAlert from '@mui/material/Alert'
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Typography from "@mui/material/Typography";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import LinearProgress from "@mui/material/LinearProgress";
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import itemBlueprintService from "../../services/item-blueprint";
@@ -49,10 +49,12 @@ import { getStore } from "../../services/store";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
+import TextFieldTotp from "../text-field/totp";
 import converterService from "../../services/converter";
-import LinkIcon from "@material-ui/icons/Link";
+import LinkIcon from "@mui/icons-material/Link";
 import DialogCreateLinkShare from "./create-link-share";
-import Divider from "@material-ui/core/Divider";
+import DialogAddTotp from "./add-totp";
+import Divider from "@mui/material/Divider";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -129,6 +131,7 @@ const DialogEditEntry = (props) => {
     const offline = offlineCache.isActive();
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
+    const [addTotpOpen, setAddTotpOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
@@ -143,6 +146,10 @@ const DialogEditEntry = (props) => {
     const [websitePasswordNotes, setWebsitePasswordNotes] = useState("");
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
+    const [websitePasswordTotpPeriod, setWebsitePasswordTotpPeriod] = useState(30);
+    const [websitePasswordTotpAlgorithm, setWebsitePasswordTotpAlgorithm] = useState("SHA1");
+    const [websitePasswordTotpDigits, setWebsitePasswordTotpDigits] = useState(6);
+    const [websitePasswordTotpCode, setWebsitePasswordTotpCode] = useState("");
 
     const [passkeyTitle, setPasskeyTitle] = useState("");
     const [passkeyRpId, setPasskeyRpId] = useState("");
@@ -340,6 +347,27 @@ const DialogEditEntry = (props) => {
             } else {
                 setWebsitePasswordPassword("");
             }
+            if (data.hasOwnProperty("website_password_totp_period")) {
+                setWebsitePasswordTotpPeriod(data["website_password_totp_period"]);
+            } else {
+                setWebsitePasswordTotpPeriod(30);
+            }
+            if (data.hasOwnProperty("website_password_totp_algorithm")) {
+                setWebsitePasswordTotpAlgorithm(data["website_password_totp_algorithm"]);
+            } else {
+                setWebsitePasswordTotpAlgorithm("SHA1");
+            }
+            if (data.hasOwnProperty("website_password_totp_digits")) {
+                setWebsitePasswordTotpDigits(data["website_password_totp_digits"]);
+            } else {
+                setWebsitePasswordTotpDigits(6);
+            }
+            if (data.hasOwnProperty("website_password_totp_code")) {
+                setWebsitePasswordTotpCode(data["website_password_totp_code"]);
+            } else {
+                setWebsitePasswordTotpCode("");
+            }
+
             if (data.hasOwnProperty("website_password_notes")) {
                 setWebsitePasswordNotes(data["website_password_notes"]);
             } else {
@@ -664,6 +692,18 @@ const DialogEditEntry = (props) => {
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
             }
+            if (websitePasswordTotpPeriod) {
+                secretObject["website_password_totp_period"] = websitePasswordTotpPeriod;
+            }
+            if (websitePasswordTotpAlgorithm) {
+                secretObject["website_password_totp_algorithm"] = websitePasswordTotpAlgorithm;
+            }
+            if (websitePasswordTotpDigits) {
+                secretObject["website_password_totp_digits"] = websitePasswordTotpDigits;
+            }
+            if (websitePasswordTotpCode) {
+                secretObject["website_password_totp_code"] = websitePasswordTotpCode;
+            }
             if (websitePasswordNotes) {
                 secretObject["website_password_notes"] = websitePasswordNotes;
             }
@@ -966,14 +1006,6 @@ const DialogEditEntry = (props) => {
         fileReader.readAsArrayBuffer(event.target.files[0]);
     };
 
-    const openMenuMoreMenu = (event) => {
-        setAnchorElMoreMenu(event.currentTarget);
-    };
-
-    const openMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
     const handleClose = () => {
         setAnchorEl(null);
         setAnchorEl2(null);
@@ -1016,7 +1048,13 @@ const DialogEditEntry = (props) => {
             )}
             {!hideMoreMenu && item.share_rights && (item.share_rights.read || item.share_rights.write) && !offline && (
                 <>
-                    <IconButton aria-controls="more-menu" aria-label="open more menu" onClick={openMenuMoreMenu}>
+                    <IconButton
+                        aria-controls="more-menu"
+                        aria-label="open more menu"
+                        onClick={(event) => {
+                            setAnchorElMoreMenu(event.currentTarget);
+                        }}
+                        size="large">
                         <MoreVertIcon />
                     </IconButton>
                     <Menu
@@ -1071,7 +1109,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="passkeyTitle"
                         label={t("TITLE")}
                         name="passkeyTitle"
@@ -1090,7 +1128,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordTitle"
                         label={t("TITLE")}
                         name="websitePasswordTitle"
@@ -1109,7 +1147,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordUrl"
                         label={t("URL")}
                         name="websitePasswordUrl"
@@ -1123,7 +1161,7 @@ const DialogEditEntry = (props) => {
                                         className={classes.iconButton}
                                         aria-label="menu"
                                         onClick={linkItem}
-                                    >
+                                        size="large">
                                         <OpenInNewIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
@@ -1149,7 +1187,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordUsername"
                         label={t("USERNAME")}
                         name="websitePasswordUsername"
@@ -1167,7 +1205,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordPassword"
                         label={t("PASSWORD")}
                         name="websitePasswordPassword"
@@ -1187,8 +1225,10 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
-                                    >
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -1235,12 +1275,50 @@ const DialogEditEntry = (props) => {
                     {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                 </Grid>
             )}
+
+            {item.type === "website_password" && !websitePasswordTotpCode && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        startIcon={<PlaylistAddIcon />}
+                        onClick={() => {
+                            setAddTotpOpen(true);
+                        }}
+                    >
+                        {t("ADD_TOTP")}
+                    </Button>
+                </Grid>
+            )}
+
+            {item.type === "website_password" && websitePasswordTotpCode && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextFieldTotp
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="websitePasswordTotpCode"
+                        label={t("TOTP_CODE")}
+                        name="websitePasswordTotpCode"
+                        autoComplete="off"
+                        period={websitePasswordTotpPeriod}
+                        algorithm={websitePasswordTotpAlgorithm}
+                        digits={websitePasswordTotpDigits}
+                        code={websitePasswordTotpCode}
+                        onDelete={item.share_rights && item.share_rights.write ? () => {
+                            setWebsitePasswordTotpCode("");
+                            setWebsitePasswordTotpPeriod(30);
+                            setWebsitePasswordTotpAlgorithm("SHA1");
+                            setWebsitePasswordTotpDigits(6);
+                        } : null}
+                    />
+                </Grid>
+            )}
+
             {item.type === "website_password" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordNotes"
                         label={t("NOTES")}
                         name="websitePasswordNotes"
@@ -1262,7 +1340,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="applicationPasswordTitle"
                         label={t("TITLE")}
                         name="applicationPasswordTitle"
@@ -1281,7 +1359,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="applicationPasswordUsername"
                         label={t("USERNAME")}
                         name="applicationPasswordUsername"
@@ -1299,7 +1377,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="applicationPasswordPassword"
                         label={t("PASSWORD")}
                         name="applicationPasswordPassword"
@@ -1319,8 +1397,10 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
-                                    >
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -1372,7 +1452,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="applicationPasswordNotes"
                         label={t("NOTES")}
                         name="applicationPasswordNotes"
@@ -1394,7 +1474,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="bookmarkTitle"
                         label={t("TITLE")}
                         name="bookmarkTitle"
@@ -1413,7 +1493,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="bookmarkUrl"
                         error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                         label={t("URL")}
@@ -1428,7 +1508,7 @@ const DialogEditEntry = (props) => {
                                         className={classes.iconButton}
                                         aria-label="menu"
                                         onClick={linkItem}
-                                    >
+                                        size="large">
                                         <OpenInNewIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
@@ -1454,7 +1534,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="bookmarkNotes"
                         label={t("NOTES")}
                         name="bookmarkNotes"
@@ -1476,7 +1556,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="noteTitle"
                         label={t("TITLE")}
                         name="noteTitle"
@@ -1495,7 +1575,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="noteNotes"
                         label={t("NOTES")}
                         name="noteNotes"
@@ -1517,7 +1597,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="totpTitle"
                         label={t("TITLE")}
                         name="totpTitle"
@@ -1548,7 +1628,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="totpNotes"
                         label={t("NOTES")}
                         name="totpNotes"
@@ -1570,7 +1650,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="environmentVariablesTitle"
                         label={t("TITLE")}
                         name="environmentVariablesTitle"
@@ -1594,7 +1674,7 @@ const DialogEditEntry = (props) => {
                                     <TextField
                                         className={classes.textField5}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id={"environmentVariablesVariables-key-" + index}
                                         label={t("KEY")}
                                         name={"environmentVariablesVariables-key-" + index}
@@ -1614,7 +1694,7 @@ const DialogEditEntry = (props) => {
                                     <TextField
                                         className={classes.textField5}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id={"environmentVariablesVariables-value-" + index}
                                         label={t("VALUE")}
                                         name={"environmentVariablesVariables-value-" + index}
@@ -1640,7 +1720,7 @@ const DialogEditEntry = (props) => {
                                             newEnvs.splice(index, 1);
                                             setEnvironmentVariablesVariables(newEnvs);
                                         }}
-                                    >
+                                        size="large">
                                         <DeleteIcon />
                                     </IconButton>
                                 </Grid>
@@ -1671,7 +1751,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="environmentVariablesNotes"
                         label={t("NOTES")}
                         name="environmentVariablesNotes"
@@ -1693,7 +1773,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="elsterCertificateTitle"
                         label={t("TITLE")}
                         name="elsterCertificateTitle"
@@ -1724,7 +1804,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="elsterCertificatePassword"
                         label={t("CERTIFICATE_PASSWORD")}
                         name="elsterCertificatePassword"
@@ -1748,7 +1828,7 @@ const DialogEditEntry = (props) => {
                                         onClick={(event) => {
                                             setAnchorEl(event.currentTarget);
                                         }}
-                                    >
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -1796,7 +1876,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="elsterCertificateRetrievalCode"
                         label={t("RETRIEVAL_CODE")}
                         name="elsterCertificateRetrievalCode"
@@ -1819,7 +1899,7 @@ const DialogEditEntry = (props) => {
                                         onClick={(event) => {
                                             setAnchorEl2(event.currentTarget);
                                         }}
-                                    >
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -1858,7 +1938,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="elsterCertificateNotes"
                         label={t("NOTES")}
                         name="elsterCertificateNotes"
@@ -1880,7 +1960,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="fileTitle"
                         label={t("TITLE")}
                         name="fileTitle"
@@ -1900,7 +1980,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardTitle"
                         label={t("TITLE")}
                         name="creditCardTitle"
@@ -1920,7 +2000,7 @@ const DialogEditEntry = (props) => {
                     <TextFieldCreditCardNumber
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardNumber"
                         label={t("CREDIT_CARD_NUMBER")}
                         placeholder="1234 1234 1234 1234"
@@ -1942,7 +2022,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardName"
                         label={t("NAME")}
                         name="creditCardName"
@@ -1962,7 +2042,7 @@ const DialogEditEntry = (props) => {
                     <TextFieldCreditCardValidThrough
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardValidThrough"
                         label={t("VALID_THROUGH")}
                         placeholder="MM / YY"
@@ -1983,7 +2063,7 @@ const DialogEditEntry = (props) => {
                     <TextFieldCreditCardCVC
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardCVC"
                         label={t("CVC")}
                         placeholder="123"
@@ -2004,7 +2084,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardPIN"
                         label={t("PIN")}
                         placeholder="123"
@@ -2030,8 +2110,10 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
-                                    >
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -2070,7 +2152,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="creditCardNotes"
                         label={t("NOTES")}
                         name="creditCardNotes"
@@ -2094,7 +2176,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="sshOwnKeyTitle"
                         label={t("TITLE")}
                         name="sshOwnKeyTitle"
@@ -2113,7 +2195,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="sshOwnKeyPublic"
                         label={t("PUBLIC_KEY")}
                         name="sshOwnKeyPublic"
@@ -2136,7 +2218,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="sshOwnKeyPrivate"
                         label={t("PRIVATE_KEY")}
                         name="sshOwnKeyPrivate"
@@ -2160,8 +2242,10 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
-                                    >
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -2200,7 +2284,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="sshOwnKeyNotes"
                         label={t("NOTES")}
                         name="sshOwnKeyNotes"
@@ -2226,7 +2310,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="mailGpgOwnKeyTitle"
                         label={t("TITLE")}
                         name="mailGpgOwnKeyTitle"
@@ -2245,7 +2329,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="mailGpgOwnKeyEmail"
                         label={t("EMAIL")}
                         name="mailGpgOwnKeyEmail"
@@ -2265,7 +2349,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="mailGpgOwnKeyName"
                         label={t("NAME")}
                         name="mailGpgOwnKeyName"
@@ -2285,7 +2369,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="mailGpgOwnKeyPublic"
                         label={t("PUBLIC_KEY")}
                         name="mailGpgOwnKeyPublic"
@@ -2308,7 +2392,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="mailGpgOwnKeyPrivate"
                         label={t("PRIVATE_KEY")}
                         name="mailGpgOwnKeyPrivate"
@@ -2333,8 +2417,10 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={openMenu}
-                                    >
+                                        onClick={(event) => {
+                                            setAnchorEl(event.currentTarget);
+                                        }}
+                                        size="large">
                                         <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
@@ -2442,7 +2528,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="websitePasswordUrlFilter"
                         label={t("DOMAIN_FILTER")}
                         helperText={t("URL_FILTER_EG")}
@@ -2461,7 +2547,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="bookmarkUrlFilter"
                         label={t("DOMAIN_FILTER")}
                         helperText={t("URL_FILTER_EG")}
@@ -2480,7 +2566,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="callbackUrl"
                         label={t("CALLBACK_URL")}
                         helperText={t("CALLBACK_URL_PLACEHOLDER")}
@@ -2499,7 +2585,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="callbackUser"
                         label={t("CALLBACK_USER")}
                         name="callbackUser"
@@ -2517,7 +2603,7 @@ const DialogEditEntry = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="callbackPass"
                         label={t("CALLBACK_PASS")}
                         name="callbackPass"
@@ -2538,7 +2624,7 @@ const DialogEditEntry = (props) => {
                                         aria-label="toggle password visibility"
                                         onClick={() => setShowPassword(!showPassword)}
                                         edge="end"
-                                    >
+                                        size="large">
                                         {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                     </IconButton>
                                 </InputAdornment>
@@ -2560,6 +2646,24 @@ const DialogEditEntry = (props) => {
                     open={createLinkShareOpen}
                     onClose={() => setCreateLinkShareOpen(false)}
                     item={item}
+                />
+            )}
+
+            {addTotpOpen && (
+                <DialogAddTotp
+                    open={addTotpOpen}
+                    onClose={(
+                        totpPeriod,
+                        totpAlgorithm,
+                        totpDigits,
+                        totpCode,
+                    ) => {
+                        setWebsitePasswordTotpPeriod(totpPeriod);
+                        setWebsitePasswordTotpAlgorithm(totpAlgorithm);
+                        setWebsitePasswordTotpDigits(totpDigits);
+                        setWebsitePasswordTotpCode(totpCode);
+                        setAddTotpOpen(false)
+                    }}
                 />
             )}
         </Grid>

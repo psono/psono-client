@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import {useTranslation} from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Button from "@material-ui/core/Button";
+import { makeStyles } from '@mui/styles';
+import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
 
 import FrameControls from "../../components/frame-controls";
 import ConfigLogo from "../../components/config-logo";

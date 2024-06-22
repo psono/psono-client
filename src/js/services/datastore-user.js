@@ -125,8 +125,6 @@ function saveDatastoreContent(content, paths) {
     const type = "user";
     const description = "default";
 
-    content = datastoreService.filterDatastoreContent(content);
-
     return datastoreService.saveDatastoreContent(type, description, content);
 }
 

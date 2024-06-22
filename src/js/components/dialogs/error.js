@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import MuiAlert from "@material-ui/lab/Alert";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import MuiAlert from '@mui/material/Alert'
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
 
 const DialogError = (props) => {
     const { open, onClose, title, description } = props;

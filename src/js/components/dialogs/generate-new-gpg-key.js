@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import { makeStyles } from "@material-ui/core/styles";
-import { Checkbox, Grid } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
-import MuiAlert from "@material-ui/lab/Alert";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from '@mui/styles';
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+import MuiAlert from '@mui/material/Alert'
 
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
@@ -118,7 +118,7 @@ const DialogGenerateNewGpgKey = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="title"
                                 label={t("TITLE")}
                                 helperText={t("TITLE_TO_IDENTIFY_THIS_KEY")}
@@ -135,7 +135,7 @@ const DialogGenerateNewGpgKey = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="name"
                                 label={t("NAME")}
                                 helperText={t("YOUR_REQUIRED_NAME")}
@@ -152,7 +152,7 @@ const DialogGenerateNewGpgKey = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="email"
                                 label={t("EMAIL")}
                                 helperText={t("YOUR_REQUIRED_EMAIL")}

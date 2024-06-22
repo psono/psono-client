@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
+import Divider from "@mui/material/Divider";
 
 import PasswordRecoveryCodesDialog from "./password-recovery-codes-dialog";
 import DialogVerify from "../../components/dialogs/verify";

@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { Grid } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid } from "@mui/material";
+import MuiAlert from '@mui/material/Alert'
 import { useTranslation } from "react-i18next";
 
 const GridContainerErrors = (props) => {

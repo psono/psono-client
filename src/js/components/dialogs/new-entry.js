@@ -2,30 +2,30 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Checkbox, Grid } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import MenuOpenIcon from "@material-ui/icons/MenuOpen";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Typography from "@material-ui/core/Typography";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
-import DeleteIcon from "@material-ui/icons/Delete";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Typography from "@mui/material/Typography";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 
 import helperService from "../../services/helper";
 import cryptoLibrary from "../../services/crypto-library";
@@ -841,7 +841,7 @@ const DialogNewEntry = (props) => {
                             <SelectFieldEntryType
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="itemBlueprint"
                                 name="itemBlueprint"
                                 autoComplete="off"
@@ -857,7 +857,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordTitle"
                                     label={t("TITLE")}
                                     name="websitePasswordTitle"
@@ -875,7 +875,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordUrl"
                                     label={t("URL")}
                                     name="websitePasswordUrl"
@@ -901,7 +901,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordUsername"
                                     label={t("USERNAME")}
                                     name="websitePasswordUsername"
@@ -918,7 +918,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordPassword"
                                     label={t("PASSWORD")}
                                     name="websitePasswordPassword"
@@ -940,7 +940,7 @@ const DialogNewEntry = (props) => {
                                                     onClick={(event) => {
                                                         setAnchorEl(event.currentTarget);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
                                                 <Menu
@@ -987,7 +987,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordNotes"
                                     label={t("NOTES")}
                                     name="websitePasswordNotes"
@@ -1008,7 +1008,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="applicationPasswordTitle"
                                     label={t("TITLE")}
                                     name="applicationPasswordTitle"
@@ -1026,7 +1026,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="applicationPasswordUsername"
                                     label={t("USERNAME")}
                                     name="applicationPasswordUsername"
@@ -1043,7 +1043,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="applicationPasswordPassword"
                                     label={t("PASSWORD")}
                                     name="applicationPasswordPassword"
@@ -1065,7 +1065,7 @@ const DialogNewEntry = (props) => {
                                                     onClick={(event) => {
                                                         setAnchorEl(event.currentTarget);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
                                                 <Menu
@@ -1112,7 +1112,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="applicationPasswordNotes"
                                     label={t("NOTES")}
                                     name="applicationPasswordNotes"
@@ -1133,7 +1133,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="bookmarkTitle"
                                     label={t("TITLE")}
                                     name="bookmarkTitle"
@@ -1151,7 +1151,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="bookmarkUrl"
                                     error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                     label={t("URL")}
@@ -1178,7 +1178,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="bookmarkNotes"
                                     label={t("NOTES")}
                                     name="bookmarkNotes"
@@ -1199,7 +1199,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="noteTitle"
                                     label={t("TITLE")}
                                     name="noteTitle"
@@ -1217,7 +1217,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="noteNotes"
                                     label={t("NOTES")}
                                     name="noteNotes"
@@ -1238,7 +1238,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpTitle"
                                     label={t("TITLE")}
                                     name="totpTitle"
@@ -1257,7 +1257,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpPeriod"
                                     label={t("PERIOD_EG_30")}
                                     name="totpPeriod"
@@ -1283,7 +1283,7 @@ const DialogNewEntry = (props) => {
                                 <SelectFieldTotpAlgorithm
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpAlgorithm"
                                     name="totpAlgorithm"
                                     autoComplete="off"
@@ -1301,7 +1301,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpDigits"
                                     label={t("DIGITS_EG_6")}
                                     name="totpDigits"
@@ -1327,7 +1327,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpCode"
                                     label={t("SECRET")}
                                     name="totpCode"
@@ -1348,7 +1348,7 @@ const DialogNewEntry = (props) => {
                                                     className={classes.iconButton}
                                                     aria-label="menu"
                                                     onClick={onShowHidePassword}
-                                                >
+                                                    size="large">
                                                     <VisibilityOffIcon fontSize="small" />
                                                 </IconButton>
                                             </InputAdornment>
@@ -1374,7 +1374,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="totpNotes"
                                     label={t("NOTES")}
                                     name="totpNotes"
@@ -1395,7 +1395,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="environmentVariablesTitle"
                                     label={t("TITLE")}
                                     name="environmentVariablesTitle"
@@ -1418,7 +1418,7 @@ const DialogNewEntry = (props) => {
                                                 <TextField
                                                     className={classes.textField5}
                                                     variant="outlined"
-                                                    margin="dense"
+                                                    margin="dense" size="small"
                                                     id={"environmentVariablesVariables-key-" + index}
                                                     label={t("KEY")}
                                                     name={"environmentVariablesVariables-key-" + index}
@@ -1437,7 +1437,7 @@ const DialogNewEntry = (props) => {
                                                 <TextField
                                                     className={classes.textField5}
                                                     variant="outlined"
-                                                    margin="dense"
+                                                    margin="dense" size="small"
                                                     id={"environmentVariablesVariables-value-" + index}
                                                     label={t("VALUE")}
                                                     name={"environmentVariablesVariables-value-" + index}
@@ -1462,7 +1462,7 @@ const DialogNewEntry = (props) => {
                                                         newEnvs.splice(index, 1);
                                                         setEnvironmentVariablesVariables(newEnvs);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </Grid>
@@ -1493,7 +1493,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="environmentVariablesNotes"
                                     label={t("NOTES")}
                                     name="environmentVariablesNotes"
@@ -1514,7 +1514,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="elsterCertificateTitle"
                                     label={t("TITLE")}
                                     name="elsterCertificateTitle"
@@ -1544,7 +1544,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="elsterCertificatePassword"
                                     label={t("CERTIFICATE_PASSWORD")}
                                     name="elsterCertificatePassword"
@@ -1567,7 +1567,7 @@ const DialogNewEntry = (props) => {
                                                     onClick={(event) => {
                                                         setAnchorEl(event.currentTarget);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
                                                 <Menu
@@ -1615,7 +1615,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="elsterCertificateRetrievalCode"
                                     label={t("RETRIEVAL_CODE")}
                                     name="elsterCertificateRetrievalCode"
@@ -1637,7 +1637,7 @@ const DialogNewEntry = (props) => {
                                                     onClick={(event) => {
                                                         setAnchorEl2(event.currentTarget);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
                                                 <Menu
@@ -1676,7 +1676,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="elsterCertificateNotes"
                                     label={t("NOTES")}
                                     name="elsterCertificateNotes"
@@ -1698,7 +1698,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="fileTitle"
                                     label={t("TITLE")}
                                     name="fileTitle"
@@ -1718,7 +1718,7 @@ const DialogNewEntry = (props) => {
                                     <SelectFieldFileDestination
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="fileDestination"
                                         label={t("TARGET_STORAGE")}
                                         error={!Boolean(fileDestination)}
@@ -1760,7 +1760,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardTitle"
                                     label={t("TITLE")}
                                     name="creditCardTitle"
@@ -1779,7 +1779,7 @@ const DialogNewEntry = (props) => {
                                 <TextFieldCreditCardNumber
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardNumber"
                                     label={t("CREDIT_CARD_NUMBER")}
                                     placeholder="1234 1234 1234 1234"
@@ -1800,7 +1800,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardName"
                                     label={t("NAME")}
                                     name="creditCardName"
@@ -1819,7 +1819,7 @@ const DialogNewEntry = (props) => {
                                 <TextFieldCreditCardValidThrough
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardValidThrough"
                                     label={t("VALID_THROUGH")}
                                     placeholder="MM / YY"
@@ -1839,7 +1839,7 @@ const DialogNewEntry = (props) => {
                                 <TextFieldCreditCardCVC
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardCVC"
                                     label={t("CVC")}
                                     placeholder="123"
@@ -1859,7 +1859,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardPIN"
                                     label={t("PIN")}
                                     placeholder="123"
@@ -1887,7 +1887,7 @@ const DialogNewEntry = (props) => {
                                                     onClick={(event) => {
                                                         setAnchorEl(event.currentTarget);
                                                     }}
-                                                >
+                                                    size="large">
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
                                                 <Menu
@@ -1926,7 +1926,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="creditCardNotes"
                                     label={t("NOTES")}
                                     name="creditCardNotes"
@@ -1948,7 +1948,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="sshOwnKeyTitle"
                                     label={t("TITLE")}
                                     name="sshOwnKeyTitle"
@@ -1966,7 +1966,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="sshOwnKeyPublic"
                                     label={t("PUBLIC_KEY")}
                                     name="sshOwnKeyPublic"
@@ -1985,7 +1985,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="sshOwnKeyPrivate"
                                     label={t("PRIVATE_KEY")}
                                     name="sshOwnKeyPrivate"
@@ -2004,7 +2004,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="sshOwnKeyNotes"
                                     label={t("NOTES")}
                                     name="sshOwnKeyNotes"
@@ -2038,7 +2038,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="mailGpgOwnKeyTitle"
                                     label={t("TITLE")}
                                     name="mailGpgOwnKeyTitle"
@@ -2056,7 +2056,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="mailGpgOwnKeyEmail"
                                     label={t("EMAIL")}
                                     name="mailGpgOwnKeyEmail"
@@ -2072,7 +2072,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="mailGpgOwnKeyName"
                                     label={t("NAME")}
                                     name="mailGpgOwnKeyName"
@@ -2088,7 +2088,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="mailGpgOwnKeyPublic"
                                     label={t("PUBLIC_KEY")}
                                     name="mailGpgOwnKeyPublic"
@@ -2107,7 +2107,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="mailGpgOwnKeyPrivate"
                                     label={t("PRIVATE_KEY")}
                                     name="mailGpgOwnKeyPrivate"
@@ -2177,7 +2177,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="websitePasswordUrlFilter"
                                     label={t("DOMAIN_FILTER")}
                                     helperText={t("URL_FILTER_EG")}
@@ -2196,7 +2196,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="bookmarkUrlFilter"
                                     label={t("DOMAIN_FILTER")}
                                     helperText={t("URL_FILTER_EG")}
@@ -2214,7 +2214,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="callbackUrl"
                                     label={t("CALLBACK_URL")}
                                     helperText={t("CALLBACK_URL_PLACEHOLDER")}
@@ -2232,7 +2232,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="callbackUser"
                                     label={t("CALLBACK_USER")}
                                     name="callbackUser"
@@ -2249,7 +2249,7 @@ const DialogNewEntry = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="callbackPass"
                                     label={t("CALLBACK_PASS")}
                                     name="callbackPass"
@@ -2269,7 +2269,7 @@ const DialogNewEntry = (props) => {
                                                     aria-label="toggle password visibility"
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     edge="end"
-                                                >
+                                                    size="large">
                                                     {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                 </IconButton>
                                             </InputAdornment>

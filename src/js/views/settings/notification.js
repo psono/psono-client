@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Checkbox, Grid } from "@material-ui/core";
+import Divider from "@mui/material/Divider";
+import { Checkbox, Grid } from "@mui/material";
 
-import { Check } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
+import { Check } from "@mui/icons-material";
+import { makeStyles } from '@mui/styles';
 import { getStore } from "../../services/store";
 import action from "../../actions/bound-action-creators";
 

@@ -1,14 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import Table from "../../components/table";
 import datastore from "../../services/datastore";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 import EditDatastoresDialog from "./edit-datastores-dialog";
 import DeleteDatastoresDialog from "./delete-datastores-dialog";
 import CreateDatastoresDialog from "./create-datastores-dialog";
@@ -102,7 +102,7 @@ const OtherDatastoresView = (props) => {
                             onClick={() => {
                                 onEdit(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -123,7 +123,7 @@ const OtherDatastoresView = (props) => {
                                 onDelete(tableMeta.rowData);
                             }}
                             disabled={tableMeta.rowData[2]}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

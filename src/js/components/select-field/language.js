@@ -1,9 +1,9 @@
 import React from "react";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
 import { languages } from "../../i18n";
 
@@ -29,7 +29,7 @@ const SelectFieldLanguage = (props) => {
         }
     });
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className } = props;
+    const { fullWidth, variant, margin, size, helperText, error, required, onChange, value, className } = props;
 
     let defaultValue = null;
     if (value && lngs && lngs.length) {
@@ -48,7 +48,6 @@ const SelectFieldLanguage = (props) => {
             getOptionLabel={(option) => {
                 return option ? option.title : "";
             }}
-            renderOption={(option) => <>{option ? option.title : ""}</>}
             onChange={(event, newValue) => {
                 if (newValue) {
                     onChange(newValue.value);
@@ -56,7 +55,7 @@ const SelectFieldLanguage = (props) => {
                     onChange("");
                 }
             }}
-            getOptionSelected={(option, value) => {
+            isOptionEqualToValue={(option, value) => {
                 if (option) {
                     return option.value === value.value;
                 } else {
@@ -71,6 +70,7 @@ const SelectFieldLanguage = (props) => {
                     label={t("LANGUAGE")}
                     required={required}
                     margin={margin}
+                    size={size}
                     variant={variant}
                     helperText={helperText}
                     error={error}
@@ -97,6 +97,7 @@ SelectFieldLanguage.propTypes = {
     helperText: PropTypes.string,
     variant: PropTypes.string,
     margin: PropTypes.string,
+    size: PropTypes.string,
     onChange: PropTypes.func,
     className: PropTypes.string,
 };

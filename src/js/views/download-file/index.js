@@ -1,9 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import MuiAlert from "@material-ui/lab/Alert";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import { makeStyles } from '@mui/styles';
+import MuiAlert from '@mui/material/Alert'
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 import { useParams } from "react-router-dom";
 import { getStore } from "../../services/store";
 import fileTransferService from "../../services/file-transfer";

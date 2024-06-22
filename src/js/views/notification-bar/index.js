@@ -1,8 +1,9 @@
 import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
-import {makeStyles, useTheme} from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import Hidden from '@material-ui/core/Hidden';
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from '@mui/styles';
+import Button from "@mui/material/Button";
+import Hidden from '@mui/material/Hidden';
 
 import browserClient from "../../services/browser-client";
 import {ClipLoader} from "react-spinners";
@@ -93,40 +94,41 @@ const NotificationBarView = (props) => {
             </div>)
     }
 
-    return (<div className={classes.root}>
-            <Hidden xsDown>
-                <div className={classes.logoImg}>
-                    <a href="https://psono.com" target="_blank">
-                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
-                    </a>
+    return (
+        <div className={classes.root}>
+                <Hidden smDown>
+                    <div className={classes.logoImg}>
+                        <a href="https://psono.com" target="_blank">
+                            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
+                        </a>
+                    </div>
+                </Hidden>
+                <div className={classes.textContainer}>
+                    <div className={classes.textContainerCell}>
+                        <span className={classes.textContainerTitle}>{state.title}:</span>&nbsp;
+                        {state.description}
+                    </div>
                 </div>
-            </Hidden>
-            <div className={classes.textContainer}>
-                <div className={classes.textContainerCell}>
-                    <span className={classes.textContainerTitle}>{state.title}:</span>&nbsp;
-                    {state.description}
-                </div>
-            </div>
-            <div className={classes.buttonContainer}>
-                {state.buttons.map((button, index) => {
-                    return (<Button
-                        className={classes.button}
-                        variant="contained"
-                        color={button.color}
-                        onClick={() => buttonClick(index)}
+                <div className={classes.buttonContainer}>
+                    {state.buttons.map((button, index) => {
+                        return (<Button
+                            className={classes.button}
+                            variant="contained"
+                            color={button.color}
+                            onClick={() => buttonClick(index)}
+                        >
+                            {button.title}
+                        </Button>)
+                    })}
+                    <Button
+                        className={classes.button + " " + classes.close}
+                        onClick={closeButtonClicked}
                     >
-                        {button.title}
-                    </Button>)
-                })}
-                <Button
-                    className={classes.button + " " + classes.close}
-                    onClick={closeButtonClicked}
-                >
-                    <span className={classes.buttonLabel}>&times;</span>
-                </Button>
-            </div>
+                        <span className={classes.buttonLabel}>&times;</span>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
     );
 };
 
