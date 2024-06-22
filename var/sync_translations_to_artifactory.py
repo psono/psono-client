@@ -27,45 +27,6 @@ LANGUAGE_CODES = [
     "ji", "zu", "ar", "bn", "zh-hant"
 ]
 
-FILE_PATHS = {
-    'en': 'src/common/data/translations/locale-en.json',
-}
-
-
-def upload_language(lang):
-
-    if lang in FILE_PATHS:
-        data = {
-            'id': POEDITOR_PROJECT_ID,
-            'api_token': POEDITOR_API_KEY,
-            'updating': 'terms_translations',
-            'language': lang,
-            'overwrite': 1,
-        }
-        with open(FILE_PATHS[lang], 'rb') as file:
-            r = requests.post('https://api.poeditor.com/v2/projects/upload', data=data, files={'file': file})
-
-    else:
-        print("Error: upload_language " + lang + " No webhook configured for this language")
-    #     params = (
-    #         ('api_token', POEDITOR_API_KEY),
-    #         ('id_project', POEDITOR_PROJECT_ID),
-    #         ('language', lang),
-    #         ('operation', 'import_terms_and_translations'),
-    #     )
-    #
-    #     r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
-    if not r.ok:
-        print("Error: upload_language " + lang)
-        print(r.text)
-        exit(1)
-    content = json.loads(r.content)
-    if "response" not in content or "status" not in content["response"] or content["response"]["status"] != 'success':
-        print("Error: upload_language " + lang)
-        print(r.text)
-        exit(1)
-    print("Success: upload_language " + lang)
-
 def download_language(lang):
     data = [
         ('api_token', POEDITOR_API_KEY),
@@ -127,11 +88,6 @@ def get_languages():
 
 
 def main():
-    # Upload
-    for lang in FILE_PATHS:
-        upload_language(lang)
-        time.sleep(30)
-
     # Download
     languages = get_languages()
     for lang in languages:
