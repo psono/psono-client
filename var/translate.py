@@ -114,6 +114,8 @@ def translate_language(lang):
         print(r.text)
         exit(1)
 
+    sleep(30)
+
     return path
 
 def get_languages():
