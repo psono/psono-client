@@ -286,7 +286,6 @@ const LoginViewForm = (props) => {
             setView("default");
             setLoginLoading(false);
             setErrors(["Unknown multi-factor authentication requested by server."]);
-            logout();
         }
     };
 
