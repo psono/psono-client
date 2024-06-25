@@ -356,6 +356,14 @@ const PopupItem = (props) => {
                                     {t("COPY_PASSWORD")}
                                 </Typography>
                             </MenuItem>
+                            {item.content.type === "website_password" && <MenuItem onClick={onCopyTotpToken}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small"/>
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_TOTP_TOKEN")}
+                                </Typography>
+                            </MenuItem>}
                         </>
                     )}
                     {["credit_card"].indexOf(item.content.type) !== -1 && (

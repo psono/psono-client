@@ -151,7 +151,7 @@ const DatastoreTreeItem = (props) => {
     const hideCopyTotpToken =
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
-        !["totp"].includes(content["type"]);
+        !["website_password", "totp"].includes(content["type"]);
     const hideCopyUsername =
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
