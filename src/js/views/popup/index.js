@@ -25,7 +25,6 @@ import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
 import VpnKeyRoundedIcon from '@mui/icons-material/VpnKeyRounded';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import StorageIcon from "@mui/icons-material/Storage";
 import MuiAlert from '@mui/material/Alert'
 
 import action from "../../actions/bound-action-creators";
@@ -294,12 +293,12 @@ const PopupItem = (props) => {
                             onItemClick(item.content);
                         }}
                     >
-                        <OpenInNewIcon fontSize="small" />
+                        <OpenInNewIcon fontSize="small" sx={{  color: "#b1b6c1" }} />
                     </Button>
                 )}
                 {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
                     <Button aria-label="settings" onClick={openMenu}>
-                        <ContentCopy fontSize="small" />
+                        <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                     </Button>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
@@ -309,7 +308,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyTotpToken}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -320,7 +319,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyNoteContent}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -331,7 +330,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyURL}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -957,7 +956,7 @@ const PopupView = (props) => {
                                     onClick={openDatastoreMenu}
                                     className={`${classes.menuButton} ${classes.menuButtonSlim}`}
                                 >
-                                    <KeyboardArrowUpIcon/>
+                                    <KeyboardArrowUpIcon />
                                 </Button>
                             </Tooltip>}
                         </ButtonGroup>
@@ -1003,14 +1002,14 @@ const PopupView = (props) => {
                     <Grid item>
                         <Tooltip title={t("BOOKMARK")} placement="top">
                             <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
-                                <BookmarkBorderRoundedIcon />
+                                <BookmarkBorderRoundedIcon color="primary" />
                             </Button>
                         </Tooltip>
                     </Grid>
                     <Grid item>
                         <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
                             <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
-                                <VpnKeyRoundedIcon />
+                                <VpnKeyRoundedIcon color="primary" />
                             </Button>
                         </Tooltip>
                     </Grid>
@@ -1039,7 +1038,7 @@ const PopupView = (props) => {
                             </Tooltip>
                             <Tooltip title={t("LOGOUT")} placement="top">
                                 <Button onClick={logout} className={classes.menuButton}>
-                                    <ExitToAppRoundedIcon />
+                                    <ExitToAppRoundedIcon color="primary" />
                                 </Button>
                             </Tooltip>
                         </ButtonGroup>
