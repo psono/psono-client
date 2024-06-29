@@ -49,16 +49,11 @@ function loadSettingsDatastore(dispatch, getState) {
 }
 const customHistory = createBrowserHistory();
 
-let currentPersistor = null;
-let currentStore = null;
-
 async function initAndRenderApp() {
     const store = await initStore();
     let persistor = persistStore(store, null, () => {
         store.dispatch(loadSettingsDatastore);
     });
-    currentStore = store;
-    currentPersistor = persistor;
 
     const App = () => {
         return (

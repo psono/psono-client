@@ -7,7 +7,6 @@ import ConfigLogo from "../../components/config-logo";
 
 
 const LogoutSuccessView = (props) => {
-    const { t } = useTranslation();
     const [msgs, setMsgs] = useState(['LOGOUT_SUCCESSFUL']);
 
     React.useEffect(() => {

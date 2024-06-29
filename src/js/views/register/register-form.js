@@ -80,11 +80,6 @@ const RegisterForm = (props) => {
         return () => (isSubscribed = false);
     }, []);
 
-    const cancel = (e) => {
-        setView("default");
-        setErrors([]);
-    };
-
     const onNewConfigLoaded = (configJson) => {
         if (!isSubscribed) {
             return;

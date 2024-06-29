@@ -309,16 +309,33 @@ function copyUrl(item) {
  */
 function copyTotpToken(item) {
     browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => {
-        const totpCode = decryptedSecret["totp_code"];
-        let totpPeriod, totpAlgorithm, totpDigits;
-        if (decryptedSecret.hasOwnProperty("totp_period")) {
-            totpPeriod = decryptedSecret["totp_period"];
+        let totpPeriod, totpAlgorithm, totpDigits, totpCode;
+        if (item["type"] === "website_password") {
+            totpCode = decryptedSecret["website_password_totp_code"];
+            if (decryptedSecret.hasOwnProperty("website_password_totp_period")) {
+                totpPeriod = decryptedSecret["website_password_totp_period"];
+            }
+            if (decryptedSecret.hasOwnProperty("website_password_totp_algorithm")) {
+                totpAlgorithm = decryptedSecret["website_password_totp_algorithm"];
+            }
+            if (decryptedSecret.hasOwnProperty("website_password_totp_digits")) {
+                totpDigits = decryptedSecret["website_password_totp_digits"];
+            }
+        } else if (item["type"]  === "totp") {
+            totpCode = decryptedSecret["totp_code"];
+            if (decryptedSecret.hasOwnProperty("totp_period")) {
+                totpPeriod = decryptedSecret["totp_period"];
+            }
+            if (decryptedSecret.hasOwnProperty("totp_algorithm")) {
+                totpAlgorithm = decryptedSecret["totp_algorithm"];
+            }
+            if (decryptedSecret.hasOwnProperty("totp_digits")) {
+                totpDigits = decryptedSecret["totp_digits"];
+            }
+
         }
-        if (decryptedSecret.hasOwnProperty("totp_algorithm")) {
-            totpAlgorithm = decryptedSecret["totp_algorithm"];
-        }
-        if (decryptedSecret.hasOwnProperty("totp_digits")) {
-            totpDigits = decryptedSecret["totp_digits"];
+        if (!totpCode) {
+            return '';
         }
         return cryptoLibrary.getTotpToken(totpCode, totpPeriod, totpAlgorithm, totpDigits)
     }));

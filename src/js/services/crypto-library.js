@@ -159,6 +159,11 @@ function passwordScrypt(password, salt) {
  * @returns {string} auth_key Scrypt hex value of the password with the sha512 of lowercase email as salt
  */
 function generateAuthkey(username, password) {
+    if (!username || !username.includes("@")) {
+        // security. Do not remove!
+        throw new Error("Malformed username.");
+    }
+
     const salt = sha512(username.toLowerCase());
     return passwordScrypt(password, salt);
 }
@@ -200,6 +205,12 @@ function generatePublicPrivateKeypair() {
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
 function encryptSecret(secret, password, userSauce) {
+
+    if (userSauce.includes("@")){
+        // security. Do not remove!
+        throw new Error("encrypt secret may not contain an @ as it may be a username");
+    }
+
     const salt = sha512(userSauce);
     const k = converterService.fromHex(sha256(passwordScrypt(password, salt))); // key
 
@@ -226,6 +237,12 @@ function encryptSecret(secret, password, userSauce) {
  * @returns {string} secret The decrypted secret
  */
 function decryptSecret(text, nonce, password, userSauce) {
+
+    if (userSauce.includes("@")){
+        // security. Do not remove!
+        throw new Error("encrypt secret may not contain an @ as it may be a username");
+    }
+
     const salt = sha512(userSauce);
     const k = converterService.fromHex(sha256(passwordScrypt(password, salt)));
 

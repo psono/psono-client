@@ -23,7 +23,7 @@ const SelectFieldEntryType = (props) => {
 
     const { fullWidth, variant, margin, size, helperText, error, required, onChange, value, className } = props;
 
-    const entryTypes = itemBlueprintService.getEntryTypes(true);
+    const entryTypes = itemBlueprintService.getEntryTypes(true, true);
 
     let defaultValue = null;
     if (value) {

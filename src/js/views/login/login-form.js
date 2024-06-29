@@ -66,6 +66,14 @@ const useStyles = makeStyles((theme) => ({
     inputAdornment: {
         color: "#b1b6c1",
     },
+    borderSection: {
+        border: "1px solid #0f1118",
+        padding: "8px",
+        marginLeft: "-8px",
+        marginRight: "-8px",
+        marginBottom: "theme.spacing(1)",
+        marginTop: theme.spacing(2),
+    },
 }));
 
 const LoginViewForm = (props) => {
@@ -278,7 +286,6 @@ const LoginViewForm = (props) => {
             setView("default");
             setLoginLoading(false);
             setErrors(["Unknown multi-factor authentication requested by server."]);
-            logout();
         }
     };
 
@@ -791,16 +798,20 @@ const LoginViewForm = (props) => {
     } else if (view === "default") {
         formContent = (
             <>
+                <div className={classes.borderSection}>
                 {oidcProvider.map((provider, i) => {
                     const initiateOidcLoginHelper = () => {
                         return initiateOidcLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
-                                {provider.title}
+                            {i > 0 && <p className="horizontalline">
+                                <span>{t("OR")}</span>
+                            </p>}
+                            <Grid item xs={12} sm={12} md={12}>
+                            {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "8px" }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -836,10 +847,13 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            {i > 0 && <p className="horizontalline">
+                                <span>{t("OR")}</span>
+                            </p>}
+                            <Grid item xs={12} sm={12} md={12}>
                                 {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "8px" }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -920,6 +934,38 @@ const LoginViewForm = (props) => {
                     </Grid>
                 )}
 
+
+                {allowUsernamePasswordLogin && (
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                classes={{ disabled: classes.disabledButton }}
+                                onClick={initiateLogin}
+                                type="submit"
+                                disabled={!loginPossible || loginLoading}
+                            >
+                                <span style={!loginLoading ? {} : { display: "none" }}>{t("LOGIN")}</span>
+                                <BarLoader color={"#FFF"} height={17} width={37} loading={loginLoading} />
+                            </Button>
+                            {allowRegistration && (
+                                <Button
+                                    onClick={(e) => {
+                                        if (window.location.pathname.endsWith("/default_popup.html")) {
+                                            browserClient.openTab("register.html");
+                                        } else {
+                                            redirectRegister(e);
+                                        }
+                                    }}
+                                >
+                                    <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
+                                </Button>
+                            )}
+                        </Grid>
+                    </Grid>
+                )}
+                </div>
                 {allowUsernamePasswordLogin && allowCustomServer && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
@@ -992,36 +1038,6 @@ const LoginViewForm = (props) => {
                         {t("TRUST_DEVICE")}
                     </Grid>
                 </Grid>
-                {allowUsernamePasswordLogin && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                classes={{ disabled: classes.disabledButton }}
-                                onClick={initiateLogin}
-                                type="submit"
-                                disabled={!loginPossible || loginLoading}
-                            >
-                                <span style={!loginLoading ? {} : { display: "none" }}>{t("LOGIN")}</span>
-                                <BarLoader color={"#FFF"} height={17} width={37} loading={loginLoading} />
-                            </Button>
-                            {allowRegistration && (
-                                <Button
-                                    onClick={(e) => {
-                                        if (window.location.pathname.endsWith("/default_popup.html")) {
-                                            browserClient.openTab("register.html");
-                                        } else {
-                                            redirectRegister(e);
-                                        }
-                                    }}
-                                >
-                                    <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
-                                </Button>
-                            )}
-                        </Grid>
-                    </Grid>
-                )}
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
                 {allowCustomServer && (
                     <Grid container>
