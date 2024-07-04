@@ -7,7 +7,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListIcon from "@mui/icons-material/List";
 import ShareIcon from "@mui/icons-material/Share";
 import Typography from "@mui/material/Typography";
 import EditIcon from "@mui/icons-material/Edit";
@@ -19,7 +18,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Divider from "@mui/material/Divider";
 import { makeStyles } from '@mui/styles';
 
-import DatastoreTreeItem from "./datastore-tree-item";
 import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
