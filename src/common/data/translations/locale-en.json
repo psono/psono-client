@@ -1,4 +1,6 @@
 {
+  "SHOW_CREDIT_CARD_NUMBER": "Show credit card number",
+  "HIDE_CREDIT_CARD_NUMBER": "Hide credit card number",
   "ADD_TOTP": "Add TOTP",
   "LOGIN_PENDING": "Login pending",
   "ADD_ACCOUNT": "Add account",
