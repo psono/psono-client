@@ -224,6 +224,7 @@ const DialogEditEntry = (props) => {
     const [createDate, setCreateDate] = useState(new Date());
     const [writeDate, setWriteDate] = useState(new Date());
 
+    const [showPin, setShowPin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -2007,7 +2008,54 @@ const DialogEditEntry = (props) => {
                         name="creditCardNumber"
                         autoComplete="off"
                         value={creditCardNumber}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={(event) => {
+                                            setAnchorEl2(event.currentTarget);
+                                        }}
+                                        size="large">
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl2}
+                                        keepMounted
+                                        open={Boolean(anchorEl2)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {showPassword ? t("HIDE_CREDIT_CARD_NUMBER") : t("SHOW_CREDIT_CARD_NUMBER")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={(event) => {
+                                            handleClose();
+                                            browserClientService.copyToClipboard(() => Promise.resolve(creditCardNumber));
+                                            notification.push("credit_card_number_copy", t("CREDIT_CARD_NUMBER_COPY_NOTIFICATION"));
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_CREDIT_CARD_NUMBER")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
                         required
                         onChange={(event) => {
                             setCreditCardNumber(event.target.value);
@@ -2028,7 +2076,9 @@ const DialogEditEntry = (props) => {
                         name="creditCardName"
                         autoComplete="off"
                         value={creditCardName}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                        }}
                         required
                         onChange={(event) => {
                             setCreditCardName(event.target.value);
@@ -2101,7 +2151,7 @@ const DialogEditEntry = (props) => {
                         }}
                         InputProps={{
                             readOnly: !item.share_rights || !item.share_rights.write,
-                            type: showPassword ? "text" : "password",
+                            type: showPin ? "text" : "password",
                             classes: {
                                 input: classes.passwordField,
                             },
@@ -2123,7 +2173,10 @@ const DialogEditEntry = (props) => {
                                         open={Boolean(anchorEl)}
                                         onClose={handleClose}
                                     >
-                                        <MenuItem onClick={onShowHidePassword}>
+                                        <MenuItem onClick={(event) => {
+                                            handleClose();
+                                            setShowPin(!showPin);
+                                        }}>
                                             <ListItemIcon className={classes.listItemIcon}>
                                                 <VisibilityOffIcon className={classes.icon} fontSize="small" />
                                             </ListItemIcon>

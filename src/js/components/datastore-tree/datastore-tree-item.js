@@ -9,7 +9,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListIcon from "@mui/icons-material/List";
 import ShareIcon from "@mui/icons-material/Share";
 import Typography from "@mui/material/Typography";
 import LinkIcon from "@mui/icons-material/Link";

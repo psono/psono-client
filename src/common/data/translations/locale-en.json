@@ -1,4 +1,11 @@
 {
+  "MOVE_SELECTED_ENTRIES": "Move selected entries",
+  "SHOW_CREDIT_CARD_NUMBER": "Show credit card number",
+  "HIDE_CREDIT_CARD_NUMBER": "Hide credit card number",
+  "CONFIRM_DELETION_OF_SELECTED_ENTRIES": "Confirm deletion of selected entries",
+  "CONFIRM_DELETION_OF_SELECTED_ENTRIES_DETAILS": "You are about to move multiple entries to your trash bin. Are you sure you want to do that?",
+  "DELETE_SELECTED_ENTRIES": "Delete selected entries",
+  "OPEN_TRASH_BIN": "Open trash bin",
   "ADD_TOTP": "Add TOTP",
   "LOGIN_PENDING": "Login pending",
   "ADD_ACCOUNT": "Add account",

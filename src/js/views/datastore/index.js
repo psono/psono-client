@@ -8,11 +8,6 @@ import { alpha } from "@mui/material/styles";
 import { makeStyles } from '@mui/styles';
 import Paper from "@mui/material/Paper";
 import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
-import IconButton from "@mui/material/IconButton";
-import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import Divider from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
@@ -35,7 +30,6 @@ import DialogEditEntry from "../../components/dialogs/edit-entry";
 import fileTransferService from "../../services/file-transfer";
 import secretService from "../../services/secret";
 import DialogCreateLinkShare from "../../components/dialogs/create-link-share";
-import DialogTrashBin from "../../components/dialogs/trash-bin";
 import DialogRightsOverview from "../../components/dialogs/rights-overview";
 import DialogError from "../../components/dialogs/error";
 import datastorePasswordService from "../../services/datastore-password";
@@ -46,7 +40,8 @@ import DialogSelectFolder from "../../components/dialogs/select-folder";
 import AlertSecurityReport from "../../components/alert/security-report";
 import DialogProgress from "../../components/dialogs/progress";
 import widgetService from "../../services/widget";
-import Search from "../../components/search";
+import {useHotkeys} from "react-hotkeys-hook";
+import DatastoreToolbar from "./toolbar";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -61,45 +56,6 @@ const useStyles = makeStyles((theme) => ({
     },
     securityReportAlert: {
         marginBottom: theme.spacing(1),
-    },
-    toolbarRoot: {
-        display: "flex",
-    },
-    toolbarTitle: {
-        display: "none",
-        [theme.breakpoints.up("sm")]: {
-            display: "block",
-        },
-    },
-    search: {
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-        "&:hover": {
-            backgroundColor: alpha(theme.palette.common.white, 0.45),
-        },
-        marginLeft: "auto",
-        position: "absolute",
-        right: 0,
-        [theme.breakpoints.up("sm")]: {
-            marginRight: theme.spacing(1),
-        },
-    },
-    inputRoot: {
-        color: "inherit",
-    },
-    inputInput: {
-        padding: theme.spacing(1, 1, 1, 0),
-        fontSize: "0.875em",
-        // vertical padding + font size from searchIcon
-        paddingLeft: "1em",
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        [theme.breakpoints.up("sm")]: {
-            width: "10ch",
-            "&:focus": {
-                width: "20ch",
-            },
-        },
     },
     iconButton: {
         padding: 10,
@@ -138,9 +94,8 @@ function useWidth() {
 const DatastoreView = (props) => {
     const width = useWidth();
     let { defaultSearch, secretType, secretId } = useParams();
-    const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
+    const [progress, setProgress] = React.useState(0);
     const serverStatus = useSelector((state) => state.server.status);
-    const offlineMode = useSelector((state) => state.client.offlineMode);
     const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const disableCentralSecurityReports = useSelector((state) => state.server.disableCentralSecurityReports);
@@ -148,14 +103,14 @@ const DatastoreView = (props) => {
     const { t } = useTranslation();
     const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
     const [search, setSearch] = useState(defaultSearch || "");
+    const [massOperationSelected, setMassOperationSelected] = useState({});
+    const [showMassOperationControls, setShowMassOperationControls] = useState();
     const [error, setError] = useState(null);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [contextMenuPosition, setContextMenuPosition] = useState({
         mouseX: null,
         mouseY: null,
     });
 
-    const [trashBinOpen, setTrashBinOpen] = useState(false);
     const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -173,13 +128,24 @@ const DatastoreView = (props) => {
     const [rightsOverviewOpen, setRightsOverviewOpen] = useState(false);
     const [rightsOverviewData, setRightsOverviewData] = useState({});
 
-    const [moveEntryData, setMoveEntryData] = useState(null);
+    const [moveEntryData, setMoveEntryData] = useState([]);
     const [moveFolderData, setMoveFolderData] = useState(null);
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
     const [createLinkShareData, setCreateLinkShareData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
+
+    useHotkeys('shift', (event, handler) => {
+        if (event.type === "keydown") {
+            setShowMassOperationControls(true);
+        } else {
+            setShowMassOperationControls(Object.keys(massOperationSelected).length > 0)
+        }
+    }, {
+        'keyup': true,
+        'keydown': true,
+    })
 
     const bigScreen = ["lg", "md", "xl"].includes(width);
 
@@ -191,17 +157,39 @@ const DatastoreView = (props) => {
         loadDatastore();
     }, [passwordDatastore]);
 
-    const shareMoveProgressDialogOpen = shareMoveProgress !== 0 && shareMoveProgress !== 100;
-    let openShareMoveRequests = 0;
-    let closedShareMoveRequests = 0;
+    const progressDialogOpen = progress !== 0 && progress !== 100;
+    let openRequests = 0;
+    let closedRequests = 0;
 
-    const onOpenShareMoveRequest = () => {
-        openShareMoveRequests = openShareMoveRequests + 1;
-        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    const onStartProgress = () => {
+        openRequests = openRequests + 1;
+        setProgress(Math.round((closedRequests / openRequests) * 1000) / 10);
     }
-    const onCloseShareMoveRequest = () => {
-        closedShareMoveRequests = closedShareMoveRequests + 1;
-        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    const onCloseProgress = () => {
+        closedRequests = closedRequests + 1;
+        setProgress(Math.round((closedRequests / openRequests) * 1000) / 10);
+    }
+
+    const isSelected = (item) => {
+        return massOperationSelected.hasOwnProperty(item.id);
+    }
+
+    const isSelectable = (item) => {
+        if (!showMassOperationControls) {
+            return true;
+        }
+        if (item.is_folder) {
+            return false;
+        }
+        const defaultIsSelectable = !item.hasOwnProperty('share_id');
+        const massOperationSelectedKeys = Object.keys(massOperationSelected);
+        if (massOperationSelectedKeys.length === 0) {
+            return defaultIsSelectable;
+        }
+        const hasSameParentDatastore = item.parent_datastore_id === massOperationSelected[massOperationSelectedKeys[0]].item.parent_datastore_id;
+        const hasSameParentShare = item.parent_share_id === massOperationSelected[massOperationSelectedKeys[0]].item.parent_share_id;
+
+        return hasSameParentDatastore && hasSameParentShare && defaultIsSelectable;
     }
 
     const loadDatastore = () => {
@@ -287,7 +275,6 @@ const DatastoreView = (props) => {
     };
     const onNewFolder = (parent, path) => {
         onContextMenuClose();
-        setAnchorEl(null);
         // called whenever someone clicks on a new folder Icon
         setNewFolderOpen(true);
         setNewFolderData({
@@ -303,7 +290,6 @@ const DatastoreView = (props) => {
     };
     const onNewEntry = (parent, path) => {
         onContextMenuClose();
-        setAnchorEl(null);
         // called whenever someone clicks on a new entry Icon
         setNewEntryOpen(true);
 
@@ -350,28 +336,44 @@ const DatastoreView = (props) => {
         setEditEntryOpen(true);
     };
 
-    const onCloneEntry = (item, path) => {
-        widget.cloneItem(datastore, item, path).then(() => {
-            loadDatastore();
-        });
+    const onSelectEntry = (item, path) => {
+        if(showMassOperationControls) {
+            const newMassOperationSelected = {
+                ...massOperationSelected,
+            }
+            if (newMassOperationSelected.hasOwnProperty(item.id)){
+                delete newMassOperationSelected[item.id]
+            } else {
+                newMassOperationSelected[item.id] = {'item': item, path: path}
+            }
+
+            setMassOperationSelected(newMassOperationSelected)
+            if (Object.keys(newMassOperationSelected).length === 0) {
+                setShowMassOperationControls(false);
+            }
+        } else {
+            onEditEntry(item, path);
+        }
     };
 
-    const onDeleteEntry = (item, path) => {
-        widget.markItemAsDeleted(datastore, path, "password").then(() => {
-            forceUpdate();
-        });
+    const onCloneEntry = async (item, path) => {
+        await widget.cloneItem(datastore, item, path);
+        loadDatastore();
     };
 
-    const onDeleteFolder = (item, path) => {
-        widget.markItemAsDeleted(datastore, path, "password").then(() => {
-            forceUpdate();
-        });
+    const onDeleteEntry = async (item, path) => {
+        await widget.markItemAsDeleted(datastore, path, "password");
+        forceUpdate();
     };
 
-    const onDeleteItemFromEditModal = () => {
-        widget.markItemAsDeleted(datastore, editEntryData.path, "password").then(() => {
-            forceUpdate();
-        });
+    const onDeleteFolder = async (item, path) => {
+        await widget.markItemAsDeleted(datastore, path, "password");
+        forceUpdate();
+    };
+
+    const onDeleteItemFromEditModal = async () => {
+        await widget.markItemAsDeleted(datastore, editEntryData.path, "password");
+        forceUpdate();
     };
 
     const onLinkItem = (item, path) => {
@@ -396,8 +398,8 @@ const DatastoreView = (props) => {
             breadcrumbs["id_breadcrumbs"],
             "folders",
             "password",
-            onOpenShareMoveRequest,
-            onCloseShareMoveRequest
+            onStartProgress,
+            onCloseProgress
         );
         setMoveFolderData(null);
         loadDatastore();
@@ -428,27 +430,36 @@ const DatastoreView = (props) => {
     };
 
     const onMoveEntry = (item, path) => {
-        setMoveEntryData({
+        setMoveEntryData([{
             item: item,
             path: path,
-        });
+        }]);
     };
 
     const onSelectNodeForMoveEntry = async (breadcrumbs) => {
-        await widgetService.moveItem(datastore, moveEntryData.path, breadcrumbs["id_breadcrumbs"], "items", "password");
-        setMoveEntryData(null);
+        for (let index in moveEntryData) {
+            onStartProgress();
+        }
+
+        for (let index in moveEntryData) {
+            await widgetService.moveItem(datastore, moveEntryData[index].path, breadcrumbs["id_breadcrumbs"], "items", "password");
+            onCloseProgress()
+        }
+        setMoveEntryData([]);
+        setShowMassOperationControls(false);
+        setMassOperationSelected({});
         loadDatastore();
     };
 
     const isSelectableForMoveEntry = (node) => {
         // filter out all targets that are a share if the item is not allowed to be shared
         // yet don't filter out entries that are just moved within a share
-        if (!moveEntryData.item.share_rights.grant && node.share_id && (!moveEntryData.item.parent_share_id || moveEntryData.item.parent_share_id !== node.share_id)) {
+        if (!moveEntryData[0].item.share_rights.grant && node.share_id && (!moveEntryData[0].item.parent_share_id || moveEntryData[0].item.parent_share_id !== node.share_id)) {
             return false;
         }
         // filter out all targets that are inside of a share if the item is not allowed to be shared
         // yet don't filter out entries that are just moved within a share
-        if (!moveEntryData.item.share_rights.grant && node.parent_share_id && (!moveEntryData.item.parent_share_id || moveEntryData.item.parent_share_id !== node.parent_share_id)) {
+        if (!moveEntryData[0].item.share_rights.grant && node.parent_share_id && (!moveEntryData[0].item.parent_share_id || moveEntryData[0].item.parent_share_id !== node.parent_share_id)) {
             return false;
         }
         //
@@ -467,21 +478,6 @@ const DatastoreView = (props) => {
             item: item,
         });
         setCreateLinkShareOpen(true);
-    };
-    const openMenu = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setAnchorEl(null);
-    };
-
-    const openTrashBin = (event) => {
-        setTrashBinOpen(true);
     };
     const onContextMenu = (event) => {
         event.preventDefault();
@@ -506,70 +502,36 @@ const DatastoreView = (props) => {
                     <Grid item xs={bigScreen && editEntryOpen ? 6 : 12}>
                         <Paper square>
                             <AppBar elevation={0} position="static" color="default">
-                                <Toolbar
-                                    className={classes.toolbarRoot}>
-                                    <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
-                                    {newSecurityReport !== 'REQUIRED' && (<div className={classes.search}>
-                                        <Search
-                                            value={search}
-                                            onChange={(newValue) => {
-                                                setSearch(newValue)
-                                            }}
-                                        />
-                                        <Divider className={classes.divider} orientation="vertical"/>
-                                        {!offlineMode && (
-                                            <IconButton
-                                                color="primary"
-                                                className={classes.iconButton}
-                                                aria-label="menu"
-                                                onClick={openMenu}
-                                                size="large">
-                                                <MenuOpenIcon/>
-                                            </IconButton>
-                                        )}
-                                        <Menu
-                                            id="simple-menu"
-                                            anchorEl={anchorEl}
-                                            keepMounted
-                                            open={Boolean(anchorEl)}
-                                            onClose={handleClose}
-                                            onContextMenu={(event) => {
-                                                event.preventDefault();
-                                                event.stopPropagation();
-                                            }}
-                                        >
-                                            <MenuItem onClick={() => onNewFolder(datastore, [])}>
-                                                <ListItemIcon className={classes.listItemIcon}>
-                                                    <CreateNewFolderIcon className={classes.icon} fontSize="small"/>
-                                                </ListItemIcon>
-                                                <Typography variant="body2" noWrap>
-                                                    {t("NEW_FOLDER")}
-                                                </Typography>
-                                            </MenuItem>
-                                            <MenuItem onClick={() => onNewEntry(datastore, [])}>
-                                                <ListItemIcon className={classes.listItemIcon}>
-                                                    <AddIcon className={classes.icon} fontSize="small"/>
-                                                </ListItemIcon>
-                                                <Typography variant="body2" noWrap>
-                                                    {t("NEW_ENTRY")}
-                                                </Typography>
-                                            </MenuItem>
-                                        </Menu>
-                                        {!offlineMode && (
-                                            <>
+                                <DatastoreToolbar
+                                    hasMassOperationSelected={Object.keys(massOperationSelected).length > 0}
+                                    onMassMove={() => {
+                                        setMoveEntryData(Object.keys(massOperationSelected).map((key) => massOperationSelected[key]))
+                                    }}
+                                    onMassDelete={async () => {
+                                        for (let key in massOperationSelected) {
+                                            if (!massOperationSelected.hasOwnProperty(key)) {
+                                                continue;
+                                            }
+                                            onStartProgress();
+                                        }
 
-                                                <Divider className={classes.divider} orientation="vertical"/>
-                                                <IconButton
-                                                    className={classes.iconButton}
-                                                    aria-label="trash bin"
-                                                    onClick={openTrashBin}
-                                                    size="large">
-                                                    <DeleteSweepIcon/>
-                                                </IconButton>
-                                            </>
-                                        )}
-                                    </div>)}
-                                </Toolbar>
+                                        for (let key in massOperationSelected) {
+                                            if (!massOperationSelected.hasOwnProperty(key)) {
+                                                continue;
+                                            }
+                                            await onDeleteEntry(massOperationSelected[key].item, massOperationSelected[key].path);
+                                            onCloseProgress()
+                                        }
+                                        setMassOperationSelected({});
+                                        setShowMassOperationControls(false);
+                                    }}
+                                    search={search}
+                                    setSearch={setSearch}
+                                    datastore={datastore}
+                                    onNewFolder={() => onNewFolder(datastore, [])}
+                                    onNewEntry={() => onNewEntry(datastore, [])}
+                                    newSecurityReportRequired={newSecurityReport !== 'REQUIRED'}
+                                />
                             </AppBar>
                             <div className={classes.root} onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
                                 <Grid container>
@@ -595,11 +557,14 @@ const DatastoreView = (props) => {
                                                 onDeleteEntry={onDeleteEntry}
                                                 onEditFolder={onEditFolder}
                                                 onDeleteFolder={onDeleteFolder}
-                                                onSelectItem={onEditEntry}
+                                                onSelectItem={onSelectEntry}
                                                 onLinkItem={onLinkItem}
                                                 onLinkShare={onLinkShare}
                                                 onMoveFolder={onMoveFolder}
                                                 onMoveEntry={onMoveEntry}
+                                                allowMultiselect={showMassOperationControls}
+                                                isSelected={isSelected}
+                                                isSelectable={isSelectable}
                                                 deleteFolderLabel={t('MOVE_TO_TRASH')}
                                                 deleteItemLabel={t('MOVE_TO_TRASH')}
                                             />
@@ -679,13 +644,6 @@ const DatastoreView = (props) => {
                                     item={createLinkShareData.item}
                                 />
                             )}
-                            {trashBinOpen && (
-                                <DialogTrashBin
-                                    open={trashBinOpen}
-                                    onClose={() => setTrashBinOpen(false)}
-                                    datastore={datastore}
-                                />
-                            )}
                             {rightsOverviewOpen && (
                                 <DialogRightsOverview
                                     open={rightsOverviewOpen}
@@ -694,10 +652,10 @@ const DatastoreView = (props) => {
                                     path={rightsOverviewData.path}
                                 />
                             )}
-                            {Boolean(moveEntryData) && (
+                            {moveEntryData.length > 0 && (
                                 <DialogSelectFolder
-                                    open={Boolean(moveEntryData)}
-                                    onClose={() => setMoveEntryData(null)}
+                                    open={moveEntryData.length > 0}
+                                    onClose={() => setMoveEntryData([])}
                                     title={t("MOVE_ENTRY")}
                                     onSelectNode={onSelectNodeForMoveEntry}
                                     isSelectable={isSelectableForMoveEntry}
@@ -744,8 +702,8 @@ const DatastoreView = (props) => {
                     )}
                 </Grid>
 
-                {shareMoveProgressDialogOpen && (
-                    <DialogProgress percentageComplete={shareMoveProgress} open={shareMoveProgressDialogOpen}/>
+                {progressDialogOpen && (
+                    <DialogProgress percentageComplete={progress} open={progressDialogOpen}/>
                 )}
 
             </BaseContent>
