@@ -415,8 +415,8 @@ const EmergencyCodeViewForm = (props) => {
                         >
                             {t("APPROVE")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -494,8 +494,9 @@ const EmergencyCodeViewForm = (props) => {
                         >
                             {t("CANCEL")}
                         </Button>
-                        <Button variant="contained" onClick={approveNewServer}>
-                            {t("IGNORE_AND_CONTINUE")}
+
+                        <Button onClick={approveNewServer}>
+                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>

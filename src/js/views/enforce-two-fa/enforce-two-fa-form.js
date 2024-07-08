@@ -157,12 +157,11 @@ const EnforceTwoFaViewForm = (props) => {
             <Grid container>
                 <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <Button
-                        variant="contained"
-                        classes={{ disabled: classes.disabledButton }}
+                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >
-                        {t("LOGOUT")}
+                        <span style={{color: "#b1b6c1"}}>{t("LOGOUT")}</span>
                     </Button>
                 </Grid>
             </Grid>

@@ -212,12 +212,11 @@ const KeyTransferForm = (props) => {
                         {t("APPROVE")}
                     </ButtonDanger>}
                     <Button
-                        variant="contained"
-                        classes={{ disabled: classes.disabledButton }}
+                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >
-                        {t("LOGOUT")}
+                        <span style={{color: "#b1b6c1"}}>{t("LOGOUT")}</span>
                     </Button>
                 </Grid>
             </Grid>

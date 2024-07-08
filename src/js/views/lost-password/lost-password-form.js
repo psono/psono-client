@@ -427,8 +427,8 @@ const LostPasswordViewForm = (props) => {
                         >
                             {t("SET_NEW_PASSWORD")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
