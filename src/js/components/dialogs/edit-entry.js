@@ -55,6 +55,7 @@ import LinkIcon from "@mui/icons-material/Link";
 import DialogCreateLinkShare from "./create-link-share";
 import DialogAddTotp from "./add-totp";
 import Divider from "@mui/material/Divider";
+import DialogGeneratePassword from "./generate-password";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -132,6 +133,7 @@ const DialogEditEntry = (props) => {
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
     const [addTotpOpen, setAddTotpOpen] = useState(false);
+    const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
@@ -979,7 +981,11 @@ const DialogEditEntry = (props) => {
     };
     const onGeneratePassword = (event) => {
         handleClose();
-        const password = datastorePasswordService.generate();
+        setGeneratePasswordDialogOpen(true);
+    };
+    const onPasswordGenerated = (password) => {
+        handleClose();
+        setGeneratePasswordDialogOpen(false);
         if (item.type === "website_password") {
             setWebsitePasswordPassword(password);
         }
@@ -2717,6 +2723,14 @@ const DialogEditEntry = (props) => {
                         setWebsitePasswordTotpCode(totpCode);
                         setAddTotpOpen(false)
                     }}
+                />
+            )}
+
+            {generatePasswordDialogOpen && (
+                <DialogGeneratePassword
+                    open={generatePasswordDialogOpen}
+                    onClose={() => setGeneratePasswordDialogOpen(false)}
+                    onConfirm={onPasswordGenerated}
                 />
             )}
         </Grid>
