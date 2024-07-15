@@ -9,7 +9,6 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-    Snackbar,
     IconButton
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
@@ -20,13 +19,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import InputAdornment from "@mui/material/InputAdornment";
 
 import { getStore } from "../../services/store";
-import browserClient from "../../services/browser-client";
 import TextFieldQrCode from "../../components/text-field/qr";
 import GridContainerErrors from "../../components/grid-container-errors";
 import avatarService from "../../services/avatar";
-import user from "../../services/user";
-import statusService from "../../services/status";
-import avatar from "../../services/avatar";
 
 
 const useStyles = makeStyles((theme) => ({

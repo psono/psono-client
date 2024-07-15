@@ -1363,6 +1363,9 @@ function itemIcon(item) {
     if (item.type === "bookmark") {
         return "fa fa-bookmark-o";
     }
+    if (item.type === "passkey") {
+        return "fa fa-sticky-note-o";
+    }
     if (item.type === "note") {
         return "fa fa-sticky-note-o";
     }
