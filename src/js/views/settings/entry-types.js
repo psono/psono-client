@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@mui/material/Divider";
-import { Checkbox, Grid } from "@mui/material";
-
-import { Check } from "@mui/icons-material";
-import { makeStyles } from '@mui/styles';
 import action from "../../actions/bound-action-creators";
 import {useSelector} from "react-redux";
+
+import { makeStyles } from '@mui/styles';
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+
 import itemBlueprintService from "../../services/item-blueprint";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -45,6 +47,8 @@ const SettingsEntryTypesView = (props) => {
     const [showBookmark, setShowBookmark] = useState(settingsDatastore.showBookmark);
     const [showElsterCertificate, setShowElsterCertificate] = useState(settingsDatastore.showElsterCertificate);
     const [showFile, setShowFile] = useState(settingsDatastore.showFile);
+    const [msgs, setMsgs] = React.useState([]);
+
     const stateLookupDict = {
         "website_password": {
             'value': showWebsitePassword,
@@ -126,6 +130,7 @@ const SettingsEntryTypesView = (props) => {
             showElsterCertificate,
             showFile,
         );
+        setMsgs(["SAVE_SUCCESS"])
     };
 
     const entryTypes = itemBlueprintService.getEntryTypes();
@@ -163,6 +168,7 @@ const SettingsEntryTypesView = (props) => {
                     </Button>
                 </Grid>
             </Grid>
+            <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
         </Grid>
     );
 };
