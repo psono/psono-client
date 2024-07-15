@@ -111,14 +111,24 @@ const NotificationBarView = (props) => {
                 </div>
                 <div className={classes.buttonContainer}>
                     {state.buttons.map((button, index) => {
-                        return (<Button
-                            className={classes.button}
-                            variant="contained"
-                            color={button.color}
-                            onClick={() => buttonClick(index)}
-                        >
-                            {button.title}
-                        </Button>)
+                        if (button.color === "primary") {
+                            return (<Button
+                                className={classes.button}
+                                variant="contained"
+                                color={button.color}
+                                onClick={() => buttonClick(index)}
+                            >
+                                {button.title}
+                            </Button>)
+                        } else {
+                            return (<Button
+                                className={classes.button}
+                                color={button.color}
+                                onClick={() => buttonClick(index)}
+                            >
+                                <span style={{color: "#b1b6c1"}}>{button.title}</span>
+                            </Button>)
+                        }
                     })}
                     <Button
                         className={classes.button + " " + classes.close}
