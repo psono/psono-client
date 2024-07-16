@@ -787,8 +787,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("DECRYPT")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1112,8 +1112,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("APPROVE")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1191,8 +1191,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("CANCEL")}
                         </Button>
-                        <Button variant="contained" onClick={approveHost}>
-                            {t("IGNORE_AND_CONTINUE")}
+                        <Button onClick={approveHost}>
+                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1233,8 +1233,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("APPROVE_UNSAFE")}
                         </Button>
-                        <Button variant="contained" onClick={disapproveSendPlain}>
-                            {t("DECLINE_SAFE")}
+                        <Button onClick={disapproveSendPlain}>
+                            <span style={{color: "#b1b6c1"}}>{t("DECLINE_SAFE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1282,8 +1282,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1331,8 +1331,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1380,8 +1380,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1400,8 +1400,8 @@ const LoginViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1456,8 +1456,8 @@ const LoginViewForm = (props) => {
                 )}
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>

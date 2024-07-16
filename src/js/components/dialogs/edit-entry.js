@@ -55,6 +55,7 @@ import LinkIcon from "@mui/icons-material/Link";
 import DialogCreateLinkShare from "./create-link-share";
 import DialogAddTotp from "./add-totp";
 import Divider from "@mui/material/Divider";
+import DialogGeneratePassword from "./generate-password";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -132,6 +133,7 @@ const DialogEditEntry = (props) => {
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
     const [addTotpOpen, setAddTotpOpen] = useState(false);
+    const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
@@ -889,7 +891,9 @@ const DialogEditEntry = (props) => {
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
 
-        if (typeof item.secret_id === "undefined") {
+        if (props.onCustomSave) {
+            props.onCustomSave(item, secretObject, callbackUrl, callbackUser, callbackPass);
+        } else if (typeof item.secret_id === "undefined") {
             // e.g. files
             props.onEdit(item);
         } else if (!props.data) {
@@ -979,7 +983,11 @@ const DialogEditEntry = (props) => {
     };
     const onGeneratePassword = (event) => {
         handleClose();
-        const password = datastorePasswordService.generate();
+        setGeneratePasswordDialogOpen(true);
+    };
+    const onPasswordGenerated = (password) => {
+        handleClose();
+        setGeneratePasswordDialogOpen(false);
         if (item.type === "website_password") {
             setWebsitePasswordPassword(password);
         }
@@ -1042,7 +1050,7 @@ const DialogEditEntry = (props) => {
             >
                 {t("CLOSE")}
             </Button>
-            {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && props.onEdit && (
+            {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && (props.onEdit || props.onCustomSave) && (
                 <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave} type="submit">
                     {t("SAVE")}
                 </Button>
@@ -2717,6 +2725,14 @@ const DialogEditEntry = (props) => {
                         setWebsitePasswordTotpCode(totpCode);
                         setAddTotpOpen(false)
                     }}
+                />
+            )}
+
+            {generatePasswordDialogOpen && (
+                <DialogGeneratePassword
+                    open={generatePasswordDialogOpen}
+                    onClose={() => setGeneratePasswordDialogOpen(false)}
+                    onConfirm={onPasswordGenerated}
                 />
             )}
         </Grid>

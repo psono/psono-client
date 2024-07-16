@@ -54,6 +54,7 @@ import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import {useHotkeys} from "react-hotkeys-hook";
 import cryptoLibraryService from "../../services/crypto-library";
 import converterService from "../../services/converter";
+import DialogGeneratePassword from "./generate-password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -115,6 +116,7 @@ const DialogNewEntry = (props) => {
 
     const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
+    const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
 
     const [importSshKeyAsTextDialogOpen, setImportSshKeyAsTextDialogOpen] = useState(false);
     const [generateNewSshKeyDialogOpen, setGenerateNewSshKeyDialogOpen] = useState(false);
@@ -770,7 +772,11 @@ const DialogNewEntry = (props) => {
     };
     const onGeneratePassword = (event) => {
         handleClose();
-        const password = datastorePasswordService.generate();
+        setGeneratePasswordDialogOpen(true);
+    };
+    const onPasswordGenerated = (password) => {
+        handleClose();
+        setGeneratePasswordDialogOpen(false);
         if (type === "website_password") {
             setWebsitePasswordPassword(password);
         }
@@ -2322,6 +2328,13 @@ const DialogNewEntry = (props) => {
                         open={generateNewGpgKeyDialogOpen}
                         onClose={() => setGenerateNewGpgKeyDialogOpen(false)}
                         onNewGpgKeysGenerated={onNewGpgKeysGenerated}
+                    />
+                )}
+                {generatePasswordDialogOpen && (
+                    <DialogGeneratePassword
+                        open={generatePasswordDialogOpen}
+                        onClose={() => setGeneratePasswordDialogOpen(false)}
+                        onConfirm={onPasswordGenerated}
                     />
                 )}
                 {importSshKeyAsTextDialogOpen && (
