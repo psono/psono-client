@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Checkbox } from "@material-ui/core";
+import { Grid, Checkbox,DialogContent } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -12,16 +12,19 @@ import { useHistory } from "react-router-dom";
 
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
+import ivaltClient from "../../services/ivalt";
 import user from "../../services/user";
 import host from "../../services/host";
 import deviceService from "../../services/device";
 import webauthnService from "../../services/webauthn";
 import converterService from "../../services/converter";
+import { useSelector } from "react-redux";
 import { getStore } from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
 import datastoreSettingService from "../../services/datastore-setting";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -63,8 +66,27 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+    container: {
+        background: 'gray',
+        position: 'relative',
+        display: 'inline-block',
+    },
+    image: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 1,
+    },
+    progress: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 0,
+    },
 }));
-
+const defaultTimer = 2 * 60
 const LoginViewForm = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
@@ -98,6 +120,84 @@ const LoginViewForm = (props) => {
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
     const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
+    const ivalt = useSelector(store => store.user.ivalt)
+    const [timer, setTimer] = useState(defaultTimer)
+    const [ivaltLoading, setIvaltLoading] = useState(false)
+    const [errorsResponses,setErrorsResponses] = useState({
+        'AUTHENTICATION_FAILED': 'Authentication failed. Please try again',
+        'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': 'Ivalt Authenticated Request sent Successfully',
+        'INVALID_TIMEZONE': 'Invalid timezone. Please try again',
+        'INVALID_GEOFENCE': 'Invalid geofence. Please try again',
+    });
+
+    React.useEffect(() => {
+
+        let timerInterval;
+        let timeout;
+
+        if (ivaltLoading) {
+            timerInterval = setInterval(() => {
+                if (timer <= 0) {
+                    setIvaltLoading(false)
+                    setTimer(defaultTimer)
+                    clearInterval(timerInterval)
+                    setErrors(["iVALT Auth timed out. Please try again"])
+
+                    return
+                }
+                if (timer % 2 == 0) {
+                    validateIvalt()
+                }
+                setTimer(prevTimer => prevTimer - 1)
+            }, 1000)
+
+        }
+
+        return () => {
+            clearInterval(timerInterval);
+            clearTimeout(timeout)
+        };
+    }, [ivaltLoading, timer]);
+
+    const validateIvalt = () => {
+        ivaltClient.validateIvaltTwoFactor().then((res) => {
+            console.log(res,"HERE IS LOGIN RESPONSE");
+            if(res.data.non_field_errors === undefined){
+                setView("ivalt_auth_success");
+                setIvaltLoading(false);
+                setTimer(defaultTimer);
+                let requiredMultifactors = [];
+                setMultifactors(requiredMultifactors);
+            }else if(errorsResponses[res.data.non_field_errors[0]] !== undefined && res.data.non_field_errors[0] !== 'AUTHENTICATION_FAILED'){
+                setErrors([errorsResponses[res.data.non_field_errors[0]]]);
+                setIvaltLoading(false);
+            }
+
+
+
+            // if(res.data.status === undefined){
+            //     setView("ivalt_auth_success");
+            //     setIvaltLoading(false);
+            //     setTimer(defaultTimer);
+
+            //     let requiredMultifactors = [];
+            //     setMultifactors(requiredMultifactors);
+            // }else if(res.data.status == '404'){
+            //     setTimeout(() => {
+            //         setTimer(defaultTimer)
+            //     }, 1600)
+            // }else if(res.data.status == '403'){
+            //     setErrors([res.data.detail]);
+            //     setIvaltLoading(false);
+            // }
+        },(error,res) => {
+            console.log(error,"ERROR RESPONSE");
+            // if(errorsResponses[error.non_field_errors[0]] !== undefined){
+            //     setErrors([errorsResponses[error.non_field_errors[0]]]);
+            //     setIvaltLoading(false);
+            // }
+        });
+    }
 
     React.useEffect(() => {
         if (props.samlTokenId) {
@@ -271,12 +371,37 @@ const LoginViewForm = (props) => {
             showGa2faForm();
         } else if (multifactors.indexOf("duo_2fa") !== -1) {
             showDuo2faForm();
+        } else if (multifactors.indexOf("ivalt_2fa") !== -1) {
+            setIvaltLoading(true)
+            sendIvaltAuthRequest()
+            showIvaltForm();
         } else {
             setView("default");
             setLoginLoading(false);
             setErrors(["Unknown multi-factor authentication requested by server."]);
             logout();
         }
+    };
+
+    const sendIvaltAuthRequest = () => {
+        setErrors([])
+        ivaltClient.sendTwoFactorNotification().then(
+             (createdIvalt) => {
+                validateIvalt();
+            },
+            function (error) {
+                if (error.hasOwnProperty("non_field_errors")) {
+                    setErrors(error.non_field_errors);
+                } else {
+                    console.error(error);
+                }
+            }
+        );
+    }
+
+    const showIvaltForm = () => {
+        setView("ivalt");
+        setLoginLoading(false);
     };
 
     const requirementCheckMfa = (multifactors) => {
@@ -1435,6 +1560,19 @@ const LoginViewForm = (props) => {
                         </Grid>
                     </Grid>
                 )}
+                {multifactors.indexOf("ivalt_2fa") !== -1 && (
+                    <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button variant="contained" color="primary" onClick={() => {
+                                setIvaltLoading(true)
+                                sendIvaltAuthRequest()
+                                showIvaltForm()
+                            }} type="submit">
+                                {t("iVALT")}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                )}
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button variant="contained" onClick={cancel}>
@@ -1444,6 +1582,61 @@ const LoginViewForm = (props) => {
                 </Grid>
             </>
         );
+    }
+
+
+    if (view === "ivalt") {
+        formContent = (
+            <>
+                <Grid container style={{ display: 'flex', justifyContent: 'space-around', minHeight: '45px', marginBottom: '15px' }}>
+
+                    <div className={classes.container}>
+                        <img width={45} height={45} src="https://play-lh.googleusercontent.com/m78eEwQ3FQ-EuJ6AmtuZ30CpNiR5bi_MBPgmqmJ7LTGMiK4d_uD707DCWCQlv1HAnGMv=w240-h480-rw" alt="Loading" className={classes.image} />
+                        {ivaltLoading && <CircularProgress size={60} className={classes.progress} style={{ animation: 'unset', zIndex: 2 }} />}
+                    </div>
+
+                    {ivaltLoading && (
+                        <div>
+                            <p>Request has been sent to your iVALT app</p>
+                            <p>Waiting for Authentication</p>
+                            <p>{timer}</p>
+                        </div>
+                    )}
+
+                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
+                <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Button variant="contained" onClick={() => {
+                        setIvaltLoading(false);
+                        setTimer(defaultTimer)
+                        cancel()
+                    }}>
+                        {t("CANCEL")}
+                    </Button>
+                    {!ivaltLoading && (
+                        <Button style={{ marginLeft: '1rem' }} variant="contained" onClick={() => {
+                            setIvaltLoading(true)
+                            sendIvaltAuthRequest()
+                        }}>
+                            {t("RETRY")}
+                        </Button>
+                    )}
+                </Grid>
+            </>
+        );
+    }
+
+    if (view === "ivalt_auth_success") {
+        formContent = (
+            <DialogContent>
+                <Grid container>
+                    <Grid item style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                        <p style={{ color: 'green', fontWeight: 500, fontSize: '30px' }}>iVALT Auth Successful</p>
+                        <img src="https://media.tenor.com/bm8Q6yAlsPsAAAAj/verified.gif" width={100} />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+        )
     }
 
     // a webclient that doesn't allow different servers, doesn't need remote config, so we can hide it.

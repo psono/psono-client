@@ -10,8 +10,11 @@ import MultifactorAuthenticatorGoogleAuthenticator from "./multifactor-authentic
 import MultifactorAuthenticatorYubikeyOtp from "./multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorWebauthn from "./multifactor-authentication-webauthn";
 import MultifactorAuthenticatorDuo from "./multifactor-authentication-duo";
+import MultifactorAuthenticatorIvalt from "./multifactor-authentication-ivalt";
 import deviceService from "../../services/device";
 import browserClient from "../../services/browser-client";
+import userService from "../../services/user";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -29,12 +32,15 @@ const MultifactorAuthenticationView = (props) => {
     const [yubikeyOtpOpen, setYubikeyOtpOpen] = React.useState(false);
     const [webauthnOpen, setWebauthnOpen] = React.useState(false);
     const [duoOpen, setDuoOpen] = React.useState(false);
+    const [ivaltOpen, setIvaltOpen] = React.useState(false);
+    const { ivaltSecret } = useSelector(store => store.server)
 
     const closeModal = () => {
         setGoogleAuthenticatorOpen(false);
         setYubikeyOtpOpen(false);
         setDuoOpen(false);
         setWebauthnOpen(false);
+        setIvaltOpen(false)
     };
 
     const onConfigureGoogleAuthenticator = (event) => {
@@ -47,6 +53,11 @@ const MultifactorAuthenticationView = (props) => {
 
     const onConfigureDuo = (event) => {
         setDuoOpen(true);
+    };
+
+    const onConfigureIvalt = async (event) => {
+        setIvaltOpen(true);
+
     };
 
     const onConfigureWebauthn = (event) => {
@@ -128,6 +139,22 @@ const MultifactorAuthenticationView = (props) => {
                         </Button>
                     </Grid>
                     {duoOpen && <MultifactorAuthenticatorDuo {...props} open={duoOpen} onClose={closeModal} />}
+                </Grid>
+            )}
+
+            {getStore().getState().server.allowedSecondFactors.indexOf("ivalt") !== -1 && (
+
+
+                <Grid container style={{ marginBottom: "8px" }}>
+                    <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
+                        {t("iVALT")}
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={8}>
+                        <Button variant="contained" color="primary" onClick={onConfigureIvalt}>
+                            {t("CONFIGURE")}
+                        </Button>
+                    </Grid>
+                    {ivaltOpen && <MultifactorAuthenticatorIvalt {...props} open={ivaltOpen} onClose={closeModal} />}
                 </Grid>
             )}
         </>
