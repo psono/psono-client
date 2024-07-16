@@ -22,8 +22,25 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from '@material-ui/core/Box';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import countries from "../../countries";
+import ScLogo from "../../../common/data/img/sc-logo.png";
 
-function CountrySelect({ onSelect, selected = '91' }) {
+
+const FlagImage = ({ option }) => {
+    // Dynamically require the images based on the code
+    const flagW20 = require(`../../../common/data/img/flags/${option.code.toLowerCase()}.png`);
+
+    return (
+        <img
+            loading='lazy'
+            width='20'
+            src={flagW20}
+            srcSet={`${flagW20} 2x`}
+            alt=''
+        />
+    );
+}
+
+function CountrySelect({ onSelect, selected = '1', t }) {
     const selectedCountry = countries.filter((value) => value.phone === selected);
     return (
         <Autocomplete
@@ -44,20 +61,14 @@ function CountrySelect({ onSelect, selected = '91' }) {
                     component='li'
                     sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
                 >
-                    <img
-                        loading='lazy'
-                        width='20'
-                        src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                        srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                        alt=''
-                    />
+                    <FlagImage option={option} />
                     {option.label} ({option.code}) +{option.phone}
                 </Box>
             )}
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label='Choose a country'
+                    label={t('CHOOSE_COUNTRY')}
                     inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill
@@ -108,14 +119,14 @@ const MultifactorAuthenticatorIvalt = (props) => {
     const { ivaltSecret } = useSelector(store => store.server)
     const [ivaltLoading, setIvaltLoading] = useState(false)
     const [timer, setTimer] = useState(defaultTimer)
-    const [countryCode, setCountryCode] = useState("91")
+    const [countryCode, setCountryCode] = useState("1")
     const [ivaltAuthSuccess, setIvaltAuthSuccess] = useState(false)
     const [createdId,setCreatedId] = useState(null);
     const [errorsResponses,setErrorsResponses] = useState({
-        'AUTHENTICATION_FAILED': 'Authentication failed. Please try again',
-        'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': 'Ivalt Authenticated Request sent Successfully',
-        'INVALID_TIMEZONE': 'Invalid timezone. Please try again',
-        'INVALID_GEOFENCE': 'Invalid geofence. Please try again',
+        'AUTHENTICATION_FAILED': t("IVALT_AUTH_FAILED"),
+        'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': t("IVALT_AUTH_REQUEST_SENT"),
+        'INVALID_TIMEZONE':  t("IVALT_INVALID_TIMEZONE"),
+        'INVALID_GEOFENCE':  t("IVALT_INVALID_GEOFENCE"),
     });
 
     const getIvaltMobile = () => {
@@ -135,7 +146,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
             timerInterval = setInterval(() => {
                 if (timer <= 0) {
                     clearInterval(timerInterval)
-                    setErrors(["Ivalt Auth Failed. Please try again"])
+                    setErrors([t("IVALT_AUTH_FAILED")])
                     timeout = setTimeout(() => {
                         onClose()
                     }, 2000);
@@ -176,14 +187,12 @@ const MultifactorAuthenticatorIvalt = (props) => {
         ivalt.validateIvalt(
             ivaltMobile || undefined,
         ).then((res) => {
-            console.log(res, "THIS IS RESPONSE");
             setView("ivalt_auth_success")
 
             setTimeout(() => {
                 setTimer(defaultTimer)
             }, 1600)
         },(error,res) => {
-            console.log(error,'THIS IS ERROR');
             if(errorsResponses[error.non_field_errors[0]] !== undefined && error.non_field_errors[0] !== 'AUTHENTICATION_FAILED'){
                 ivalt.deleteIvalt(createdId).then(() => {
                     setErrors([errorsResponses[error.non_field_errors[0]]]);
@@ -213,15 +222,6 @@ const MultifactorAuthenticatorIvalt = (props) => {
         );
     }
 
-    const onIvaltActivationSuccessful = (successful) => {
-        if (successful) {
-            setView("default");
-            loadivalts();
-        } else {
-            setErrors(["CODE_INCORRECT"]);
-        }
-    };
-
     const create = () => {
         setIvaltLoading(true)
         createIvalt()
@@ -247,7 +247,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
 
     const columns = [
         { name: t("ID"), options: { display: false } },
-        { name: "Mobile" },
+        { name: t("MOBILE") },
         {
             name: t("ACTIVE"),
             options: {
@@ -298,7 +298,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{"iVALT"}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">iVALT</DialogTitle>
             {view === "default" && (
                 <DialogContent>
                     <Table data={ivalts} columns={columns} options={options} onCreate={onCreate} />
@@ -310,7 +310,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
                             <p>Please enter your mobile number registered with iVALT</p>
-                            <CountrySelect onSelect={(val) => setCountryCode(val)} selected={countryCode} />
+                            <CountrySelect onSelect={(val) => setCountryCode(val)} selected={countryCode} t={t} />
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
@@ -333,12 +333,12 @@ const MultifactorAuthenticatorIvalt = (props) => {
                                 <div style={{ display: 'flex', justifyContent: 'space-around' }}>
 
                                     <div className={classes.container}>
-                                        <img width={45} height={45} src="https://play-lh.googleusercontent.com/m78eEwQ3FQ-EuJ6AmtuZ30CpNiR5bi_MBPgmqmJ7LTGMiK4d_uD707DCWCQlv1HAnGMv=w240-h480-rw" alt="Loading" className={classes.image} />
+                                        <img width={45} height={45} src={ScLogo} alt="Loading" className={classes.image} />
                                         <CircularProgress size={60} className={classes.progress} style={{ animation: 'unset', zIndex: 2 }} />
                                     </div>
 
                                     <div>
-                                        <p>{"Request has been sent to your iVALT app"}</p>
+                                        <p>{t("IVALT_REQUEST_SENT_TO_APP")}</p>
                                         <p>{timer}</p>
                                     </div>
 
@@ -367,7 +367,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
                     <Grid container>
                         <Grid item style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                             <p style={{ color: 'green', fontWeight: 500, fontSize: '30px' }}>iVALT Auth Successful</p>
-                            <img src="https://media.tenor.com/bm8Q6yAlsPsAAAAj/verified.gif" width={100} />
+                            <img src={require("../../../common/data/img/verified.gif")} width={100} />
                         </Grid>
                     </Grid>
                 </DialogContent>

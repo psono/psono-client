@@ -119,9 +119,6 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
             }
 
             if (!rawResponse.ok) {
-                // console.log(rawResponse);
-                // console.log(data);
-
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
@@ -142,7 +139,6 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
 
             try {
                 decryptedData = decryptData(sessionSecretKey, data, url, req.method)
-                // console.log("decryptedData", decryptedData)
             } catch (e) {
                 return reject({errors: ["UNENCRYPTED_RESPONSE_RECEIVED"]})
             }
@@ -3565,23 +3561,11 @@ const getIvaltApiToken = function (token, sessionSecretKey) {
     return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
-const sendTwoFactorNotification = function(token, sessionSecretKey){
+const validateIvaltTwoFactor = function(token, sessionSecretKey, requestType){
     const endpoint = "/authentication/ivalt-verify/"
     const method = "POST"
     const data = {
-        request_type: 'notification'
-    }
-    const headers = {
-        Authorization: "Token " + token
-    }
-    return call(method, endpoint, data, headers, sessionSecretKey)
-}
-
-const validateIvaltTwoFactor = function(token, sessionSecretKey){
-    const endpoint = "/authentication/ivalt-verify/"
-    const method = "POST"
-    const data = {
-        request_type: 'verification'
+        request_type: requestType
     }
     const headers = {
         Authorization: "Token " + token
@@ -3601,11 +3585,11 @@ function readIvalt(token, sessionSecretKey) {
     return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
-const deleteIvalt = function (token, sessionSecretKey, ivalt_id) {
+const deleteIvalt = function (token, sessionSecretKey, ivaltId) {
     const endpoint = "/user/ivalt/";
     const method = "DELETE";
     const data = {
-        ivalt_id: ivalt_id,
+        ivalt_id: ivaltId,
     };
 
     const headers = {
@@ -3629,7 +3613,7 @@ function createIvalt(token, sessionSecretKey, mobile) {
     return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
-function validateIvalt(token,sessionSecretKey,mobile){
+function validateIvalt(token, sessionSecretKey, mobile){
     const endpoint = "/user/ivalt/";
     const method = "POST";
     const data = {
@@ -3762,7 +3746,6 @@ const apiClientService = {
     deleteAvatar: deleteAvatar,
     createServerSecret: createServerSecret,
     deleteServerSecret: deleteServerSecret,
-    sendTwoFactorNotification: sendTwoFactorNotification,
     validateIvaltTwoFactor: validateIvaltTwoFactor,
     readIvalt: readIvalt,
     deleteIvalt: deleteIvalt,

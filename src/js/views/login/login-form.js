@@ -124,10 +124,10 @@ const LoginViewForm = (props) => {
     const [timer, setTimer] = useState(defaultTimer)
     const [ivaltLoading, setIvaltLoading] = useState(false)
     const [errorsResponses,setErrorsResponses] = useState({
-        'AUTHENTICATION_FAILED': 'Authentication failed. Please try again',
-        'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': 'Ivalt Authenticated Request sent Successfully',
-        'INVALID_TIMEZONE': 'Invalid timezone. Please try again',
-        'INVALID_GEOFENCE': 'Invalid geofence. Please try again',
+        'AUTHENTICATION_FAILED': t("IVALT_AUTH_FAILED"),
+        'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': t("IVALT_AUTH_REQUEST_SENT"),
+        'INVALID_TIMEZONE':  t("IVALT_INVALID_TIMEZONE"),
+        'INVALID_GEOFENCE':  t("IVALT_INVALID_GEOFENCE"),
     });
 
     React.useEffect(() => {
@@ -141,7 +141,7 @@ const LoginViewForm = (props) => {
                     setIvaltLoading(false)
                     setTimer(defaultTimer)
                     clearInterval(timerInterval)
-                    setErrors(["iVALT Auth timed out. Please try again"])
+                    setErrors([t("IVALT_AUTH_TIMEOUT")])
 
                     return
                 }
@@ -161,7 +161,6 @@ const LoginViewForm = (props) => {
 
     const validateIvalt = () => {
         ivaltClient.validateIvaltTwoFactor().then((res) => {
-            console.log(res,"HERE IS LOGIN RESPONSE");
             if(res.data.non_field_errors === undefined){
                 setView("ivalt_auth_success");
                 setIvaltLoading(false);
@@ -1568,7 +1567,7 @@ const LoginViewForm = (props) => {
                                 sendIvaltAuthRequest()
                                 showIvaltForm()
                             }} type="submit">
-                                {t("iVALT")}
+                                iVALT
                             </Button>
                         </Grid>
                     </Grid>
@@ -1591,7 +1590,7 @@ const LoginViewForm = (props) => {
                 <Grid container style={{ display: 'flex', justifyContent: 'space-around', minHeight: '45px', marginBottom: '15px' }}>
 
                     <div className={classes.container}>
-                        <img width={45} height={45} src="https://play-lh.googleusercontent.com/m78eEwQ3FQ-EuJ6AmtuZ30CpNiR5bi_MBPgmqmJ7LTGMiK4d_uD707DCWCQlv1HAnGMv=w240-h480-rw" alt="Loading" className={classes.image} />
+                        <img width={45} height={45} src={require("../../../common/data/img/sc-logo.png")} alt="Loading" className={classes.image} />
                         {ivaltLoading && <CircularProgress size={60} className={classes.progress} style={{ animation: 'unset', zIndex: 2 }} />}
                     </div>
 
@@ -1632,7 +1631,7 @@ const LoginViewForm = (props) => {
                 <Grid container>
                     <Grid item style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <p style={{ color: 'green', fontWeight: 500, fontSize: '30px' }}>iVALT Auth Successful</p>
-                        <img src="https://media.tenor.com/bm8Q6yAlsPsAAAAj/verified.gif" width={100} />
+                        <img src={require("../../../common/data/img/verified.gif")} width={100} />
                     </Grid>
                 </Grid>
             </DialogContent>

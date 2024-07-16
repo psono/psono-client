@@ -107,7 +107,7 @@ function sendTwoFactorNotification() {
     const onError = function () {
         return false;
     };
-    return apiClient.sendTwoFactorNotification(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClient.validateIvaltTwoFactor(token, sessionSecretKey,'notification').then(onSuccess, onError);
 }
 
 function validateIvaltTwoFactor() {
@@ -119,7 +119,7 @@ function validateIvaltTwoFactor() {
     const onError = function (res) {
         return res;
     };
-    return apiClient.validateIvaltTwoFactor(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClient.validateIvaltTwoFactor(token, sessionSecretKey,'verification').then(onSuccess, onError);
 }
 
 const ivaltService = {

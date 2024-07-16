@@ -147,7 +147,7 @@ const MultifactorAuthenticationView = (props) => {
 
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
-                        {t("iVALT")}
+                        iVALT
                     </Grid>
                     <Grid item xs={6} sm={6} md={8}>
                         <Button variant="contained" color="primary" onClick={onConfigureIvalt}>
