@@ -138,7 +138,6 @@ const LinkShareAccessView = (props) => {
             closedRequest = 1;
             setPercentageComplete(100);
             setNextStep("DOWNLOAD_COMPLETED");
-            console.log(secret);
             if (secret) {
                 setEditEntryData(secret);
                 setEditEntryOpen(true);
@@ -160,7 +159,7 @@ const LinkShareAccessView = (props) => {
                 setErrors([data]);
             }
         };
-        return linkShareService.linkShareAccess(linkShareId, linkShareSecret, passphrase).then(onSuccess, onError);
+        return linkShareService.linkShareAccessRead(linkShareId, linkShareSecret, passphrase).then(onSuccess, onError);
     }
 
     function reset() {
@@ -416,6 +415,18 @@ const LinkShareAccessView = (props) => {
             )}
             {editEntryOpen && (
                 <DialogEditEntry
+                    onCustomSave={(item, secretObject, callbackUrl, callbackUser, callbackPass) => {
+
+                        const onSuccess = function () {
+                            setEditEntryOpen(false);
+                            setNextStep("SAVE_SUCCESS");
+                        };
+                        const onError = function (data) {
+                            // Should not happen
+                            console.log(data);
+                        }
+                        linkShareService.linkShareAccessWrite(linkShareId, linkShareSecret, item.secret_key, secretObject, passphrase).then(onSuccess, onError);
+                    }}
                     open={editEntryOpen}
                     onClose={() => setEditEntryOpen(false)}
                     item={editEntryData.item}

@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
-import { Grid } from "@mui/material";
+import {Checkbox, Grid} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import InputAdornment from "@mui/material/InputAdornment";
@@ -30,10 +30,27 @@ import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import browserClientService from "../../services/browser-client";
 import notification from "../../services/notification";
 import datastorePasswordService from "../../services/datastore-password";
+import {Check} from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
+    },
+    checked: {
+        color: "#9c27b0",
+    },
+    checkedIcon: {
+        width: "20px",
+        height: "20px",
+        border: "1px solid #666",
+        borderRadius: "3px",
+    },
+    uncheckedIcon: {
+        width: "0px",
+        height: "0px",
+        padding: "9px",
+        border: "1px solid #666",
+        borderRadius: "3px",
     },
 }));
 
@@ -43,6 +60,7 @@ const DialogCreateLinkShare = (props) => {
     const classes = useStyles();
     const [publicTitle, setPublicTitle] = useState(props.item.name);
     const [allowedReads, setAllowedReads] = useState(1);
+    const [allowWrite, setAllowWrite] = useState(false);
     const [validTill, setValidTill] = useState(add(new Date(), { days: 1 }));
     const [showPassphrase, setShowPassphrase] = useState(false);
     const [passphrase, setPassphrase] = useState("");
@@ -149,7 +167,8 @@ const DialogCreateLinkShare = (props) => {
                 publicTitle,
                 allowedReadsValidated,
                 passphrase,
-                validTillStr
+                validTillStr,
+                allowWrite,
             )
             .then(onSuccess, onError);
     };
@@ -323,6 +342,22 @@ const DialogCreateLinkShare = (props) => {
                                 }}
                             />
                         </Grid>
+
+                        {!props.item.hasOwnProperty("file_id") && (<Grid item xs={12} sm={12} md={12}>
+                            <Checkbox
+                                tabIndex={1}
+                                checked={allowWrite}
+                                onChange={(event) => {
+                                    setAllowWrite(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon}/>}
+                                icon={<Check className={classes.uncheckedIcon}/>}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("ALLOW_WRITE")}
+                        </Grid>)}
                     </Grid>
                 </DialogContent>
             )}

@@ -1,4 +1,5 @@
 {
+  "ALLOW_WRITE": "Allow write",
   "MOVE_SELECTED_ENTRIES": "Move selected entries",
   "SHOW_CREDIT_CARD_NUMBER": "Show credit card number",
   "HIDE_CREDIT_CARD_NUMBER": "Hide credit card number",
