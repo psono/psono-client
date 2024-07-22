@@ -70,7 +70,7 @@ function isLocked() {
  *
  * @returns {boolean} locked status
  */
-function unlock(password) {
+async function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
@@ -81,7 +81,7 @@ function unlock(password) {
     }
     let newEncryptionKey;
     try {
-        newEncryptionKey = cryptoLibrary.decryptSecret(
+        newEncryptionKey = await cryptoLibrary.decryptSecret(
             encryptionKeyEncrypted.text,
             encryptionKeyEncrypted.nonce,
             password,
@@ -91,7 +91,7 @@ function unlock(password) {
         return false;
     }
     setEncryptionKey(newEncryptionKey);
-    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: newEncryptionKey });
+    browserClient.emitSec("set-offline-cache-encryption-key", {encryption_key: newEncryptionKey});
 
     return true;
 }
@@ -122,17 +122,17 @@ function setEncryptionKey(newEncryptionKey) {
  *
  * @param {string} password The password
  */
-function setEncryptionPassword(password) {
+async function setEncryptionPassword(password) {
     const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
     const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
-    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
+    const offlineCacheEncryptionKey = await cryptoLibrary.encryptSecret(
         new_encryption_key,
         password,
         offlineCacheEncryptionSalt
     );
     action().setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
-    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
+    browserClient.emitSec("set-offline-cache-encryption-key", {encryption_key: new_encryption_key});
 }
 
 /**

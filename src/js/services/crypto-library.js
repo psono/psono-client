@@ -2,8 +2,9 @@
  * Service with all the cryptographic operations
  */
 
+import scrypt from 'scrypt-async';
+import sodium from 'libsodium-wrappers';
 import * as OTPAuth from "otpauth";
-import nacl from "ecma-nacl";
 import uuid from "uuid-js";
 import sha1 from "js-sha1";
 import sha512 from "js-sha512";
@@ -110,35 +111,39 @@ function clearScryptLookupTable() {
  *
  * @returns {string} The scrypt hash
  */
-function passwordScrypt(password, salt) {
-    // Lets first generate our key from our user_sauce and password
-    const u = 14; //2^14 = 16MB
+async function passwordScrypt(password, salt) {
+    const u = 14; // 2^14 = 16384
     const r = 8;
     const p = 1;
     const l = 64; // 64 Bytes = 512 Bits
-    let k;
 
     const lookup_hash = sha512(password) + sha512(salt);
 
     if (scrypt_lookup_table.hasOwnProperty(lookup_hash)) {
-        k = scrypt_lookup_table[lookup_hash];
+        return scrypt_lookup_table[lookup_hash];
     } else {
-        k = converterService.toHex(
-            nacl.scrypt(
-                converterService.encodeUtf8(password),
-                converterService.encodeUtf8(salt),
-                u,
-                r,
-                p,
-                l,
-                function (pDone) {}
-            )
-        );
+        const passwordBuf = converterService.encodeUtf8(password);
+        const saltBuf = converterService.encodeUtf8(salt);
+
+        const derivedKey = await new Promise((resolve, reject) => {
+            scrypt(passwordBuf, saltBuf, {
+                N: Math.pow(2, u),
+                r: r,
+                p: p,
+                dkLen: l,
+                encoding: 'binary'
+            }, (derivedKey) => {
+                resolve(derivedKey);
+            });
+        });
+
+        const k = converterService.toHex(new Uint8Array(derivedKey));
         scrypt_lookup_table[lookup_hash] = k;
         clearScryptLookupTable();
+        return k;
     }
-    return k;
 }
+
 
 /**
  * takes the sha512 of lowercase username as salt to generate scrypt password hash in hex called
@@ -156,9 +161,9 @@ function passwordScrypt(password, salt) {
  * @param {string} username Username of the user (in email format)
  * @param {string} password Password of the user
  *
- * @returns {string} auth_key Scrypt hex value of the password with the sha512 of lowercase email as salt
+ * @returns {Promise} auth_key Scrypt hex value of the password with the sha512 of lowercase email as salt
  */
-function generateAuthkey(username, password) {
+async function generateAuthkey(username, password) {
     if (!username || !username.includes("@")) {
         // security. Do not remove!
         throw new Error("Malformed username.");
@@ -184,12 +189,12 @@ function generateSecretKey() {
  * @returns {PublicPrivateKeyPair} Returns object with a public-private-key-pair
  */
 function generatePublicPrivateKeypair() {
-    const sk = randomBytes(32);
-    const pk = nacl.box.generate_pubkey(sk);
+    // Generate the key pair using libsodium
+    const keyPair = sodium.crypto_box_keypair();
 
     return {
-        public_key: converterService.toHex(pk), // 32 Bytes = 256 Bits
-        private_key: converterService.toHex(sk), // 32 Bytes = 256 Bits
+        public_key: converterService.toHex(keyPair.publicKey), // 32 Bytes = 256 Bits
+        private_key: converterService.toHex(keyPair.privateKey), // 32 Bytes = 256 Bits
     };
 }
 
@@ -202,22 +207,21 @@ function generatePublicPrivateKeypair() {
  * @param {string} password The password you want to use to encrypt the secret
  * @param {string} userSauce The user's sauce
  *
- * @returns {EncryptedValue} The encrypted text and the nonce
+ * @returns {Promise} The encrypted text and the nonce
  */
-function encryptSecret(secret, password, userSauce) {
-
-    if (userSauce.includes("@")){
+async function encryptSecret(secret, password, userSauce) {
+    if (userSauce.includes("@")) {
         // security. Do not remove!
         throw new Error("encrypt secret may not contain an @ as it may be a username");
     }
 
     const salt = sha512(userSauce);
-    const k = converterService.fromHex(sha256(passwordScrypt(password, salt))); // key
+    const k = converterService.fromHex(sha256(await passwordScrypt(password, salt))); // key
 
     // and now lets encrypt
     const m = converterService.encodeUtf8(secret); // message
-    const n = randomBytes(24); // nonce
-    const c = nacl.secret_box.pack(m, n, k); //encrypted message
+    const n = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES); // nonce
+    const c = sodium.crypto_secretbox_easy(m, n, k); // encrypted message
 
     return {
         nonce: converterService.toHex(n),
@@ -234,103 +238,69 @@ function encryptSecret(secret, password, userSauce) {
  * @param {string} password The password to decrypt the text
  * @param {string} userSauce The users sauce used during encryption
  *
- * @returns {string} secret The decrypted secret
+ * @returns {Promise} secret The decrypted secret
  */
-function decryptSecret(text, nonce, password, userSauce) {
-
-    if (userSauce.includes("@")){
+async function decryptSecret(text, nonce, password, userSauce) {
+    if (userSauce.includes("@")) {
         // security. Do not remove!
         throw new Error("encrypt secret may not contain an @ as it may be a username");
     }
 
     const salt = sha512(userSauce);
-    const k = converterService.fromHex(sha256(passwordScrypt(password, salt)));
+    const k = converterService.fromHex(sha256(await passwordScrypt(password, salt)));
 
     // and now lets decrypt
     const n = converterService.fromHex(nonce);
     const c = converterService.fromHex(text);
-    const m1 = nacl.secret_box.open(c, n, k);
+    const m1 = sodium.crypto_secretbox_open_easy(c, n, k);
+
+    if (!m1) {
+        throw new Error("Decryption failed");
+    }
 
     return converterService.decodeUtf8(m1);
 }
 
 /**
- * runs async jobs
+ * Encrypts a file (in Uint8Array representation)
  *
- * @param job
- * @param kwargs
- * @param transfers
+ * @param {Uint8Array} data - The data of the file in Uint8Array encoding
+ * @param {string} secretKey - The secret key to use for encryption
  *
- * @returns {PromiseLike<any> | f | * | e | promise}
+ * @returns {Promise<Uint8Array>} - A promise that resolves with the encrypted file with the nonce as Uint8Array
  */
-function runCryptoWorkAsync(job, kwargs, transfers) {
-    return new Promise((resolve, reject) => {
-        const cryptoWorker = new Worker("js/crypto-worker.js");
+async function encryptFile(data, secretKey) {
+    const k = converterService.fromHex(secretKey);
+    const n = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+    const encryptedData = sodium.crypto_secretbox_easy(data, n, k);
 
-        function handle_message_from_worker(msg) {
-            cryptoWorker.terminate();
-            resolve(msg.data.kwargs);
-        }
+    // Combine nonce and encrypted data into a single Uint8Array
+    const combined = new Uint8Array(n.length + encryptedData.length);
+    combined.set(n);
+    combined.set(encryptedData, n.length);
 
-        cryptoWorker.addEventListener("message", handle_message_from_worker);
-        cryptoWorker.postMessage(
-            {
-                job: job,
-                kwargs: kwargs,
-            },
-            transfers
-        );
-    });
+    return combined;
 }
 
 /**
- * Encrypts a file (in Uint8 representation)
+ * Decrypts a file (in Uint8Array representation) with prepended nonce
  *
- * @param {Uint8Array} data The data of the file in Uint8Array encoding
- * @param {string} secretKey The secret key you want to use to encrypt the data
+ * @param {Uint8Array} text - The encrypted data of the file in Uint8Array encoding with prepended nonce
+ * @param {string} secretKey - The secret key used to encrypt the text
  *
- * @returns {Promise} A promise that will return the encrypted file with the nonce as Uint8Array
+ * @returns {Promise<Uint8Array>} - A promise that resolves with the decrypted data as Uint8Array
  */
-function encryptFile(data, secretKey) {
-    const k = converterService.fromHex(secretKey).buffer;
-    const n = randomBytes(24).buffer;
-    const arrayBuffer = data.buffer;
+async function decryptFile(text, secretKey) {
+    const k = converterService.fromHex(secretKey);
+    const n = text.slice(0, sodium.crypto_secretbox_NONCEBYTES);
+    const c = text.slice(sodium.crypto_secretbox_NONCEBYTES);
+    const decryptedData = sodium.crypto_secretbox_open_easy(c, n, k);
 
-    return runCryptoWorkAsync(
-        "encrypt_file",
-        {
-            data: arrayBuffer,
-            k: k,
-            n: n,
-        },
-        [arrayBuffer]
-    ).then(function (buffer) {
-        return new Uint8Array(buffer);
-    });
-}
+    if (!decryptedData) {
+        throw new Error('Decryption failed');
+    }
 
-/**
- * Decrypts a file (in Uint8 representation) with prepended nonce
- *
- * @param {Uint8Array} text The encrypted data of the file in Uint8Array encoding with prepended nonce
- * @param {string} secretKey The secret key used in the past to encrypt the text
- *
- * @returns {Promise} A promise that will return the decrypted data as Uint8Array
- */
-function decryptFile(text, secretKey) {
-    const k = converterService.fromHex(secretKey).buffer;
-    const arrayBuffer = text.buffer;
-
-    return runCryptoWorkAsync(
-        "decrypt_file",
-        {
-            text: arrayBuffer,
-            k: k,
-        },
-        [arrayBuffer]
-    ).then(function (buffer) {
-        return new Uint8Array(buffer);
-    });
+    return decryptedData;
 }
 
 /**
@@ -345,8 +315,8 @@ function decryptFile(text, secretKey) {
 function encryptData(data, secretKey) {
     const k = converterService.fromHex(secretKey);
     const m = converterService.encodeUtf8(data);
-    const n = randomBytes(24);
-    const c = nacl.secret_box.pack(m, n, k);
+    const n = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES); // nonce
+    const c = sodium.crypto_secretbox_easy(m, n, k); // encrypted message
 
     return {
         nonce: converterService.toHex(n),
@@ -368,7 +338,11 @@ function decryptData(text, nonce, secretKey) {
     const k = converterService.fromHex(secretKey);
     const n = converterService.fromHex(nonce);
     const c = converterService.fromHex(text);
-    const m1 = nacl.secret_box.open(c, n, k);
+    const m1 = sodium.crypto_secretbox_open_easy(c, n, k);
+
+    if (!m1) {
+        throw new Error('Decryption failed');
+    }
 
     return converterService.decodeUtf8(m1);
 }
@@ -387,8 +361,8 @@ function encryptDataPublicKey(data, publicKey, privateKey) {
     const p = converterService.fromHex(publicKey);
     const s = converterService.fromHex(privateKey);
     const m = converterService.encodeUtf8(data);
-    const n = randomBytes(24);
-    const c = nacl.box.pack(m, n, p, s);
+    const n = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES); // nonce
+    const c = sodium.crypto_box_easy(m, n, p, s); // encrypted message
 
     return {
         nonce: converterService.toHex(n),
@@ -412,7 +386,11 @@ function decryptDataPublicKey(text, nonce, publicKey, privateKey) {
     const s = converterService.fromHex(privateKey);
     const n = converterService.fromHex(nonce);
     const c = converterService.fromHex(text);
-    const m1 = nacl.box.open(c, n, p, s);
+    const m1 = sodium.crypto_box_open_easy(c, n, p, s);
+
+    if (!m1) {
+        throw new Error('Decryption failed');
+    }
 
     return converterService.decodeUtf8(m1);
 }
@@ -519,11 +497,11 @@ function generateUuid() {
  * @returns {boolean} Returns whether the signature is correct or not
  */
 function validateSignature(message, signature, verifyKey) {
-    return nacl.signing.verify(
-        converterService.fromHex(signature),
-        converterService.encodeUtf8(message),
-        converterService.fromHex(verifyKey)
-    );
+    const sig = converterService.fromHex(signature);
+    const msg = converterService.encodeUtf8(message);
+    const key = converterService.fromHex(verifyKey);
+
+    return sodium.crypto_sign_verify_detached(sig, msg, key);
 }
 
 /**
@@ -534,9 +512,10 @@ function validateSignature(message, signature, verifyKey) {
  * @returns {string} Returns the verify key for a given seed
  */
 function getVerifyKey(seed) {
-    const pair = nacl.signing.generate_keypair(converterService.fromHex(seed));
+    const seedArray = converterService.fromHex(seed);
+    const keyPair = sodium.crypto_sign_seed_keypair(seedArray);
 
-    return converterService.toHex(pair.pkey);
+    return converterService.toHex(keyPair.publicKey);
 }
 
 /**

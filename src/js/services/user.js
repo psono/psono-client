@@ -310,9 +310,9 @@ function activateToken() {
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const userSauce = getStore().getState().user.userSauce;
 
-    const onSuccess = function (activationData) {
+    const onSuccess = async function (activationData) {
         // decrypt user secret key
-        const userSecretKey = cryptoLibrary.decryptSecret(
+        const userSecretKey = await cryptoLibrary.decryptSecret(
             activationData.data.user.secret_key,
             activationData.data.user.secret_key_nonce,
             sessionPassword,
@@ -353,7 +353,7 @@ function activateToken() {
  *
  * @returns {Array} The list of required multifactor challenges to solve
  */
-function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
+async function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
     let decrypted_response_data = JSON.parse(
         cryptoLibrary.decryptDataPublicKey(
             response.data.login_info,
@@ -393,7 +393,7 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
     try {
         // decrypt user private key which may fail if the user server's password isn't correct and the user
         // needs to enter one
-        user_private_key = cryptoLibrary.decryptSecret(
+        user_private_key = await cryptoLibrary.decryptSecret(
             decrypted_response_data.user.private_key,
             decrypted_response_data.user.private_key_nonce,
             sessionPassword,
@@ -429,7 +429,8 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
 
     if (decrypted_response_data.user.hasOwnProperty('language') && i18n.options.supportedLngs.includes(decrypted_response_data.user.language)) {
         i18n.changeLanguage(decrypted_response_data.user.language).then(() => {
-            browserClientService.emitSec("language-changed", decrypted_response_data.user.language, function () {});
+            browserClientService.emitSec("language-changed", decrypted_response_data.user.language, function () {
+            });
         });
     }
 
@@ -442,12 +443,12 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
     return decrypted_response_data;
 }
 
-function login(password, serverInfo, sendPlain) {
+async function login(password, serverInfo, sendPlain) {
     const username = getStore().getState().user.username;
     const trustDevice = getStore().getState().user.trustDevice;
     const serverPublicKey = serverInfo.info.public_key;
 
-    const authkey = cryptoLibrary.generateAuthkey(username, password);
+    const authkey = await cryptoLibrary.generateAuthkey(username, password);
     const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 
     const onSuccess = function (response) {
@@ -561,11 +562,11 @@ function isLoggedIn() {
  *
  * @returns {Promise} Returns a promise with the result
  */
-function deleteAccount(password) {
+async function deleteAccount(password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
+    const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
     const onSuccess = function () {
         logout();
@@ -625,7 +626,7 @@ function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, sec
  */
 function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
     return host.info().then(
-        function (info) {
+        async function (info) {
             let authkeyOld,
                 newAuthkey,
                 userPrivateKey,
@@ -642,27 +643,27 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 info.data["decoded_info"]["compliance_min_master_password_complexity"]
             );
             if (test_error) {
-                return Promise.reject({ errors: [test_error] });
+                return Promise.reject({errors: [test_error]});
             }
 
             if (oldPassword === null || oldPassword.length === 0) {
-                return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+                return Promise.reject({errors: ["OLD_PASSWORD_REQUIRED"]});
             }
 
-            authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, oldPassword);
-            newAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, newPassword);
+            authkeyOld = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, oldPassword);
+            newAuthkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, newPassword);
             userPrivateKey = getStore().getState().user.userPrivateKey;
             userSecretKey = getStore().getState().user.userSecretKey;
             userSauce = getStore().getState().user.userSauce;
 
-            privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce);
-            secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce);
+            privKeyEnc = await cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce);
+            secretKeyEnc = await cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce);
 
             onSuccess = function (data) {
-                return { msgs: ["SAVE_SUCCESS"] };
+                return {msgs: ["SAVE_SUCCESS"]};
             };
             onError = function () {
-                return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+                return Promise.reject({errors: ["OLD_PASSWORD_INCORRECT"]});
             };
 
             return updateUser(
@@ -692,19 +693,19 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
  *
  * @returns {Promise} Returns a promise with the result
  */
-function saveNewEmail(newEmail, verificationPassword) {
+async function saveNewEmail(newEmail, verificationPassword) {
     if (verificationPassword === null || verificationPassword.length === 0) {
-        return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+        return Promise.reject({errors: ["OLD_PASSWORD_REQUIRED"]});
     }
 
-    const authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, verificationPassword);
+    const authkeyOld = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, verificationPassword);
 
     const onSuccess = function (data) {
         action().setEmail(newEmail);
-        return { msgs: ["SAVE_SUCCESS"] };
+        return {msgs: ["SAVE_SUCCESS"]};
     };
     const onError = function () {
-        return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+        return Promise.reject({errors: ["OLD_PASSWORD_INCORRECT"]});
     };
     return updateUser(
         newEmail,
@@ -715,7 +716,7 @@ function saveNewEmail(newEmail, verificationPassword) {
         undefined,
         undefined,
         undefined,
-        ).then(onSuccess, onError);
+    ).then(onSuccess, onError);
 }
 
 /**
@@ -753,13 +754,13 @@ function saveNewLanguage(language) {
  *
  * @returns {Promise} Returns a promise with the recovery_enable status
  */
-function recoveryEnable(username, recoveryCode, server) {
+async function recoveryEnable(username, recoveryCode, server) {
     action().setUserUsername(username);
     action().setServerUrl(server);
 
-    const onSuccess = function (data) {
+    const onSuccess = async function (data) {
         const recovery_data = JSON.parse(
-            cryptoLibrary.decryptSecret(
+            await cryptoLibrary.decryptSecret(
                 data.data.recovery_data,
                 data.data.recovery_data_nonce,
                 recoveryCode,
@@ -779,7 +780,7 @@ function recoveryEnable(username, recoveryCode, server) {
             verifier_time_valid: data.data.verifier_time_valid,
         };
     };
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+    const recoveryAuthkey = await cryptoLibrary.generateAuthkey(username, recoveryCode);
 
     return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
 }
@@ -797,12 +798,12 @@ function recoveryEnable(username, recoveryCode, server) {
  *
  * @returns {Promise} Returns a promise with the set_password status
  */
-function setPassword(username, recoveryCode, password, userPrivateKey, userSecretKey, userSauce, verifierPublicKey) {
-    const privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
-    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
+async function setPassword(username, recoveryCode, password, userPrivateKey, userSecretKey, userSauce, verifierPublicKey) {
+    const privKeyEnc = await cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
+    const secretKeyEnc = await cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
 
     const updateRequest = JSON.stringify({
-        authkey: cryptoLibrary.generateAuthkey(username, password),
+        authkey: await cryptoLibrary.generateAuthkey(username, password),
         private_key: privKeyEnc.text,
         private_key_nonce: privKeyEnc.nonce,
         secret_key: secretKeyEnc.text,
@@ -819,7 +820,7 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
         return data;
     };
 
-    const recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+    const recovery_authkey = await cryptoLibrary.generateAuthkey(username, recoveryCode);
 
     return apiClient
         .setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce)
@@ -837,7 +838,7 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
  *
  * @returns {Promise} Returns a promise with the emergency code activation status
  */
-function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey) {
+async function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey) {
     action().setUserUsername(username);
     action().setServerUrl(server);
 
@@ -845,15 +846,15 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
     let policies;
     let userSecretKey;
 
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(username, emergencyCode);
+    const emergencyAuthkey = await cryptoLibrary.generateAuthkey(username, emergencyCode);
 
-    const onSuccess = function (data) {
+    const onSuccess = async function (data) {
         if (data.data.status === "started" || data.data.status === "waiting") {
             return data.data;
         }
 
         const emergency_data = JSON.parse(
-            cryptoLibrary.decryptSecret(
+            await cryptoLibrary.decryptSecret(
                 data.data.emergency_data,
                 data.data.emergency_data_nonce,
                 emergencyCode,
@@ -1044,7 +1045,7 @@ function deleteSession(sessionId) {
  */
 function register(email, username, password, server) {
 
-    const onSuccess = function(base_url){
+    const onSuccess = async function (base_url) {
 
         //managerBase.delete_local_data();
 
@@ -1055,8 +1056,8 @@ function register(email, username, password, server) {
         const pair = cryptoLibrary.generatePublicPrivateKeypair();
         const userSauce = cryptoLibrary.generateUserSauce();
 
-        const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);
-        const secretKeyEncrypted = cryptoLibrary
+        const privateKeyEncrypted = await cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);
+        const secretKeyEncrypted = await cryptoLibrary
             .encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce);
 
         const onSuccess = function () {
@@ -1064,23 +1065,23 @@ function register(email, username, password, server) {
             storage.save();
 
             return {
-                response:"success"
+                response: "success"
             };
         };
 
-        const onError = function(response){
+        const onError = function (response) {
 
             // storage.remove('config', storage.find_key('config', 'user_email'));
             // storage.remove('config', storage.find_key('config', 'server'));
             storage.save();
 
             return {
-                response:"error",
+                response: "error",
                 error_data: response.data
             };
         };
 
-        return apiClient.register(email, username, cryptoLibrary.generateAuthkey(username, password), pair.public_key,
+        return apiClient.register(email, username, await cryptoLibrary.generateAuthkey(username, password), pair.public_key,
             privateKeyEncrypted.text, privateKeyEncrypted.nonce, secretKeyEncrypted.text, secretKeyEncrypted.nonce, userSauce,
             base_url)
             .then(onSuccess, onError);

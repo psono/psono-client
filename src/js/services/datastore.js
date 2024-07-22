@@ -193,11 +193,11 @@ function createDatastore(type, description, isDefault) {
  *
  * @returns {Promise} A promise with result of the operation
  */
-function deleteDatastore(datastoreId, password) {
+async function deleteDatastore(datastoreId, password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
+    const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
     const onError = function (result) {
         return Promise.reject(result.data);

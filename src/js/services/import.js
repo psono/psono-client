@@ -299,7 +299,7 @@ function getImporterHelp(type) {
  *
  * @returns {Promise} Returns a promise with the result of the import
  */
-function importDatastore(type, data, password) {
+async function importDatastore(type, data, password) {
     emit("import-started", {});
 
     if (password) {
@@ -310,20 +310,20 @@ function importDatastore(type, data, password) {
             // datastore was not json encoded and as such cannot be an encrypted Export
         }
         if (decryptedJson && decryptedJson.hasOwnProperty("text") && decryptedJson.hasOwnProperty("nonce")) {
-            try{
-                data = cryptoLibraryService.decryptSecret(decryptedJson['text'], decryptedJson['nonce'], password, "")
-            } catch(e) {
-                return Promise.reject({ errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"] })
+            try {
+                data = await cryptoLibraryService.decryptSecret(decryptedJson['text'], decryptedJson['nonce'], password, "")
+            } catch (e) {
+                return Promise.reject({errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"]})
             }
         }
     }
 
-    return Promise.resolve({ type: type, data: data })
+    return Promise.resolve({type: type, data: data})
         .then(parseExport)
         .then(createSecrets)
         .then(updateDatastore)
         .then(function () {
-            return { msgs: ["IMPORT_SUCCESSFUL"] };
+            return {msgs: ["IMPORT_SUCCESSFUL"]};
         });
 }
 
