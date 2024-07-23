@@ -68,9 +68,14 @@ function readSecretWithLinkShare(encryptedSecret, item) {
     );
 
     const newItem = helper.duplicateObject(item);
+
+    let write = false;
+    if (encryptedSecret.hasOwnProperty('allow_write') && encryptedSecret.allow_write) {
+        write = true;
+    }
     newItem["share_rights"] = {
         read: true,
-        write: false,
+        write: write,
         grant: false,
         delete: false,
     };
@@ -78,31 +83,6 @@ function readSecretWithLinkShare(encryptedSecret, item) {
         item: newItem,
         data: data,
     };
-    // const modalInstance = $uibModal.open({
-    //     templateUrl: "view/modal/show-entry.html",
-    //     controller: "ModalEditEntryCtrl",
-    //     backdrop: "static",
-    //     resolve: {
-    //         node: function () {
-    //             return item;
-    //         },
-    //         path: function () {
-    //             return "";
-    //         },
-    //         data: function () {
-    //             return secretData;
-    //         },
-    //     },
-    // });
-    //
-    // modalInstance.result.then(
-    //     function () {
-    //         // should never happen
-    //     },
-    //     function () {
-    //         // cancel triggered
-    //     }
-    // );
 }
 
 /**
@@ -126,7 +106,7 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  *
  * @returns {Promise} Promise with the secret
  */
-function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
+function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
     const onSuccess = function (result) {
         const share_link_data = JSON.parse(
             cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret)
@@ -144,7 +124,35 @@ function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
         return Promise.reject(result.data);
     };
 
-    return apiClient.linkShareAccess(linkShareId, passphrase).then(onSuccess, onError);
+    return apiClient.linkShareAccessRead(linkShareId, passphrase).then(onSuccess, onError);
+}
+
+/**
+ * Updates a secret belonging to a link share
+ *
+ * @param {uuid} linkShareId The id of the link share
+ * @param {string} linkShareSecret The secret to decrypt the share link secret
+ * @param {string} secretKey The secret key of the secret
+ * @param {object} content The new content for the given secret
+ * @param {string|null} passphrase The passphrase that protects the link share
+ *
+ * @returns {Promise} Promise with the secret
+ */
+function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, content, passphrase) {
+
+    const jsonContent = JSON.stringify(content);
+
+    const c = cryptoLibrary.encryptData(jsonContent, secretKey);
+
+    const onSuccess = function (result) {
+        return result.data
+    };
+    const onError = function (result) {
+        console.log(result);
+        return Promise.reject(result.data);
+    };
+
+    return apiClient.linkShareAccessWrite(linkShareId, c.text, c.nonce, passphrase).then(onSuccess, onError);
 }
 
 /**
@@ -158,10 +166,11 @@ function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
  * @param {int|null} allowedReads The amount of allowed access requests before this link secret becomes invalid
  * @param {string|null} passphrase The passphrase to protect the link secret
  * @param {string|null} validTill The valid till time in iso format
+ * @param {boolean} allowWrite Specifies whether a link user can modify the content
  *
  * @returns {Promise} Promise with the new link_secret_id
  */
-function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowedReads, passphrase, validTill) {
+function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowedReads, passphrase, validTill, allowWrite) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -183,7 +192,8 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
             publicTitle,
             allowedReads,
             passphrase,
-            validTill
+            validTill,
+            allowWrite,
         )
         .then(onSuccess, onError);
 }
@@ -239,7 +249,8 @@ function deleteLinkShare(linkShareId) {
 const linkShareService = {
     //readLinkShare: readLinkShare,
     readLinkShares: readLinkShares,
-    linkShareAccess: linkShareAccess,
+    linkShareAccessRead: linkShareAccessRead,
+    linkShareAccessWrite: linkShareAccessWrite,
     createLinkShare: createLinkShare,
     updateLinkShare: updateLinkShare,
     deleteLinkShare: deleteLinkShare,

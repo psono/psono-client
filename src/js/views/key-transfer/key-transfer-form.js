@@ -3,10 +3,11 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {ClipLoader} from "react-spinners";
 
-import { Grid } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import {makeStyles, useTheme} from "@material-ui/core/styles";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid } from "@mui/material";
+import Button from "@mui/material/Button";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from '@mui/styles';
+import MuiAlert from '@mui/material/Alert'
 
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
@@ -14,8 +15,8 @@ import userService from "../../services/user";
 import { getStore } from "../../services/store";
 import ButtonDanger from "../../components/button-danger";
 import serverSecretService from "../../services/server-secret";
-import TextField from "@material-ui/core/TextField";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import TextField from "@mui/material/TextField";
+import LinearProgress from "@mui/material/LinearProgress";
 import cryptoLibrary from "../../services/crypto-library";
 import helperService from "../../services/helper";
 
@@ -147,7 +148,7 @@ const KeyTransferForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="password"
                             label={t("PASSWORD")}
                             InputProps={{
@@ -171,7 +172,7 @@ const KeyTransferForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="passwordRepeat"
                             label={t("PASSWORD_REPEAT")}
                             error={password && passwordRepeat && passwordRepeat !== password}
@@ -211,12 +212,11 @@ const KeyTransferForm = (props) => {
                         {t("APPROVE")}
                     </ButtonDanger>}
                     <Button
-                        variant="contained"
-                        classes={{ disabled: classes.disabledButton }}
+                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >
-                        {t("LOGOUT")}
+                        <span style={{color: "#b1b6c1"}}>{t("LOGOUT")}</span>
                     </Button>
                 </Grid>
             </Grid>

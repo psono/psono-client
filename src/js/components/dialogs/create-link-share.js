@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import { KeyboardDateTimePicker } from "@material-ui/pickers";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import {Checkbox, Grid} from "@mui/material";
+import TextField from "@mui/material/TextField";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
 import add from "date-fns/add";
 import cryptoLibraryService from "../../services/crypto-library";
 import linkShareService from "../../services/link-share";
@@ -20,20 +20,37 @@ import hostService from "../../services/host";
 import converter from "../../services/converter";
 import ContentCopy from "../icons/ContentCopy";
 import browserClient from "../../services/browser-client";
-import MenuOpenIcon from "@material-ui/icons/MenuOpen";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import Typography from "@material-ui/core/Typography";
-import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import Typography from "@mui/material/Typography";
+import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import browserClientService from "../../services/browser-client";
 import notification from "../../services/notification";
 import datastorePasswordService from "../../services/datastore-password";
+import {Check} from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
+    },
+    checked: {
+        color: "#9c27b0",
+    },
+    checkedIcon: {
+        width: "20px",
+        height: "20px",
+        border: "1px solid #666",
+        borderRadius: "3px",
+    },
+    uncheckedIcon: {
+        width: "0px",
+        height: "0px",
+        padding: "9px",
+        border: "1px solid #666",
+        borderRadius: "3px",
     },
 }));
 
@@ -43,6 +60,7 @@ const DialogCreateLinkShare = (props) => {
     const classes = useStyles();
     const [publicTitle, setPublicTitle] = useState(props.item.name);
     const [allowedReads, setAllowedReads] = useState(1);
+    const [allowWrite, setAllowWrite] = useState(false);
     const [validTill, setValidTill] = useState(add(new Date(), { days: 1 }));
     const [showPassphrase, setShowPassphrase] = useState(false);
     const [passphrase, setPassphrase] = useState("");
@@ -149,7 +167,8 @@ const DialogCreateLinkShare = (props) => {
                 publicTitle,
                 allowedReadsValidated,
                 passphrase,
-                validTillStr
+                validTillStr,
+                allowWrite,
             )
             .then(onSuccess, onError);
     };
@@ -173,7 +192,7 @@ const DialogCreateLinkShare = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="linkShareAccessUrl"
                                 label={t("URL")}
                                 name="linkShareAccessUrl"
@@ -187,7 +206,7 @@ const DialogCreateLinkShare = (props) => {
                                                 aria-label="copy to clipboard"
                                                 onClick={copyToClipbard}
                                                 edge="end"
-                                            >
+                                                size="large">
                                                 <ContentCopy fontSize="small" />
                                             </IconButton>
                                         </InputAdornment>
@@ -205,7 +224,7 @@ const DialogCreateLinkShare = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="publicTitle"
                                 label={t("PUBLIC_TITLE")}
                                 helperText={t("INFO_PUBLIC_TITLE_WILL_BE_VISIBLE")}
@@ -222,7 +241,7 @@ const DialogCreateLinkShare = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="allowedReads"
                                 label={t("ALLOWED_USAGE")}
                                 helperText={t("INFO_HOW_OFTEN_CAN_LINK_SHARE_BE_USED")}
@@ -241,11 +260,11 @@ const DialogCreateLinkShare = (props) => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
-                            <KeyboardDateTimePicker
+                            <DateTimePicker
                                 className={classes.textField}
                                 variant="dialog"
                                 inputVariant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 ampm={false}
                                 label={t("VALID_TILL")}
                                 helperText={t("INFO_HOW_LONG_CAN_LINK_SHARE_BE_USED")}
@@ -260,7 +279,7 @@ const DialogCreateLinkShare = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="passphrase"
                                 label={t("PASSPHRASE")}
                                 helperText={t("SHARE_LINK_PASSPHRASE_INFO")}
@@ -283,7 +302,7 @@ const DialogCreateLinkShare = (props) => {
                                                 onClick={(event) => {
                                                     setAnchorEl(event.currentTarget);
                                                 }}
-                                            >
+                                                size="large">
                                                 <MenuOpenIcon fontSize="small" />
                                             </IconButton>
                                             <Menu
@@ -323,6 +342,22 @@ const DialogCreateLinkShare = (props) => {
                                 }}
                             />
                         </Grid>
+
+                        {!props.item.hasOwnProperty("file_id") && (<Grid item xs={12} sm={12} md={12}>
+                            <Checkbox
+                                tabIndex={1}
+                                checked={allowWrite}
+                                onChange={(event) => {
+                                    setAllowWrite(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon}/>}
+                                icon={<Check className={classes.uncheckedIcon}/>}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("ALLOW_WRITE")}
+                        </Grid>)}
                     </Grid>
                 </DialogContent>
             )}

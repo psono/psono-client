@@ -98,6 +98,7 @@ function writeShare(shareId, content, secretKey) {
 
     const duplicate = helperService.duplicateObject(content);
     datastoreService.hideSubShareContent(duplicate);
+    datastoreService.normalizeShareContent(duplicate);
 
     if (duplicate.hasOwnProperty("id")) {
         delete duplicate.id;
@@ -131,38 +132,39 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
     const child_shares = [];
     registrations["get_all_child_shares"](content, 1, child_shares, []);
 
-    const filtered_content = datastoreService.filterDatastoreContent(content);
+    const filteredContent = helperService.duplicateObject(content);
+    datastoreService.normalizeShareContent(filteredContent);
     let old_link_id;
 
-    if (filtered_content.hasOwnProperty("id")) {
-        old_link_id = filtered_content.id;
-        delete filtered_content.id;
+    if (filteredContent.hasOwnProperty("id")) {
+        old_link_id = filteredContent.id;
+        delete filteredContent.id;
     }
 
-    const secret_key = cryptoLibrary.generateSecretKey();
+    const secretKey = cryptoLibrary.generateSecretKey();
 
-    const json_content = JSON.stringify(filtered_content);
+    const jsonContent = JSON.stringify(filteredContent);
 
-    const encrypted_data = cryptoLibrary.encryptData(json_content, secret_key);
-    const encrypted_key = cryptoLibrary.encryptSecretKey(secret_key);
+    const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
+    const encryptedKey = cryptoLibrary.encryptSecretKey(secretKey);
 
     const onError = function (result) {
         // pass
     };
 
     const onSuccess = function (content) {
-        if (filtered_content.hasOwnProperty("secret_id")) {
+        if (filteredContent.hasOwnProperty("secret_id")) {
             secretLinkService.moveSecretLink(old_link_id, content.data.share_id);
         } else {
             secretLinkService.resetSecretLinkTimeout();
-            secretLinkService.moveSecretLinks(filtered_content, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
+            secretLinkService.moveSecretLinks(filteredContent, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
         }
 
-        if (filtered_content.hasOwnProperty("file_id")) {
+        if (filteredContent.hasOwnProperty("file_id")) {
             fileLinkService.moveFileLink(old_link_id, content.data.share_id);
         } else {
             fileLinkService.resetFileLinkTimeout();
-            fileLinkService.moveFileLinks(filtered_content, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
+            fileLinkService.moveFileLinks(filteredContent, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
         }
 
         // Update all child shares to be now a child of this share.
@@ -170,17 +172,17 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
             shareLinkService.moveShareLink(child_shares[i]["share"]["id"], content.data.share_id, undefined);
         }
 
-        return { share_id: content.data.share_id, secret_key: secret_key };
+        return { share_id: content.data.share_id, secret_key: secretKey };
     };
 
     return apiClient
         .createShare(
             token,
             sessionSecretKey,
-            encrypted_data.text,
-            encrypted_data.nonce,
-            encrypted_key.text,
-            encrypted_key.nonce,
+            encryptedData.text,
+            encryptedData.nonce,
+            encryptedKey.text,
+            encryptedKey.nonce,
             parentShareId,
             parentDatastoreId,
             linkId

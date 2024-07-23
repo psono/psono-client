@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Checkbox, Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import BlockIcon from "@material-ui/icons/Block";
-import DeleteIcon from "@material-ui/icons/Delete";
-import { Check } from "@material-ui/icons";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Checkbox, Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
+import BlockIcon from "@mui/icons-material/Block";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Check } from "@mui/icons-material";
 
 import GridContainerErrors from "../../components/grid-container-errors";
 import fileRepository from "../../services/file-repository";
@@ -25,9 +25,9 @@ import Table from "../../components/table";
 import DialogSelectUser from "../../components/dialogs/select-user";
 import DialogSelectGroup from "../../components/dialogs/select-group";
 import fileRepositoryService from "../../services/file-repository";
-import Divider from "@material-ui/core/Divider";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
+import Divider from "@mui/material/Divider";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import TabPanel from "../../components/tab-panel";
 
 const useStyles = makeStyles((theme) => ({
@@ -382,7 +382,7 @@ const EditFileRepositoryDialog = (props) => {
                                 );
                             }}
                             disabled={tableMeta.rowData[6]}
-                        >
+                            size="large">
                             {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -407,7 +407,7 @@ const EditFileRepositoryDialog = (props) => {
                                 );
                             }}
                             disabled={tableMeta.rowData[6]}
-                        >
+                            size="large">
                             {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -432,7 +432,7 @@ const EditFileRepositoryDialog = (props) => {
                                 );
                             }}
                             disabled={tableMeta.rowData[6]}
-                        >
+                            size="large">
                             {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -463,7 +463,7 @@ const EditFileRepositoryDialog = (props) => {
                             onClick={() => {
                                 onDeleteFileRepositoryRight(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -492,7 +492,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                        >
+                            size="large">
                             {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -516,7 +516,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                        >
+                            size="large">
                             {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -540,7 +540,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                        >
+                            size="large">
                             {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -571,7 +571,7 @@ const EditFileRepositoryDialog = (props) => {
                             onClick={() => {
                                 onDeleteGroupFileRepositoryRight(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -603,7 +603,7 @@ const EditFileRepositoryDialog = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             required
                             id="title"
                             label={t("TITLE")}
@@ -619,7 +619,7 @@ const EditFileRepositoryDialog = (props) => {
                         <SelectFieldFileRepositoryType
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             required
                             value={type}
                             onChange={(value) => {
@@ -632,7 +632,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="gcpCloudStorageBucket"
                                 label={t("BUCKET")}
@@ -650,7 +650,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="gcpCloudStorageJsonKey"
                                 multiline
@@ -671,7 +671,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextFieldAWSRegion
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="awsS3Bucket"
                                 label={t("BUCKET")}
@@ -689,7 +689,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="awsS3Region"
                                 label={t("REGION")}
@@ -707,7 +707,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="awsS3AccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
@@ -725,7 +725,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="awsS3SecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
@@ -744,7 +744,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="azureBlobStorageAccountName"
                                 label={t("ACCOUNT_NAME")}
@@ -762,7 +762,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="azureBlobStorageAccountPrimaryKey"
                                 label={t("PRIMARY_KEY")}
@@ -780,7 +780,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="azureBlobStorageAccountContainerName"
                                 label={t("CONTAINER_NAME")}
@@ -799,7 +799,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="backblazeBucket"
                                 label={t("BUCKET")}
@@ -817,7 +817,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="backblazeRegion"
                                 label={t("REGION")}
@@ -835,7 +835,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="backblazeAccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
@@ -853,7 +853,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="backblazeSecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
@@ -872,7 +872,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="otherS3Bucket"
                                 label={t("BUCKET")}
@@ -890,7 +890,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="otherS3Region"
                                 label={t("REGION")}
@@ -908,7 +908,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="otherS3EndpointUrl"
                                 label={t("URL")}
@@ -926,7 +926,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="otherS3AccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
@@ -944,7 +944,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="otherS3SecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
@@ -963,7 +963,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="doSpace"
                                 label={t("SPACE")}
@@ -981,7 +981,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextFieldDoRegion
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="doRegion"
                                 label={t("REGION")}
@@ -999,7 +999,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="doKey"
                                 label={t("KEY")}
@@ -1017,7 +1017,7 @@ const EditFileRepositoryDialog = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 required
                                 id="doSecret"
                                 label={t("SECRET")}

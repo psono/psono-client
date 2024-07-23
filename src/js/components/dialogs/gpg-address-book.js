@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
 import datastoreGpgUserService from "../../services/datastore-gpg-user";
 import datastoreService from "../../services/datastore";
@@ -261,7 +261,7 @@ const DialogGpgAddressBook = (props) => {
                             onClick={() => {
                                 editRecipient(tableMeta.rowData[0]);
                             }}
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -281,7 +281,7 @@ const DialogGpgAddressBook = (props) => {
                             onClick={() => {
                                 deleteRecipient(tableMeta.rowData[0]);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -307,7 +307,7 @@ const DialogGpgAddressBook = (props) => {
                                 chooseKeyAsDefault(tableMeta.rowData[0]);
                             }}
                             disabled={isDefault}
-                        >
+                            size="large">
                             {isDefault ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -327,7 +327,7 @@ const DialogGpgAddressBook = (props) => {
                             onClick={() => {
                                 deleteKey(tableMeta.rowData[0]);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -372,7 +372,7 @@ const DialogGpgAddressBook = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
@@ -404,7 +404,7 @@ const DialogGpgAddressBook = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
@@ -421,7 +421,7 @@ const DialogGpgAddressBook = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="newPublicKey"
                                 label={t("PUBLIC_KEY")}
                                 name="newPublicKey"
@@ -457,7 +457,7 @@ const DialogGpgAddressBook = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="fingerprint"
                                     label={t("FINGERPRINT")}
                                     name="fingerprint"
@@ -476,7 +476,7 @@ const DialogGpgAddressBook = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
@@ -490,7 +490,7 @@ const DialogGpgAddressBook = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="newPublicKey"
                                 label={t("PUBLIC_KEY")}
                                 name="newPublicKey"
@@ -525,7 +525,7 @@ const DialogGpgAddressBook = (props) => {
                                 <TextField
                                     className={classes.textField}
                                     variant="outlined"
-                                    margin="dense"
+                                    margin="dense" size="small"
                                     id="fingerprint"
                                     label={t("FINGERPRINT")}
                                     name="fingerprint"

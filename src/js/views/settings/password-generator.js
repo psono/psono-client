@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 import { useSelector } from "react-redux";
-import Divider from "@material-ui/core/Divider";
-import TextField from "@material-ui/core/TextField";
-import { Grid } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import { Grid } from "@mui/material";
+import Button from "@mui/material/Button";
 import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
@@ -63,7 +63,7 @@ const SettingsPasswordGeneratorView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="passwordLength"
                     label={t("PASSWORD_LENGTH")}
                     name="passwordLength"
@@ -83,7 +83,7 @@ const SettingsPasswordGeneratorView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="passwordLettersUppercase"
                     label={t("LETTERS_UPPERCASE")}
                     name="passwordLettersUppercase"
@@ -103,7 +103,7 @@ const SettingsPasswordGeneratorView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="passwordLettersLowercase"
                     label={t("LETTERS_LOWERCASE")}
                     name="passwordLettersLowercase"
@@ -123,7 +123,7 @@ const SettingsPasswordGeneratorView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="passwordNumbers"
                     label={t("NUMBERS")}
                     name="passwordNumbers"
@@ -143,7 +143,7 @@ const SettingsPasswordGeneratorView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="passwordSpecialChars"
                     label={t("SPECIAL_CHARS")}
                     name="passwordSpecialChars"

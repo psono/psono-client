@@ -1,10 +1,10 @@
 import React from "react";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import cryptoLibrary from "../../services/crypto-library";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
     option: {
@@ -22,7 +22,7 @@ const SelectFieldTotpAlgorithm = (props) => {
 
     const totpAlogrithms = cryptoLibrary.getSupportedTotpAlgorithm();
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className } = props;
+    const { fullWidth, variant, margin, size, helperText, error, required, onChange, value, className } = props;
 
     let defaulValue = null;
     if (value && totpAlogrithms && totpAlogrithms.length) {
@@ -41,7 +41,6 @@ const SelectFieldTotpAlgorithm = (props) => {
             getOptionLabel={(option) => {
                 return option ? option.title : "";
             }}
-            renderOption={(option) => <>{option ? option.title : ""}</>}
             onChange={(event, newValue) => {
                 if (newValue) {
                     onChange(newValue.value);
@@ -49,7 +48,7 @@ const SelectFieldTotpAlgorithm = (props) => {
                     onChange("");
                 }
             }}
-            getOptionSelected={(option, value) => {
+            isOptionEqualToValue={(option, value) => {
                 if (option) {
                     return option.value === value.value;
                 } else {
@@ -64,6 +63,7 @@ const SelectFieldTotpAlgorithm = (props) => {
                     label={t("ALGORITHM_EG_SHA1")}
                     required={required}
                     margin={margin}
+                    size={size}
                     variant={variant}
                     helperText={helperText}
                     error={error}
@@ -90,6 +90,7 @@ SelectFieldTotpAlgorithm.propTypes = {
     helperText: PropTypes.string,
     variant: PropTypes.string,
     margin: PropTypes.string,
+    size: PropTypes.string,
     onChange: PropTypes.func,
     className: PropTypes.string,
 };

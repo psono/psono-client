@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import { makeStyles } from '@mui/styles';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 
 import datastoreUserService from "../../services/datastore-user";
 import helperService from "../../services/helper";
@@ -106,9 +106,7 @@ const DialogSelectGroup = (props) => {
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton
-                            onClick={() => toggleUser(tableMeta.rowData[0])}
-                        >
+                        <IconButton onClick={() => toggleUser(tableMeta.rowData[0])} size="large">
                             {selectedUsers.includes(tableMeta.rowData[0]) ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );

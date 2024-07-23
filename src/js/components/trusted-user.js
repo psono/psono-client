@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import MuiAlert from '@mui/material/Alert'
 
 import datastoreUserService from "../services/datastore-user";
 import cryptoLibrary from "../services/crypto-library";
@@ -128,7 +128,7 @@ const TrustedUser = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="username"
                         label={t("USERNAME") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                         name="username"
@@ -143,7 +143,7 @@ const TrustedUser = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="username"
                         label={t("USERNAME") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                         name="username"
@@ -157,7 +157,7 @@ const TrustedUser = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="publicKey"
                     label={t("PUBLIC_KEY") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                     name="publicKey"

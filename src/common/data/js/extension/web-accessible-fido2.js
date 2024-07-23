@@ -116,7 +116,7 @@ const ClassWebAccessibleFido2 = function () {
      * @returns {string} The Base64Url representation of the buffer
      */
     function arrayBufferToBase64Url(buffer) {
-        return arrayBufferToBase64(buffer).replace(/\//g, '_').replace(/\+/g, '-').replace(/=/g, '')
+        return arrayBufferToBase64(buffer).replace(/\//g, '_').replace(/\+/g, '-').replace(/=/g, '');
     }
 
     /**
@@ -128,7 +128,7 @@ const ClassWebAccessibleFido2 = function () {
      * @returns {ArrayBuffer} The buffer representation of the base64Url encoded string
      */
     function base64UrlToArrayBuffer(base64Url) {
-        return base64ToArrayBuffer(base64Url.replace(/-/g, '+').replace(/_/g, '/'))
+        return base64ToArrayBuffer(base64Url.replace(/-/g, '+').replace(/_/g, '/'));
     }
 
     /**

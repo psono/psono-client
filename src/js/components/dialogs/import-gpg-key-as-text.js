@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import { makeStyles } from "@material-ui/core/styles";
-import { Grid } from "@material-ui/core";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from '@mui/styles';
+import { Grid } from "@mui/material";
 
 import * as openpgp from "openpgp";
 
@@ -102,7 +102,7 @@ const DialogImportGpgKeyAsText = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="title"
                             label={t("TITLE")}
                             helperText={t("TITLE_TO_IDENTIFY_THIS_KEY")}
@@ -119,7 +119,7 @@ const DialogImportGpgKeyAsText = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="passphrase"
                             label={t("PASSPHRASE")}
                             helperText={t("YOUR_KEYS_PASSPHRASE")}
@@ -135,7 +135,7 @@ const DialogImportGpgKeyAsText = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="publicKey"
                             label={t("PUBLIC_KEY")}
                             helperText={
@@ -158,7 +158,7 @@ const DialogImportGpgKeyAsText = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="privateKey"
                             label={t("PRIVATE_KEY")}
                             helperText={

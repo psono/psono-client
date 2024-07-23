@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
-import InputAdornment from "@material-ui/core/InputAdornment";
-import InputBase from "@material-ui/core/InputBase";
-import IconButton from "@material-ui/core/IconButton";
-import BackspaceOutlinedIcon from '@material-ui/icons/BackspaceOutlined';
+import InputAdornment from "@mui/material/InputAdornment";
+import InputBase from "@mui/material/InputBase";
+import IconButton from "@mui/material/IconButton";
+import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 
 const useStyles = makeStyles((theme) => ({
     inputRoot: {
@@ -40,35 +40,33 @@ const Search = (props) => {
         onChange("");
     };
 
-    return (
-        <>
-            <InputBase
-                placeholder={t("SEARCH")}
-                classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                }}
-                value={search}
-                onChange={(event) => {
-                    setSearch(event.target.value);
-                    if (searchTimer.current) {
-                        clearTimeout(searchTimer.current);
-                    }
-                    searchTimer.current = setTimeout(() => {
-                        onChange(event.target.value);
-                    }, 500); // delay search by 500ms
-                }}
-                inputProps={{ "aria-label": t("SEARCH") }}
-                endAdornment={
-                    <InputAdornment position="end">
-                        <IconButton aria-label="clear" onClick={onClear} disabled={!search}>
-                            <BackspaceOutlinedIcon fontSize="small"/>
-                        </IconButton>
-                    </InputAdornment>
+    return <>
+        <InputBase
+            placeholder={t("SEARCH")}
+            classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+            }}
+            value={search}
+            onChange={(event) => {
+                setSearch(event.target.value);
+                if (searchTimer.current) {
+                    clearTimeout(searchTimer.current);
                 }
-            />
-        </>
-    )
+                searchTimer.current = setTimeout(() => {
+                    onChange(event.target.value);
+                }, 500); // delay search by 500ms
+            }}
+            inputProps={{ "aria-label": t("SEARCH") }}
+            endAdornment={
+                <InputAdornment position="end">
+                    <IconButton aria-label="clear" onClick={onClear} disabled={!search} size="large">
+                        <BackspaceOutlinedIcon fontSize="small"/>
+                    </IconButton>
+                </InputAdornment>
+            }
+        />
+    </>;
 }
 
 

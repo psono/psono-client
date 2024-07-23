@@ -46,8 +46,6 @@ function saveDatastoreContent(content) {
     const type = "gpg-user";
     const description = "default";
 
-    content = datastoreService.filterDatastoreContent(content);
-
     return datastoreService.saveDatastoreContent(type, description, content);
 }
 

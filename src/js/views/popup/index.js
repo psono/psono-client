@@ -4,29 +4,28 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import { Checkbox, Divider, FormHelperText, Grid } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import ButtonGroup from "@material-ui/core/ButtonGroup";
-import IconButton from "@material-ui/core/IconButton";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
-import Tooltip from "@material-ui/core/Tooltip";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import { Check } from "@material-ui/icons";
-import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
-import ClearIcon from "@material-ui/icons/Clear";
-import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
-import OpenInNewIcon from "@material-ui/icons/OpenInNew";
-import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
-import StorageRoundedIcon from "@material-ui/icons/StorageRounded";
-import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyRounded';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import StorageIcon from "@material-ui/icons/Storage";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Checkbox, Divider, FormHelperText, Grid } from "@mui/material";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from '@mui/styles';
+import { Check } from "@mui/icons-material";
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import ClearIcon from "@mui/icons-material/Clear";
+import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
+import VpnKeyRoundedIcon from '@mui/icons-material/VpnKeyRounded';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import MuiAlert from '@mui/material/Alert'
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
@@ -40,15 +39,15 @@ import user from "../../services/user";
 import widgetService from "../../services/widget";
 import { getStore } from "../../services/store";
 import datastoreService from "../../services/datastore";
-import Badge from "@material-ui/core/Badge";
-import SettingsIcon from "@material-ui/icons/Settings";
-import Avatar from "@material-ui/core/Avatar";
-import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
+import Badge from "@mui/material/Badge";
+import SettingsIcon from "@mui/icons-material/Settings";
+import Avatar from "@mui/material/Avatar";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import DialogChangeAccount from "../../components/dialogs/change-account";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import offlineCache from "../../services/offline-cache";
-import AddIcon from "@material-ui/icons/Add";
+import AddIcon from "@mui/icons-material/Add";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -294,12 +293,12 @@ const PopupItem = (props) => {
                             onItemClick(item.content);
                         }}
                     >
-                        <OpenInNewIcon fontSize="small" />
+                        <OpenInNewIcon fontSize="small" sx={{  color: "#b1b6c1" }} />
                     </Button>
                 )}
                 {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
                     <Button aria-label="settings" onClick={openMenu}>
-                        <ContentCopy fontSize="small" />
+                        <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                     </Button>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
@@ -309,7 +308,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyTotpToken}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -320,7 +319,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyNoteContent}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -331,7 +330,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyURL}>
-                            <ContentCopy fontSize="small" />
+                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
                         </Button>
                     </Tooltip>
                 )}
@@ -356,6 +355,14 @@ const PopupItem = (props) => {
                                     {t("COPY_PASSWORD")}
                                 </Typography>
                             </MenuItem>
+                            {item.content.type === "website_password" && <MenuItem onClick={onCopyTotpToken}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small"/>
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_TOTP_TOKEN")}
+                                </Typography>
+                            </MenuItem>}
                         </>
                     )}
                     {["credit_card"].indexOf(item.content.type) !== -1 && (
@@ -710,7 +717,7 @@ const PopupView = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="password"
                         label={t("PASSWORD")}
                         name="password"
@@ -733,7 +740,7 @@ const PopupView = (props) => {
                                         )}
                                         edge="end"
                                         style={{ color: "#b1b6c1" }}
-                                    >
+                                        size="large">
                                         <ReplayRoundedIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
@@ -746,7 +753,7 @@ const PopupView = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="passwordLength"
                         label={t("PASSWORD_LENGTH")}
                         name="passwordLength"
@@ -861,7 +868,7 @@ const PopupView = (props) => {
                     <Button style={{ color: "#b1b6c1" }} onClick={back}>{t("BACK")}</Button>
                 </Grid>
             </Grid>
-        )
+        );
     }
 
     let itemsToDisplay = [];
@@ -890,7 +897,7 @@ const PopupView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="search"
                     label={t("SEARCH_DATASTORE")}
                     name="search"
@@ -906,7 +913,12 @@ const PopupView = (props) => {
                     InputProps={{
                         endAdornment: search && (
                             <InputAdornment position="end">
-                                <IconButton aria-label="clear search" onClick={clear} edge="end" style={{ color: "#b1b6c1" }}>
+                                <IconButton
+                                    aria-label="clear search"
+                                    onClick={clear}
+                                    edge="end"
+                                    style={{ color: "#b1b6c1" }}
+                                    size="large">
                                     <ClearIcon fontSize="small" />
                                 </IconButton>
                             </InputAdornment>
@@ -944,7 +956,7 @@ const PopupView = (props) => {
                                     onClick={openDatastoreMenu}
                                     className={`${classes.menuButton} ${classes.menuButtonSlim}`}
                                 >
-                                    <KeyboardArrowUpIcon/>
+                                    <KeyboardArrowUpIcon />
                                 </Button>
                             </Tooltip>}
                         </ButtonGroup>
@@ -990,14 +1002,14 @@ const PopupView = (props) => {
                     <Grid item>
                         <Tooltip title={t("BOOKMARK")} placement="top">
                             <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
-                                <BookmarkBorderRoundedIcon />
+                                <BookmarkBorderRoundedIcon color="primary" />
                             </Button>
                         </Tooltip>
                     </Grid>
                     <Grid item>
                         <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
                             <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
-                                <VpnKeyRoundedIcon />
+                                <VpnKeyRoundedIcon color="primary" />
                             </Button>
                         </Tooltip>
                     </Grid>
@@ -1026,7 +1038,7 @@ const PopupView = (props) => {
                             </Tooltip>
                             <Tooltip title={t("LOGOUT")} placement="top">
                                 <Button onClick={logout} className={classes.menuButton}>
-                                    <ExitToAppRoundedIcon />
+                                    <ExitToAppRoundedIcon color="primary" />
                                 </Button>
                             </Tooltip>
                         </ButtonGroup>

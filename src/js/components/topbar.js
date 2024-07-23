@@ -1,33 +1,33 @@
 import React, {useState} from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import AppBar from "@material-ui/core/AppBar";
-import Container from "@material-ui/core/Container";
-import Divider from "@material-ui/core/Divider";
-import Hidden from "@material-ui/core/Hidden";
-import IconButton from "@material-ui/core/IconButton";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import MenuIcon from "@material-ui/icons/Menu";
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import Badge from '@material-ui/core/Badge';
-import StorageIcon from '@material-ui/icons/Storage';
-import Toolbar from "@material-ui/core/Toolbar";
-import Button from "@material-ui/core/Button";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import AccountTreeIcon from "@material-ui/icons/AccountTree";
-import SettingsIcon from "@material-ui/icons/Settings";
-import AirplanemodeActiveIcon from "@material-ui/icons/AirplanemodeActive";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import TuneIcon from "@material-ui/icons/Tune";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import AddIcon from '@material-ui/icons/Add';
-import Avatar from '@material-ui/core/Avatar';
-import Typography from "@material-ui/core/Typography";
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import { makeStyles } from "@material-ui/core/styles";
+import AppBar from "@mui/material/AppBar";
+import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
+import Hidden from "@mui/material/Hidden";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import MenuIcon from "@mui/icons-material/Menu";
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import Badge from '@mui/material/Badge';
+import StorageIcon from '@mui/icons-material/Storage';
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import SettingsIcon from "@mui/icons-material/Settings";
+import AirplanemodeActiveIcon from "@mui/icons-material/AirplanemodeActive";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import TuneIcon from "@mui/icons-material/Tune";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import AddIcon from '@mui/icons-material/Add';
+import Avatar from '@mui/material/Avatar';
+import Typography from "@mui/material/Typography";
+import ButtonGroup from '@mui/material/ButtonGroup';
+import { makeStyles } from '@mui/styles';
 import { Link } from "react-router-dom";
 
 import FrameControls from "./frame-controls";
@@ -151,7 +151,7 @@ const Topbar = (props) => {
     }, []);
 
     const loadAvatar = async () => {
-        setProfilePic(await avatarService.readAvatarCached() || '')
+        setProfilePic((await avatarService.readAvatarCached()) || '')
     }
 
     const reloadDatastoreOverview = () => {
@@ -230,7 +230,7 @@ const Topbar = (props) => {
                         edge="start"
                         onClick={handleDrawerToggle}
                         className={classes.menuButton}
-                    >
+                        size="large">
                         <MenuIcon />
                     </IconButton>
                     <a className={classes.topLogo} href="index.html">
@@ -244,11 +244,11 @@ const Topbar = (props) => {
                                     onClick={openDatastoreMenu}
                                     color="primary"
                                     className={classes.topMenuButton}
-                                >
+                                    size="large">
                                     <StorageIcon/>
                                 </IconButton>
                             </Hidden>
-                            <Hidden xsDown>
+                            <Hidden smDown>
                                 <Button
                                     variant="contained"
                                     aria-controls="datastore-menu"
@@ -309,7 +309,7 @@ const Topbar = (props) => {
                                         onClick={openTopMenu}
                                         color="primary"
                                         className={classes.topMenuButton}
-                                    >
+                                        size="large">
                                         {
                                             profilePic ? (
                                                 <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
@@ -325,7 +325,7 @@ const Topbar = (props) => {
                                         onClick={openChangeAccount}
                                         color="primary"
                                         className={classes.topMenuButton}
-                                    >
+                                        size="large">
                                         <Badge
                                             overlap="circular"
                                             anchorOrigin={{
@@ -343,7 +343,7 @@ const Topbar = (props) => {
                                     </IconButton>
                                 </ButtonGroup>
                             </Hidden>
-                            <Hidden smDown>
+                            <Hidden mdDown>
                                 <div className={classes.signInTextContainer}>
                                     {t("SIGNED_IN_AS")}&nbsp;
                                     <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">

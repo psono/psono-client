@@ -9,24 +9,19 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-    Snackbar,
     IconButton
-} from '@material-ui/core';
-import PhotoCamera from '@material-ui/icons/PhotoCamera';
-import ClearIcon from '@material-ui/icons/Clear';
-import TextField from "@material-ui/core/TextField";
-import {makeStyles} from "@material-ui/core/styles";
-import EditIcon from "@material-ui/icons/Edit";
-import InputAdornment from "@material-ui/core/InputAdornment";
+} from '@mui/material';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import ClearIcon from '@mui/icons-material/Clear';
+import TextField from "@mui/material/TextField";
+import { makeStyles } from '@mui/styles';
+import EditIcon from "@mui/icons-material/Edit";
+import InputAdornment from "@mui/material/InputAdornment";
 
 import { getStore } from "../../services/store";
-import browserClient from "../../services/browser-client";
 import TextFieldQrCode from "../../components/text-field/qr";
 import GridContainerErrors from "../../components/grid-container-errors";
 import avatarService from "../../services/avatar";
-import user from "../../services/user";
-import statusService from "../../services/status";
-import avatar from "../../services/avatar";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -174,12 +169,23 @@ function ProfilePicture() {
                         }}
                         badgeContent={
                             profilePic ? (
-                                <IconButton color="secondary" component="span" className={classes.photoCameraButton} onClick={handleClearPicture} disabled={!serverSupportsAvatars}>
+                                <IconButton
+                                    color="secondary"
+                                    component="span"
+                                    className={classes.photoCameraButton}
+                                    onClick={handleClearPicture}
+                                    disabled={!serverSupportsAvatars}
+                                    size="large">
                                     <ClearIcon />
                                 </IconButton>
                             ) : (
                                 <label htmlFor="icon-button-file">
-                                    <IconButton color="primary" component="span" className={classes.photoCameraButton} disabled={!serverSupportsAvatars}>
+                                    <IconButton
+                                        color="primary"
+                                        component="span"
+                                        className={classes.photoCameraButton}
+                                        disabled={!serverSupportsAvatars}
+                                        size="large">
                                         <PhotoCamera />
                                     </IconButton>
                                 </label>
@@ -213,7 +219,7 @@ function ProfilePicture() {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="userId"
                         label={t("USER_ID")}
                         name="userId"
@@ -231,7 +237,7 @@ function ProfilePicture() {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="username"
                         label={t("USERNAME")}
                         name="username"
@@ -249,7 +255,7 @@ function ProfilePicture() {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="userEmail"
                         label={t("E_MAIL")}
                         name="userEmail"
@@ -262,11 +268,7 @@ function ProfilePicture() {
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="edit email"
-                                        onClick={handleEditEmail}
-                                        edge="end"
-                                    >
+                                    <IconButton aria-label="edit email" onClick={handleEditEmail} edge="end" size="large">
                                         <EditIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
@@ -278,7 +280,7 @@ function ProfilePicture() {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="userPublicKey"
                         label={t("PUBLIC_KEY")}
                         name="userPublicKey"
@@ -311,7 +313,7 @@ function ProfilePicture() {
                     <TextFieldQrCode
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         value={qrContent}
                     />
                 </DialogContent>

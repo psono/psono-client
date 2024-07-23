@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import { makeStyles } from "@material-ui/core/styles";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import { makeStyles } from '@mui/styles';
 import { useTranslation } from "react-i18next";
-import OutlinedInput from "@material-ui/core/OutlinedInput";
+import OutlinedInput from "@mui/material/OutlinedInput";
 
 const useStyles = makeStyles((theme) => ({
     qrField: {
@@ -48,7 +48,7 @@ const TextFieldQrCode = (props) => {
             </InputLabel>
             <OutlinedInput
                 id="qr-code"
-                margin="dense"
+                margin="dense" size="small"
                 inputComponent="div"
                 notched
                 label={t("QR_CODE")}

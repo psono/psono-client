@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import { Grid } from "@material-ui/core";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
-import Button from "@material-ui/core/Button";
+import { makeStyles } from '@mui/styles';
+import { Grid } from "@mui/material";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import TextField from "@mui/material/TextField";
+import MuiAlert from '@mui/material/Alert'
+import Button from "@mui/material/Button";
 import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import converter from "../../services/converter";
@@ -138,7 +138,6 @@ const LinkShareAccessView = (props) => {
             closedRequest = 1;
             setPercentageComplete(100);
             setNextStep("DOWNLOAD_COMPLETED");
-            console.log(secret);
             if (secret) {
                 setEditEntryData(secret);
                 setEditEntryOpen(true);
@@ -160,7 +159,7 @@ const LinkShareAccessView = (props) => {
                 setErrors([data]);
             }
         };
-        return linkShareService.linkShareAccess(linkShareId, linkShareSecret, passphrase).then(onSuccess, onError);
+        return linkShareService.linkShareAccessRead(linkShareId, linkShareSecret, passphrase).then(onSuccess, onError);
     }
 
     function reset() {
@@ -196,7 +195,7 @@ const LinkShareAccessView = (props) => {
                                     <TextFieldPassword
                                         className={classes.textField}
                                         variant="outlined"
-                                        margin="dense"
+                                        margin="dense" size="small"
                                         id="passphrase"
                                         label={t("PASSPHRASE")}
                                         name="passphrase"
@@ -223,7 +222,7 @@ const LinkShareAccessView = (props) => {
                                         <TextField
                                             className={classes.textField}
                                             variant="outlined"
-                                            margin="dense"
+                                            margin="dense" size="small"
                                             id="server"
                                             label={t("SERVER")}
                                             name="server"
@@ -265,7 +264,7 @@ const LinkShareAccessView = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server_fingerprint"
                                 label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                                 InputProps={{
@@ -321,7 +320,7 @@ const LinkShareAccessView = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server_fingerprint"
                                 label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                                 InputProps={{
@@ -338,7 +337,7 @@ const LinkShareAccessView = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="oldserver_fingerprint"
                                 label={t("FINGERPRINT_OF_THE_OLD_SERVER")}
                                 InputProps={{
@@ -416,6 +415,18 @@ const LinkShareAccessView = (props) => {
             )}
             {editEntryOpen && (
                 <DialogEditEntry
+                    onCustomSave={(item, secretObject, callbackUrl, callbackUser, callbackPass) => {
+
+                        const onSuccess = function () {
+                            setEditEntryOpen(false);
+                            setNextStep("SAVE_SUCCESS");
+                        };
+                        const onError = function (data) {
+                            // Should not happen
+                            console.log(data);
+                        }
+                        linkShareService.linkShareAccessWrite(linkShareId, linkShareSecret, item.secret_key, secretObject, passphrase).then(onSuccess, onError);
+                    }}
                     open={editEntryOpen}
                     onClose={() => setEditEntryOpen(false)}
                     item={editEntryData.item}

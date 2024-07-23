@@ -119,6 +119,7 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
             }
 
             if (!rawResponse.ok) {
+                console.log(rawResponse);
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
@@ -3237,7 +3238,8 @@ const readShards = function (token, sessionSecretKey) {
  * @param {string} publicTitle The public title of the link share
  * @param {int|null} allowed_reads The amount of allowed access requests before this link secret becomes invalid
  * @param {string|null} passphrase The passphrase to protect the link secret
- * @param {string|null} valid_till The valid till time in iso format
+ * @param {string|null} validTill The valid till time in iso format
+ * @param {boolean} allowWrite Specifies whether a link user can modify the content
  *
  * @returns {Promise} Promise with the new link_secret_id
  */
@@ -3251,7 +3253,8 @@ const createLinkShare = function (
     publicTitle,
     allowed_reads,
     passphrase,
-    valid_till
+    validTill,
+    allowWrite
 ) {
     const endpoint = "/link-share/";
     const method = "PUT";
@@ -3263,7 +3266,8 @@ const createLinkShare = function (
         public_title: publicTitle,
         allowed_reads: allowed_reads,
         passphrase: passphrase,
-        valid_till: valid_till,
+        valid_till: validTill,
+        allow_write: allowWrite,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -3363,11 +3367,35 @@ const deleteLinkShare = function (token, sessionSecretKey, linkShareId) {
  *
  * @returns {Promise} promise
  */
-const linkShareAccess = function (linkShareId, passphrase) {
+const linkShareAccessRead = function (linkShareId, passphrase) {
     const endpoint = "/link-share-access/";
     const method = "POST";
     const data = {
         link_share_id: linkShareId,
+        passphrase: passphrase,
+    };
+    const headers = null;
+
+    return call(method, endpoint, data, headers);
+};
+
+/**
+ * Ajax PUT request with the token as authentication to update the secret behind a link share
+ *
+ * @param {uuid} linkShareId The link share id
+ * @param {string} secretData data for the new secret
+ * @param {string} secretDataNonce nonce for data, necessary if data is provided
+ * @param {string|null} [passphrase=null] (optional) The passphrase
+ *
+ * @returns {Promise} promise
+ */
+const linkShareAccessWrite = function (linkShareId, secretData, secretDataNonce, passphrase) {
+    const endpoint = "/link-share-access/";
+    const method = "PUT";
+    const data = {
+        link_share_id: linkShareId,
+        secret_data: secretData,
+        secret_data_nonce: secretDataNonce,
         passphrase: passphrase,
     };
     const headers = null;
@@ -3739,7 +3767,8 @@ const apiClientService = {
     readLinkShare: readLinkShare,
     updateLinkShare: updateLinkShare,
     deleteLinkShare: deleteLinkShare,
-    linkShareAccess: linkShareAccess,
+    linkShareAccessRead: linkShareAccessRead,
+    linkShareAccessWrite: linkShareAccessWrite,
     sendSecurityReport: sendSecurityReport,
     readAvatar: readAvatar,
     createAvatar: createAvatar,

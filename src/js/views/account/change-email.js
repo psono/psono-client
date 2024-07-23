@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
-import TextField from "@material-ui/core/TextField";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from '@mui/styles';
 
 import user from "../../services/user";
 import helperService from "../../services/helper";
@@ -54,7 +54,7 @@ const AccountChangeEmailView = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="email"
                         type="email"
                         label={t("NEW_E_MAIL")}
@@ -70,7 +70,7 @@ const AccountChangeEmailView = (props) => {
                     <TextField
                         className={classes.textField}
                         variant="outlined"
-                        margin="dense"
+                        margin="dense" size="small"
                         id="password"
                         label={t("CURRENT_PASSWORD")}
                         InputProps={{

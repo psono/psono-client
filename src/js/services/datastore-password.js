@@ -610,7 +610,8 @@ function saveDatastoreContent(datastore, paths) {
     const type = "password";
     const description = "default";
 
-    datastore = datastoreService.filterDatastoreContent(datastore);
+    datastore = helperService.duplicateObject(datastore);
+    datastoreService.normalizeShareContent(datastore);
 
     const closest_shares = {};
 

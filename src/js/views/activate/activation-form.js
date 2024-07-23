@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Grid } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
+import { Grid } from "@mui/material";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import { BarLoader } from "react-spinners";
 import browserClient from "../../services/browser-client";
 import { getStore } from "../../services/store";
@@ -146,7 +146,7 @@ const ActivationForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="activationCode"
                             multiline
                             label={t("KEY")}
@@ -187,7 +187,7 @@ const ActivationForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"

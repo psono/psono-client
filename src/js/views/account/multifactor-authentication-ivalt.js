@@ -62,7 +62,7 @@ function CountrySelect({ onSelect, selected = '1', t }) {
                     sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
                 >
                     <FlagImage option={option} />
-                    {option.label} ({option.code}) +{option.phone}
+                    {t(option.label)} ({option.code}) +{option.phone}
                 </Box>
             )}
             renderInput={(params) => (
@@ -121,12 +121,12 @@ const MultifactorAuthenticatorIvalt = (props) => {
     const [timer, setTimer] = useState(defaultTimer)
     const [countryCode, setCountryCode] = useState("1")
     const [ivaltAuthSuccess, setIvaltAuthSuccess] = useState(false)
-    const [createdId,setCreatedId] = useState(null);
-    const [errorsResponses,setErrorsResponses] = useState({
+    const [createdId, setCreatedId] = useState(null);
+    const [errorsResponses, setErrorsResponses] = useState({
         'AUTHENTICATION_FAILED': t("IVALT_AUTH_FAILED"),
         'BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT': t("IVALT_AUTH_REQUEST_SENT"),
-        'INVALID_TIMEZONE':  t("IVALT_INVALID_TIMEZONE"),
-        'INVALID_GEOFENCE':  t("IVALT_INVALID_GEOFENCE"),
+        'INVALID_TIMEZONE': t("IVALT_INVALID_TIMEZONE"),
+        'INVALID_GEOFENCE': t("IVALT_INVALID_GEOFENCE"),
     });
 
     const getIvaltMobile = () => {
@@ -192,8 +192,8 @@ const MultifactorAuthenticatorIvalt = (props) => {
             setTimeout(() => {
                 setTimer(defaultTimer)
             }, 1600)
-        },(error,res) => {
-            if(errorsResponses[error.non_field_errors[0]] !== undefined && error.non_field_errors[0] !== 'AUTHENTICATION_FAILED'){
+        }, (error, res) => {
+            if (errorsResponses[error.non_field_errors[0]] !== undefined && error.non_field_errors[0] !== 'AUTHENTICATION_FAILED') {
                 ivalt.deleteIvalt(createdId).then(() => {
                     setErrors([errorsResponses[error.non_field_errors[0]]]);
                     setIvaltLoading(false);
@@ -208,7 +208,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
         ivalt.createIvalt(
             ivaltMobile || undefined,
         ).then(
-             (createdIvalt) => {
+            (createdIvalt) => {
                 setCreatedId(createdIvalt.id);
                 validateIvalt();
             },

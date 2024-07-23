@@ -2,8 +2,8 @@ import React from "react";
 import { Trans } from 'react-i18next';
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import Hidden from "@material-ui/core/Hidden";
-import { makeStyles } from "@material-ui/core/styles";
+import Hidden from "@mui/material/Hidden";
+import { makeStyles } from '@mui/styles';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 
@@ -131,12 +131,12 @@ const DatastoreTree = (props) => {
         return (
             <div className={classes.fullWidth}>
                 <div className={classes.center}>
-                    <Hidden xsDown>
+                    <Hidden smDown>
                         <i className={classes.bigIcon + " fa fa-plus-circle"} aria-hidden="true" />
                     </Hidden>
 
                     <div>
-                        {t("NO_ITEMS")} <Hidden xsDown>{t("RIGHT_CLICK_HERE_TO_CREATE_ONE")}</Hidden>
+                        {t("NO_ITEMS")} <Hidden smDown>{t("RIGHT_CLICK_HERE_TO_CREATE_ONE")}</Hidden>
                         <Hidden smUp>
                             <Trans i18nKey="CLICK_ON_THE_SYMBOL_IN_THE_TOP_RIGHT_CORNER_TO_START">
                                 Click on the<br /><i className={classes.bigIcon + " fa fa-cogs"} /><br />symbol in the top right corner to start.

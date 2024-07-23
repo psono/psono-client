@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import Button from "@material-ui/core/Button";
-import AppBar from "@material-ui/core/AppBar";
+import CssBaseline from "@mui/material/CssBaseline";
+import { makeStyles } from '@mui/styles';
+import Container from "@mui/material/Container";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import Button from "@mui/material/Button";
+import AppBar from "@mui/material/AppBar";
 import user from "../../services/user";
-import Paper from "@material-ui/core/Paper";
+import Paper from "@mui/material/Paper";
 import GridContainerErrors from "../../components/grid-container-errors";
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import browserClient from "../../services/browser-client";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
@@ -134,7 +134,7 @@ const PopupPgpReadView = (props) => {
                             aria-label="open drawer"
                             edge="start"
                             className={classes.menuButton}
-                        >
+                            size="large">
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">

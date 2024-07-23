@@ -1,25 +1,25 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { useTheme } from "@material-ui/core/styles";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { makeStyles } from "@material-ui/core/styles";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Avatar from "@material-ui/core/Avatar";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import IconButton from "@material-ui/core/IconButton";
-import AddIcon from "@material-ui/icons/Add";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { makeStyles } from '@mui/styles';
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Avatar from "@mui/material/Avatar";
+import ListItemSecondaryAction from "@mui/material/ListItemSecondaryAction";
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
 
 import GridContainerErrors from "../grid-container-errors";
 import accountService from "../../services/account";
@@ -57,7 +57,7 @@ const DialogChangeAccount = ({ open, onClose, allowNewAccounts }) => {
     const classes = useStyles();
     const { t } = useTranslation();
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [accounts, setAccounts] = useState([]);
     const [errors, setErrors] = useState([]);
 
@@ -74,7 +74,7 @@ const DialogChangeAccount = ({ open, onClose, allowNewAccounts }) => {
             'username': getStore().getState().user.username,
             'isLoggedIn': getStore().getState().user.isLoggedIn,
             'server': getStore().getState().server.url,
-            'avatar': await avatarService.readAvatarCached() || '',
+            'avatar': (await avatarService.readAvatarCached()) || '',
         });
 
         const accounts = await accountService.listAccounts();
@@ -127,7 +127,7 @@ const DialogChangeAccount = ({ open, onClose, allowNewAccounts }) => {
                                                 edge="end"
                                                 className={classes.logoutButton}
                                                 onClick={() => handleLogout(account)}
-                                            >
+                                                size="large">
                                                 <ExitToAppIcon/>
                                             </IconButton>
                                         </ListItemSecondaryAction>}

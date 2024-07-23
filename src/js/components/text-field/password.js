@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const useStyles = makeStyles((theme) => ({
     passwordField: {
@@ -24,7 +24,11 @@ const TextFieldPassword = (props) => {
     localInputProps["classes"]["input"] = classes.passwordField;
     localInputProps["endAdornment"] = (
         <InputAdornment position="end">
-            <IconButton aria-label="toggle show" onClick={() => setShowPassword(!showPassword)} edge="end">
+            <IconButton
+                aria-label="toggle show"
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+                size="large">
                 {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
             </IconButton>
         </InputAdornment>

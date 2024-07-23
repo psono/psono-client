@@ -6,8 +6,11 @@ import { initReactI18next } from "react-i18next";
 // import moment from 'moment'
 
 const languages = {
+    ar: { code: "ar", lng_code: "LANG_AR", lng_title_native: "عربي"},
+    bn: { code: "bn", lng_code: "LANG_BN", lng_title_native: "বাংলা", active: true },
     ca: { code: "ca", lng_code: "LANG_CA", lng_title_native: "Català", active: true },
     cs: { code: "cs", lng_code: "LANG_CS", lng_title_native: "Česky", active: true },
+    da: { code: "da", lng_code: "LANG_DA", lng_title_native: "" }, // deactivated
     de: { code: "de", lng_code: "LANG_DE", lng_title_native: "Deutsch", active: true },
     en: { code: "en", lng_code: "LANG_EN", lng_title_native: "English", active: true, default: true },
     es: { code: "es", lng_code: "LANG_ES", lng_title_native: "Español", active: true },
@@ -16,23 +19,20 @@ const languages = {
     hr: { code: "hr", lng_code: "LANG_HR", lng_title_native: "Hrvatski" },
     hu: { code: "hu", lng_code: "LANG_HU", lng_title_native: "Magyar", active: true },
     it: { code: "it", lng_code: "LANG_IT", lng_title_native: "Italiano", active: true },
-    ja: { code: "ja", lng_code: "LANG_JA", lng_title_native: "日本語" },
-    ko: { code: "ko", lng_code: "LANG_KO", lng_title_native: "한국어" },
+    ja: { code: "ja", lng_code: "LANG_JA", lng_title_native: "日本語", active: true },
+    ko: { code: "ko", lng_code: "LANG_KO", lng_title_native: "한국어", active: true },
     nl: { code: "nl", lng_code: "LANG_NL", lng_title_native: "Nederlands", active: true },
+    no: { code: "no", lng_code: "LANG_NO", lng_title_native: "Norsk", active: true },
     pl: { code: "pl", lng_code: "LANG_PL", lng_title_native: "Polskie", active: true },
     pt: { code: "pt", lng_code: "LANG_PT_PT", lng_title_native: "Portuguese", active: true },
     "pt-br": { code: "pt-br", lng_code: "LANG_PT_BR", lng_title_native: "Portuguese (BR)", active: true },
     ru: { code: "ru", lng_code: "LANG_RU", lng_title_native: "Русский", active: true },
-    vi: { code: "vi", lng_code: "LANG_VI", lng_title_native: "" }, // lng_title_native incorrect
-    da: { code: "da", lng_code: "LANG_DA", lng_title_native: "" }, // lng_title_native incorrect
     sv: { code: "sv", lng_code: "LANG_SV", lng_title_native: "Svenska", active: true },
-    sk: { code: "sk", lng_code: "LANG_SK", lng_title_native: "Slovák", active: true },
+    sk: { code: "sk", lng_code: "LANG_SK", lng_title_native: "Slovák" },
     uk: { code: "uk", lng_code: "LANG_UK", lng_title_native: "Український", active: true },
-    no: { code: "no", lng_code: "LANG_NO", lng_title_native: "Norsk", active: true },
-    he: { code: "he", lng_code: "LANG_HE", lng_title_native: "" }, // lng_title_native incorrect
-    ar: { code: "ar", lng_code: "LANG_AR", lng_title_native: "" }, // lng_title_native incorrect
-    hi: { code: "hi", lng_code: "LANG_HI", lng_title_native: "" }, // lng_title_native incorrect
-    bn: { code: "bn", lng_code: "LANG_BN", lng_title_native: "বাংলা", active: true },
+    he: { code: "he", lng_code: "LANG_HE", lng_title_native: "" }, // deactivated
+    hi: { code: "hi", lng_code: "LANG_HI", lng_title_native: "हिंदी", active: true  },
+    vi: { code: "vi", lng_code: "LANG_VI", lng_title_native: "" }, // deactivated
     zh: { code: "zh", lng_code: "LANG_ZH", lng_title_native: "漢語", active: true },
 };
 

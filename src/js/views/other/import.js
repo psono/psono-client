@@ -1,16 +1,16 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import { makeStyles } from "@material-ui/core/styles";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import Select from "@material-ui/core/Select";
-import MuiAlert from "@material-ui/lab/Alert";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import Button from "@mui/material/Button";
+import { makeStyles } from '@mui/styles';
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Select from "@mui/material/Select";
+import MuiAlert from '@mui/material/Alert'
 import { BarLoader } from "react-spinners";
 
 import importService from "../../services/import";
@@ -111,7 +111,7 @@ const OtherImportView = (props) => {
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
-                <FormControl variant="outlined" margin="dense" className={classes.textField} required>
+                <FormControl variant="outlined" margin="dense" size="small" className={classes.textField} required>
                     <InputLabel id="export-type-select-label-label">{t("TYPE")}</InputLabel>
                     <Select
                         labelId="export-type-select-label-label"
@@ -136,7 +136,7 @@ const OtherImportView = (props) => {
                 <TextFieldPassword
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="password"
                     label={t("PASSWORD")}
                     helperText={t("ENTER_PASSWORD_IF_YOUR_EXPORT_IS_ENCRYPTED")}
@@ -149,7 +149,7 @@ const OtherImportView = (props) => {
                 />
             </Grid>)}
             <Grid item xs={12} sm={12} md={12}>
-                <FormControl variant="outlined" margin="dense" className={classes.textField} required>
+                <FormControl variant="outlined" margin="dense" size="small" className={classes.textField} required>
                     <InputLabel id="export-encoding-select-label-label">{t("ENCODING")}</InputLabel>
                     <Select
                         labelId="export-encoding-select-label-label"

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Grid, Checkbox,DialogContent } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import { Check } from "@material-ui/icons";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid, Checkbox, DialogContent } from "@mui/material";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import { Check } from "@mui/icons-material";
+import MuiAlert from '@mui/material/Alert'
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import { BarLoader } from "react-spinners";
 import { useHistory } from "react-router-dom";
 
@@ -66,6 +66,7 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+
     container: {
         background: 'gray',
         position: 'relative',
@@ -84,6 +85,17 @@ const useStyles = makeStyles((theme) => ({
         left: '50%',
         transform: 'translate(-50%, -50%)',
         zIndex: 0,
+    },
+    inputAdornment: {
+        color: "#b1b6c1",
+    },
+    borderSection: {
+        border: "1px solid #0f1118",
+        padding: "8px",
+        marginLeft: "-8px",
+        marginRight: "-8px",
+        marginBottom: "theme.spacing(1)",
+        marginTop: theme.spacing(2),
     },
 }));
 const defaultTimer = 2 * 60
@@ -378,7 +390,6 @@ const LoginViewForm = (props) => {
             setView("default");
             setLoginLoading(false);
             setErrors(["Unknown multi-factor authentication requested by server."]);
-            logout();
         }
     };
 
@@ -877,7 +888,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="password"
                             label={t("PASSWORD")}
                             InputProps={{
@@ -901,8 +912,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("DECRYPT")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -912,16 +923,20 @@ const LoginViewForm = (props) => {
     } else if (view === "default") {
         formContent = (
             <>
+                <div className={classes.borderSection}>
                 {oidcProvider.map((provider, i) => {
                     const initiateOidcLoginHelper = () => {
                         return initiateOidcLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
-                                {provider.title}
+                            {i > 0 && <p className="horizontalline">
+                                <span>{t("OR")}</span>
+                            </p>}
+                            <Grid item xs={12} sm={12} md={12}>
+                            {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "8px" }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -957,10 +972,13 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            {i > 0 && <p className="horizontalline">
+                                <span>{t("OR")}</span>
+                            </p>}
+                            <Grid item xs={12} sm={12} md={12}>
                                 {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "8px" }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -996,13 +1014,13 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
                                     endAdornment:
                                         domain && !username.includes("@") ? (
-                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
                                         ) : null,
                                 }}
                                 name="username"
@@ -1023,7 +1041,7 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="password"
                                 label={t("PASSWORD")}
                                 InputProps={{
@@ -1041,6 +1059,38 @@ const LoginViewForm = (props) => {
                     </Grid>
                 )}
 
+
+                {allowUsernamePasswordLogin && (
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                classes={{ disabled: classes.disabledButton }}
+                                onClick={initiateLogin}
+                                type="submit"
+                                disabled={!loginPossible || loginLoading}
+                            >
+                                <span style={!loginLoading ? {} : { display: "none" }}>{t("LOGIN")}</span>
+                                <BarLoader color={"#FFF"} height={17} width={37} loading={loginLoading} />
+                            </Button>
+                            {allowRegistration && (
+                                <Button
+                                    onClick={(e) => {
+                                        if (window.location.pathname.endsWith("/default_popup.html")) {
+                                            browserClient.openTab("register.html");
+                                        } else {
+                                            redirectRegister(e);
+                                        }
+                                    }}
+                                >
+                                    <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
+                                </Button>
+                            )}
+                        </Grid>
+                    </Grid>
+                )}
+                </div>
                 {allowUsernamePasswordLogin && allowCustomServer && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
@@ -1113,36 +1163,6 @@ const LoginViewForm = (props) => {
                         {t("TRUST_DEVICE")}
                     </Grid>
                 </Grid>
-                {allowUsernamePasswordLogin && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                classes={{ disabled: classes.disabledButton }}
-                                onClick={initiateLogin}
-                                type="submit"
-                                disabled={!loginPossible || loginLoading}
-                            >
-                                <span style={!loginLoading ? {} : { display: "none" }}>{t("LOGIN")}</span>
-                                <BarLoader color={"#FFF"} height={17} width={37} loading={loginLoading} />
-                            </Button>
-                            {allowRegistration && (
-                                <Button
-                                    onClick={(e) => {
-                                        if (window.location.pathname.endsWith("/default_popup.html")) {
-                                            browserClient.openTab("register.html");
-                                        } else {
-                                            redirectRegister(e);
-                                        }
-                                    }}
-                                >
-                                    <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
-                                </Button>
-                            )}
-                        </Grid>
-                    </Grid>
-                )}
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
                 {allowCustomServer && (
                     <Grid container>
@@ -1150,7 +1170,7 @@ const LoginViewForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
@@ -1181,7 +1201,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -1217,8 +1237,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("APPROVE")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1240,7 +1260,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="server_fingerprint"
                             label={t("FINGERPRINT_OF_THE_NEW_SERVER")}
                             InputProps={{
@@ -1257,7 +1277,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="oldserver_fingerprint"
                             label={t("FINGERPRINT_OF_THE_OLD_SERVER")}
                             InputProps={{
@@ -1296,8 +1316,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("CANCEL")}
                         </Button>
-                        <Button variant="contained" onClick={approveHost}>
-                            {t("IGNORE_AND_CONTINUE")}
+                        <Button onClick={approveHost}>
+                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1338,8 +1358,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("APPROVE_UNSAFE")}
                         </Button>
-                        <Button variant="contained" onClick={disapproveSendPlain}>
-                            {t("DECLINE_SAFE")}
+                        <Button onClick={disapproveSendPlain}>
+                            <span style={{color: "#b1b6c1"}}>{t("DECLINE_SAFE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1361,7 +1381,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="gaToken"
                             label={t("TOTP_CODE")}
                             name="gaToken"
@@ -1387,8 +1407,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1410,7 +1430,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="yubikeyOtpToken"
                             label={t("YUBIKEY_TOKEN")}
                             name="yubikeyOtpToken"
@@ -1436,8 +1456,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1459,7 +1479,7 @@ const LoginViewForm = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="duoToken"
                             label={t("DUO_CODE")}
                             name="duoToken"
@@ -1485,8 +1505,8 @@ const LoginViewForm = (props) => {
                         >
                             {t("SEND")}
                         </Button>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1505,8 +1525,8 @@ const LoginViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1574,8 +1594,8 @@ const LoginViewForm = (props) => {
                 )}
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" onClick={cancel}>
-                            {t("CANCEL")}
+                        <Button onClick={cancel}>
+                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>

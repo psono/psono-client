@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 import datastorePasswordService from "../../services/datastore-password";
 import datastoreService from "../../services/datastore";
 
@@ -25,7 +25,7 @@ const SelectFieldGpgKey = (props) => {
     const [options, setOptions] = useState([]);
     let isSubscribed = true;
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className, secretId, label } =
+    const { fullWidth, variant, margin, size, helperText, error, required, onChange, value, className, secretId, label } =
         props;
     React.useEffect(() => {
         loadGpgKeys();
@@ -86,7 +86,6 @@ const SelectFieldGpgKey = (props) => {
             getOptionLabel={(option) => {
                 return option ? option.label : "";
             }}
-            renderOption={(option) => <>{option ? option.label : ""}</>}
             onChange={(event, newValue) => {
                 if (newValue) {
                     onChange(newValue);
@@ -94,7 +93,7 @@ const SelectFieldGpgKey = (props) => {
                     onChange(null);
                 }
             }}
-            getOptionSelected={(option, value) => {
+            isOptionEqualToValue={(option, value) => {
                 if (value !== null && option) {
                     return option.id === value.id;
                 } else {
@@ -109,6 +108,7 @@ const SelectFieldGpgKey = (props) => {
                     label={t(label)}
                     required={required}
                     margin={margin}
+                    size={size}
                     variant={variant}
                     helperText={helperText}
                     error={error}
@@ -137,6 +137,7 @@ SelectFieldGpgKey.propTypes = {
     label: PropTypes.string,
     variant: PropTypes.string,
     margin: PropTypes.string,
+    size: PropTypes.string,
     onChange: PropTypes.func,
     className: PropTypes.string,
     secretId: PropTypes.string,

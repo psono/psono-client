@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles } from "@material-ui/core/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { makeStyles } from '@mui/styles';
 import Sidebar from "./sidebar";
 import Topbar from "./topbar";
 import deviceService from "../services/device";

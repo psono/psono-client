@@ -8,11 +8,10 @@ import { createBrowserHistory } from "history";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
-import DateFnsUtils from "@date-io/date-fns";
-
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { LocalizationProvider } from '@mui/x-date-pickers'
 import { initStore } from "./services/store";
 import datastoreSettingService from "./services/datastore-setting";
 import i18n from "./i18n";
@@ -50,36 +49,33 @@ function loadSettingsDatastore(dispatch, getState) {
 }
 const customHistory = createBrowserHistory();
 
-let currentPersistor = null;
-let currentStore = null;
-
 async function initAndRenderApp() {
     const store = await initStore();
     let persistor = persistStore(store, null, () => {
         store.dispatch(loadSettingsDatastore);
     });
-    currentStore = store;
-    currentPersistor = persistor;
 
     const App = () => {
         return (
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <Provider store={store}>
                     <Suspense fallback="loading...">
                         <PersistGate loading={<HashLoader />} persistor={persistor}>
                             <I18nextProvider i18n={i18n}>
-                                <ThemeProvider theme={theme}>
-                                    <CssBaseline />
-                                    <HashRouter history={customHistory} hashType={"hashbang"}>
-                                        <DownloadBanner />
-                                        <IndexView />
-                                    </HashRouter>
-                                </ThemeProvider>
+                                <StyledEngineProvider injectFirst>
+                                    <ThemeProvider theme={theme}>
+                                        <CssBaseline />
+                                        <HashRouter history={customHistory} hashType={"hashbang"}>
+                                            <DownloadBanner />
+                                            <IndexView />
+                                        </HashRouter>
+                                    </ThemeProvider>
+                                </StyledEngineProvider>
                             </I18nextProvider>
                         </PersistGate>
                     </Suspense>
                 </Provider>
-            </MuiPickersUtilsProvider>
+            </LocalizationProvider>
         );
     };
 

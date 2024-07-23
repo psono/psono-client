@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import MuiAlert from "@material-ui/lab/Alert";
-import { Checkbox, Grid } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import { Check } from "@material-ui/icons";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import { makeStyles } from '@mui/styles';
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import MuiAlert from '@mui/material/Alert'
+import { Checkbox, Grid } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import { Check } from "@mui/icons-material";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { Chart, ArcElement, Tooltip } from "chart.js";
 
 import { Doughnut } from "react-chartjs-2";
@@ -342,7 +342,7 @@ const SecurityReportView = (props) => {
                             key={tableMeta.rowData[0]}
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             label={t("PASSWORD")}
                             name="websitePasswordPassword"
                             autoComplete="off"
@@ -509,7 +509,7 @@ const SecurityReportView = (props) => {
                                         <TextField
                                             className={classes.textField}
                                             variant="outlined"
-                                            margin="dense"
+                                            margin="dense" size="small"
                                             id="password"
                                             label={t("YOUR_PASSWORD")}
                                             name="password"
@@ -529,7 +529,7 @@ const SecurityReportView = (props) => {
                                         <TextField
                                             className={classes.textField}
                                             variant="outlined"
-                                            margin="dense"
+                                            margin="dense" size="small"
                                             id="passwordRepeat"
                                             label={t("PASSWORD_REPEAT")}
                                             name="passwordRepeat"

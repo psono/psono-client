@@ -1,14 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
+import Divider from "@mui/material/Divider";
+import { Grid } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import Table from "../../components/table";
 import apiKey from "../../services/api-keys";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 import EditApiKeysDialog from "./edit-api-keys-dialog";
 import DeleteApiKeysDialog from "./delete-api-keys-dialog";
 import CreateApiKeysDialog from "./create-api-keys-dialog";
@@ -153,7 +153,7 @@ const OtherApiKeysView = (props) => {
                             onClick={() => {
                                 onEdit(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -173,7 +173,7 @@ const OtherApiKeysView = (props) => {
                             onClick={() => {
                                 onDelete(tableMeta.rowData);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

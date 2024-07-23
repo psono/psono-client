@@ -1,9 +1,9 @@
 import React from "react";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
 import itemBlueprintService from "../../services/item-blueprint";
 
@@ -21,9 +21,9 @@ const SelectFieldEntryType = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className } = props;
+    const { fullWidth, variant, margin, size, helperText, error, required, onChange, value, className } = props;
 
-    const entryTypes = itemBlueprintService.getEntryTypes(true);
+    const entryTypes = itemBlueprintService.getEntryTypes(true, true);
 
     let defaultValue = null;
     if (value) {
@@ -42,7 +42,6 @@ const SelectFieldEntryType = (props) => {
             getOptionLabel={(option) => {
                 return option ? t(option.title) : "";
             }}
-            renderOption={(option) => <>{option ? t(option.title) : ""}</>}
             onChange={(event, newValue) => {
                 if (newValue) {
                     onChange(newValue.value);
@@ -50,7 +49,7 @@ const SelectFieldEntryType = (props) => {
                     onChange("");
                 }
             }}
-            getOptionSelected={(option, value) => {
+            isOptionEqualToValue={(option, value) => {
                 if (option) {
                     return option.value === value.value;
                 } else {
@@ -65,6 +64,7 @@ const SelectFieldEntryType = (props) => {
                     label={t("TYPE")}
                     required={required}
                     margin={margin}
+                    size={size}
                     variant={variant}
                     helperText={helperText}
                     error={error}
@@ -91,6 +91,7 @@ SelectFieldEntryType.propTypes = {
     helperText: PropTypes.string,
     variant: PropTypes.string,
     margin: PropTypes.string,
+    size: PropTypes.string,
     onChange: PropTypes.func,
     className: PropTypes.string,
 };

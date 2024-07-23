@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Grid } from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Grid } from "@mui/material";
+import { makeStyles } from '@mui/styles';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import MuiAlert from '@mui/material/Alert'
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import Button from "@mui/material/Button";
+import LinearProgress from "@mui/material/LinearProgress";
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import host from "../../services/host";
@@ -53,6 +53,9 @@ const useStyles = makeStyles((theme) => ({
     button: {
         color: "white !important",
     },
+    inputAdornment: {
+        color: "#b1b6c1",
+    },
 }));
 
 const RegisterForm = (props) => {
@@ -76,11 +79,6 @@ const RegisterForm = (props) => {
         browserClient.getConfig().then(onNewConfigLoaded);
         return () => (isSubscribed = false);
     }, []);
-
-    const cancel = (e) => {
-        setView("default");
-        setErrors([]);
-    };
 
     const onNewConfigLoaded = (configJson) => {
         if (!isSubscribed) {
@@ -218,13 +216,13 @@ const RegisterForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
                                     endAdornment:
                                         domain && !username.includes("@") ? (
-                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
                                         ) : null,
                                 }}
                                 name="username"
@@ -239,7 +237,7 @@ const RegisterForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="email"
                                 type="email"
                                 label={t("EMAIL")}
@@ -255,7 +253,7 @@ const RegisterForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="password"
                                 label={t("PASSWORD")}
                                 InputProps={{
@@ -274,7 +272,7 @@ const RegisterForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="passwordRepeat"
                                 label={t("PASSWORD_REPEAT")}
                                 error={password && passwordRepeat && passwordRepeat !== password}
@@ -322,7 +320,7 @@ const RegisterForm = (props) => {
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
-                                margin="dense"
+                                margin="dense" size="small"
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 import { useSelector } from "react-redux";
-import Divider from "@material-ui/core/Divider";
-import TextField from "@material-ui/core/TextField";
-import { Checkbox, Grid } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
-import Button from "@material-ui/core/Button";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import { Checkbox, Grid } from "@mui/material";
+import { Check } from "@mui/icons-material";
+import Button from "@mui/material/Button";
 import action from "../../actions/bound-action-creators";
 import SelectFieldGpgKey from "../../components/select-field/gpg-key";
 
@@ -64,9 +64,9 @@ const SettingsGpgView = (props) => {
                 <SelectFieldGpgKey
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="gpgDefaultKey"
-                    label={t("DEFAULT_KEY")}
+                    label={"DEFAULT_KEY"}
                     value={gpgDefaultKey}
                     onChange={(value) => {
                         setGpgDefaultKey(value);
@@ -77,7 +77,7 @@ const SettingsGpgView = (props) => {
                 <TextField
                     className={classes.textField}
                     variant="outlined"
-                    margin="dense"
+                    margin="dense" size="small"
                     id="gpgHkpKeyServer"
                     label={t("HKP_SERVER")}
                     name="gpgHkpKeyServer"

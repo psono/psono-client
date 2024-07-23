@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import GridContainerErrors from "../../components/grid-container-errors";
-import MuiAlert from "@material-ui/lab/Alert";
+import MuiAlert from '@mui/material/Alert'
 import userService from "../../services/user";
 import { getStore } from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "../account/multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "../account/multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
 import FooterLinks from "../../components/footer-links";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -157,12 +157,11 @@ const EnforceTwoFaViewForm = (props) => {
             <Grid container>
                 <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <Button
-                        variant="contained"
-                        classes={{ disabled: classes.disabledButton }}
+                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >
-                        {t("LOGOUT")}
+                        <span style={{color: "#b1b6c1"}}>{t("LOGOUT")}</span>
                     </Button>
                 </Grid>
             </Grid>

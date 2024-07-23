@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Grid} from "@material-ui/core";
+import {Grid} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import GridContainerErrors from "../../components/grid-container-errors";
 import user from "../../services/user";
@@ -7,7 +7,6 @@ import ConfigLogo from "../../components/config-logo";
 
 
 const LogoutSuccessView = (props) => {
-    const { t } = useTranslation();
     const [msgs, setMsgs] = useState(['LOGOUT_SUCCESSFUL']);
 
     React.useEffect(() => {

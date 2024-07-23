@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Divider from "@material-ui/core/Divider";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import IconButton from "@material-ui/core/IconButton";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import DeleteIcon from "@material-ui/icons/Delete";
-import BlockIcon from "@material-ui/icons/Block";
-import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
+import { makeStyles } from '@mui/styles';
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Divider from "@mui/material/Divider";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import DeleteIcon from "@mui/icons-material/Delete";
+import BlockIcon from "@mui/icons-material/Block";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import format from "../../services/date";
 
 import groupsService from "../../services/groups";
@@ -411,7 +411,7 @@ const DialogEditGroup = (props) => {
                         <IconButton
                             onClick={() => toggleUser(tableMeta.rowData[0])}
                             disabled={readOnly || tableMeta.rowData[7]}
-                        >
+                            size="large">
                             {tableMeta.rowData[2] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -432,7 +432,7 @@ const DialogEditGroup = (props) => {
                         <IconButton
                             onClick={() => toggleGroupAdmin(tableMeta.rowData[0])}
                             disabled={readOnly || tableMeta.rowData[7]}
-                        >
+                            size="large">
                             {tableMeta.rowData[3] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -453,7 +453,7 @@ const DialogEditGroup = (props) => {
                         <IconButton
                             onClick={() => toggleShareAdmin(tableMeta.rowData[0])}
                             disabled={readOnly || tableMeta.rowData[7]}
-                        >
+                            size="large">
                             {tableMeta.rowData[4] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -471,7 +471,7 @@ const DialogEditGroup = (props) => {
                         return;
                     }
                     return (
-                        <IconButton disabled={true}>
+                        <IconButton disabled={true} size="large">
                             {tableMeta.rowData[5] === true && <CheckBoxIcon />}
                             {tableMeta.rowData[5] === false && <BlockIcon />}
                             {tableMeta.rowData[5] !== true && tableMeta.rowData[5] !== false && <HourglassEmptyIcon />}
@@ -518,7 +518,10 @@ const DialogEditGroup = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("read", tableMeta.rowData[0])} disabled={readOnly}>
+                        <IconButton
+                            onClick={() => toggleRight("read", tableMeta.rowData[0])}
+                            disabled={readOnly}
+                            size="large">
                             {tableMeta.rowData[2] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -533,7 +536,10 @@ const DialogEditGroup = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("write", tableMeta.rowData[0])} disabled={readOnly}>
+                        <IconButton
+                            onClick={() => toggleRight("write", tableMeta.rowData[0])}
+                            disabled={readOnly}
+                            size="large">
                             {tableMeta.rowData[3] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -548,7 +554,10 @@ const DialogEditGroup = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("grant", tableMeta.rowData[0])} disabled={readOnly}>
+                        <IconButton
+                            onClick={() => toggleRight("grant", tableMeta.rowData[0])}
+                            disabled={readOnly}
+                            size="large">
                             {tableMeta.rowData[4] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -573,7 +582,7 @@ const DialogEditGroup = (props) => {
                         <IconButton
                             onClick={() => deleteShareRight(tableMeta.rowData[0])}
                             disabled={readOnly || !shareAdmin}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -620,7 +629,7 @@ const DialogEditGroup = (props) => {
                         <TextField
                             className={classes.textField}
                             variant="outlined"
-                            margin="dense"
+                            margin="dense" size="small"
                             id="groupName"
                             label={t("GROUP_NAME")}
                             name="groupName"

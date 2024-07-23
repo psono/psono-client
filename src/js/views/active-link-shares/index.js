@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import { makeStyles } from '@mui/styles';
+import Paper from "@mui/material/Paper";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
@@ -111,7 +111,7 @@ const ActiveLinkShareView = (props) => {
                             onClick={() => {
                                 onEditLinkShare(tableMeta);
                             }}
-                        >
+                            size="large">
                             <EditIcon />
                         </IconButton>
                     );
@@ -131,7 +131,7 @@ const ActiveLinkShareView = (props) => {
                             onClick={() => {
                                 onDeleteLinkShare(tableMeta);
                             }}
-                        >
+                            size="large">
                             <DeleteIcon />
                         </IconButton>
                     );

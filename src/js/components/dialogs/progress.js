@@ -1,13 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import { Grid } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
-import Box from "@material-ui/core/Box";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import { Grid } from "@mui/material";
+import MuiAlert from '@mui/material/Alert'
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 
 
 const DialogProgress = (props) => {

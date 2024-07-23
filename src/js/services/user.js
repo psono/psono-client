@@ -78,93 +78,7 @@ function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect)
     });
 }
 
-/**
- * Checks if an autologin for saml needs to be triggered
- */
-function onPotentialSamlAutologin() {
-    if (typeof $routeParams.saml_autologin_provider_id === "undefined") {
-        return;
-    }
-    for (let i = 0; i < $scope.saml_provider.length; i++) {
-        if ($scope.saml_provider[i].provider_id.toString() !== $routeParams.saml_autologin_provider_id) {
-            continue;
-        }
-        initiateSamlLogin(
-            $scope.saml_provider[i],
-            $routeParams.remember === "true",
-            $routeParams.trust_device === "true",
-            $routeParams.two_fa_redirect === "true"
-        );
-        $location.path("/");
-        return;
-    }
-}
 
-/**
- * Checks if an autologin for oidc needs to be triggered
- */
-function onPotentialOidcAutologin() {
-    if (typeof $routeParams.oidc_autologin_provider_id === "undefined") {
-        return;
-    }
-    for (let i = 0; i < $scope.oidc_provider.length; i++) {
-        if ($scope.oidc_provider[i].provider_id.toString() !== $routeParams.oidc_autologin_provider_id) {
-            continue;
-        }
-        initiateOidcLogin(
-            $scope.oidc_provider[i],
-            $routeParams.remember === "true",
-            $routeParams.trust_device === "true",
-            $routeParams.two_fa_redirect === "true"
-        );
-        $location.path("/");
-        return;
-    }
-}
-
-/**
- * Triggered once someone clicks the login button for a SAML provider in the panel and will initiate the
- * login sequence in a new tab
- *
- * @param {string} provider The provider config from config.json passed down
- * @param {boolean|undefined} remember Remember username and server
- * @param {boolean|undefined} trustDevice Trust the device for 30 days or logout when browser closes
- * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
- */
-function initiateSamlLoginNewTab(provider, remember, trustDevice, twoFaRedirect) {
-    browserClient.openTab(
-        "index.html#!/initiate-saml-login/" +
-            provider.provider_id +
-            "/" +
-            (remember === true) +
-            "/" +
-            (trustDevice === true) +
-            "/" +
-            (twoFaRedirect === true)
-    );
-}
-
-/**
- * Triggered once someone clicks the login button for a OIDC provider in the panel and will initiate the
- * login sequence in a new tab
- *
- * @param {string} provider The provider config from config.json passed down
- * @param {boolean|undefined} remember Remember username and server
- * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
- * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
- */
-function initiateOidcLoginNewTab(provider, remember, trust_device, two_fa_redirect) {
-    browserClient.open_tab(
-        "index.html#!/initiate-oidc-login/" +
-            provider.provider_id +
-            "/" +
-            (remember === true) +
-            "/" +
-            (trust_device === true) +
-            "/" +
-            (two_fa_redirect === true)
-    );
-}
 
 /**
  * Triggered once someone comes back from a redirect to a index.html#!/saml/token/... url
@@ -1196,10 +1110,6 @@ const userService = {
     duoVerify,
     yubikeyOtpVerify,
     logout,
-    onPotentialSamlAutologin,
-    onPotentialOidcAutologin,
-    initiateSamlLoginNewTab,
-    initiateOidcLoginNewTab,
     isLoggedIn,
     deleteAccount,
     saveNewPassword,
