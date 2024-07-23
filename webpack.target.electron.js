@@ -21,7 +21,6 @@ module.exports = merge(common, {
   devtool: 'inline-source-map',
   entry: {
     'electron/js/bundle.min.js': './src/js/index.js',
-    'electron/js/crypto-worker.js': './src/js/crypto-worker.js',
   },
   plugins: [
     new webpack.DefinePlugin({

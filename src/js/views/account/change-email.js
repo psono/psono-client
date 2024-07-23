@@ -25,6 +25,7 @@ const AccountChangeEmailView = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
+    const [msgs, setMsgs] = useState([]);
 
     const save = (event) => {
         setErrors([]);
@@ -32,6 +33,7 @@ const AccountChangeEmailView = (props) => {
             function (data) {
                 setEmail("");
                 setPassword("");
+                setMsgs(["SAVE_SUCCESS"])
             },
             function (data) {
                 setPassword("");
@@ -85,6 +87,7 @@ const AccountChangeEmailView = (props) => {
                     />
                 </Grid>
             </Grid>
+            <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             <Grid container style={{ marginBottom: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>

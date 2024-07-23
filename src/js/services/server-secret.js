@@ -39,7 +39,7 @@ function createServerSecret() {
  *
  * @returns {Promise} Returns a list of history items
  */
-function deleteServerSecret(password) {
+async function deleteServerSecret(password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -48,9 +48,9 @@ function deleteServerSecret(password) {
     const userPrivateKey = getStore().getState().user.userPrivateKey;
     const userSauce = getStore().getState().user.userSauce;
 
-    const privateKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
-    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
-    const authkey = cryptoLibrary.generateAuthkey(username, password);
+    const privateKeyEnc = await cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
+    const secretKeyEnc = await cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
+    const authkey = await cryptoLibrary.generateAuthkey(username, password);
 
     const onSuccess = function (content) {
         action().setServerSecretExists(false);

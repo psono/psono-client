@@ -19,6 +19,8 @@ import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
 import importTeampassNetCsv from "./import-teampass-net-csv";
 import importNextcloudCsvService from "./import-nextcloud-csv";
+import import1passwordV7CsvService from "./import-1password-v7-csv";
+import import1passwordV8CsvService from "./import-1password-v8-csv";
 import cryptoLibraryService from "./crypto-library";
 import i18n from "../i18n";
 
@@ -27,6 +29,16 @@ const _importer = {
         name: "Psono.pw (JSON)",
         value: "psono_pw_json",
         parser: importPsonoJson.parser,
+    },
+    one_password_v8: {
+        name: "1Password v8 (CSV)",
+        value: "one_password_v8",
+        parser: import1passwordV8CsvService.parser,
+    },
+    one_password_v7: {
+        name: "1Password v7 (CSV)",
+        value: "one_password_v7",
+        parser: import1passwordV7CsvService.parser,
     },
     chrome_csv: {
         name: "Chrome (CSV)",
@@ -299,7 +311,7 @@ function getImporterHelp(type) {
  *
  * @returns {Promise} Returns a promise with the result of the import
  */
-function importDatastore(type, data, password) {
+async function importDatastore(type, data, password) {
     emit("import-started", {});
 
     if (password) {
@@ -310,20 +322,20 @@ function importDatastore(type, data, password) {
             // datastore was not json encoded and as such cannot be an encrypted Export
         }
         if (decryptedJson && decryptedJson.hasOwnProperty("text") && decryptedJson.hasOwnProperty("nonce")) {
-            try{
-                data = cryptoLibraryService.decryptSecret(decryptedJson['text'], decryptedJson['nonce'], password, "")
-            } catch(e) {
-                return Promise.reject({ errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"] })
+            try {
+                data = await cryptoLibraryService.decryptSecret(decryptedJson['text'], decryptedJson['nonce'], password, "")
+            } catch (e) {
+                return Promise.reject({errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"]})
             }
         }
     }
 
-    return Promise.resolve({ type: type, data: data })
+    return Promise.resolve({type: type, data: data})
         .then(parseExport)
         .then(createSecrets)
         .then(updateDatastore)
         .then(function () {
-            return { msgs: ["IMPORT_SUCCESSFUL"] };
+            return {msgs: ["IMPORT_SUCCESSFUL"]};
         });
 }
 
