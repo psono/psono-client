@@ -21,8 +21,14 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'chrome/data/js/bundle.min.js': './src/js/index.js',
-    'chrome/data/js/background-chrome.js': './src/js/background-chrome.js',
+    'js/bundle.min.js': './src/js/index.js',
+    'js/background-chrome.js': './src/js/background-chrome.js',
+  },
+  output: {
+    filename: '[name]',
+    path: path.resolve(__dirname, 'build', 'chrome', 'data'),
+    chunkFilename: 'js/[name].js',
+    publicPath: '/data/',
   },
   plugins: [
     new webpack.DefinePlugin({

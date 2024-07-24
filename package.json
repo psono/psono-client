@@ -15,7 +15,6 @@
     "buildelectron": "webpack --config webpack.environment.prod.electron.js",
     "deployfirefox": "node ./var/firefox_deploy.js",
     "deploychrome": "node ./var/chrome_deploy.js",
-    "buildsw": "node ./src/build-service-worker.js",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "keywords": [],

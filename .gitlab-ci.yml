@@ -38,19 +38,19 @@ test-unittests:
 #    - karma start ./unittests/karma-chromium-headless.conf.js
 
 
-#test-linter:
-#  except:
-#    - schedules
-#  stage: test
-#  image: psono-docker.jfrog.io/ubuntu:22.04
-#  script:
-#    - sh ./var/prep-build.sh
-#    - node var/update_public_suffix_list.js
-#    - npm run buildfirefox
-#    - npm install -g addons-linter@6.1.0
-#    - cat ./build/firefox/manifest.json
-#    - addons-linter --help
-#    - addons-linter ./build/firefox
+test-linter:
+  except:
+    - schedules
+  stage: test
+  image: psono-docker.jfrog.io/ubuntu:22.04
+  script:
+    - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
+    - npm run buildfirefox
+    - npm install -g addons-linter@6.1.0
+    - cat ./build/firefox/manifest.json
+    - addons-linter --help
+    - addons-linter ./build/firefox
 
 test-vulnerability-scan:
   except:

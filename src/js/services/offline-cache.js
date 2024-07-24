@@ -144,7 +144,7 @@ async function setEncryptionPassword(password) {
  *
  * @returns {Promise} promise
  */
-function set(url, method, data) {
+async function set(url, method, data) {
     if (method !== "GET" || !isActive()) {
         return;
     }
@@ -152,10 +152,10 @@ function set(url, method, data) {
     let value = JSON.stringify(data);
 
     if (encryptionKey) {
-        value = cryptoLibrary.encryptData(value, encryptionKey);
+        value = await cryptoLibrary.encryptData(value, encryptionKey);
     }
 
-    storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
+    storage.upsert("offline-cache", {key: url.toLowerCase(), value: value});
 }
 
 /**
@@ -178,7 +178,7 @@ function get(url, method) {
         });
     }
 
-    return storage.findKey("offline-cache", url.toLowerCase()).then((storageEntry) => {
+    return storage.findKey("offline-cache", url.toLowerCase()).then(async (storageEntry) => {
         if (storageEntry === null) {
             return null;
         }
@@ -186,7 +186,7 @@ function get(url, method) {
         let value = storageEntry.value;
 
         if (encryptionKey) {
-            value = cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
+            value = await cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
         }
 
         return JSON.parse(value);

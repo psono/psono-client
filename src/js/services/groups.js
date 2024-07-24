@@ -21,9 +21,9 @@ const group_private_key_cache = {};
  * @param {string} groupSecretKeyType The type of the encryption
  * @param {string} groupPublicKey The group's public key (necessary if the encryption is asymmetric)
  *
- * @returns {string} Returns the secret key of a group
+ * @returns {Promise<String>} Returns the secret key of a group
  */
-function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSecretKeyType, groupPublicKey) {
+async function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSecretKeyType, groupPublicKey) {
     if (group_secret_key_cache.hasOwnProperty(groupId)) {
         return group_secret_key_cache[groupId];
     }
@@ -42,9 +42,9 @@ function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSe
         }
     }
     if (groupSecretKeyType === "symmetric") {
-        group_secret_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupSecretKey, groupSecretKeyNonce);
+        group_secret_key_cache[groupId] = await cryptoLibraryService.decryptSecretKey(groupSecretKey, groupSecretKeyNonce);
     } else {
-        group_secret_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+        group_secret_key_cache[groupId] = await cryptoLibraryService.decryptPrivateKey(
             groupSecretKey,
             groupSecretKeyNonce,
             groupPublicKey
@@ -63,16 +63,16 @@ function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSe
  * @param {string} groupPrivateKeyType The type of the encryption
  * @param {string} groupPublicKey The group's public key (necessary if the encryption is asymmetric)
  *
- * @returns {string} Returns the private key of a group
+ * @returns {Promise<String>} Returns the private key of a group
  */
-function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, groupPrivateKeyType, groupPublicKey) {
+async function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, groupPrivateKeyType, groupPublicKey) {
     if (group_private_key_cache.hasOwnProperty(groupId)) {
         return group_private_key_cache[groupId];
     }
     if (groupPrivateKeyType === "symmetric") {
-        group_private_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupPrivateKey, groupPrivateKeyNonce);
+        group_private_key_cache[groupId] = await cryptoLibraryService.decryptSecretKey(groupPrivateKey, groupPrivateKeyNonce);
     } else {
-        group_private_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+        group_private_key_cache[groupId] = await cryptoLibraryService.decryptPrivateKey(
             groupPrivateKey,
             groupPrivateKeyNonce,
             groupPublicKey
@@ -90,11 +90,11 @@ function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, grou
  * @param {string} encryptedMessage The encrypted message
  * @param {string} encryptedMessageNonce The nonce of the encrypted message
  *
- * @returns {string} Returns the decrypted message
+ * @returns {Promise<String>} Returns the decrypted message
  */
-function decryptSecretKey(groupId, encryptedMessage, encryptedMessageNonce) {
-    const secretKey = getGroupSecretKey(groupId);
-    return cryptoLibraryService.decryptData(encryptedMessage, encryptedMessageNonce, secretKey);
+async function decryptSecretKey(groupId, encryptedMessage, encryptedMessageNonce) {
+    const secretKey = await getGroupSecretKey(groupId);
+    return await cryptoLibraryService.decryptData(encryptedMessage, encryptedMessageNonce, secretKey);
 }
 
 /**
@@ -106,11 +106,11 @@ function decryptSecretKey(groupId, encryptedMessage, encryptedMessageNonce) {
  * @param {string} encryptedMessageNonce The nonce of the encrypted message
  * @param {string} publicKey The corresponding public key
  *
- * @returns {string} Returns the decrypted secret
+ * @returns {Promise<String>} Returns the decrypted secret
  */
-function decrypt_private_key(groupId, encryptedMessage, encryptedMessageNonce, publicKey) {
-    const private_key = getGroupPrivateKey(groupId);
-    return cryptoLibraryService.decryptDataPublicKey(encryptedMessage, encryptedMessageNonce, publicKey, private_key);
+async function decrypt_private_key(groupId, encryptedMessage, encryptedMessageNonce, publicKey) {
+    const private_key = await getGroupPrivateKey(groupId);
+    return await cryptoLibraryService.decryptDataPublicKey(encryptedMessage, encryptedMessageNonce, publicKey, private_key);
 }
 
 /**
@@ -169,7 +169,7 @@ function readGroups(forceFresh) {
  *
  * @returns {Promise} Returns whether the creation was successful or not
  */
-function createGroup(name) {
+async function createGroup(name) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -183,9 +183,9 @@ function createGroup(name) {
     };
 
     const group_secret_key = cryptoLibraryService.generateSecretKey();
-    const group_secret_key_enc = cryptoLibraryService.encryptSecretKey(group_secret_key);
-    const group_key_pair = cryptoLibraryService.generatePublicPrivateKeypair();
-    const group_private_key_enc = cryptoLibraryService.encryptSecretKey(group_key_pair["private_key"]);
+    const group_secret_key_enc = await cryptoLibraryService.encryptSecretKey(group_secret_key);
+    const group_key_pair = await cryptoLibraryService.generatePublicPrivateKeypair();
+    const group_private_key_enc = await cryptoLibraryService.encryptSecretKey(group_key_pair["private_key"]);
     const group_public_key = group_key_pair["public_key"];
 
     return apiClient
@@ -320,7 +320,7 @@ function getOutstandingGroupShares() {
  *
  * @returns {Promise} Returns whether the creation was successful or not
  */
-function createMembership(user, group, groupAdmin, shareAdmin) {
+async function createMembership(user, group, groupAdmin, shareAdmin) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -332,7 +332,7 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         return Promise.reject(request);
     };
 
-    const groupSecretKey = getGroupSecretKey(
+    const groupSecretKey = await getGroupSecretKey(
         group.group_id,
         group.secret_key,
         group.secret_key_nonce,
@@ -340,7 +340,7 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         group.public_key
     );
 
-    const groupPrivateKey = getGroupPrivateKey(
+    const groupPrivateKey = await getGroupPrivateKey(
         group.group_id,
         group.private_key,
         group.private_key_nonce,
@@ -348,12 +348,12 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         group.public_key
     );
 
-    const groupSecretKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+    const groupSecretKeyEncrypted = await cryptoLibraryService.encryptDataPublicKey(
         groupSecretKey,
         user.public_key,
         groupPrivateKey
     );
-    const groupPrivateKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+    const groupPrivateKeyEncrypted = await cryptoLibraryService.encryptDataPublicKey(
         groupPrivateKey,
         user.public_key,
         groupPrivateKey
@@ -433,16 +433,16 @@ function deleteMembership(membershipId) {
  *
  * @returns {object} The decrypted sahre
  */
-function decryptGroupShare(groupId, share) {
-    const share_secret_key = decryptSecretKey(groupId, share.share_key, share.share_key_nonce);
+async function decryptGroupShare(groupId, share) {
+    const share_secret_key = await decryptSecretKey(groupId, share.share_key, share.share_key_nonce);
     const decrypted_share = shareService.decryptShare(share, share_secret_key);
 
     if (typeof decrypted_share.name === "undefined") {
-        decrypted_share.name = decryptSecretKey(groupId, share.share_title, share.share_title_nonce);
+        decrypted_share.name = await decryptSecretKey(groupId, share.share_title, share.share_title_nonce);
     }
 
     if (typeof decrypted_share.type === "undefined" && typeof share.share_type !== "undefined") {
-        const type = decryptSecretKey(groupId, share.share_type, share.share_type_nonce);
+        const type = await decryptSecretKey(groupId, share.share_type, share.share_type_nonce);
 
         if (type !== "folder") {
             decrypted_share.type = type;

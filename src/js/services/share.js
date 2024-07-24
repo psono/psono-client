@@ -29,9 +29,9 @@ function readShare(shareId, secretKey) {
         // pass
     };
 
-    const onSuccess = function (content) {
+    const onSuccess = async function (content) {
         return {
-            data: JSON.parse(cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey)),
+            data: JSON.parse(await cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey)),
             rights: content.data.rights,
         };
     };
@@ -52,13 +52,13 @@ function readShares() {
         // pass
     };
 
-    const onSuccess = function (content) {
+    const onSuccess = async function (content) {
         for (let i = content.data.shares.length - 1; i >= 0; i--) {
             if (
                 content.data.shares[i].share_right_title !== "" &&
                 content.data.shares[i].share_right_create_user_public_key
             ) {
-                content.data.shares[i].share_right_title = cryptoLibrary.decryptPrivateKey(
+                content.data.shares[i].share_right_title = await cryptoLibrary.decryptPrivateKey(
                     content.data.shares[i].share_right_title,
                     content.data.shares[i].share_right_title_nonce,
                     content.data.shares[i].share_right_create_user_public_key
@@ -69,7 +69,7 @@ function readShares() {
                 content.data.shares[i].share_right_type !== "" &&
                 content.data.shares[i].share_right_create_user_public_key
             ) {
-                content.data.shares[i].share_right_type = cryptoLibrary.decryptPrivateKey(
+                content.data.shares[i].share_right_type = await cryptoLibrary.decryptPrivateKey(
                     content.data.shares[i].share_right_type,
                     content.data.shares[i].share_right_type_nonce,
                     content.data.shares[i].share_right_create_user_public_key
@@ -92,7 +92,7 @@ function readShares() {
  *
  * @returns {Promise} Returns a promise with the status of the update
  */
-function writeShare(shareId, content, secretKey) {
+async function writeShare(shareId, content, secretKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -109,7 +109,7 @@ function writeShare(shareId, content, secretKey) {
 
     const jsonContent = JSON.stringify(duplicate);
 
-    const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
+    const encryptedData = await cryptoLibrary.encryptData(jsonContent, secretKey);
     return apiClient.writeShare(token, sessionSecretKey, shareId, encryptedData.text, encryptedData.nonce);
 }
 
@@ -125,7 +125,7 @@ function writeShare(shareId, content, secretKey) {
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
-function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRequest, onClosedRequest) {
+async function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRequest, onClosedRequest) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -145,8 +145,8 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
 
     const jsonContent = JSON.stringify(filteredContent);
 
-    const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
-    const encryptedKey = cryptoLibrary.encryptSecretKey(secretKey);
+    const encryptedData = await cryptoLibrary.encryptData(jsonContent, secretKey);
+    const encryptedKey = await cryptoLibrary.encryptSecretKey(secretKey);
 
     const onError = function (result) {
         // pass
@@ -172,7 +172,7 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
             shareLinkService.moveShareLink(child_shares[i]["share"]["id"], content.data.share_id, undefined);
         }
 
-        return { share_id: content.data.share_id, secret_key: secretKey };
+        return {share_id: content.data.share_id, secret_key: secretKey};
     };
 
     return apiClient
@@ -249,7 +249,7 @@ function readShareRightsOverview() {
  *
  * @returns {Promise} Returns a promise with the new share right id
  */
-function createShareRight(title, type, shareId, userId, groupId, publicKey, secretKey, key, read, write, grant) {
+async function createShareRight(title, type, shareId, userId, groupId, publicKey, secretKey, key, read, write, grant) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     let encrypted_key, encrypted_title, encrypted_type;
@@ -259,17 +259,17 @@ function createShareRight(title, type, shareId, userId, groupId, publicKey, secr
     };
 
     const onSuccess = function (content) {
-        return { share_right_id: content.data.share_right_id };
+        return {share_right_id: content.data.share_right_id};
     };
 
     if (typeof publicKey !== "undefined") {
-        encrypted_key = cryptoLibrary.encryptPrivateKey(key, publicKey);
-        encrypted_title = cryptoLibrary.encryptPrivateKey(title, publicKey);
-        encrypted_type = cryptoLibrary.encryptPrivateKey(type, publicKey);
+        encrypted_key = await cryptoLibrary.encryptPrivateKey(key, publicKey);
+        encrypted_title = await cryptoLibrary.encryptPrivateKey(title, publicKey);
+        encrypted_type = await cryptoLibrary.encryptPrivateKey(type, publicKey);
     } else {
-        encrypted_key = cryptoLibrary.encryptData(key, secretKey);
-        encrypted_title = cryptoLibrary.encryptData(title, secretKey);
-        encrypted_type = cryptoLibrary.encryptData(type, secretKey);
+        encrypted_key = await cryptoLibrary.encryptData(key, secretKey);
+        encrypted_title = await cryptoLibrary.encryptData(title, secretKey);
+        encrypted_type = await cryptoLibrary.encryptData(type, secretKey);
     }
 
     return apiClient
@@ -355,12 +355,12 @@ function deleteShareRight(userShareRightId, groupShareRightId) {
  *
  * @returns {object} The decrypted share
  */
-function decryptShare(encryptedShare, secretKey) {
+async function decryptShare(encryptedShare, secretKey) {
     let share = {};
 
     if (typeof encryptedShare.share_data !== "undefined") {
         share = JSON.parse(
-            cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey)
+            await cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey)
         );
     }
 
@@ -380,21 +380,21 @@ function decryptShare(encryptedShare, secretKey) {
  *
  * @returns {Promise} Returns a promise with the share content
  */
-function acceptShareRight(shareRightId, text, nonce, publicKey) {
+async function acceptShareRight(shareRightId, text, nonce, publicKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const secret_key = cryptoLibrary.decryptPrivateKey(text, nonce, publicKey);
+    const secret_key = await cryptoLibrary.decryptPrivateKey(text, nonce, publicKey);
 
     const onError = function (result) {
         // pass
     };
 
-    const onSuccess = function (content) {
+    const onSuccess = async function (content) {
         const decrypted_share = decryptShare(content.data, secret_key);
 
         if (typeof decrypted_share.type === "undefined" && typeof content.data.share_type !== "undefined") {
-            const type = cryptoLibrary.decryptPrivateKey(
+            const type = await cryptoLibrary.decryptPrivateKey(
                 content.data.share_type,
                 content.data.share_type_nonce,
                 publicKey
@@ -408,7 +408,7 @@ function acceptShareRight(shareRightId, text, nonce, publicKey) {
         return decrypted_share;
     };
 
-    const encrypted_key = cryptoLibrary.encryptSecretKey(secret_key);
+    const encrypted_key = await cryptoLibrary.encryptSecretKey(secret_key);
 
     return apiClient
         .acceptShareRight(token, sessionSecretKey, shareRightId, encrypted_key.text, encrypted_key.nonce)

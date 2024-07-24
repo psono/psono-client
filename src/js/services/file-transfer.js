@@ -92,13 +92,13 @@ function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentD
  *
  * @returns {Promise} promise
  */
-function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum) {
+async function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum) {
     const ticket = {
         chunk_position: chunkPosition,
         hash_checksum: hashChecksum,
     };
 
-    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
+    const ticketEncrypted = await cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
 
     let fileserver;
     if (shard["fileserver"].length > 1) {
@@ -564,14 +564,14 @@ function createShardReadDict(shards) {
  *
  * @returns {PromiseLike<T | void> | Promise<T | void> | *}
  */
-function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashChecksum) {
+async function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashChecksum) {
     registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
     const ticket = {
         hash_checksum: hashChecksum,
     };
 
-    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
+    const ticketEncrypted = await cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
     let fileserver;
     if (shard["fileserver"].length > 1) {
         // math random should be good enough here, don't use for crypto!
