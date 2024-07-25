@@ -21,13 +21,13 @@ import { getStore } from "./store";
  *
  * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
  */
-function createSecretBulk(objects, parentDatastoreId, parentShareId) {
+async function createSecretBulk(objects, parentDatastoreId, parentShareId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const encryptionKeyLookup = {};
 
-    const bulkObjects = objects.map(async function (o) {
+    const bulkObjects = await Promise.all(objects.map(async function (o) {
 
         const secretKey = cryptoLibrary.generateSecretKey();
         encryptionKeyLookup[o.linkId] = secretKey;
@@ -43,16 +43,15 @@ function createSecretBulk(objects, parentDatastoreId, parentShareId) {
             'callback_user': o.callbackUser,
             'callback_pass': o.callbackPass,
         }
-    })
-
+    }))
 
     const onError = function (result) {
         return Promise.reject(result);
     };
 
     const onSuccess = function (response) {
-        return response.data.secrets.map(function(s) {
-            return { secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id }
+        return response.data.secrets.map(function (s) {
+            return {secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id}
         })
     };
 
