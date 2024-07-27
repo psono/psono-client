@@ -26,7 +26,8 @@ function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
             uri: request.data["activation_code"],
         };
     };
-    const onError = function (request) {
+    const onError = async function (request) {
+        request = await request;
         return Promise.reject(request.data);
     };
     return apiClient
@@ -85,7 +86,8 @@ function deleteDuo(duoId) {
     const onSuccess = function () {
         return true;
     };
-    const onError = function (data) {
+    const onError = async function (data) {
+        data = await data;
         return Promise.reject(data.data);
     };
     return apiClient.deleteDuo(token, sessionSecretKey, duoId).then(onSuccess, onError);

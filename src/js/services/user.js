@@ -88,16 +88,17 @@ function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect)
  *
  * @returns {Promise}
  */
-function samlLogin(samlTokenId) {
+async function samlLogin(samlTokenId) {
     const serverPublicKey = getStore().getState().server.publicKey;
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+    const sessionKeys = await cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
     const onSuccess = function (response) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'SAML');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         return Promise.reject(response.data.non_field_errors);
     };
 
@@ -111,7 +112,7 @@ function samlLogin(samlTokenId) {
     login_info = JSON.stringify(login_info);
 
     // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
+    const loginInfoEnc = await cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
     const trustDevice = getStore().getState().user.trustDevice;
@@ -168,16 +169,17 @@ function getSamlRedirectUrl(providerId) {
  *
  * @returns {Promise}
  */
-function oidcLogin(oidcTokenId) {
+async function oidcLogin(oidcTokenId) {
     const serverPublicKey = getStore().getState().server.publicKey;
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+    const sessionKeys = await cryptoLibrary.generatePublicPrivateKeypair();
     const password = '';
 
     const onSuccess = function (response) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'OIDC');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         return Promise.reject(response.data.non_field_errors);
     };
 
@@ -191,7 +193,7 @@ function oidcLogin(oidcTokenId) {
     login_info = JSON.stringify(login_info);
 
     // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
+    const loginInfoEnc = await cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
     const trustDevice = getStore().getState().user.trustDevice;
@@ -251,7 +253,8 @@ function gaVerify(gaToken) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
+    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -271,7 +274,8 @@ function duoVerify(duoToken) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
+    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -291,7 +295,8 @@ function yubikeyOtpVerify(yubikeyOtp) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
+    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -355,7 +360,7 @@ function activateToken() {
  */
 async function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
     let decrypted_response_data = JSON.parse(
-        cryptoLibrary.decryptDataPublicKey(
+        await cryptoLibrary.decryptDataPublicKey(
             response.data.login_info,
             response.data.login_info_nonce,
             serverPublicKey,
@@ -366,7 +371,7 @@ async function handleLoginResponse(response, password, sessionKeys, serverPublic
 
     if (decrypted_response_data.hasOwnProperty('data') && decrypted_response_data.hasOwnProperty('data_nonce')) {
         decrypted_response_data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
+            await cryptoLibrary.decryptDataPublicKey(
                 decrypted_response_data.data,
                 decrypted_response_data.data_nonce,
                 server_session_public_key,
@@ -379,7 +384,7 @@ async function handleLoginResponse(response, password, sessionKeys, serverPublic
     // decrypt the session key
     let sessionSecretKey = decrypted_response_data.session_secret_key;
     if (decrypted_response_data.hasOwnProperty('session_secret_key_nonce')) {
-        sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
+        sessionSecretKey = await cryptoLibrary.decryptDataPublicKey(
             decrypted_response_data.session_secret_key,
             decrypted_response_data.session_secret_key_nonce,
             decrypted_response_data.session_public_key,
@@ -406,7 +411,7 @@ async function handleLoginResponse(response, password, sessionKeys, serverPublic
     }
 
     // decrypt the user_validator
-    const user_validator = cryptoLibrary.decryptDataPublicKey(
+    const user_validator = await cryptoLibrary.decryptDataPublicKey(
         decrypted_response_data.user_validator,
         decrypted_response_data.user_validator_nonce,
         server_session_public_key,
@@ -414,7 +419,7 @@ async function handleLoginResponse(response, password, sessionKeys, serverPublic
     );
 
     // encrypt the validator as verification
-    verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
+    verification = await cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
     action().setUserUsername(decrypted_response_data.user.username);
 
@@ -449,13 +454,14 @@ async function login(password, serverInfo, sendPlain) {
     const serverPublicKey = serverInfo.info.public_key;
 
     const authkey = await cryptoLibrary.generateAuthkey(username, password);
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+    const sessionKeys = await cryptoLibrary.generatePublicPrivateKeypair();
 
     const onSuccess = function (response) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -478,7 +484,7 @@ async function login(password, serverInfo, sendPlain) {
     loginInfo = JSON.stringify(loginInfo);
 
     // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
+    const loginInfoEnc = await cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
     if (trustDevice) {
@@ -572,7 +578,8 @@ async function deleteAccount(password) {
         logout();
     };
 
-    const onError = function (data) {
+    const onError = async function (data) {
+        data = await data;
         return Promise.reject(data.data);
     };
 
@@ -730,7 +737,8 @@ function saveNewLanguage(language) {
     const onSuccess = function (data) {
         return { msgs: ["SAVE_SUCCESS"] };
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
     return updateUser(
@@ -810,7 +818,7 @@ async function setPassword(username, recoveryCode, password, userPrivateKey, use
         secret_key_nonce: secretKeyEnc.nonce,
     });
 
-    const updateRequestEnc = cryptoLibrary.encryptDataPublicKey(updateRequest, verifierPublicKey, userPrivateKey);
+    const updateRequestEnc = await cryptoLibrary.encryptDataPublicKey(updateRequest, verifierPublicKey, userPrivateKey);
 
     const onSuccess = function (data) {
         return data;
@@ -867,7 +875,7 @@ async function armEmergencyCode(username, emergencyCode, server, serverInfo, ver
         policies = data.data.policies;
         const authentication = data.data.authentication ? data.data.authentication : 'AUTHKEY';
 
-        const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
+        const sessionKey = await cryptoLibrary.generatePublicPrivateKeypair();
 
         const loginInfo = JSON.stringify({
             device_time: new Date().toISOString(),
@@ -876,15 +884,15 @@ async function armEmergencyCode(username, emergencyCode, server, serverInfo, ver
             session_public_key: sessionKey.public_key,
         });
 
-        const update_request_enc = cryptoLibrary.encryptDataPublicKey(
+        const update_request_enc = await cryptoLibrary.encryptDataPublicKey(
             loginInfo,
             data.data.verifier_public_key,
             emergency_data.user_private_key
         );
 
-        const onSuccess = function (data) {
+        const onSuccess = async function (data) {
             const loginInfo = JSON.parse(
-                cryptoLibrary.decryptDataPublicKey(
+                await cryptoLibrary.decryptDataPublicKey(
                     data.data.login_info,
                     data.data.login_info_nonce,
                     serverInfo["public_key"],
@@ -1053,7 +1061,7 @@ function register(email, username, password, server) {
         // storage.upsert('config', {key: 'user_username', value: username});
         // storage.upsert('config', {key: 'server', value: server});
 
-        const pair = cryptoLibrary.generatePublicPrivateKeypair();
+        const pair = await cryptoLibrary.generatePublicPrivateKeypair();
         const userSauce = cryptoLibrary.generateUserSauce();
 
         const privateKeyEncrypted = await cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);

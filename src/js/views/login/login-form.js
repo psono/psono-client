@@ -22,6 +22,7 @@ import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
 import datastoreSettingService from "../../services/datastore-setting";
+import TextWithLineBreaks from "../../components/text-with-linebreaks";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -103,6 +104,7 @@ const LoginViewForm = (props) => {
     const [ldapEnabled, setLdapEnabled] = useState(false);
     const [samlEnabled, setSamlEnabled] = useState(false);
     const [oidcEnabled, setOidcEnabled] = useState(false);
+    const [loginInfoText, setLoginInfoText] = useState("");
     const [serverCheck, setServerCheck] = useState({});
     const [samlProvider, setSamlProvider] = useState([]);
     const [oidcProvider, setOidcProvider] = useState([]);
@@ -504,6 +506,7 @@ const LoginViewForm = (props) => {
         const ldapEnabled = configJson["authentication_methods"].indexOf("LDAP") !== -1;
         const samlEnabled = configJson["authentication_methods"].indexOf("SAML") !== -1;
         const oidcEnabled = configJson["authentication_methods"].indexOf("OIDC") !== -1;
+        const loginInfoText = configJson["login_info_text"];
 
         setPlainPasswordWhitelistedServerUrls(plainPasswordWhitelistedServerUrls);
         setAllowLostPassword(allowLostPassword);
@@ -523,6 +526,7 @@ const LoginViewForm = (props) => {
         setLdapEnabled(ldapEnabled);
         setSamlEnabled(samlEnabled);
         setOidcEnabled(oidcEnabled);
+        setLoginInfoText(loginInfoText);
         if (!authkeyEnabled && !ldapEnabled && configJson.hasOwnProperty('auto_login') && configJson['auto_login']) {
             setTimeout(function () {
                 if (!props.samlTokenId && !props.oidcTokenId) {
@@ -1503,6 +1507,18 @@ const LoginViewForm = (props) => {
                 &nbsp;&nbsp;
                 <FooterLinks />
             </div>
+            {loginInfoText && (
+                <MuiAlert
+                    icon={false}
+                    severity="info"
+                    style={{
+                        marginTop: "5px",
+                        fontSize: "10px",
+                    }}
+                >
+                    <TextWithLineBreaks text={loginInfoText} />
+                </MuiAlert>
+            )}
         </form>
     );
 };

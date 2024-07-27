@@ -23,6 +23,7 @@ import import1passwordV7CsvService from "./import-1password-v7-csv";
 import import1passwordV8CsvService from "./import-1password-v8-csv";
 import cryptoLibraryService from "./crypto-library";
 import i18n from "../i18n";
+import importProtonPassCsvService from "./import-protonpass-csv";
 
 const _importer = {
     psono_pw_json: {
@@ -55,6 +56,11 @@ const _importer = {
         name: "Firefox (CSV)",
         value: "firefox_csv",
         parser: importFirefoxCsvService.parser,
+    },
+    protonpass_csv: {
+        name: "Proton Pass (CSV)",
+        value: "protonpass_csv",
+        parser: importProtonPassCsvService.parser,
     },
     safari_csv: {
         name: "Safari (CSV)",
@@ -263,7 +269,8 @@ function createSecrets(parsedData) {
             })
             emit("create-secret-complete", {});
             return parsedData;
-        }, function (result) {
+        }, async function (result) {
+            result = await result;
             return Promise.reject(result)
         });
     });

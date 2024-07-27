@@ -21,7 +21,13 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'firefox/data/js/bundle.min.js': './src/js/index.js',
+    'js/bundle.min.js': './src/js/index.js',
+  },
+  output: {
+    filename: '[name]',
+    path: path.resolve(__dirname, 'build', 'firefox', 'data'),
+    chunkFilename: 'js/[name].js',
+    publicPath: '/data/',
   },
   plugins: [
     new webpack.DefinePlugin({

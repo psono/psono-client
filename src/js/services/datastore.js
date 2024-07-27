@@ -108,8 +108,8 @@ function getDatastoreWithId(datastoreId) {
         // pass
     };
 
-    const onSuccess = function (result) {
-        const datastore_secret_key = cryptoLibrary.decryptSecretKey(
+    const onSuccess = async function (result) {
+        const datastore_secret_key = await cryptoLibrary.decryptSecretKey(
             result.data.secret_key,
             result.data.secret_key_nonce
         );
@@ -119,7 +119,7 @@ function getDatastoreWithId(datastoreId) {
         let datastore = {};
 
         if (result.data.data !== "") {
-            const data = cryptoLibrary.decryptData(result.data.data, result.data.data_nonce, datastore_secret_key);
+            const data = await cryptoLibrary.decryptData(result.data.data, result.data.data_nonce, datastore_secret_key);
 
             datastore = JSON.parse(data);
         }
@@ -141,13 +141,13 @@ function getDatastoreWithId(datastoreId) {
  *
  * @returns {Promise} A promise with result of the operation
  */
-function createDatastore(type, description, isDefault) {
+async function createDatastore(type, description, isDefault) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     //datastore does really not exist, lets create one and return it
     const secretKey = cryptoLibrary.generateSecretKey();
-    const cipher = cryptoLibrary.encryptSecretKey(secretKey);
+    const cipher = await cryptoLibrary.encryptSecretKey(secretKey);
 
     const onError = function (result) {
         // pass
@@ -199,7 +199,8 @@ async function deleteDatastore(datastoreId, password) {
 
     const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 

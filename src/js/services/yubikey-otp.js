@@ -23,7 +23,8 @@ function createYubikeyOtp(title, otp) {
             id: request.data["id"],
         };
     };
-    const onError = function (error) {
+    const onError = async function (error) {
+        error = await error;
         return Promise.reject(error.data);
     };
     return apiClient.createYubikeyOtp(token, sessionSecretKey, title, otp).then(onSuccess, onError);
@@ -81,7 +82,8 @@ function deleteYubikeyOtp(yubikeyOtpId) {
     const onSuccess = function () {
         return true;
     };
-    const onError = function (data) {
+    const onError = async function (data) {
+        data = await data;
         return Promise.reject(data.data);
     };
     return apiClient.deleteYubikeyOtp(token, sessionSecretKey, yubikeyOtpId).then(onSuccess, onError);

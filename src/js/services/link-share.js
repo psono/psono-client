@@ -20,9 +20,9 @@ import helper from "./helper";
 //     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 //
 //     const onSuccess = function (result) {
-//         result.data.private_key = cryptoLibrary.decryptSecretKey(result.data.private_key, result.data.private_key_nonce);
+//         result.data.private_key = await cryptoLibrary.decryptSecretKey(result.data.private_key, result.data.private_key_nonce);
 //         delete result.data.private_key_nonce;
-//         result.data.secret_key = cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
+//         result.data.secret_key = await cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
 //         delete result.data.secret_key_nonce;
 //
 //         return result.data;
@@ -61,10 +61,10 @@ function readLinkShares() {
  *
  * @returns {Object} Promise with the secret
  */
-function readSecretWithLinkShare(encryptedSecret, item) {
+async function readSecretWithLinkShare(encryptedSecret, item) {
     // normal secret
     const data = JSON.parse(
-        cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key)
+        await cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key)
     );
 
     const newItem = helper.duplicateObject(item);
@@ -107,9 +107,9 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  * @returns {Promise} Promise with the secret
  */
 function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
-    const onSuccess = function (result) {
+    const onSuccess = async function (result) {
         const share_link_data = JSON.parse(
-            cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret)
+            await cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret)
         );
 
         if (share_link_data.type === "file") {
@@ -119,8 +119,8 @@ function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
             return readSecretWithLinkShare(result.data, share_link_data);
         }
     };
-    const onError = function (result) {
-        console.log(result);
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -138,17 +138,17 @@ function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
  *
  * @returns {Promise} Promise with the secret
  */
-function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, content, passphrase) {
+async function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, content, passphrase) {
 
     const jsonContent = JSON.stringify(content);
 
-    const c = cryptoLibrary.encryptData(jsonContent, secretKey);
+    const c = await cryptoLibrary.encryptData(jsonContent, secretKey);
 
     const onSuccess = function (result) {
         return result.data
     };
-    const onError = function (result) {
-        console.log(result);
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -177,7 +177,8 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
     const onSuccess = function (result) {
         return result.data;
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
 
@@ -216,7 +217,8 @@ function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, val
     const onSuccess = function (result) {
         return result.data;
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 

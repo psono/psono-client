@@ -395,7 +395,7 @@ describe('Service: cryptoLibraryService test suite #2', function() {
     //
     // it('validate_signature', function() {
     //     expect(
-    //         cryptoLibraryService.validateSignature(
+    //         await cryptoLibraryService.validateSignature(
     //             'test message that is some nice text or whatever that needs to be encrypted',
     //             '6e3302a696092fe3893d971391f94f2cb850d19fbbae9978122f0f465593bc06e65440e0ec929805b58e63fe719983201754a2a578c906c18b8ffa71e3234502',
     //             '967fd5c3c8386609c1ac57209a6f68a147a56518a7ed5df3285beea58d671f62'

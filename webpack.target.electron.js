@@ -20,7 +20,13 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'electron/js/bundle.min.js': './src/js/index.js',
+    'js/bundle.min.js': './src/js/index.js',
+  },
+  output: {
+    filename: '[name]',
+    path: path.resolve(__dirname, 'build', 'electron'),
+    chunkFilename: 'js/[name].js',
+    publicPath: '/',
   },
   plugins: [
     new webpack.DefinePlugin({
