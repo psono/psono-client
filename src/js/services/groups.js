@@ -328,7 +328,8 @@ async function createMembership(user, group, groupAdmin, shareAdmin) {
         return request.data;
     };
 
-    const onError = function (request) {
+    const onError = async function (request) {
+        request = await request;
         return Promise.reject(request);
     };
 

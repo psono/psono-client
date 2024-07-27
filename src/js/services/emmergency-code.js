@@ -59,7 +59,8 @@ async function createEmergencyCode(title, leadTime) {
             emergency_words: emergencyPassword["words"].join(" "),
         };
     };
-    const onError = function (request) {
+    const onError = async function (request) {
+        request = await request;
         return Promise.reject(request.data);
     };
     return apiClient

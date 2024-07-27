@@ -199,7 +199,8 @@ async function deleteDatastore(datastoreId, password) {
 
     const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 

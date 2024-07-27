@@ -30,7 +30,8 @@ const registrations = {};
 function readFile(fileId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -57,7 +58,8 @@ function readFile(fileId) {
 function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -109,7 +111,8 @@ async function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPo
         fileserver = shard["fileserver"][0];
     }
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -142,12 +145,14 @@ function uploadFileRepositoryGcpCloudStorage(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -183,12 +188,14 @@ function uploadFileRepositoryAwsS3(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -224,12 +231,14 @@ function uploadFileRepositoryAzureBlob(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -265,12 +274,14 @@ function uploadFileRepositoryBackblaze(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -306,12 +317,14 @@ function uploadFileRepositoryOtherS3(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -347,12 +360,14 @@ function uploadFileRepositoryDoSpaces(
     chunkPosition,
     hashChecksum
 ) {
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             return Promise.reject(result.data);
         };
 
@@ -459,7 +474,8 @@ function upload(
 function readShards() {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -581,7 +597,8 @@ async function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashC
         fileserver = shard["fileserver"][0];
     }
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         console.log(result);
         return Promise.reject(result.data);
     };
@@ -607,13 +624,15 @@ async function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashC
 function fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum) {
     registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         console.log(result);
         return Promise.reject(result.data);
     };
 
     const onSuccess = function (result) {
-        const onError = function (result) {
+        const onError = async function (result) {
+            result = await result;
             console.log(result);
             return Promise.reject(result.data);
         };

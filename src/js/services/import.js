@@ -269,7 +269,8 @@ function createSecrets(parsedData) {
             })
             emit("create-secret-complete", {});
             return parsedData;
-        }, function (result) {
+        }, async function (result) {
+            result = await result;
             return Promise.reject(result)
         });
     });

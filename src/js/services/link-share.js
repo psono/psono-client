@@ -119,8 +119,8 @@ function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
             return readSecretWithLinkShare(result.data, share_link_data);
         }
     };
-    const onError = function (result) {
-        console.log(result);
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -147,8 +147,8 @@ async function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, con
     const onSuccess = function (result) {
         return result.data
     };
-    const onError = function (result) {
-        console.log(result);
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 
@@ -177,7 +177,8 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
     const onSuccess = function (result) {
         return result.data;
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
 
@@ -216,7 +217,8 @@ function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, val
     const onSuccess = function (result) {
         return result.data;
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 

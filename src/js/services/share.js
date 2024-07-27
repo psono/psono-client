@@ -254,7 +254,8 @@ async function createShareRight(title, type, shareId, userId, groupId, publicKey
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     let encrypted_key, encrypted_title, encrypted_type;
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
 
@@ -308,7 +309,8 @@ function updateShareRight(shareId, userId, groupId, read, write, grant) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         // pass
         return Promise.reject(result.data);
     };

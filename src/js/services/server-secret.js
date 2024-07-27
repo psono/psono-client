@@ -23,8 +23,8 @@ function createServerSecret() {
         return data.data;
     };
 
-    const onError = function (error) {
-        //pass
+    const onError = async function (error) {
+        error = await error;
         console.log(error)
         return Promise.reject(error);
     };
@@ -57,8 +57,8 @@ async function deleteServerSecret(password) {
         return content.data;
     };
 
-    const onError = function (error) {
-        //pass
+    const onError = async function (error) {
+        error = await error;
         console.log(error)
         return Promise.reject(error);
     };

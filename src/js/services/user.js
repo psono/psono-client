@@ -97,7 +97,8 @@ async function samlLogin(samlTokenId) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'SAML');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         return Promise.reject(response.data.non_field_errors);
     };
 
@@ -177,7 +178,8 @@ async function oidcLogin(oidcTokenId) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'OIDC');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         return Promise.reject(response.data.non_field_errors);
     };
 
@@ -251,7 +253,8 @@ function gaVerify(gaToken) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
+    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -271,7 +274,8 @@ function duoVerify(duoToken) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
+    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -291,7 +295,8 @@ function yubikeyOtpVerify(yubikeyOtp) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
+    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch(async (response) => {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -455,7 +460,8 @@ async function login(password, serverInfo, sendPlain) {
         return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
     };
 
-    const onError = function (response) {
+    const onError = async function (response) {
+        response = await response;
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -572,7 +578,8 @@ async function deleteAccount(password) {
         logout();
     };
 
-    const onError = function (data) {
+    const onError = async function (data) {
+        data = await data;
         return Promise.reject(data.data);
     };
 
@@ -730,7 +737,8 @@ function saveNewLanguage(language) {
     const onSuccess = function (data) {
         return { msgs: ["SAVE_SUCCESS"] };
     };
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
     return updateUser(

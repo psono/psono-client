@@ -633,7 +633,8 @@ function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
         });
     }
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result.data);
     };
 

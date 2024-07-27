@@ -92,7 +92,8 @@ function deleteGa(googleAuthenticatorId) {
     const onSuccess = function () {
         return true;
     };
-    const onError = function (data) {
+    const onError = async function (data) {
+        data = await data;
         return Promise.reject(data.data);
     };
     return apiClientService.deleteGa(token, sessionSecretKey, googleAuthenticatorId).then(onSuccess, onError);

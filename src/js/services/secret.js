@@ -45,7 +45,8 @@ async function createSecretBulk(objects, parentDatastoreId, parentShareId) {
         }
     }))
 
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
 
@@ -122,7 +123,8 @@ async function createSecret(content, linkId, parentDatastoreId, parentShareId, c
 function readSecret(secretId, secretKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
+    const onError = async function (result) {
+        result = await result;
         return Promise.reject(result);
     };
 
