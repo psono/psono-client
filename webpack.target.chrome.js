@@ -51,7 +51,7 @@ module.exports = merge(common, {
       
     new JsonPostProcessPlugin({
       matchers: [{
-        matcher: /^chrome\/manifest.json$/,
+        matcher: /^\.\.\/manifest.json$/,
         action: (currentJsonContent) => ({ ...currentJsonContent, version: version })
       }]
     }),
