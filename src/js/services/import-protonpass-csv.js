@@ -1,18 +1,20 @@
 /**
  * Service which handles the actual parsing of a proton pass CSV export
  */
+import * as OTPAuth from "otpauth";
 
 const Papa = require('papaparse');
 import helperService from './helper';
 import cryptoLibrary from './crypto-library';
 
-let INDEX_TYPE = 7;
-let INDEX_NAME = 6;
-let INDEX_URL = 0;
+let INDEX_TYPE = 0;
+let INDEX_NAME = 1;
+let INDEX_URL = 2;
 let INDEX_EMAIL = 3;
-let INDEX_USERNAME = 2;
-let INDEX_PASSWORD = 4;
-let INDEX_NOTE = 5;
+let INDEX_USERNAME = 4;
+let INDEX_PASSWORD = 5;
+let INDEX_NOTE = 6;
+let INDEX_TOTP = 7;
 let INDEX_OTHERS = []
 
 /**
@@ -124,7 +126,8 @@ function transferIntoWebsitePassword(line) {
     if (line[INDEX_USERNAME] && line[INDEX_EMAIL]) {
         note = note  + "Email: " + line[INDEX_EMAIL] + "\n";
     }
-    return {
+
+    const websitePassword = {
         id : cryptoLibrary.generateUuid(),
         type : "website_password",
         name : line[INDEX_NAME],
@@ -136,6 +139,21 @@ function transferIntoWebsitePassword(line) {
         "website_password_url" : url,
         "website_password_title" : line[INDEX_NAME]
     }
+
+    if (line[INDEX_TOTP]) {
+        try {
+            let parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
+
+            websitePassword['website_password_totp_period'] = parsedTotp.period;
+            websitePassword['website_password_totp_algorithm'] = parsedTotp.algorithm;
+            websitePassword['website_password_totp_digits'] = parsedTotp.digits;
+            websitePassword['website_password_totp_code'] = parsedTotp.secret.base32;
+        } catch (e) {
+            // pass.
+        }
+    }
+
+    return websitePassword;
 }
 
 /**
@@ -212,6 +230,46 @@ function transferIntoCreditCard(line) {
     }
 }
 
+
+/**
+ * Takes an item and transforms it into a note
+ *
+ * @param {[]} item One item of the json
+ *
+ * @returns {*} The secrets object
+ */
+function transformToTotpCode(item) {
+    let name = line[INDEX_NAME] + ' TOTP';
+    let totp_notes = "";
+    let totp_period = 30;
+    let totp_algorithm = "SHA1";
+    let totp_digits = "6";
+    let totp_code = "";
+    let totp_title = line[INDEX_NAME] + ' TOTP';
+
+    try {
+        let parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
+        totp_period = parsedTotp.period;
+        totp_algorithm = parsedTotp.algorithm;
+        totp_digits = parsedTotp.digits;
+        totp_code = parsedTotp.secret.base32;
+    } catch (e) {
+        // pass.
+    }
+
+    return {
+        id: cryptoLibrary.generateUuid(),
+        type: "totp",
+        name: name,
+        totp_notes: totp_notes,
+        totp_code: totp_code,
+        totp_digits: totp_digits,
+        totp_algorithm: totp_algorithm,
+        totp_period: totp_period,
+        totp_title: totp_title,
+    };
+}
+
 /**
  * Takes a line, checks its type and transforms it into a proper secret object
  *
@@ -221,6 +279,7 @@ function transferIntoCreditCard(line) {
  */
 function transformToSecret(line) {
     const type = getType(line);
+
     if (type === 'note') {
         return transferIntoNote(line);
     } else if (type === 'website_password') {
@@ -230,6 +289,13 @@ function transformToSecret(line) {
     } else if (type === 'credit_card') {
         return transferIntoCreditCard(line);
     }
+}
+
+function needsSeparateTotp(line) {
+    const type = getType(line);
+    const hasTotp = Boolean(line[INDEX_TOTP]);
+
+    return hasTotp && type !== "website_password"
 }
 
 
@@ -257,6 +323,14 @@ function gather_secrets(datastore, secrets, csv) {
         }
 
         const secret = transformToSecret(line);
+
+        if (needsSeparateTotp(line)) {
+            const totpEntry = transformToTotpCode(line);
+            if (totpEntry !== null) {
+                secrets.push(totpEntry);
+                datastore['items'].push(totpEntry);
+            }
+        }
 
         if (secret === null) {
             //empty line
