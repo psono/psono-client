@@ -432,7 +432,7 @@ function deleteMembership(membershipId) {
  * @param {uuid} groupId The group id
  * @param {object} share The encrypted share
  *
- * @returns {object} The decrypted sahre
+ * @returns {Promise<object>} The decrypted sahre
  */
 async function decryptGroupShare(groupId, share) {
     const share_secret_key = await decryptSecretKey(groupId, share.share_key, share.share_key_nonce);
@@ -459,7 +459,7 @@ async function decryptGroupShare(groupId, share) {
  * @param {uuid} groupId The group id
  * @param {Array} shares A list of encrypted shares
  *
- * @returns {Array} A list of decrypted shares
+ * @returns {Promise<Array>} A list of decrypted shares
  */
 function decryptGroupShares(groupId, shares) {
     const decrypted_shares = [];
@@ -468,7 +468,7 @@ function decryptGroupShares(groupId, shares) {
         decrypted_shares.push(decrypted_share);
     }
 
-    return decrypted_shares;
+    return Promise.all(decrypted_shares);
 }
 
 /**

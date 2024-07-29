@@ -125,7 +125,7 @@ const DialogAcceptGroupShares = (props) => {
                 return;
             }
 
-            const onSuccess = function (group_details) {
+            const onSuccess = async function (group_details) {
                 const encryptedShares = [];
                 for (let i = 0; i < group_details.group_share_rights.length; i++) {
                     const share = group_details.group_share_rights[i];
@@ -141,7 +141,7 @@ const DialogAcceptGroupShares = (props) => {
                     encryptedShares.push(share);
                 }
 
-                const shares = groupsService.decryptGroupShares(group.group_id, encryptedShares);
+                const shares = await groupsService.decryptGroupShares(group.group_id, encryptedShares);
 
                 return datastorePassword
                     .createShareLinksInDatastore(
