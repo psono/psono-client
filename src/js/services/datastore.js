@@ -108,8 +108,8 @@ function getDatastoreWithId(datastoreId) {
         // pass
     };
 
-    const onSuccess = async function (result) {
-        const datastore_secret_key = await cryptoLibrary.decryptSecretKey(
+    const onSuccess = function (result) {
+        const datastore_secret_key = cryptoLibrary.decryptSecretKey(
             result.data.secret_key,
             result.data.secret_key_nonce
         );
@@ -119,7 +119,7 @@ function getDatastoreWithId(datastoreId) {
         let datastore = {};
 
         if (result.data.data !== "") {
-            const data = await cryptoLibrary.decryptData(result.data.data, result.data.data_nonce, datastore_secret_key);
+            const data = cryptoLibrary.decryptData(result.data.data, result.data.data_nonce, datastore_secret_key);
 
             datastore = JSON.parse(data);
         }
@@ -141,13 +141,13 @@ function getDatastoreWithId(datastoreId) {
  *
  * @returns {Promise} A promise with result of the operation
  */
-async function createDatastore(type, description, isDefault) {
+function createDatastore(type, description, isDefault) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     //datastore does really not exist, lets create one and return it
     const secretKey = cryptoLibrary.generateSecretKey();
-    const cipher = await cryptoLibrary.encryptSecretKey(secretKey);
+    const cipher = cryptoLibrary.encryptSecretKey(secretKey);
 
     const onError = function (result) {
         // pass
@@ -193,14 +193,13 @@ async function createDatastore(type, description, isDefault) {
  *
  * @returns {Promise} A promise with result of the operation
  */
-async function deleteDatastore(datastoreId, password) {
+function deleteDatastore(datastoreId, password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
+    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
 
-    const onError = async function (result) {
-        result = await result;
+    const onError = function (result) {
         return Promise.reject(result.data);
     };
 

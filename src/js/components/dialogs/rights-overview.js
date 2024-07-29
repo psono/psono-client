@@ -231,7 +231,7 @@ const DialogRightsOverview = (props) => {
             await createUserShareRight(users[i]);
         }
 
-        async function createGroupShareRight(group) {
+        function createGroupShareRight(group) {
             const onSuccess = function (data) {
                 // pass
             };
@@ -253,7 +253,7 @@ const DialogRightsOverview = (props) => {
                     description,
                 });
             };
-            const groupSecretKey = await groupsService.getGroupSecretKey(
+            const groupSecretKey = groupsService.getGroupSecretKey(
                 group.group_id,
                 group.secret_key,
                 group.secret_key_nonce,

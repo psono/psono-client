@@ -92,8 +92,7 @@ function deleteWebauthn(webauthnId) {
     const onSuccess = function () {
         return true;
     };
-    const onError = async function (data) {
-        data = await data;
+    const onError = function (data) {
         return Promise.reject(data.data);
     };
     return apiClientService.deleteWebauthn(token, sessionSecretKey, webauthnId).then(onSuccess, onError);
@@ -111,8 +110,7 @@ function verifyWebauthnInit() {
     const onSuccess = function (request) {
         return request.data;
     };
-    const onError = async function (request) {
-        request = await request;
+    const onError = function (request) {
         return Promise.reject(request.data);
     };
     return apiClientService.webauthnVerifyInit(token, sessionSecretKey, getOrigin()).then(onSuccess, onError);
@@ -132,8 +130,7 @@ function verifyWebauthn(credential) {
     const onSuccess = function (request) {
         return request.data;
     };
-    const onError = async function (request) {
-        request = await request;
+    const onError = function (request) {
         return Promise.reject(request.data);
     };
     return apiClientService.webauthnVerify(token, sessionSecretKey, credential).then(onSuccess, onError);

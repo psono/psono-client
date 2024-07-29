@@ -98,7 +98,7 @@ function info() {
  * @returns {Promise} Result of the check
  */
 function checkHost(server, preApprovedVerifyKey) {
-    const onSuccess = async function (response) {
+    const onSuccess = function (response) {
         let checkResult;
         const data = response.data;
         const serverUrl = server.toLowerCase();
@@ -107,7 +107,7 @@ function checkHost(server, preApprovedVerifyKey) {
         info.version = "v" + splitVersion[0];
         info.build = splitVersion[2].replace(")", "");
 
-        if (!await cryptoLibrary.validateSignature(data["info"], data["signature"], data["verify_key"])) {
+        if (!cryptoLibrary.validateSignature(data["info"], data["signature"], data["verify_key"])) {
             return {
                 server_url: serverUrl,
                 status: "invalid_signature",

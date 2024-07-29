@@ -70,7 +70,7 @@ function isLocked() {
  *
  * @returns {boolean} locked status
  */
-async function unlock(password) {
+function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
@@ -81,7 +81,7 @@ async function unlock(password) {
     }
     let newEncryptionKey;
     try {
-        newEncryptionKey = await cryptoLibrary.decryptSecret(
+        newEncryptionKey = cryptoLibrary.decryptSecret(
             encryptionKeyEncrypted.text,
             encryptionKeyEncrypted.nonce,
             password,
@@ -91,7 +91,7 @@ async function unlock(password) {
         return false;
     }
     setEncryptionKey(newEncryptionKey);
-    browserClient.emitSec("set-offline-cache-encryption-key", {encryption_key: newEncryptionKey});
+    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: newEncryptionKey });
 
     return true;
 }
@@ -122,17 +122,17 @@ function setEncryptionKey(newEncryptionKey) {
  *
  * @param {string} password The password
  */
-async function setEncryptionPassword(password) {
+function setEncryptionPassword(password) {
     const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
     const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
-    const offlineCacheEncryptionKey = await cryptoLibrary.encryptSecret(
+    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
         new_encryption_key,
         password,
         offlineCacheEncryptionSalt
     );
     action().setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
-    browserClient.emitSec("set-offline-cache-encryption-key", {encryption_key: new_encryption_key});
+    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
 }
 
 /**
@@ -144,7 +144,7 @@ async function setEncryptionPassword(password) {
  *
  * @returns {Promise} promise
  */
-async function set(url, method, data) {
+function set(url, method, data) {
     if (method !== "GET" || !isActive()) {
         return;
     }
@@ -152,10 +152,10 @@ async function set(url, method, data) {
     let value = JSON.stringify(data);
 
     if (encryptionKey) {
-        value = await cryptoLibrary.encryptData(value, encryptionKey);
+        value = cryptoLibrary.encryptData(value, encryptionKey);
     }
 
-    storage.upsert("offline-cache", {key: url.toLowerCase(), value: value});
+    storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
 }
 
 /**
@@ -178,7 +178,7 @@ function get(url, method) {
         });
     }
 
-    return storage.findKey("offline-cache", url.toLowerCase()).then(async (storageEntry) => {
+    return storage.findKey("offline-cache", url.toLowerCase()).then((storageEntry) => {
         if (storageEntry === null) {
             return null;
         }
@@ -186,7 +186,7 @@ function get(url, method) {
         let value = storageEntry.value;
 
         if (encryptionKey) {
-            value = await cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
+            value = cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
         }
 
         return JSON.parse(value);

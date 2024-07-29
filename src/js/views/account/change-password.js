@@ -25,7 +25,6 @@ const AccountChangePasswordView = (props) => {
     const [oldPassword, setOldPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const [errors, setErrors] = useState([]);
-    const [msgs, setMsgs] = useState([]);
 
     const save = (event) => {
         setErrors([]);
@@ -34,7 +33,6 @@ const AccountChangePasswordView = (props) => {
                 setPassword("");
                 setOldPassword("");
                 setPasswordRepeat("");
-                setMsgs(["SAVE_SUCCESS"])
             },
             function (data) {
                 setOldPassword("");
@@ -108,7 +106,6 @@ const AccountChangePasswordView = (props) => {
                     />
                 </Grid>
             </Grid>
-            <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             <Grid container style={{ marginBottom: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>

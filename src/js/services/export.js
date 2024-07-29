@@ -446,9 +446,9 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems) {
  */
 function exportDatastore(type, includeTrashBinItems, includeSharedItems, password) {
     return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems)
-        .then(async function (data) {
+        .then(function (data) {
             if (password) {
-                data = JSON.stringify(await cryptoLibraryService.encryptSecret(data, password, ""))
+                data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))
             }
             return downloadExport(data, type, !!password);
         })

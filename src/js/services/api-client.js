@@ -11,7 +11,7 @@ import i18n from "../i18n";
 // TODO add later for audit log again
 //let AUDIT_LOG_HEADER = 'Audit-Log';
 
-const decryptData = async function (sessionSecretKey, data, url, method) {
+const decryptData = function (sessionSecretKey, data, url, method) {
     if (
         sessionSecretKey &&
         data !== null &&
@@ -34,17 +34,17 @@ const decryptData = async function (sessionSecretKey, data, url, method) {
         data.data.hasOwnProperty("text") &&
         data.data.hasOwnProperty("nonce")
     ) {
-        data.data = JSON.parse(await cryptoLibrary.decryptData(data.data.text, data.data.nonce, sessionSecretKey));
+        data.data = JSON.parse(cryptoLibrary.decryptData(data.data.text, data.data.nonce, sessionSecretKey));
     }
     offlineCache.set(url, method, data);
     return data;
 };
 
-async function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect) {
+function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect) {
     const url = serverUrl + endpoint;
 
     if (sessionSecretKey && body !== null) {
-        body = await cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
+        body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
     }
 
     if (sessionSecretKey && headers && headers.hasOwnProperty("Authorization")) {
@@ -53,7 +53,7 @@ async function _statelessCall(method, endpoint, body, headers, sessionSecretKey,
             request_device_fingerprint: deviceFingerprint,
         };
         headers["Authorization-Validator"] = JSON.stringify(
-            await cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
+            cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
         );
     }
 
@@ -64,7 +64,7 @@ async function _statelessCall(method, endpoint, body, headers, sessionSecretKey,
     // }
     //
     // if (sessionSecretKey && headers && headers.hasOwnProperty(AUDIT_LOG_HEADER) && log_audit) {
-    //     headers[AUDIT_LOG_HEADER] = JSON.stringify(await cryptoLibrary.encryptData(JSON.stringify(headers[AUDIT_LOG_HEADER]), sessionSecretKey));
+    //     headers[AUDIT_LOG_HEADER] = JSON.stringify(cryptoLibrary.encryptData(JSON.stringify(headers[AUDIT_LOG_HEADER]), sessionSecretKey));
     // } else if (headers && headers.hasOwnProperty(AUDIT_LOG_HEADER)) {
     //     delete headers[AUDIT_LOG_HEADER];
     // }
@@ -154,7 +154,7 @@ async function _statelessCall(method, endpoint, body, headers, sessionSecretKey,
     });
 }
 
-async function call(method, endpoint, body, headers, sessionSecretKey) {
+function call(method, endpoint, body, headers, sessionSecretKey) {
     const serverUrl = getStore().getState().server.url;
     const deviceFingerprint = device.getDeviceFingerprint();
     const sideEffect = (rawResponse) => {

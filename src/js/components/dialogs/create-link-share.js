@@ -91,7 +91,7 @@ const DialogCreateLinkShare = (props) => {
     const copyToClipbard = (event) => {
         browserClient.copyToClipboard(() => Promise.resolve(linkShareAccessUrl));
     };
-    const onCreate = async (event) => {
+    const onCreate = (event) => {
         const linkShareSecret = cryptoLibraryService.generateSecretKey();
 
         const content = {
@@ -115,7 +115,7 @@ const DialogCreateLinkShare = (props) => {
             content["file_title"] = props.item["file_title"];
         }
 
-        const itemEncrypted = await cryptoLibraryService.encryptData(JSON.stringify(content), linkShareSecret);
+        const itemEncrypted = cryptoLibraryService.encryptData(JSON.stringify(content), linkShareSecret);
 
         let validTillStr = null;
         if (validTill !== null) {
@@ -146,14 +146,14 @@ const DialogCreateLinkShare = (props) => {
                 const encodedServerUrl = converter.toBase58(converter.encodeUtf8(getStore().getState().server.url));
                 setLinkShareAccessUrl(
                     info["data"]["decoded_info"]["web_client"] +
-                    "/link-share-access.html#!/link-share-access/" +
-                    result.link_share_id +
-                    "/" +
-                    linkShareSecret +
-                    "/" +
-                    encodedServerUrl +
-                    "/" +
-                    getStore().getState().server.verifyKey
+                        "/link-share-access.html#!/link-share-access/" +
+                        result.link_share_id +
+                        "/" +
+                        linkShareSecret +
+                        "/" +
+                        encodedServerUrl +
+                        "/" +
+                        getStore().getState().server.verifyKey
                 );
             });
         };

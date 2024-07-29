@@ -1,7 +1,5 @@
 import React, { useState, useRef } from 'react';
 import {useTranslation} from "react-i18next";
-import { useSelector } from "react-redux";
-
 import {
     Avatar,
     Badge,
@@ -73,7 +71,6 @@ function ProfilePicture() {
     const fileInputRef = useRef(null); // Reference to the file input
     const [errors, setErrors] = useState([]);
     const [serverSupportsAvatars, setServerSupportsAvatars] = useState(true);
-    const userEmail = useSelector((state) => state.user.userEmail);
 
 
     React.useEffect(() => {
@@ -263,7 +260,7 @@ function ProfilePicture() {
                         label={t("E_MAIL")}
                         name="userEmail"
                         autoComplete="off"
-                        value={userEmail}
+                        value={getStore().getState().user.userEmail}
                         readOnly
                         InputProps={{
                             classes: {
