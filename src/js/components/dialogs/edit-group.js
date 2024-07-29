@@ -115,7 +115,7 @@ const DialogEditGroup = (props) => {
             console.log(result);
         };
 
-        const onSuccess = async function (groupDetails) {
+        const onSuccess = function (groupDetails) {
             if (!isSubscribed) return;
             const userId = getStore().getState().user.userId;
             setGroup(groupDetails);
@@ -132,7 +132,7 @@ const DialogEditGroup = (props) => {
                 users.push(groupDetails.members[i]);
             }
             for (let i = 0; i < shares.length; i++) {
-                shares[i].title = await groupsService.decryptSecretKey(groupId, shares[i].title, shares[i].title_nonce);
+                shares[i].title = groupsService.decryptSecretKey(groupId, shares[i].title, shares[i].title_nonce);
             }
 
             if (!readOnly) {

@@ -609,13 +609,13 @@ function generateSecurityReport(password, checkHaveibeenpwned) {
  *
  * @returns {Promise} Returns a promise to indicate the success of this or not
  */
-async function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
+function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const entries = [];
 
-    const authkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, masterPassword);
+    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, masterPassword);
 
     for (let i = 0; i < analysis["passwords"].length; i++) {
         entries.push({
@@ -633,8 +633,7 @@ async function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
         });
     }
 
-    const onError = async function (result) {
-        result = await result;
+    const onError = function (result) {
         return Promise.reject(result.data);
     };
 

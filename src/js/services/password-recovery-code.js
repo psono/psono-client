@@ -12,12 +12,12 @@ import cryptoLibrary from "./crypto-library";
  *
  * @returns {promise} Returns a promise with the username, recovery_code_id and private_key to decrypt the saved data
  */
-async function recoveryGenerateInformation() {
+function recoveryGenerateInformation() {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const recoveryPassword = cryptoLibrary.generateRecoveryCode();
-    const recoveryAuthkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, recoveryPassword["base58"]);
+    const recoveryAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, recoveryPassword["base58"]);
     const recoverySauce = cryptoLibrary.generateUserSauce();
 
     const recovery_data_dec = {
@@ -25,7 +25,7 @@ async function recoveryGenerateInformation() {
         user_secret_key: getStore().getState().user.userSecretKey,
     };
 
-    const recovery_data = await cryptoLibrary.encryptSecret(
+    const recovery_data = cryptoLibrary.encryptSecret(
         JSON.stringify(recovery_data_dec),
         recoveryPassword["base58"],
         recoverySauce

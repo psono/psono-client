@@ -15,13 +15,13 @@ function readApiKey(apiKeyId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = async function (result) {
-        result.data.private_key = await cryptoLibrary.decryptSecretKey(
+    const onSuccess = function (result) {
+        result.data.private_key = cryptoLibrary.decryptSecretKey(
             result.data.private_key,
             result.data.private_key_nonce
         );
         delete result.data.private_key_nonce;
-        result.data.secret_key = await cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
+        result.data.secret_key = cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
         delete result.data.secret_key_nonce;
 
         return result.data;
@@ -61,10 +61,10 @@ function readApiKeySecrets(apiKeyId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = async function (result) {
+    const onSuccess = function (result) {
         const secrets = result.data;
         for (let i = 0; i < secrets.length; i++) {
-            secrets[i]["name"] = await cryptoLibrary.decryptSecretKey(secrets[i]["title"], secrets[i]["title_nonce"]);
+            secrets[i]["name"] = cryptoLibrary.decryptSecretKey(secrets[i]["title"], secrets[i]["title_nonce"]);
         }
         return secrets;
     };
@@ -84,12 +84,12 @@ function readApiKeySecrets(apiKeyId) {
  *
  * @returns {Promise} Promise with the new id
  */
-async function addSecretToApiKey(apiKeyId, apiKeySecretKey, secret) {
+function addSecretToApiKey(apiKeyId, apiKeySecretKey, secret) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const secret_secret_key_enc = await cryptoLibrary.encryptData(secret.secret_key, apiKeySecretKey);
-    const secret_title_enc = await cryptoLibrary.encryptSecretKey(secret.name);
+    const secret_secret_key_enc = cryptoLibrary.encryptData(secret.secret_key, apiKeySecretKey);
+    const secret_title_enc = cryptoLibrary.encryptSecretKey(secret.name);
 
     return apiClient.addSecretToApiKey(
         token,
@@ -139,20 +139,20 @@ function addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets) {
  *
  * @returns {Promise} Promise with the new id
  */
-async function createApiKey(title, restrictToSecrets, allowInsecureAccess, allowReadAccess, allowWriteAccess, secrets) {
+function createApiKey(title, restrictToSecrets, allowInsecureAccess, allowReadAccess, allowWriteAccess, secrets) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const apiKeySecretKey = cryptoLibrary.generateSecretKey();
-    const api_key_public_private_key_pair = await cryptoLibrary.generatePublicPrivateKeypair();
+    const api_key_public_private_key_pair = cryptoLibrary.generatePublicPrivateKeypair();
 
-    const api_key_private_key_enc = await cryptoLibrary.encryptSecretKey(api_key_public_private_key_pair.private_key);
-    const apiKeySecretKey_enc = await cryptoLibrary.encryptSecretKey(apiKeySecretKey);
+    const api_key_private_key_enc = cryptoLibrary.encryptSecretKey(api_key_public_private_key_pair.private_key);
+    const apiKeySecretKey_enc = cryptoLibrary.encryptSecretKey(apiKeySecretKey);
 
-    const user_private_key_enc = await cryptoLibrary.encryptData(getStore().getState().user.userPrivateKey, apiKeySecretKey);
-    const user_secret_key_enc = await cryptoLibrary.encryptData(getStore().getState().user.userSecretKey, apiKeySecretKey);
+    const user_private_key_enc = cryptoLibrary.encryptData(getStore().getState().user.userPrivateKey, apiKeySecretKey);
+    const user_secret_key_enc = cryptoLibrary.encryptData(getStore().getState().user.userSecretKey, apiKeySecretKey);
 
-    const verify_key = await cryptoLibrary.getVerifyKey(api_key_public_private_key_pair.private_key);
+    const verify_key = cryptoLibrary.getVerifyKey(api_key_public_private_key_pair.private_key);
 
     const onSuccess = function (result) {
         const apiKeyId = result.data["api_key_id"];

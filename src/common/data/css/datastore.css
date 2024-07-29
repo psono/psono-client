@@ -13,7 +13,7 @@ body {
   position: absolute;
   top: 40%;
   left: 50%;
-  margin: -190px 0 0 -170px;
+  margin: -130px 0 0 -170px;
   border-radius: 4px; }
   .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .logoutsuccessbox .progress-bar, .lostpasswordbox .progress-bar {
     background-color: #2dbb93; }
@@ -24,7 +24,7 @@ body {
 @media only screen and (min-width: 600px) {
   .loginbox, .registerbox, .activationbox, .logoutsuccessbox, .lostpasswordbox {
     width: 540px;
-    margin: -190px 0 0 -270px; } }
+    margin: -130px 0 0 -270px; } }
 
 .progress {
   margin-bottom: 0; }

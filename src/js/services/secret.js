@@ -21,19 +21,19 @@ import { getStore } from "./store";
  *
  * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
  */
-async function createSecretBulk(objects, parentDatastoreId, parentShareId) {
+function createSecretBulk(objects, parentDatastoreId, parentShareId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const encryptionKeyLookup = {};
 
-    const bulkObjects = await Promise.all(objects.map(async function (o) {
+    const bulkObjects = objects.map(function(o) {
 
         const secretKey = cryptoLibrary.generateSecretKey();
         encryptionKeyLookup[o.linkId] = secretKey;
         const jsonContent = JSON.stringify(o.content);
 
-        const c = await cryptoLibrary.encryptData(jsonContent, secretKey);
+        const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
         return {
             'data': c.text,
@@ -43,16 +43,16 @@ async function createSecretBulk(objects, parentDatastoreId, parentShareId) {
             'callback_user': o.callbackUser,
             'callback_pass': o.callbackPass,
         }
-    }))
+    })
 
-    const onError = async function (result) {
-        result = await result;
+
+    const onError = function (result) {
         return Promise.reject(result);
     };
 
     const onSuccess = function (response) {
-        return response.data.secrets.map(function (s) {
-            return {secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id}
+        return response.data.secrets.map(function(s) {
+            return { secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id }
         })
     };
 
@@ -79,21 +79,21 @@ async function createSecretBulk(objects, parentDatastoreId, parentShareId) {
  *
  * @returns {Promise} Returns a promise with the new secret_id
  */
-async function createSecret(content, linkId, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass) {
+function createSecret(content, linkId, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const secretKey = cryptoLibrary.generateSecretKey();
 
     const jsonContent = JSON.stringify(content);
 
-    const c = await cryptoLibrary.encryptData(jsonContent, secretKey);
+    const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
     const onError = function (result) {
         // pass
     };
 
     const onSuccess = function (response) {
-        return {secret_id: response.data.secret_id, secret_key: secretKey};
+        return { secret_id: response.data.secret_id, secret_key: secretKey };
     };
 
     return apiClient
@@ -123,13 +123,12 @@ async function createSecret(content, linkId, parentDatastoreId, parentShareId, c
 function readSecret(secretId, secretKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = async function (result) {
-        result = await result;
+    const onError = function (result) {
         return Promise.reject(result);
     };
 
-    const onSuccess = async function (content) {
-        const secret = JSON.parse(await cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey));
+    const onSuccess = function (content) {
+        const secret = JSON.parse(cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey));
         if (content.data) {
             secret["read_count"] = content.data["read_count"];
         }
@@ -155,20 +154,20 @@ function readSecret(secretId, secretKey) {
  *
  * @returns {Promise} Returns a promise with the secret id
  */
-async function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, callbackPass) {
+function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, callbackPass) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const jsonContent = JSON.stringify(content);
 
-    const c = await cryptoLibrary.encryptData(jsonContent, secretKey);
+    const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
     const onError = function (result) {
         console.log(result);
     };
 
     const onSuccess = function (response) {
-        return {secret_id: response.data.secret_id};
+        return { secret_id: response.data.secret_id };
     };
 
     return apiClient

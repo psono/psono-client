@@ -23,8 +23,8 @@ function createServerSecret() {
         return data.data;
     };
 
-    const onError = async function (error) {
-        error = await error;
+    const onError = function (error) {
+        //pass
         console.log(error)
         return Promise.reject(error);
     };
@@ -39,7 +39,7 @@ function createServerSecret() {
  *
  * @returns {Promise} Returns a list of history items
  */
-async function deleteServerSecret(password) {
+function deleteServerSecret(password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -48,17 +48,17 @@ async function deleteServerSecret(password) {
     const userPrivateKey = getStore().getState().user.userPrivateKey;
     const userSauce = getStore().getState().user.userSauce;
 
-    const privateKeyEnc = await cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
-    const secretKeyEnc = await cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
-    const authkey = await cryptoLibrary.generateAuthkey(username, password);
+    const privateKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
+    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
+    const authkey = cryptoLibrary.generateAuthkey(username, password);
 
     const onSuccess = function (content) {
         action().setServerSecretExists(false);
         return content.data;
     };
 
-    const onError = async function (error) {
-        error = await error;
+    const onError = function (error) {
+        //pass
         console.log(error)
         return Promise.reject(error);
     };

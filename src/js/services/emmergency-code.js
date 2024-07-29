@@ -33,12 +33,12 @@ function readEmergencyCodes() {
  *
  * @returns {Promise} Returns a promise with the emergency code
  */
-async function createEmergencyCode(title, leadTime) {
+function createEmergencyCode(title, leadTime) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
     const emergencyPassword = cryptoLibrary.generateRecoveryCode();
-    const emergencyAuthkey = await cryptoLibrary.generateAuthkey(getStore().getState().user.username, emergencyPassword["base58"]);
+    const emergencyAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, emergencyPassword["base58"]);
     const emergencySauce = cryptoLibrary.generateUserSauce();
 
     const emergencyDataDec = {
@@ -46,7 +46,7 @@ async function createEmergencyCode(title, leadTime) {
         user_secret_key: getStore().getState().user.userSecretKey,
     };
 
-    const emergency_data = await cryptoLibrary.encryptSecret(
+    const emergency_data = cryptoLibrary.encryptSecret(
         JSON.stringify(emergencyDataDec),
         emergencyPassword["base58"],
         emergencySauce
@@ -59,8 +59,7 @@ async function createEmergencyCode(title, leadTime) {
             emergency_words: emergencyPassword["words"].join(" "),
         };
     };
-    const onError = async function (request) {
-        request = await request;
+    const onError = function (request) {
         return Promise.reject(request.data);
     };
     return apiClient

@@ -33,9 +33,6 @@
   "storage": {
     "managed_schema": "managed_storage.json"
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-  },
   "icons": {
     "16": "data/img/icon-16.png",
     "32": "data/img/icon-32.png",

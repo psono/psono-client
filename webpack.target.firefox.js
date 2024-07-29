@@ -21,13 +21,8 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'js/bundle.min.js': './src/js/index.js',
-  },
-  output: {
-    filename: '[name]',
-    path: path.resolve(__dirname, 'build', 'firefox', 'data'),
-    chunkFilename: 'js/[name].js',
-    publicPath: '/data/',
+    'firefox/data/js/bundle.min.js': './src/js/index.js',
+    'firefox/data/js/crypto-worker.js': './src/js/crypto-worker.js',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -50,7 +45,7 @@ module.exports = merge(common, {
 
     new JsonPostProcessPlugin({
       matchers: [{
-        matcher: /^\.\.\/manifest.json$/,
+        matcher: /^firefox\/manifest.json$/,
         action: (currentJsonContent) => ({ ...currentJsonContent, version: version })
       }]
     }),

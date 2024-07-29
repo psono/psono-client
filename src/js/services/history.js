@@ -40,9 +40,9 @@ function readHistory(secretHistoryId, secretKey) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = async function (content) {
+    const onSuccess = function (content) {
         const secret = JSON.parse(
-            await cryptoLibraryService.decryptData(content.data.data, content.data.data_nonce, secretKey)
+            cryptoLibraryService.decryptData(content.data.data, content.data.data_nonce, secretKey)
         );
         secret["create_date"] = content.data["create_date"];
         secret["write_date"] = content.data["write_date"];

@@ -36,13 +36,13 @@ module.exports = () => {
       // should be last so all files are cached
       new InjectManifest({
         swSrc: './src/webclient/service-worker.js',
-        swDest: './service-worker.js',
+        swDest: './webclient/service-worker.js',
         exclude: [
             /authenticate\.html/
         ],
         modifyURLPrefix: {
-          '/': './',
-          '././': './',
+          'webclient/': './',
+          './webclient/': './',
         },
         compileSrc: true,
         maximumFileSizeToCacheInBytes: 30000000,
