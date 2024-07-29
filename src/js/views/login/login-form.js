@@ -149,8 +149,8 @@ const LoginViewForm = (props) => {
         }
     }
 
-    const decryptData = () => {
-        const loginDetails = decryptLoginDataFunction(password);
+    const decryptData = async () => {
+        const loginDetails = await decryptLoginDataFunction(password);
         if (loginDetails.hasOwnProperty("required_multifactors")) {
             const requiredMultifactors = loginDetails["required_multifactors"];
             action().setHasTwoFactor(requiredMultifactors.length > 0);
