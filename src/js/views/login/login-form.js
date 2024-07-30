@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Grid, Checkbox } from "@mui/material";
-import { makeStyles } from '@mui/styles';
+import { Grid, Checkbox, DialogContent, CircularProgress } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import { Check } from "@mui/icons-material";
@@ -64,6 +64,25 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+	container: {
+		background: "gray",
+		position: "relative",
+		display: "inline-block",
+	},
+	image: {
+		position: "absolute",
+		top: "50%",
+		left: "50%",
+		transform: "translate(-50%, -50%)",
+		zIndex: 1,
+	},
+	progress: {
+		position: "absolute",
+		top: "50%",
+		left: "50%",
+		transform: "translate(-50%, -50%)",
+		zIndex: 0,
+	},
     inputAdornment: {
         color: "#b1b6c1",
     },
@@ -76,13 +95,15 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(2),
     },
 }));
-
+const defaultTimer = 2 * 60;
 const LoginViewForm = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     const history = useHistory();
     const [view, setView] = useState("default");
-    const [username, setUsername] = useState(getStore().getState().user.username);
+	const [username, setUsername] = useState(
+		getStore().getState().user.username
+	);
     const [password, setPassword] = useState("");
     const [server, setServer] = useState(getStore().getState().server.url);
     const [rememberMe, setRememberMe] = useState(false);
@@ -111,7 +132,41 @@ const LoginViewForm = (props) => {
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
     const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
+const ivalt = useSelector((store) => store.user.ivalt);
+	const [timer, setTimer] = useState(defaultTimer);
+	const [ivaltLoading, setIvaltLoading] = useState(false);
+	const [errorsResponses, setErrorsResponses] = useState({
+		AUTHENTICATION_FAILED: t("IVALT_AUTH_FAILED"),
+		BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT: t("IVALT_AUTH_REQUEST_SENT"),
+		INVALID_TIMEZONE: t("IVALT_INVALID_TIMEZONE"),
+		INVALID_GEOFENCE: t("IVALT_INVALID_GEOFENCE"),
+	});
+    React.useEffect(() => {
+		let timerInterval;
+		let timeout;
 
+		if (ivaltLoading) {
+			timerInterval = setInterval(() => {
+				if (timer <= 0) {
+					setIvaltLoading(false);
+					setTimer(defaultTimer);
+					clearInterval(timerInterval);
+					setErrors([t("IVALT_AUTH_TIMEOUT")]);
+
+					return;
+				}
+				if (timer % 2 == 0) {
+					validateIvalt();
+				}
+				setTimer((prevTimer) => prevTimer - 1);
+			}, 1000);
+		}
+
+		return () => {
+			clearInterval(timerInterval);
+			clearTimeout(timeout);
+		};
+	}, [ivaltLoading, timer]);
     React.useEffect(() => {
         if (props.samlTokenId) {
             user.samlLogin(props.samlTokenId).then(
@@ -284,12 +339,37 @@ const LoginViewForm = (props) => {
             showGa2faForm();
         } else if (multifactors.indexOf("duo_2fa") !== -1) {
             showDuo2faForm();
-        } else {
+        } else if (multifactors.indexOf("ivalt_2fa") !== -1) {
+			setIvaltLoading(true);
+			sendIvaltAuthRequest();
+			showIvaltForm();
+		} else {
             setView("default");
             setLoginLoading(false);
             setErrors(["Unknown multi-factor authentication requested by server."]);
         }
     };
+
+    const sendIvaltAuthRequest = () => {
+		setErrors([]);
+		ivaltClient.sendTwoFactorNotification().then(
+			(createdIvalt) => {
+				validateIvalt();
+			},
+			function (error) {
+				if (error.hasOwnProperty("non_field_errors")) {
+					setErrors(error.non_field_errors);
+				} else {
+					console.error(error);
+				}
+			}
+		);
+	};
+
+	const showIvaltForm = () => {
+		setView("ivalt");
+		setLoginLoading(false);
+	};
 
     const requirementCheckMfa = (multifactors) => {
         if (!getStore().getState().user.token) {
@@ -1468,6 +1548,111 @@ const LoginViewForm = (props) => {
             </>
         );
     }
+
+    if (view === "ivalt") {
+		formContent = (
+			<>
+				<Grid
+					container
+					style={{
+						display: "flex",
+						justifyContent: "space-around",
+						minHeight: "45px",
+						marginBottom: "15px",
+					}}
+				>
+					<div className={classes.container}>
+						<img
+							width={45}
+							height={45}
+							src={require("../../../common/data/img/sc-logo.png")}
+							alt="Loading"
+							className={classes.image}
+						/>
+						{ivaltLoading && (
+							<CircularProgress
+								size={60}
+								className={classes.progress}
+								style={{ animation: "unset", zIndex: 2 }}
+							/>
+						)}
+					</div>
+
+					{ivaltLoading && (
+						<div>
+							<p>Request has been sent to your iVALT app</p>
+							<p>Waiting for Authentication</p>
+							<p>{timer}</p>
+						</div>
+					)}
+				</Grid>
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+				<Grid
+					item
+					xs={12}
+					sm={12}
+					md={12}
+					style={{ marginTop: "5px", marginBottom: "5px" }}
+				>
+					<Button
+						variant="contained"
+						onClick={() => {
+							setIvaltLoading(false);
+							setTimer(defaultTimer);
+							cancel();
+						}}
+					>
+						{t("CANCEL")}
+					</Button>
+					{!ivaltLoading && (
+						<Button
+							style={{ marginLeft: "1rem" }}
+							variant="contained"
+							onClick={() => {
+								setIvaltLoading(true);
+								sendIvaltAuthRequest();
+							}}
+						>
+							{t("RETRY")}
+						</Button>
+					)}
+				</Grid>
+			</>
+		);
+	}
+
+	if (view === "ivalt_auth_success") {
+		formContent = (
+			<DialogContent>
+				<Grid container>
+					<Grid
+						item
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+							width: "100%",
+						}}
+					>
+						<p
+							style={{
+								color: "green",
+								fontWeight: 500,
+								fontSize: "30px",
+							}}
+						>
+							iVALT Auth Successful
+						</p>
+						<img
+							src={require("../../../common/data/img/verified.gif")}
+							width={100}
+						/>
+					</Grid>
+				</Grid>
+			</DialogContent>
+		);
+	}
 
     // a webclient that doesn't allow different servers, doesn't need remote config, so we can hide it.
     const hideRemoteConfig = deviceService.isWebclient() && !allowCustomServer;
