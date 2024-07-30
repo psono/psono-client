@@ -120,6 +120,7 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
 
             if (!rawResponse.ok) {
                 console.log(rawResponse);
+                console.log(data);
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);

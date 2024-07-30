@@ -1,1284 +1,1284 @@
 const countries = [
     {
         code: 'AD',
-        label: 'Andorra',
+        label: 'ANDORRA',
         phone: '376'
     },
     {
         code: 'AE',
-        label: 'United Arab Emirates',
+        label: 'UNITED_ARAB_EMIRATES',
         phone: '971',
 
     },
     {
         code: 'AF',
-        label: 'Afghanistan',
+        label: 'AFGHANISTAN',
         phone: '93'
     },
     {
         code: 'AG',
-        label: 'Antigua and Barbuda',
+        label: 'ANTIGUA_AND_BARBUDA',
         phone: '1-268',
 
     },
     {
         code: 'AI',
-        label: 'Anguilla',
+        label: 'ANGUILLA',
         phone: '1-264'
     },
     {
         code: 'AL',
-        label: 'Albania',
+        label: 'ALBANIA',
         phone: '355'
     },
     {
         code: 'AM',
-        label: 'Armenia',
+        label: 'ARMENIA',
         phone: '374'
     },
     {
         code: 'AO',
-        label: 'Angola',
+        label: 'ANGOLA',
         phone: '244'
     },
     {
         code: 'AQ',
-        label: 'Antarctica',
+        label: 'ANTARCTICA',
         phone: '672'
     },
     {
         code: 'AR',
-        label: 'Argentina',
+        label: 'ARGENTINA',
         phone: '54'
     },
     {
         code: 'AS',
-        label: 'American Samoa',
+        label: 'AMERICAN_SAMOA',
         phone: '1-684'
     },
     {
         code: 'AT',
-        label: 'Austria',
+        label: 'AUSTRIA',
         phone: '43'
     },
     {
         code: 'AU',
-        label: 'Australia',
+        label: 'AUSTRALIA',
         phone: '61',
 
     },
     {
         code: 'AW',
-        label: 'Aruba',
+        label: 'ARUBA',
         phone: '297'
     },
     {
         code: 'AX',
-        label: 'Alland Islands',
+        label: 'ALLAND_ISLANDS',
         phone: '358'
     },
     {
         code: 'AZ',
-        label: 'Azerbaijan',
+        label: 'AZERBAIJAN',
         phone: '994'
     },
     {
         code: 'BA',
-        label: 'Bosnia and Herzegovina',
+        label: 'BOSNIA_AND_HERZEGOVINA',
         phone: '387',
 
     },
     {
         code: 'BB',
-        label: 'Barbados',
+        label: 'BARBADOS',
         phone: '1-246'
     },
     {
         code: 'BD',
-        label: 'Bangladesh',
+        label: 'BANGLADESH',
         phone: '880'
     },
     {
         code: 'BE',
-        label: 'Belgium',
+        label: 'BELGIUM',
         phone: '32'
     },
     {
         code: 'BF',
-        label: 'Burkina Faso',
+        label: 'BURKINA_FASO',
         phone: '226'
     },
     {
         code: 'BG',
-        label: 'Bulgaria',
+        label: 'BULGARIA',
         phone: '359'
     },
     {
         code: 'BH',
-        label: 'Bahrain',
+        label: 'BAHRAIN',
         phone: '973'
     },
     {
         code: 'BI',
-        label: 'Burundi',
+        label: 'BURUNDI',
         phone: '257'
     },
     {
         code: 'BJ',
-        label: 'Benin',
+        label: 'BENIN',
         phone: '229'
     },
     {
         code: 'BL',
-        label: 'Saint Barthelemy',
+        label: 'SAINT_BARTHELEMY',
         phone: '590'
     },
     {
         code: 'BM',
-        label: 'Bermuda',
+        label: 'BERMUDA',
         phone: '1-441'
     },
     {
         code: 'BN',
-        label: 'Brunei Darussalam',
+        label: 'BRUNEI_DARUSSALAM',
         phone: '673'
     },
     {
         code: 'BO',
-        label: 'Bolivia',
+        label: 'BOLIVIA',
         phone: '591'
     },
     {
         code: 'BR',
-        label: 'Brazil',
+        label: 'BRAZIL',
         phone: '55'
     },
     {
         code: 'BS',
-        label: 'Bahamas',
+        label: 'BAHAMAS',
         phone: '1-242'
     },
     {
         code: 'BT',
-        label: 'Bhutan',
+        label: 'BHUTAN',
         phone: '975'
     },
     {
         code: 'BV',
-        label: 'Bouvet Island',
+        label: 'BOUVET_ISLAND',
         phone: '47'
     },
     {
         code: 'BW',
-        label: 'Botswana',
+        label: 'BOTSWANA',
         phone: '267'
     },
     {
         code: 'BY',
-        label: 'Belarus',
+        label: 'BELARUS',
         phone: '375'
     },
     {
         code: 'BZ',
-        label: 'Belize',
+        label: 'BELIZE',
         phone: '501'
     },
     {
         code: 'CA',
-        label: 'Canada',
+        label: 'CANADA',
         phone: '1',
 
     },
     {
         code: 'CC',
-        label: 'Cocos (Keeling) Islands',
+        label: 'COCOS_KEELING_ISLANDS',
         phone: '61',
 
     },
     {
         code: 'CD',
-        label: 'Congo, Democratic Republic of the',
+        label: 'CONGO_DEMOCRATIC_REPUBLIC_OF_THE',
         phone: '243',
 
     },
     {
         code: 'CF',
-        label: 'Central African Republic',
+        label: 'CENTRAL_AFRICAN_REPUBLIC',
         phone: '236',
 
     },
     {
         code: 'CG',
-        label: 'Congo, Republic of the',
+        label: 'CONGO_REPUBLIC_OF_THE',
         phone: '242',
 
     },
     {
         code: 'CH',
-        label: 'Switzerland',
+        label: 'SWITZERLAND',
         phone: '41'
     },
     {
         code: 'CI',
-        label: "Cote d'Ivoire",
+        label: "COTE_D_IVOIRE",
         phone: '225'
     },
     {
         code: 'CK',
-        label: 'Cook Islands',
+        label: 'COOK_ISLANDS',
         phone: '682'
     },
     {
         code: 'CL',
-        label: 'Chile',
+        label: 'CHILE',
         phone: '56'
     },
     {
         code: 'CM',
-        label: 'Cameroon',
+        label: 'CAMEROON',
         phone: '237'
     },
     {
         code: 'CN',
-        label: 'China',
+        label: 'CHINA',
         phone: '86'
     },
     {
         code: 'CO',
-        label: 'Colombia',
+        label: 'COLOMBIA',
         phone: '57'
     },
     {
         code: 'CR',
-        label: 'Costa Rica',
+        label: 'COSTA_RICA',
         phone: '506'
     },
     {
         code: 'CU',
-        label: 'Cuba',
+        label: 'CUBA',
         phone: '53'
     },
     {
         code: 'CV',
-        label: 'Cape Verde',
+        label: 'CAPE_VERDE',
         phone: '238'
     },
     {
         code: 'CW',
-        label: 'Curacao',
+        label: 'CURACAO',
         phone: '599'
     },
     {
         code: 'CX',
-        label: 'Christmas Island',
+        label: 'CHRISTMAS_ISLAND',
         phone: '61'
     },
     {
         code: 'CY',
-        label: 'Cyprus',
+        label: 'CYPRUS',
         phone: '357'
     },
     {
         code: 'CZ',
-        label: 'Czech Republic',
+        label: 'CZECH_REPUBLIC',
         phone: '420'
     },
     {
         code: 'DE',
-        label: 'Germany',
+        label: 'GERMANY',
         phone: '49',
 
     },
     {
         code: 'DJ',
-        label: 'Djibouti',
+        label: 'DJIBOUTI',
         phone: '253'
     },
     {
         code: 'DK',
-        label: 'Denmark',
+        label: 'DENMARK',
         phone: '45'
     },
     {
         code: 'DM',
-        label: 'Dominica',
+        label: 'DOMINICA',
         phone: '1-767'
     },
     {
         code: 'DO',
-        label: 'Dominican Republic',
+        label: 'DOMINICAN_REPUBLIC',
         phone: '1-809',
 
     },
     {
         code: 'DZ',
-        label: 'Algeria',
+        label: 'ALGERIA',
         phone: '213'
     },
     {
         code: 'EC',
-        label: 'Ecuador',
+        label: 'ECUADOR',
         phone: '593'
     },
     {
         code: 'EE',
-        label: 'Estonia',
+        label: 'ESTONIA',
         phone: '372'
     },
     {
         code: 'EG',
-        label: 'Egypt',
+        label: 'EGYPT',
         phone: '20'
     },
     {
         code: 'EH',
-        label: 'Western Sahara',
+        label: 'WESTERN_SAHARA',
         phone: '212'
     },
     {
         code: 'ER',
-        label: 'Eritrea',
+        label: 'ERITREA',
         phone: '291'
     },
     {
         code: 'ES',
-        label: 'Spain',
+        label: 'SPAIN',
         phone: '34'
     },
     {
         code: 'ET',
-        label: 'Ethiopia',
+        label: 'ETHIOPIA',
         phone: '251'
     },
     {
         code: 'FI',
-        label: 'Finland',
+        label: 'FINLAND',
         phone: '358'
     },
     {
         code: 'FJ',
-        label: 'Fiji',
+        label: 'FIJI',
         phone: '679'
     },
     {
         code: 'FK',
-        label: 'Falkland Islands (Malvinas)',
+        label: 'FALKLAND_ISLANDS_MALVINAS',
         phone: '500',
 
     },
     {
         code: 'FM',
-        label: 'Micronesia, Federated States of',
+        label: 'MICRONESIA_FEDERATED_STATES_OF',
         phone: '691',
 
     },
     {
         code: 'FO',
-        label: 'Faroe Islands',
+        label: 'FAROE_ISLANDS',
         phone: '298'
     },
     {
         code: 'FR',
-        label: 'France',
+        label: 'FRANCE',
         phone: '33',
 
     },
     {
         code: 'GA',
-        label: 'Gabon',
+        label: 'GABON',
         phone: '241'
     },
     {
         code: 'GB',
-        label: 'United Kingdom',
+        label: 'UNITED_KINGDOM',
         phone: '44'
     },
     {
         code: 'GD',
-        label: 'Grenada',
+        label: 'GRENADA',
         phone: '1-473'
     },
     {
         code: 'GE',
-        label: 'Georgia',
+        label: 'GEORGIA',
         phone: '995'
     },
     {
         code: 'GF',
-        label: 'French Guiana',
+        label: 'FRENCH_GUIANA',
         phone: '594'
     },
     {
         code: 'GG',
-        label: 'Guernsey',
+        label: 'GUERNSEY',
         phone: '44'
     },
     {
         code: 'GH',
-        label: 'Ghana',
+        label: 'GHANA',
         phone: '233'
     },
     {
         code: 'GI',
-        label: 'Gibraltar',
+        label: 'GIBRALTAR',
         phone: '350'
     },
     {
         code: 'GL',
-        label: 'Greenland',
+        label: 'GREENLAND',
         phone: '299'
     },
     {
         code: 'GM',
-        label: 'Gambia',
+        label: 'GAMBIA',
         phone: '220'
     },
     {
         code: 'GN',
-        label: 'Guinea',
+        label: 'GUINEA',
         phone: '224'
     },
     {
         code: 'GP',
-        label: 'Guadeloupe',
+        label: 'GUADELOUPE',
         phone: '590'
     },
     {
         code: 'GQ',
-        label: 'Equatorial Guinea',
+        label: 'EQUATORIAL_GUINEA',
         phone: '240'
     },
     {
         code: 'GR',
-        label: 'Greece',
+        label: 'GREECE',
         phone: '30'
     },
     {
         code: 'GS',
-        label: 'South Georgia and the South Sandwich Islands',
+        label: 'SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS',
         phone: '500',
 
     },
     {
         code: 'GT',
-        label: 'Guatemala',
+        label: 'GUATEMALA',
         phone: '502'
     },
     {
         code: 'GU',
-        label: 'Guam',
+        label: 'GUAM',
         phone: '1-671'
     },
     {
         code: 'GW',
-        label: 'Guinea-Bissau',
+        label: 'GUINEA',
         phone: '245'
     },
     {
         code: 'GY',
-        label: 'Guyana',
+        label: 'GUYANA',
         phone: '592'
     },
     {
         code: 'HK',
-        label: 'Hong Kong',
+        label: 'HONG_KONG',
         phone: '852'
     },
     {
         code: 'HM',
-        label: 'Heard Island and McDonald Islands',
+        label: 'HEARD_ISLAND_AND_MCDONALD_ISLANDS',
         phone: '672',
 
     },
     {
         code: 'HN',
-        label: 'Honduras',
+        label: 'HONDURAS',
         phone: '504'
     },
     {
         code: 'HR',
-        label: 'Croatia',
+        label: 'CROATIA',
         phone: '385'
     },
     {
         code: 'HT',
-        label: 'Haiti',
+        label: 'HAITI',
         phone: '509'
     },
     {
         code: 'HU',
-        label: 'Hungary',
+        label: 'HUNGARY',
         phone: '36'
     },
     {
         code: 'ID',
-        label: 'Indonesia',
+        label: 'INDONESIA',
         phone: '62'
     },
     {
         code: 'IE',
-        label: 'Ireland',
+        label: 'IRELAND',
         phone: '353'
     },
     {
         code: 'IL',
-        label: 'Israel',
+        label: 'ISRAEL',
         phone: '972'
     },
     {
         code: 'IM',
-        label: 'Isle of Man',
+        label: 'ISLE_OF_MAN',
         phone: '44'
     },
     {
         code: 'IN',
-        label: 'India',
+        label: 'INDIA',
         phone: '91'
     },
     {
         code: 'IO',
-        label: 'British Indian Ocean Territory',
+        label: 'BRITISH_INDIAN_OCEAN_TERRITORY',
         phone: '246',
 
     },
     {
         code: 'IQ',
-        label: 'Iraq',
+        label: 'IRAQ',
         phone: '964'
     },
     {
         code: 'IR',
-        label: 'Iran, Islamic Republic of',
+        label: 'IRAN_ISLAMIC_REPUBLIC_OF',
         phone: '98',
 
     },
     {
         code: 'IS',
-        label: 'Iceland',
+        label: 'ICELAND',
         phone: '354'
     },
     {
         code: 'IT',
-        label: 'Italy',
+        label: 'ITALY',
         phone: '39'
     },
     {
         code: 'JE',
-        label: 'Jersey',
+        label: 'JERSEY',
         phone: '44'
     },
     {
         code: 'JM',
-        label: 'Jamaica',
+        label: 'JAMAICA',
         phone: '1-876'
     },
     {
         code: 'JO',
-        label: 'Jordan',
+        label: 'JORDAN',
         phone: '962'
     },
     {
         code: 'JP',
-        label: 'Japan',
+        label: 'JAPAN',
         phone: '81',
 
     },
     {
         code: 'KE',
-        label: 'Kenya',
+        label: 'KENYA',
         phone: '254'
     },
     {
         code: 'KG',
-        label: 'Kyrgyzstan',
+        label: 'KYRGYZSTAN',
         phone: '996'
     },
     {
         code: 'KH',
-        label: 'Cambodia',
+        label: 'CAMBODIA',
         phone: '855'
     },
     {
         code: 'KI',
-        label: 'Kiribati',
+        label: 'KIRIBATI',
         phone: '686'
     },
     {
         code: 'KM',
-        label: 'Comoros',
+        label: 'COMOROS',
         phone: '269'
     },
     {
         code: 'KN',
-        label: 'Saint Kitts and Nevis',
+        label: 'SAINT_KITTS_AND_NEVIS',
         phone: '1-869',
 
     },
     {
         code: 'KP',
-        label: "Korea, Democratic People's Republic of",
+        label: "KOREA_DEMOCRATIC_PEOPLE_S_REPUBLIC_OF",
         phone: '850',
 
     },
     {
         code: 'KR',
-        label: 'Korea, Republic of',
+        label: 'KOREA_REPUBLIC_OF',
         phone: '82'
     },
     {
         code: 'KW',
-        label: 'Kuwait',
+        label: 'KUWAIT',
         phone: '965'
     },
     {
         code: 'KY',
-        label: 'Cayman Islands',
+        label: 'CAYMAN_ISLANDS',
         phone: '1-345'
     },
     {
         code: 'KZ',
-        label: 'Kazakhstan',
+        label: 'KAZAKHSTAN',
         phone: '7'
     },
     {
         code: 'LA',
-        label: "Lao People's Democratic Republic",
+        label: "LAO_PEOPLE",
         phone: '856',
 
     },
     {
         code: 'LB',
-        label: 'Lebanon',
+        label: 'LEBANON',
         phone: '961'
     },
     {
         code: 'LC',
-        label: 'Saint Lucia',
+        label: 'SAINT_LUCIA',
         phone: '1-758'
     },
     {
         code: 'LI',
-        label: 'Liechtenstein',
+        label: 'LIECHTENSTEIN',
         phone: '423'
     },
     {
         code: 'LK',
-        label: 'Sri Lanka',
+        label: 'SRI_LANKA',
         phone: '94'
     },
     {
         code: 'LR',
-        label: 'Liberia',
+        label: 'LIBERIA',
         phone: '231'
     },
     {
         code: 'LS',
-        label: 'Lesotho',
+        label: 'LESOTHO',
         phone: '266'
     },
     {
         code: 'LT',
-        label: 'Lithuania',
+        label: 'LITHUANIA',
         phone: '370'
     },
     {
         code: 'LU',
-        label: 'Luxembourg',
+        label: 'LUXEMBOURG',
         phone: '352'
     },
     {
         code: 'LV',
-        label: 'Latvia',
+        label: 'LATVIA',
         phone: '371'
     },
     {
         code: 'LY',
-        label: 'Libya',
+        label: 'LIBYA',
         phone: '218'
     },
     {
         code: 'MA',
-        label: 'Morocco',
+        label: 'MOROCCO',
         phone: '212'
     },
     {
         code: 'MC',
-        label: 'Monaco',
+        label: 'MONACO',
         phone: '377'
     },
     {
         code: 'MD',
-        label: 'Moldova, Republic of',
+        label: 'MOLDOVA_REPUBLIC_OF',
         phone: '373',
 
     },
     {
         code: 'ME',
-        label: 'Montenegro',
+        label: 'MONTENEGRO',
         phone: '382'
     },
     {
         code: 'MF',
-        label: 'Saint Martin (French part)',
+        label: 'SAINT_MARTIN_FRENCH_PART',
         phone: '590',
 
     },
     {
         code: 'MG',
-        label: 'Madagascar',
+        label: 'MADAGASCAR',
         phone: '261'
     },
     {
         code: 'MH',
-        label: 'Marshall Islands',
+        label: 'MARSHALL_ISLANDS',
         phone: '692'
     },
     {
         code: 'MK',
-        label: 'Macedonia, the Former Yugoslav Republic of',
+        label: 'MACEDONIA_THE_FORMER_YUGOSLAV_REPUBLIC_OF',
         phone: '389',
 
     },
     {
         code: 'ML',
-        label: 'Mali',
+        label: 'MALI',
         phone: '223'
     },
     {
         code: 'MM',
-        label: 'Myanmar',
+        label: 'MYANMAR',
         phone: '95'
     },
     {
         code: 'MN',
-        label: 'Mongolia',
+        label: 'MONGOLIA',
         phone: '976'
     },
     {
         code: 'MO',
-        label: 'Macao',
+        label: 'MACAO',
         phone: '853'
     },
     {
         code: 'MP',
-        label: 'Northern Mariana Islands',
+        label: 'NORTHERN_MARIANA_ISLANDS',
         phone: '1-670',
 
     },
     {
         code: 'MQ',
-        label: 'Martinique',
+        label: 'MARTINIQUE',
         phone: '596'
     },
     {
         code: 'MR',
-        label: 'Mauritania',
+        label: 'MAURITANIA',
         phone: '222'
     },
     {
         code: 'MS',
-        label: 'Montserrat',
+        label: 'MONTSERRAT',
         phone: '1-664'
     },
     {
         code: 'MT',
-        label: 'Malta',
+        label: 'MALTA',
         phone: '356'
     },
     {
         code: 'MU',
-        label: 'Mauritius',
+        label: 'MAURITIUS',
         phone: '230'
     },
     {
         code: 'MV',
-        label: 'Maldives',
+        label: 'MALDIVES',
         phone: '960'
     },
     {
         code: 'MW',
-        label: 'Malawi',
+        label: 'MALAWI',
         phone: '265'
     },
     {
         code: 'MX',
-        label: 'Mexico',
+        label: 'MEXICO',
         phone: '52'
     },
     {
         code: 'MY',
-        label: 'Malaysia',
+        label: 'MALAYSIA',
         phone: '60'
     },
     {
         code: 'MZ',
-        label: 'Mozambique',
+        label: 'MOZAMBIQUE',
         phone: '258'
     },
     {
         code: 'NA',
-        label: 'Namibia',
+        label: 'NAMIBIA',
         phone: '264'
     },
     {
         code: 'NC',
-        label: 'New Caledonia',
+        label: 'NEW_CALEDONIA',
         phone: '687'
     },
     {
         code: 'NE',
-        label: 'Niger',
+        label: 'NIGER',
         phone: '227'
     },
     {
         code: 'NF',
-        label: 'Norfolk Island',
+        label: 'NORFOLK_ISLAND',
         phone: '672'
     },
     {
         code: 'NG',
-        label: 'Nigeria',
+        label: 'NIGERIA',
         phone: '234'
     },
     {
         code: 'NI',
-        label: 'Nicaragua',
+        label: 'NICARAGUA',
         phone: '505'
     },
     {
         code: 'NL',
-        label: 'Netherlands',
+        label: 'NETHERLANDS',
         phone: '31'
     },
     {
         code: 'NO',
-        label: 'Norway',
+        label: 'NORWAY',
         phone: '47'
     },
     {
         code: 'NP',
-        label: 'Nepal',
+        label: 'NEPAL',
         phone: '977'
     },
     {
         code: 'NR',
-        label: 'Nauru',
+        label: 'NAURU',
         phone: '674'
     },
     {
         code: 'NU',
-        label: 'Niue',
+        label: 'NIUE',
         phone: '683'
     },
     {
         code: 'NZ',
-        label: 'New Zealand',
+        label: 'NEW_ZEALAND',
         phone: '64'
     },
     {
         code: 'OM',
-        label: 'Oman',
+        label: 'OMAN',
         phone: '968'
     },
     {
         code: 'PA',
-        label: 'Panama',
+        label: 'PANAMA',
         phone: '507'
     },
     {
         code: 'PE',
-        label: 'Peru',
+        label: 'PERU',
         phone: '51'
     },
     {
         code: 'PF',
-        label: 'French Polynesia',
+        label: 'FRENCH_POLYNESIA',
         phone: '689'
     },
     {
         code: 'PG',
-        label: 'Papua New Guinea',
+        label: 'PAPUA_NEW_GUINEA',
         phone: '675'
     },
     {
         code: 'PH',
-        label: 'Philippines',
+        label: 'PHILIPPINES',
         phone: '63'
     },
     {
         code: 'PK',
-        label: 'Pakistan',
+        label: 'PAKISTAN',
         phone: '92'
     },
     {
         code: 'PL',
-        label: 'Poland',
+        label: 'POLAND',
         phone: '48'
     },
     {
         code: 'PM',
-        label: 'Saint Pierre and Miquelon',
+        label: 'SAINT_PIERRE_AND_MIQUELON',
         phone: '508',
 
     },
     {
         code: 'PN',
-        label: 'Pitcairn',
+        label: 'PITCAIRN',
         phone: '870'
     },
     {
         code: 'PR',
-        label: 'Puerto Rico',
+        label: 'PUERTO_RICO',
         phone: '1'
     },
     {
         code: 'PS',
-        label: 'Palestine, State of',
+        label: 'PALESTINE_STATE_OF',
         phone: '970',
 
     },
     {
         code: 'PT',
-        label: 'Portugal',
+        label: 'PORTUGAL',
         phone: '351'
     },
     {
         code: 'PW',
-        label: 'Palau',
+        label: 'PALAU',
         phone: '680'
     },
     {
         code: 'PY',
-        label: 'Paraguay',
+        label: 'PARAGUAY',
         phone: '595'
     },
     {
         code: 'QA',
-        label: 'Qatar',
+        label: 'QATAR',
         phone: '974'
     },
     {
         code: 'RE',
-        label: 'Reunion',
+        label: 'REUNION',
         phone: '262'
     },
     {
         code: 'RO',
-        label: 'Romania',
+        label: 'ROMANIA',
         phone: '40'
     },
     {
         code: 'RS',
-        label: 'Serbia',
+        label: 'SERBIA',
         phone: '381'
     },
     {
         code: 'RU',
-        label: 'Russian Federation',
+        label: 'RUSSIAN_FEDERATION',
         phone: '7'
     },
     {
         code: 'RW',
-        label: 'Rwanda',
+        label: 'RWANDA',
         phone: '250'
     },
     {
         code: 'SA',
-        label: 'Saudi Arabia',
+        label: 'SAUDI_ARABIA',
         phone: '966'
     },
     {
         code: 'SB',
-        label: 'Solomon Islands',
+        label: 'SOLOMON_ISLANDS',
         phone: '677'
     },
     {
         code: 'SC',
-        label: 'Seychelles',
+        label: 'SEYCHELLES',
         phone: '248'
     },
     {
         code: 'SD',
-        label: 'Sudan',
+        label: 'SUDAN',
         phone: '249'
     },
     {
         code: 'SE',
-        label: 'Sweden',
+        label: 'SWEDEN',
         phone: '46'
     },
     {
         code: 'SG',
-        label: 'Singapore',
+        label: 'SINGAPORE',
         phone: '65'
     },
     {
         code: 'SH',
-        label: 'Saint Helena',
+        label: 'SAINT_HELENA',
         phone: '290'
     },
     {
         code: 'SI',
-        label: 'Slovenia',
+        label: 'SLOVENIA',
         phone: '386'
     },
     {
         code: 'SJ',
-        label: 'Svalbard and Jan Mayen',
+        label: 'SVALBARD_AND_JAN_MAYEN',
         phone: '47',
 
     },
     {
         code: 'SK',
-        label: 'Slovakia',
+        label: 'SLOVAKIA',
         phone: '421'
     },
     {
         code: 'SL',
-        label: 'Sierra Leone',
+        label: 'SIERRA_LEONE',
         phone: '232'
     },
     {
         code: 'SM',
-        label: 'San Marino',
+        label: 'SAN_MARINO',
         phone: '378'
     },
     {
         code: 'SN',
-        label: 'Senegal',
+        label: 'SENEGAL',
         phone: '221'
     },
     {
         code: 'SO',
-        label: 'Somalia',
+        label: 'SOMALIA',
         phone: '252'
     },
     {
         code: 'SR',
-        label: 'Suriname',
+        label: 'SURINAME',
         phone: '597'
     },
     {
         code: 'SS',
-        label: 'South Sudan',
+        label: 'SOUTH_SUDAN',
         phone: '211'
     },
     {
         code: 'ST',
-        label: 'Sao Tome and Principe',
+        label: 'SAO_TOME_AND_PRINCIPE',
         phone: '239',
 
     },
     {
         code: 'SV',
-        label: 'El Salvador',
+        label: 'EL_SALVADOR',
         phone: '503'
     },
     {
         code: 'SX',
-        label: 'Sint Maarten (Dutch part)',
+        label: 'SINT_MAARTEN_DUTCH_PART',
         phone: '1-721',
 
     },
     {
         code: 'SY',
-        label: 'Syrian Arab Republic',
+        label: 'SYRIAN_ARAB_REPUBLIC',
         phone: '963',
 
     },
     {
         code: 'SZ',
-        label: 'Swaziland',
+        label: 'SWAZILAND',
         phone: '268'
     },
     {
         code: 'TC',
-        label: 'Turks and Caicos Islands',
+        label: 'TURKS_AND_CAICOS_ISLANDS',
         phone: '1-649',
 
     },
     {
         code: 'TD',
-        label: 'Chad',
+        label: 'CHAD',
         phone: '235'
     },
     {
         code: 'TF',
-        label: 'French Southern Territories',
+        label: 'FRENCH_SOUTHERN_TERRITORIES',
         phone: '262',
 
     },
     {
         code: 'TG',
-        label: 'Togo',
+        label: 'TOGO',
         phone: '228'
     },
     {
         code: 'TH',
-        label: 'Thailand',
+        label: 'THAILAND',
         phone: '66'
     },
     {
         code: 'TJ',
-        label: 'Tajikistan',
+        label: 'TAJIKISTAN',
         phone: '992'
     },
     {
         code: 'TK',
-        label: 'Tokelau',
+        label: 'TOKELAU',
         phone: '690'
     },
     {
         code: 'TL',
-        label: 'Timor-Leste',
+        label: 'TIMOR',
         phone: '670'
     },
     {
         code: 'TM',
-        label: 'Turkmenistan',
+        label: 'TURKMENISTAN',
         phone: '993'
     },
     {
         code: 'TN',
-        label: 'Tunisia',
+        label: 'TUNISIA',
         phone: '216'
     },
     {
         code: 'TO',
-        label: 'Tonga',
+        label: 'TONGA',
         phone: '676'
     },
     {
         code: 'TR',
-        label: 'Turkey',
+        label: 'TURKEY',
         phone: '90'
     },
     {
         code: 'TT',
-        label: 'Trinidad and Tobago',
+        label: 'TRINIDAD_AND_TOBAGO',
         phone: '1-868',
 
     },
     {
         code: 'TV',
-        label: 'Tuvalu',
+        label: 'TUVALU',
         phone: '688'
     },
     {
         code: 'TW',
-        label: 'Taiwan, Republic of China',
+        label: 'TAIWAN_REPUBLIC_OF_CHINA',
         phone: '886',
 
     },
     {
         code: 'TZ',
-        label: 'United Republic of Tanzania',
+        label: 'UNITED_REPUBLIC_OF_TANZANIA',
         phone: '255',
 
     },
     {
         code: 'UA',
-        label: 'Ukraine',
+        label: 'UKRAINE',
         phone: '380'
     },
     {
         code: 'UG',
-        label: 'Uganda',
+        label: 'UGANDA',
         phone: '256'
     },
     {
         code: 'US',
-        label: 'United States',
+        label: 'UNITED_STATES',
         phone: '1',
 
     },
     {
         code: 'UY',
-        label: 'Uruguay',
+        label: 'URUGUAY',
         phone: '598'
     },
     {
         code: 'UZ',
-        label: 'Uzbekistan',
+        label: 'UZBEKISTAN',
         phone: '998'
     },
     {
         code: 'VA',
-        label: 'Holy See (Vatican City State)',
+        label: 'HOLY_SEE_VATICAN_CITY_STATE',
         phone: '379',
 
     },
     {
         code: 'VC',
-        label: 'Saint Vincent and the Grenadines',
+        label: 'SAINT_VINCENT_AND_THE_GRENADINES',
         phone: '1-784',
 
     },
     {
         code: 'VE',
-        label: 'Venezuela',
+        label: 'VENEZUELA',
         phone: '58'
     },
     {
         code: 'VG',
-        label: 'British Virgin Islands',
+        label: 'BRITISH_VIRGIN_ISLANDS',
         phone: '1-284',
 
     },
     {
         code: 'VI',
-        label: 'US Virgin Islands',
+        label: 'US_VIRGIN_ISLANDS',
         phone: '1-340',
 
     },
     {
         code: 'VN',
-        label: 'Vietnam',
+        label: 'VIETNAM',
         phone: '84'
     },
     {
         code: 'VU',
-        label: 'Vanuatu',
+        label: 'VANUATU',
         phone: '678'
     },
     {
         code: 'WF',
-        label: 'Wallis and Futuna',
+        label: 'WALLIS_AND_FUTUNA',
         phone: '681'
     },
     {
         code: 'WS',
-        label: 'Samoa',
+        label: 'SAMOA',
         phone: '685'
     },
     {
         code: 'XK',
-        label: 'Kosovo',
+        label: 'KOSOVO',
         phone: '383'
     },
     {
         code: 'YE',
-        label: 'Yemen',
+        label: 'YEMEN',
         phone: '967'
     },
     {
         code: 'YT',
-        label: 'Mayotte',
+        label: 'MAYOTTE',
         phone: '262'
     },
     {
         code: 'ZA',
-        label: 'South Africa',
+        label: 'SOUTH_AFRICA',
         phone: '27'
     },
     {
         code: 'ZM',
-        label: 'Zambia',
+        label: 'ZAMBIA',
         phone: '260'
     },
     {
         code: 'ZW',
-        label: 'Zimbabwe',
+        label: 'ZIMBABWE',
         phone: '263'
     },
 
