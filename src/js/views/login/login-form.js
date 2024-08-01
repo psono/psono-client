@@ -12,12 +12,14 @@ import { useHistory } from "react-router-dom";
 
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
+import ivaltClient from "../../services/ivalt";
 import user from "../../services/user";
 import host from "../../services/host";
 import deviceService from "../../services/device";
 import webauthnService from "../../services/webauthn";
 import converterService from "../../services/converter";
 import { getStore } from "../../services/store";
+import { useSelector } from "react-redux";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
@@ -132,7 +134,7 @@ const LoginViewForm = (props) => {
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
     const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
-const ivalt = useSelector((store) => store.user.ivalt);
+    const ivalt = useSelector((store) => store.user.ivalt);
 	const [timer, setTimer] = useState(defaultTimer);
 	const [ivaltLoading, setIvaltLoading] = useState(false);
 	const [errorsResponses, setErrorsResponses] = useState({
@@ -167,6 +169,32 @@ const ivalt = useSelector((store) => store.user.ivalt);
 			clearTimeout(timeout);
 		};
 	}, [ivaltLoading, timer]);
+
+
+    const validateIvalt = () => {
+		ivaltClient.validateIvaltTwoFactor().then(
+			(res) => {
+				if (res.data.non_field_errors === undefined) {
+					setView("ivalt_auth_success");
+					setIvaltLoading(false);
+					setTimer(defaultTimer);
+					let requiredMultifactors = [];
+					setMultifactors(requiredMultifactors);
+				} else if (
+					errorsResponses[res.data.non_field_errors[0]] !==
+						undefined &&
+					res.data.non_field_errors[0] !== "AUTHENTICATION_FAILED"
+				) {
+					setErrors([errorsResponses[res.data.non_field_errors[0]]]);
+					setIvaltLoading(false);
+				}
+			},
+			(error, res) => {
+				console.log(error, "ERROR RESPONSE");
+				
+			}
+		);
+	};
     React.useEffect(() => {
         if (props.samlTokenId) {
             user.samlLogin(props.samlTokenId).then(
