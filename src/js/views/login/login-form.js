@@ -175,10 +175,16 @@ const LoginViewForm = (props) => {
 		ivaltClient.validateIvaltTwoFactor().then(
 			(res) => {
 				if (res.data.non_field_errors === undefined) {
-					setView("ivalt_auth_success");
 					setIvaltLoading(false);
 					setTimer(defaultTimer);
-					let requiredMultifactors = [];
+
+                    let requiredMultifactors = [...multifactors];
+                    if (getStore().getState().server.multifactorEnabled) {
+                        helperService.removeFromArray(requiredMultifactors, "ivalt_2fa");
+                    } else {
+                        requiredMultifactors = [];
+                    }
+
 					setMultifactors(requiredMultifactors);
 				} else if (
 					errorsResponses[res.data.non_field_errors[0]] !==
@@ -1608,8 +1614,8 @@ const LoginViewForm = (props) => {
 
 					{ivaltLoading && (
 						<div>
-							<p>Request has been sent to your iVALT app</p>
-							<p>Waiting for Authentication</p>
+							<p>{t("IVALT_REQUEST_SENT_TO_APP")}</p>
+							<p>{t("WAITING_FOR_AUTHENTICATION")}</p>
 							<p>{timer}</p>
 						</div>
 					)}
@@ -1646,39 +1652,6 @@ const LoginViewForm = (props) => {
 					)}
 				</Grid>
 			</>
-		);
-	}
-
-	if (view === "ivalt_auth_success") {
-		formContent = (
-			<DialogContent>
-				<Grid container>
-					<Grid
-						item
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "center",
-							alignItems: "center",
-							width: "100%",
-						}}
-					>
-						<p
-							style={{
-								color: "green",
-								fontWeight: 500,
-								fontSize: "30px",
-							}}
-						>
-							iVALT Auth Successful
-						</p>
-						<img
-							src={require("../../../common/data/img/verified.gif")}
-							width={100}
-						/>
-					</Grid>
-				</Grid>
-			</DialogContent>
 		);
 	}
 
