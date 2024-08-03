@@ -96,6 +96,15 @@ function transferIntoNote(line) {
     if (line[INDEX_NOTE]) {
         note_notes = note_notes + line[INDEX_NOTE] + "\n";
     }
+    if (line[INDEX_EMAIL]) {
+        note_notes = note_notes  + "Email: " + line[INDEX_EMAIL] + "\n";
+    }
+    if (line[INDEX_USERNAME]) {
+        note_notes = note_notes  + "Username: " + line[INDEX_USERNAME] + "\n";
+    }
+    if (line[INDEX_PASSWORD]) {
+        note_notes = note_notes  + "Password: " + line[INDEX_PASSWORD] + "\n";
+    }
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -119,7 +128,7 @@ function transferIntoWebsitePassword(line) {
     const url = line[INDEX_URL];
     const parsed_url = helperService.parseUrl(url);
 
-    let note = line[INDEX_NOTE];
+    let note = '';
     if (line[INDEX_NOTE]) {
         note = note  + line[INDEX_NOTE] + "\n";
     }
@@ -165,7 +174,7 @@ function transferIntoWebsitePassword(line) {
  */
 function transferIntoApplicationPassword(line) {
 
-    let note = line[INDEX_NOTE];
+    let note = '';
     if (line[INDEX_NOTE]) {
         note = note  + line[INDEX_NOTE] + "\n";
     }
