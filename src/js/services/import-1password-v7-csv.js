@@ -1,11 +1,13 @@
 /**
  * Service which handles the actual parsing of the exported JSON
  */
+import * as OTPAuth from "otpauth";
 
 const Papa = require('papaparse');
 import helperService from './helper';
 import cryptoLibrary from './crypto-library';
 
+let INDEX_UUID = 0;
 let INDEX_URL = 0;
 let INDEX_URLS = 1;
 let INDEX_USERNAME = 2;
@@ -13,6 +15,8 @@ let INDEX_PASSWORD = 3;
 let INDEX_NOTES = 4;
 let INDEX_NAME = 5;
 let INDEX_TYPE = 6;
+let INDEX_SCOPE = 7;
+let INDEX_AUTOSUBMIT = 8;
 let INDEX_OTHERS = []
 
 /**
@@ -39,6 +43,12 @@ function identifyRows(line) {
             INDEX_URLS = i;
         } else if(column_description === "username") {
             INDEX_USERNAME = i;
+        } else if(column_description === "scope") {
+            INDEX_SCOPE = i;
+        } else if(column_description === "uuid") {
+            INDEX_UUID = i;
+        } else if(column_description === "autosubmit") {
+            INDEX_AUTOSUBMIT = i;
         } else {
             INDEX_OTHERS.push(i);
         }
@@ -46,9 +56,15 @@ function identifyRows(line) {
 }
 
 function getNoteExtras(line) {
+
+    const totpIndexes = getTotpIndexes(line);
+
     let extras = ''
     for (let i = 0; i < INDEX_OTHERS.length; i++) {
         if (!line[INDEX_OTHERS[i]]) {
+            continue
+        }
+        if (totpIndexes.includes(INDEX_OTHERS[i])) {
             continue
         }
         extras = extras + "\n" + line[INDEX_OTHERS[i]];
@@ -87,6 +103,50 @@ function getType(line) {
     }
 
     return "note";
+}
+
+/**
+ * Checks whether one of the entries in the element is a totp string.
+ *
+ * Known types are:
+ *      Secure Note -> note
+ *      Identity
+ *      Password
+ *      Login
+ *      Credit Card
+ *      Server
+ *
+ * @param {[]} line One line of the CSV import
+ *
+ * @returns {[]} The indexes as list
+ */
+function getTotpIndexes(line) {
+    const indexes = []
+    for (let i = 0; i < line.length; i++) {
+        if (line[i].startsWith('otpauth://totp/')) {
+            indexes.push(i)
+        }
+    }
+    return indexes;
+}
+
+/**
+ * Checks whether one of the entries in the element is a totp string.
+ *
+ * Known types are:
+ *      Secure Note -> note
+ *      Identity
+ *      Password
+ *      Login
+ *      Credit Card
+ *      Server
+ *
+ * @param {[]} line One line of the CSV import
+ *
+ * @returns {boolean} Whether a totp field is present or not
+ */
+function hasTotp(line) {
+    return typeof getTotpIndexes(line).length === 0
 }
 
 /**
@@ -153,7 +213,7 @@ function transferIntoWebsitePassword(line) {
     const url = line[INDEX_URL] || line[INDEX_URLS];
     const parsed_url = helperService.parseUrl(url);
 
-    return {
+    const websitePassword = {
         id : cryptoLibrary.generateUuid(),
         type : "website_password",
         name : line[INDEX_NAME],
@@ -165,6 +225,22 @@ function transferIntoWebsitePassword(line) {
         "website_password_url" : url,
         "website_password_title" : line[INDEX_NAME]
     }
+
+    const totpIndexes = getTotpIndexes(line);
+    if (totpIndexes.length !== 0) {
+        try {
+            let parsedTotp = OTPAuth.URI.parse(line[totpIndexes[0]]);
+
+            websitePassword['website_password_totp_period'] = parsedTotp.period;
+            websitePassword['website_password_totp_algorithm'] = parsedTotp.algorithm;
+            websitePassword['website_password_totp_digits'] = parsedTotp.digits;
+            websitePassword['website_password_totp_code'] = parsedTotp.secret.base32;
+        } catch (e) {
+            // pass.
+        }
+    }
+
+    return websitePassword
 }
 
 /**
@@ -187,6 +263,46 @@ function transferIntoApplicationPassword(line) {
     }
 }
 
+
+/**
+ * Takes a line and transforms it into a totp secret
+ *
+ * @param {[]} line One of the lines
+ *
+ * @returns {*} The secrets object
+ */
+function transformToTotpCode(line, index) {
+    let name = line[INDEX_NAME] + ' TOTP' + index;
+    let totp_notes = line[INDEX_NOTES] + getNoteExtras(line);
+    let totp_period = 30;
+    let totp_algorithm = "SHA1";
+    let totp_digits = "6";
+    let totp_code = "";
+    let totp_title = line[INDEX_NAME] + ' TOTP' + index;
+
+    try {
+        let parsedTotp = OTPAuth.URI.parse(line[index]);
+        totp_period = parsedTotp.period;
+        totp_algorithm = parsedTotp.algorithm;
+        totp_digits = parsedTotp.digits;
+        totp_code = parsedTotp.secret.base32;
+    } catch (e) {
+        // pass.
+    }
+
+    return {
+        id: cryptoLibrary.generateUuid(),
+        type: "totp",
+        name: name,
+        totp_notes: totp_notes,
+        totp_code: totp_code,
+        totp_digits: totp_digits,
+        totp_algorithm: totp_algorithm,
+        totp_period: totp_period,
+        totp_title: totp_title,
+    };
+}
+
 /**
  * Takes a line, checks its type and transforms it into a proper secret object
  *
@@ -206,7 +322,6 @@ function transformToSecret(line) {
         return transferIntoApplicationPassword(line);
     }
 }
-
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -232,6 +347,17 @@ function gather_secrets(datastore, secrets, csv) {
         }
 
         const secret = transformToSecret(line);
+
+        const totpIndexes = getTotpIndexes(line);
+        const start = (getType(line) === 'website_password') ? 1 : 0;
+
+        for (let i = start; i < totpIndexes.length; i++) {
+            const totpSecret = transformToTotpCode(line, totpIndexes[i]);
+            if (totpSecret !== null) {
+                secrets.push(totpSecret);
+                datastore['items'].push(totpSecret);
+            }
+        }
 
         if (secret === null) {
             //empty line
