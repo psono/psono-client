@@ -193,6 +193,9 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '0px',
         color: 'white',
     },
+    description: {
+        fontSize: '12px',
+    },
 }));
 
 const PopupItem = (props) => {
@@ -268,10 +271,18 @@ const PopupItem = (props) => {
         editItem(item.content);
     };
 
+    let title = item.content.name;
+    let description = "";
+
+    if (item.content.hasOwnProperty("description") && item.content.description && !item.content.name.toLowerCase().includes(item.content.description.toLowerCase())) {
+        description = item.content.description;
+    }
+
     return (
         <li className={classes.navigationItemLi}>
             <a href="#" className={classes.navigationItemA} onClick={onEditItem}>
-                <i className={"fa-fw " + widgetService.itemIcon(item.content)} /> {item.content.name}
+                <i className={"fa-fw " + widgetService.itemIcon(item.content)} /> {title}
+                {!!description && (<span className={classes.description}>&nbsp;({description})</span>)}
                 <br />
                 <Tooltip title={item.path} placement="top" PopperProps={{
                     disablePortal: true,

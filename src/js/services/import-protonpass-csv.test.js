@@ -42,6 +42,7 @@ describe('Service: importProtonPassCsv test suite', function () {
                         "website_password_url_filter": "example.com",
                         "website_password_password": "testpassword",
                         "website_password_username": "test@domain.com",
+                        "description": "test@domain.com",
                         "website_password_notes": "",
                         "website_password_url": "https://example.com/login",
                         "website_password_title": "example.com",
@@ -57,6 +58,7 @@ describe('Service: importProtonPassCsv test suite', function () {
                         "credit_card_name": "TEST",
                         "credit_card_cvc": "123",
                         "credit_card_valid_through": "1222",
+                        "description": "xxxxxxxx9000",
                         "credit_card_pin": "1234",
                         "credit_card_notes": "",
                         "credit_card_title": "TEST CARD"
@@ -82,6 +84,7 @@ describe('Service: importProtonPassCsv test suite', function () {
                     "website_password_url_filter": "example.com",
                     "website_password_password": "testpassword",
                     "website_password_username": "test@domain.com",
+                    "description": "test@domain.com",
                     "website_password_notes": "",
                     "website_password_url": "https://example.com/login",
                     "website_password_title": "example.com",
@@ -97,6 +100,7 @@ describe('Service: importProtonPassCsv test suite', function () {
                     "credit_card_name": "TEST",
                     "credit_card_cvc": "123",
                     "credit_card_valid_through": "1222",
+                    "description": "xxxxxxxx9000",
                     "credit_card_pin": "1234",
                     "credit_card_notes": "",
                     "credit_card_title": "TEST CARD"

@@ -555,6 +555,7 @@ function fillStorage(datastore) {
             ["secret_id", "secret_id"],
             ["secret_key", "secret_key"],
             ["name", "name"],
+            ["description", "description"],
             ["urlfilter", "urlfilter"],
             ["autosubmit", "autosubmit"],
             ["search", "urlfilter"],
@@ -715,6 +716,9 @@ function savePassword(url, username, password) {
         name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
         urlfilter: parsed_url.authority || "",
     };
+    if (username) {
+        datastore_object['description'] = username;
+    }
 
     const onError = function (data) {
         console.log(data);

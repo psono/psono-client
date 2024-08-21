@@ -21,99 +21,106 @@ describe('Service: importBitwardenJson test suite', function () {
 
         const expected_output = {
             "datastore": {
-                "id": generic_uuid,
-                "name": output.datastore.name,
-                "folders": [{
+                "id": generic_uuid, "name": output.datastore.name, "folders": [{
+                    "id": generic_uuid,
+                    "name": "My Folder",
+                    "items": [{
                         "id": generic_uuid,
-                        "name": "My Folder",
-                        "items": [{
-                                "id": generic_uuid,
-                                "type": "note",
-                                "name": "My Secure Note",
-                                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                                "note_title": "My Secure Note"
-                            }, {
-                                "id": generic_uuid,
-                                "type": "note",
-                                "name": "Card Name",
-                                "note_notes": "1st line of note text\n2nd line of note text\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\nName: undefined\nBrand: Visa\nNumber: 1234567891011121\nMonth: 10\nYear: 2021\nCode: 123\n",
-                                "note_title": "Card Name"
-                            }, {
-                                "id": generic_uuid,
-                                "type": "note",
-                                "name": "My Identity",
-                                "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
-                                "note_title": "My Identity"
-                            }, {
-                                "id": generic_uuid,
-                                "type": "website_password",
-                                "name": "Login Name",
-                                "urlfilter": "mail.google.com",
-                                "website_password_url_filter": "mail.google.com",
-                                "website_password_password": "mypassword",
-                                "website_password_username": "myusername@gmail.com",
-                                "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
-                                "website_password_url": "https://mail.google.com",
-                                "website_password_title": "Login Name"
-                            }, {
-                                "id": generic_uuid,
-                                "type": "totp",
-                                "name": "Login Name TOTP",
-                                "totp_notes": "",
-                                "totp_code": "NB2W45DFOIZA",
-                                "totp_digits": 6,
-                                "totp_algorithm": "SHA1",
-                                "totp_period": 30,
-                                "totp_title": "Login Name TOTP"
-                            }
-                        ]
-                    }
-                ],
-                "items": []
+                        "type": "note",
+                        "name": "My Secure Note",
+                        "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                        "note_title": "My Secure Note"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "credit_card",
+                        "name": "Card Name",
+                        "description": "xxxxxxxxxxxx1121",
+                        "credit_card_number": "1234567891011121",
+                        "credit_card_name": "Jane Doe",
+                        "credit_card_cvc": "123",
+                        "credit_card_valid_through": "1021",
+                        "credit_card_pin": "",
+                        "credit_card_notes": "1st line of note text\n2nd line of note textText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                        "credit_card_title": "Card Name"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "note",
+                        "name": "My Identity",
+                        "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
+                        "note_title": "My Identity"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "website_password",
+                        "name": "Login Name",
+                        "description": "myusername@gmail.com",
+                        "urlfilter": "mail.google.com",
+                        "website_password_url_filter": "mail.google.com",
+                        "website_password_password": "mypassword",
+                        "website_password_username": "myusername@gmail.com",
+                        "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
+                        "website_password_url": "https://mail.google.com",
+                        "website_password_title": "Login Name"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "totp",
+                        "name": "Login Name TOTP",
+                        "totp_notes": "",
+                        "totp_code": "NB2W45DFOIZA",
+                        "totp_digits": 6,
+                        "totp_algorithm": "SHA1",
+                        "totp_period": 30,
+                        "totp_title": "Login Name TOTP"
+                    }]
+                }], "items": []
             },
             "secrets": [{
-                    "id": generic_uuid,
-                    "type": "note",
-                    "name": "My Secure Note",
-                    "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                    "note_title": "My Secure Note"
-                }, {
-                    "id": generic_uuid,
-                    "type": "note",
-                    "name": "Card Name",
-                    "note_notes": "1st line of note text\n2nd line of note text\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\nName: undefined\nBrand: Visa\nNumber: 1234567891011121\nMonth: 10\nYear: 2021\nCode: 123\n",
-                    "note_title": "Card Name"
-                }, {
-                    "id": generic_uuid,
-                    "type": "note",
-                    "name": "My Identity",
-                    "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
-                    "note_title": "My Identity"
-                }, {
-                    "id": generic_uuid,
-                    "type": "website_password",
-                    "name": "Login Name",
-                    "urlfilter": "mail.google.com",
-                    "website_password_url_filter": "mail.google.com",
-                    "website_password_password": "mypassword",
-                    "website_password_username": "myusername@gmail.com",
-                    "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
-                    "website_password_url": "https://mail.google.com",
-                    "website_password_title": "Login Name"
-                }, {
-                    "id": generic_uuid,
-                    "type": "totp",
-                    "name": "Login Name TOTP",
-                    "totp_notes": "",
-                    "totp_code": "NB2W45DFOIZA",
-                    "totp_digits": 6,
-                    "totp_algorithm": "SHA1",
-                    "totp_period": 30,
-                    "totp_title": "Login Name TOTP"
-                }
-            ]
+                "id": generic_uuid,
+                "type": "note",
+                "name": "My Secure Note",
+                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                "note_title": "My Secure Note"
+            }, {
+                "id": generic_uuid,
+                "type": "credit_card",
+                "name": "Card Name",
+                "description": "xxxxxxxxxxxx1121",
+                "credit_card_number": "1234567891011121",
+                "credit_card_name": "Jane Doe",
+                "credit_card_cvc": "123",
+                "credit_card_valid_through": "1021",
+                "credit_card_pin": "",
+                "credit_card_notes": "1st line of note text\n2nd line of note textText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                "credit_card_title": "Card Name"
+            }, {
+                "id": generic_uuid,
+                "type": "note",
+                "name": "My Identity",
+                "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
+                "note_title": "My Identity"
+            }, {
+                "id": generic_uuid,
+                "type": "website_password",
+                "name": "Login Name",
+                "description": "myusername@gmail.com",
+                "urlfilter": "mail.google.com",
+                "website_password_url_filter": "mail.google.com",
+                "website_password_password": "mypassword",
+                "website_password_username": "myusername@gmail.com",
+                "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
+                "website_password_url": "https://mail.google.com",
+                "website_password_title": "Login Name"
+            }, {
+                "id": generic_uuid,
+                "type": "totp",
+                "name": "Login Name TOTP",
+                "totp_notes": "",
+                "totp_code": "NB2W45DFOIZA",
+                "totp_digits": 6,
+                "totp_algorithm": "SHA1",
+                "totp_period": 30,
+                "totp_title": "Login Name TOTP"
+            }]
         }
-
 
         expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
     });

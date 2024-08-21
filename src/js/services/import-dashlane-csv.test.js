@@ -47,6 +47,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "name": "service",
                                 "application_password_password": "p4assw0rd",
                                 "application_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "application_password_notes": "",
                                 "application_password_title": "service"
                             },
@@ -58,6 +59,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "v3rys3cur3",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com",
                                 "website_password_title": "title"
@@ -70,6 +72,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "dontleakme",
                                 "website_password_username": "justausername",
+                                "description": "justausername",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com",
                                 "website_password_title": "title"
@@ -82,6 +85,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "username",
+                                "description": "username",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com/account/register",
                                 "website_password_title": "title"
@@ -94,6 +98,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com/",
                                 "website_password_title": "title"
@@ -106,6 +111,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "account.title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "",
+                                "description": "",
                                 "website_password_notes": "",
                                 "website_password_url": "https://account.title.com/login/oauth2/enter-password",
                                 "website_password_title": "https://account.title.com/login/oauth2/enter-password"
@@ -118,6 +124,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "git.title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://git.title.com/-/profile/password/edit",
                                 "website_password_title": "title"
@@ -130,6 +137,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "justausername",
+                                "description": "justausername",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title",
                                 "website_password_title": "title"
@@ -142,6 +150,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "www.title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://www.title.com/checkout/shippingPayment",
                                 "website_password_title": "title"
@@ -154,6 +163,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "login name",
+                                "description": "login name",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com",
                                 "website_password_title": "title"
@@ -172,6 +182,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "www.title.com",
                                 "website_password_password": "this contains `,` so it's in quotes",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://www.title.com/accounts/edit",
                                 "website_password_title": "title"
@@ -190,6 +201,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "email@example.com",
+                                "description": "email@example.com",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com/us/",
                                 "website_password_title": "https://title.com/us/"
@@ -202,6 +214,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "www.title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "justausername",
+                                "description": "justausername",
                                 "website_password_notes": "",
                                 "website_password_url": "https://www.title.com/html/myAccount/login/page.html",
                                 "website_password_title": "title"
@@ -220,6 +233,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "use this instead of email",
+                                "description": "use this instead of email",
                                 "website_password_notes": "",
                                 "website_password_url": "https://title.com/key/",
                                 "website_password_title": "title"
@@ -232,6 +246,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                                 "website_password_url_filter": "www.title.com",
                                 "website_password_password": "p4assw0rd",
                                 "website_password_username": "use me",
+                                "description": "use me",
                                 "website_password_notes": "",
                                 "website_password_url": "https://www.title.com/v3/register/main.page",
                                 "website_password_title": "https://www.title.com/v3/register/main.page"
@@ -247,6 +262,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "name": "service",
                     "application_password_password": "p4assw0rd",
                     "application_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "application_password_notes": "",
                     "application_password_title": "service"
                 },
@@ -258,6 +274,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "v3rys3cur3",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com",
                     "website_password_title": "title"
@@ -270,6 +287,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "dontleakme",
                     "website_password_username": "justausername",
+                    "description": "justausername",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com",
                     "website_password_title": "title"
@@ -282,6 +300,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "www.title.com",
                     "website_password_password": "this contains `,` so it's in quotes",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://www.title.com/accounts/edit",
                     "website_password_title": "title"
@@ -294,6 +313,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "username",
+                    "description": "username",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com/account/register",
                     "website_password_title": "title"
@@ -306,6 +326,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com/us/",
                     "website_password_title": "https://title.com/us/"
@@ -318,6 +339,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "use this instead of email",
+                    "description": "use this instead of email",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com/key/",
                     "website_password_title": "title"
@@ -330,6 +352,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com/",
                     "website_password_title": "title"
@@ -342,6 +365,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "www.title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "justausername",
+                    "description": "justausername",
                     "website_password_notes": "",
                     "website_password_url": "https://www.title.com/html/myAccount/login/page.html",
                     "website_password_title": "title"
@@ -354,6 +378,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "account.title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "",
+                    "description": "",
                     "website_password_notes": "",
                     "website_password_url": "https://account.title.com/login/oauth2/enter-password",
                     "website_password_title": "https://account.title.com/login/oauth2/enter-password"
@@ -366,6 +391,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "git.title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://git.title.com/-/profile/password/edit",
                     "website_password_title": "title"
@@ -378,6 +404,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "justausername",
+                    "description": "justausername",
                     "website_password_notes": "",
                     "website_password_url": "https://title",
                     "website_password_title": "title"
@@ -390,6 +417,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "www.title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "use me",
+                    "description": "use me",
                     "website_password_notes": "",
                     "website_password_url": "https://www.title.com/v3/register/main.page",
                     "website_password_title": "https://www.title.com/v3/register/main.page"
@@ -402,6 +430,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "www.title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "email@example.com",
+                    "description": "email@example.com",
                     "website_password_notes": "",
                     "website_password_url": "https://www.title.com/checkout/shippingPayment",
                     "website_password_title": "title"
@@ -414,6 +443,7 @@ describe('Service: importDashlaneCsv test suite', function () {
                     "website_password_url_filter": "title.com",
                     "website_password_password": "p4assw0rd",
                     "website_password_username": "login name",
+                    "description": "login name",
                     "website_password_notes": "",
                     "website_password_url": "https://title.com",
                     "website_password_title": "title"

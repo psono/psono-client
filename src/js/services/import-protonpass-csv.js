@@ -140,6 +140,7 @@ function transferIntoWebsitePassword(line) {
         id : cryptoLibrary.generateUuid(),
         type : "website_password",
         name : line[INDEX_NAME],
+        "description" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "urlfilter" : parsed_url.authority || undefined,
         "website_password_url_filter" : parsed_url.authority || undefined,
         "website_password_password" : line[INDEX_PASSWORD],
@@ -186,6 +187,7 @@ function transferIntoApplicationPassword(line) {
         id : cryptoLibrary.generateUuid(),
         type : "application_password",
         name : line[INDEX_NAME],
+        "description" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "application_password_password" : line[INDEX_PASSWORD],
         "application_password_username" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "application_password_notes" : note,
@@ -225,11 +227,14 @@ function transferIntoCreditCard(line) {
         note = note + "Expiration date:" + data['expirationDate'] + "\n";
     }
 
+    const creditCardNumber = data['number'].replace(/\s/g,'');
+
     return {
         id : cryptoLibrary.generateUuid(),
         type : "credit_card",
         name : line[INDEX_NAME],
-        "credit_card_number" : data['number'].replace(/\s/g,''),
+        "description" : creditCardNumber.replace(/.(?=.{4})/g, 'x'),
+        "credit_card_number" : creditCardNumber,
         "credit_card_name" : data['cardholderName'],
         "credit_card_cvc" : data['verificationNumber'],
         "credit_card_valid_through" : expirationDate,

@@ -691,6 +691,7 @@ const DialogEditEntry = (props) => {
             }
             if (websitePasswordUsername) {
                 secretObject["website_password_username"] = websitePasswordUsername;
+                item["description"]  = websitePasswordUsername;
             }
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
@@ -737,6 +738,7 @@ const DialogEditEntry = (props) => {
             }
             if (passkeyUserHandle) {
                 secretObject["passkey_user_handle"] = passkeyUserHandle;
+                item["description"]  = passkeyUserHandle;
             }
             if (passkeyAlgorithm) {
                 secretObject["passkey_algorithm"] = passkeyAlgorithm;
@@ -757,6 +759,7 @@ const DialogEditEntry = (props) => {
             secretObject["application_password_title"] = applicationPasswordTitle;
             if (applicationPasswordUsername) {
                 secretObject["application_password_username"] = applicationPasswordUsername;
+                item["description"]  = applicationPasswordUsername;
             }
             if (applicationPasswordPassword) {
                 secretObject["application_password_password"] = applicationPasswordPassword;
@@ -858,6 +861,7 @@ const DialogEditEntry = (props) => {
             secretObject["credit_card_title"] = creditCardTitle;
             if (creditCardNumber) {
                 secretObject["credit_card_number"] = creditCardNumber;
+                item["description"]  = creditCardNumber.replace(/.(?=.{4})/g, 'x');
             }
             if (creditCardCVC) {
                 secretObject["credit_card_cvc"] = creditCardCVC;
