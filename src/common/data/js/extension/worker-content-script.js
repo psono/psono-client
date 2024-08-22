@@ -163,10 +163,14 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     const currentPasswordFields = new Set([
         "current-password",
     ]);
+    const totpFields = new Set([
+        "one-time-code",
+    ]);
     const identityAllFields = new Set([
         ...usernameFields,
         ...newPasswordFields,
         ...currentPasswordFields,
+        ...totpFields,
     ]);
 
 
@@ -878,6 +882,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     function onFillPassword(data, sender, sendResponse) {
         let foundUsername;
         let foundPassword;
+        let foundTotp;
 
         for (let i = 0; i < myForms.length; i++) {
             if (data.hasOwnProperty("username") && data.username !== "") {
@@ -918,6 +923,11 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 data.hasOwnProperty("password") && data.password !== "") {
                 foundPassword = true;
                 fillFieldHelper(identityInputFields[i], data.password);
+            }
+            if (totpFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("totp_token") && data.totp_token !== "") {
+                foundTotp = true;
+                fillFieldHelper(identityInputFields[i], data.totp_token);
             }
         }
 
