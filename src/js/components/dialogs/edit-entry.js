@@ -738,7 +738,6 @@ const DialogEditEntry = (props) => {
             }
             if (passkeyUserHandle) {
                 secretObject["passkey_user_handle"] = passkeyUserHandle;
-                item["description"]  = passkeyUserHandle;
             }
             if (passkeyAlgorithm) {
                 secretObject["passkey_algorithm"] = passkeyAlgorithm;
