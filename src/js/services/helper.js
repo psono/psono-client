@@ -1,3 +1,5 @@
+import i18n from "../i18n";
+
 /**
  * Checks weather a string is a valid ipv4 address
  *
@@ -433,11 +435,11 @@ function isValidPassword(password, password2, min_length, min_complexity) {
     }
 
     if (password.length < min_length) {
-        return "PASSWORD_TOO_SHORT";
+        return i18n.t("PASSWORD_TOO_SHORT_MIN_REQUIRED", {min_password_length: min_length});
     }
 
     if (password !== password2) {
-        return "PASSWORDS_DONT_MATCH";
+        return i18n.t("PASSWORDS_DONT_MATCH");
     }
 
     if (min_complexity > 0) {
@@ -457,7 +459,7 @@ function isValidPassword(password, password2, min_length, min_complexity) {
         }
 
         if (complexity < min_complexity) {
-            return "PASSWORD_NOT_COMPLEX_ENOUGH";
+            return i18n.t("PASSWORD_NOT_COMPLEX_ENOUGH_MIN_REQUIRED", {character_groups: min_complexity});
         }
     }
 

@@ -192,6 +192,8 @@
   "SECURITY_REPORT_SOON_REQUIRED": "Your administrator requires you soon to create a new security report. You can create one now preemptive.",
   "BACK": "Back",
   "RECOVERY_CODES_DISABLED": "Recovery codes have been disabled.",
+  "PASSWORD_TOO_SHORT_MIN_REQUIRED": "Password too short, you need at least {{ min_password_length }} characters.",
+  "PASSWORD_NOT_COMPLEX_ENOUGH_MIN_REQUIRED": "Password not complex enough, you need at least {{ character_groups }} different character groups.",
   "PASSWORD_TOO_SHORT": "Password too short.",
   "GROUP_NAME_TOO_SHORT": "The group's name is too short.",
   "PASSWORDS_DONT_MATCH": "Passwords don't match.",
