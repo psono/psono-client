@@ -384,7 +384,7 @@ describe('Service: helper test suite', function() {
 
         const is_valid = helperService.isValidPassword(password1, password1);
 
-        expect(is_valid).toEqual("PASSWORD_TOO_SHORT");
+        expect(is_valid).toEqual("PASSWORD_TOO_SHORT_MIN_REQUIRED");
     });
 
     it('isValidPassword_no_match', function() {
@@ -402,7 +402,7 @@ describe('Service: helper test suite', function() {
 
         const is_valid = helperService.isValidPassword(password1, password2);
 
-        expect(is_valid).toEqual("PASSWORD_NOT_COMPLEX_ENOUGH");
+        expect(is_valid).toEqual("PASSWORD_NOT_COMPLEX_ENOUGH_MIN_REQUIRED");
     });
 
     it('isUrlFilterMatch direct match', function() {
