@@ -56,6 +56,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "www.magentocommerce.com",
                         "website_password_password": "2r4f4%$23",
                         "website_password_username": "username@gmail.net",
+                        "description": "username@gmail.net",
                         "website_password_notes": "",
                         "website_password_url": "https://www.magentocommerce.com/products/customer/account/login/",
                         "website_password_title": "magentocommerce.com"
@@ -67,6 +68,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "www.spotify.com",
                         "website_password_password": "4ggga4aga4",
                         "website_password_username": "username",
+                        "description": "username",
                         "website_password_notes": "",
                         "website_password_url": "https://www.spotify.com/de/login/",
                         "website_password_title": "spotify"
@@ -78,6 +80,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "www.hardwareluxx.com",
                         "website_password_password": "g4hw809hgßw4GH",
                         "website_password_username": "username",
+                        "description": "username",
                         "website_password_notes": "",
                         "website_password_url": "http://www.hardwareluxx.com/community/",
                         "website_password_title": "Password für hardwareluxx.com"
@@ -89,6 +92,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "login.live.com",
                         "website_password_password": "ab4zab4z5abz5",
                         "website_password_username": "username@gmail.com",
+                        "description": "username@gmail.com",
                         "website_password_notes": "live.com recovery code\nYour new code is ABCDE-ABCDE-ABCDE-ABCDE-ABCDE\n\nApp Password: bs4tzb4stbs4t",
                         "website_password_url": "https://login.live.com/",
                         "website_password_title": "login.live.com (Microsoft Windows Store)"
@@ -100,6 +104,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "php.net",
                         "website_password_password": "by4eyb4yb4yb4yb46yb4",
                         "website_password_username": "",
+                        "description": "",
                         "website_password_notes": "",
                         "website_password_url": "http://php.net/manual/de/function.explode.php",
                         "website_password_title": "Generated Password for php.net"
@@ -111,6 +116,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                         "website_password_url_filter": "login.veeam.com",
                         "website_password_password": "n46a6ab4a6b4",
                         "website_password_username": "username@gmail.com",
+                        "description": "username@gmail.com",
                         "website_password_notes": "test",
                         "website_password_url": "https://login.veeam.com/",
                         "website_password_title": "login.veeam.com"
@@ -135,6 +141,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "www.magentocommerce.com",
                 "website_password_password": "2r4f4%$23",
                 "website_password_username": "username@gmail.net",
+                "description": "username@gmail.net",
                 "website_password_notes": "",
                 "website_password_url": "https://www.magentocommerce.com/products/customer/account/login/",
                 "website_password_title": "magentocommerce.com"
@@ -146,6 +153,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "www.spotify.com",
                 "website_password_password": "4ggga4aga4",
                 "website_password_username": "username",
+                "description": "username",
                 "website_password_notes": "",
                 "website_password_url": "https://www.spotify.com/de/login/",
                 "website_password_title": "spotify"
@@ -157,6 +165,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "www.hardwareluxx.com",
                 "website_password_password": "g4hw809hgßw4GH",
                 "website_password_username": "username",
+                "description": "username",
                 "website_password_notes": "",
                 "website_password_url": "http://www.hardwareluxx.com/community/",
                 "website_password_title": "Password für hardwareluxx.com"
@@ -168,6 +177,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "login.live.com",
                 "website_password_password": "ab4zab4z5abz5",
                 "website_password_username": "username@gmail.com",
+                "description": "username@gmail.com",
                 "website_password_notes": "live.com recovery code\nYour new code is ABCDE-ABCDE-ABCDE-ABCDE-ABCDE\n\nApp Password: bs4tzb4stbs4t",
                 "website_password_url": "https://login.live.com/",
                 "website_password_title": "login.live.com (Microsoft Windows Store)"
@@ -179,6 +189,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "php.net",
                 "website_password_password": "by4eyb4yb4yb4yb46yb4",
                 "website_password_username": "",
+                "description": "",
                 "website_password_notes": "",
                 "website_password_url": "http://php.net/manual/de/function.explode.php",
                 "website_password_title": "Generated Password for php.net"
@@ -190,6 +201,7 @@ describe('Service: importLastPassComCsv test suite', function () {
                 "website_password_url_filter": "login.veeam.com",
                 "website_password_password": "n46a6ab4a6b4",
                 "website_password_username": "username@gmail.com",
+                "description": "username@gmail.com",
                 "website_password_notes": "test",
                 "website_password_url": "https://login.veeam.com/",
                 "website_password_title": "login.veeam.com"

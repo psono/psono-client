@@ -32,6 +32,7 @@ describe('Service: importNextcloudCsv test suite', function () {
                     "website_password_url_filter": "example",
                     "website_password_password": "SuperSecure Password!",
                     "website_password_username": "TestUsername",
+                    "description": "TestUsername",
                     "website_password_notes": "",
                     "website_password_url": "https://example",
                     "website_password_title": "Account 123"
@@ -49,6 +50,7 @@ describe('Service: importNextcloudCsv test suite', function () {
                             "website_password_url_filter": "123.123.123.12:8800",
                             "website_password_password": "phkjphoiusrg",
                             "website_password_username": "my Username",
+                            "description": "my Username",
                             "website_password_notes": "",
                             "website_password_url": "https://123.123.123.12:8800",
                             "website_password_title": "Production System"
@@ -65,6 +67,7 @@ describe('Service: importNextcloudCsv test suite', function () {
                     "website_password_url_filter": "123.123.123.12:8800",
                     "website_password_password": "phkjphoiusrg",
                     "website_password_username": "my Username",
+                    "description": "my Username",
                     "website_password_notes": "",
                     "website_password_url": "https://123.123.123.12:8800",
                     "website_password_title": "Production System"
@@ -76,6 +79,7 @@ describe('Service: importNextcloudCsv test suite', function () {
                     "website_password_url_filter": "example",
                     "website_password_password": "SuperSecure Password!",
                     "website_password_username": "TestUsername",
+                    "description": "TestUsername",
                     "website_password_notes": "",
                     "website_password_url": "https://example",
                     "website_password_title": "Account 123"

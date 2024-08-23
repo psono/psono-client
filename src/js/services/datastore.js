@@ -635,7 +635,7 @@ function findInDatastore(path, datastore) {
  * @param {TreeObject} share The share tree object which we want to modify
  */
 function hideSubShareContent(share) {
-    const allowedProps = ["id", "name", "share_id", "share_secret_key", "deleted"];
+    const allowedProps = ["id", "name", "description", "share_id", "share_secret_key", "deleted"];
 
     if (!share || !share.hasOwnProperty("share_index")) {
         return

@@ -213,6 +213,11 @@ const DatastoreTreeItem = (props) => {
         });
     };
 
+    let description = "";
+    if (content.hasOwnProperty("description") && content.description && !content.name.toLowerCase().includes(content.description.toLowerCase())) {
+        description = content.description;
+    }
+
     return (
         <div className={"tree-item"}>
             <div
@@ -231,7 +236,7 @@ const DatastoreTreeItem = (props) => {
                 {props.allowMultiselect && !props.isSelected(content) && (
                     <i className={"fa fa-square-o" + " " + classes.iconCheckbox}  />
                 )}
-                <span className="tree-item-name">{content.name}</span>
+                <span className="tree-item-name">{content.name} {description ? ` (${description})`: ''}</span>
                 <ButtonGroup variant="text" aria-label="outlined button group" className={"node-open-link"}>
                     {Boolean(props.onLinkItem) && ["bookmark", "website_password", "elster_certificate"].indexOf(content.type) !== -1 && (
                         <Button aria-label="open" onClick={linkItem}>

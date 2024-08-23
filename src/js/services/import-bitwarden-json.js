@@ -22,8 +22,8 @@ function detect_type(item) {
         return "note";
     }
     if (item["type"] === 3) {
-        // actually a credit card but we map it to a note
-        return "note";
+        // real credit card
+        return "credit_card";
     }
     if (item["type"] === 4) {
         // actually an identity but we map it to a note
@@ -98,6 +98,7 @@ function transformToWebsitePassword(item) {
         id: cryptoLibrary.generateUuid(),
         type: "website_password",
         name: name,
+        description : website_password_username,
         urlfilter: urlfilter,
         website_password_url_filter: website_password_url_filter,
         website_password_password: website_password_password,
@@ -213,6 +214,76 @@ function transformToNote(item) {
 }
 
 /**
+ * Takes a line that should represent a credit card and transforms it into a proper secret object
+ *
+ * @param {[]} item One item of the json
+ *
+ * @returns {*} The application_password secret object
+ */
+function transferIntoCreditCard(item) {
+    let name = "";
+    let credit_card_title = "";
+    let credit_card_notes = "";
+    let credit_card_name = "";
+    let credit_card_number = "";
+    let credit_card_pin = "";
+    let credit_card_cvc = "";
+    let credit_card_valid_through = "";
+
+    if (item.hasOwnProperty("name") && item["name"] !== null) {
+        name = item["name"];
+        credit_card_title = item["name"];
+    }
+
+    if (item.hasOwnProperty("notes") && item["notes"] !== null) {
+        credit_card_notes = item["notes"];
+    }
+
+    if (item.hasOwnProperty("card") && item['card'] !== null) {
+        if (item['card'].hasOwnProperty("cardholderName") && item['card']["cardholderName"] !== null) {
+            credit_card_name = item['card']["cardholderName"];
+        }
+
+        if (item['card'].hasOwnProperty("number") && item['card']["number"] !== null) {
+            credit_card_number = item['card']["number"].replace(/\s/g,'');
+        }
+
+        if (item['card'].hasOwnProperty("number") && item['card']["expMonth"] !== null) {
+            credit_card_valid_through = item['card']["expMonth"];
+        }
+
+        if (item['card'].hasOwnProperty("number") && item['card']["expYear"] !== null) {
+            credit_card_valid_through = credit_card_valid_through + item['card']["expYear"].slice(-2);
+        }
+
+        if (item['card'].hasOwnProperty("number") && item['card']["expYear"] !== null) {
+            credit_card_cvc = item['card']["code"];
+        }
+    }
+
+
+    if (item.hasOwnProperty("fields") && item["fields"] !== null) {
+        for (let i = 0; i < item["fields"].length; i++) {
+            credit_card_notes = credit_card_notes + item["fields"][i]["name"] + ": " + item["fields"][i]["value"] + "\n";
+        }
+    }
+
+    return {
+        id : cryptoLibrary.generateUuid(),
+        type : "credit_card",
+        name : name,
+        "description" : credit_card_number.replace(/.(?=.{4})/g, 'x'),
+        "credit_card_number" : credit_card_number,
+        "credit_card_name" : credit_card_name,
+        "credit_card_cvc" : credit_card_cvc,
+        "credit_card_valid_through" : credit_card_valid_through,
+        "credit_card_pin" : credit_card_pin,
+        "credit_card_notes" : credit_card_notes,
+        "credit_card_title" : credit_card_title
+    }
+}
+
+/**
  * Takes an item and transforms it into a note
  *
  * @param {[]} item One item of the json
@@ -288,6 +359,8 @@ function gatherSecrets(datastore, secrets, parsedData) {
 
             if (detected_type === "website_password") {
                 crafted_secrets.push(transformToWebsitePassword(parsedData["items"][i]));
+            } else if (detected_type === "credit_card") {
+                crafted_secrets.push(transferIntoCreditCard(parsedData["items"][i]));
             } else {
                 crafted_secrets.push(transformToNote(parsedData["items"][i]));
             }

@@ -22,6 +22,7 @@ function transformToSecret(line) {
         id: cryptoLibrary.generateUuid(),
         type: "website_password",
         name: line[INDEX_DESCRIPTION],
+        description: line[INDEX_USERNAME],
         urlfilter: "",
         website_password_url_filter: "",
         website_password_password: line[INDEX_PASSWORD],

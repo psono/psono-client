@@ -25,15 +25,57 @@ describe('Service: importProtonPassCsv test suite', function () {
         const output = importProtonPassCsv.parser(input);
 
         const expected_output = {
-            "datastore": {
-                "id": generic_uuid,
-                "name": output.datastore.name,
-                "items": [{
+                "datastore": {
+                    "id": generic_uuid,
+                    "name": output.datastore.name,
+                    "items": [{
+                        "id": generic_uuid,
+                        "type": "note",
+                        "name": "Alias name",
+                        "note_title": "Alias name",
+                        "note_notes": "login note or empty\nEmail: test@domain.com\n"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "website_password",
+                        "name": "example.com",
+                        "urlfilter": "example.com",
+                        "website_password_url_filter": "example.com",
+                        "website_password_password": "testpassword",
+                        "website_password_username": "test@domain.com",
+                        "description": "test@domain.com",
+                        "website_password_notes": "",
+                        "website_password_url": "https://example.com/login",
+                        "website_password_title": "example.com",
+                        "website_password_totp_period": 30,
+                        "website_password_totp_algorithm": "SHA1",
+                        "website_password_totp_digits": 6,
+                        "website_password_totp_code": "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "credit_card",
+                        "name": "TEST CARD",
+                        "credit_card_number": "123456789000",
+                        "credit_card_name": "TEST",
+                        "credit_card_cvc": "123",
+                        "credit_card_valid_through": "1222",
+                        "description": "xxxxxxxx9000",
+                        "credit_card_pin": "1234",
+                        "credit_card_notes": "",
+                        "credit_card_title": "TEST CARD"
+                    }, {
+                        "id": generic_uuid,
+                        "type": "note",
+                        "name": "Test note",
+                        "note_title": "Test note",
+                        "note_notes": "Note content\n"
+                    }]
+                },
+                "secrets": [{
                     "id": generic_uuid,
                     "type": "note",
                     "name": "Alias name",
                     "note_title": "Alias name",
-                    "note_notes": "login note or empty\n"
+                    "note_notes": "login note or empty\nEmail: test@domain.com\n"
                 }, {
                     "id": generic_uuid,
                     "type": "website_password",
@@ -42,13 +84,14 @@ describe('Service: importProtonPassCsv test suite', function () {
                     "website_password_url_filter": "example.com",
                     "website_password_password": "testpassword",
                     "website_password_username": "test@domain.com",
+                    "description": "test@domain.com",
                     "website_password_notes": "",
                     "website_password_url": "https://example.com/login",
                     "website_password_title": "example.com",
+                    "website_password_totp_period": 30,
                     "website_password_totp_algorithm": "SHA1",
-                    "website_password_totp_code": "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ",
                     "website_password_totp_digits": 6,
-                    "website_password_totp_period": 30
+                    "website_password_totp_code": "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"
                 }, {
                     "id": generic_uuid,
                     "type": "credit_card",
@@ -57,6 +100,7 @@ describe('Service: importProtonPassCsv test suite', function () {
                     "credit_card_name": "TEST",
                     "credit_card_cvc": "123",
                     "credit_card_valid_through": "1222",
+                    "description": "xxxxxxxx9000",
                     "credit_card_pin": "1234",
                     "credit_card_notes": "",
                     "credit_card_title": "TEST CARD"
@@ -67,47 +111,8 @@ describe('Service: importProtonPassCsv test suite', function () {
                     "note_title": "Test note",
                     "note_notes": "Note content\n"
                 }]
-            },
-            "secrets": [{
-                "id": generic_uuid,
-                "type": "note",
-                "name": "Alias name",
-                "note_title": "Alias name",
-                "note_notes": "login note or empty\n"
-            }, {
-                "id": generic_uuid,
-                "type": "website_password",
-                "name": "example.com",
-                "urlfilter": "example.com",
-                "website_password_url_filter": "example.com",
-                "website_password_password": "testpassword",
-                "website_password_username": "test@domain.com",
-                "website_password_notes": "",
-                "website_password_url": "https://example.com/login",
-                "website_password_title": "example.com",
-                "website_password_totp_algorithm": "SHA1",
-                "website_password_totp_code": "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ",
-                "website_password_totp_digits": 6,
-                "website_password_totp_period": 30
-            }, {
-                "id": generic_uuid,
-                "type": "credit_card",
-                "name": "TEST CARD",
-                "credit_card_number": "123456789000",
-                "credit_card_name": "TEST",
-                "credit_card_cvc": "123",
-                "credit_card_valid_through": "1222",
-                "credit_card_pin": "1234",
-                "credit_card_notes": "",
-                "credit_card_title": "TEST CARD"
-            }, {
-                "id": generic_uuid,
-                "type": "note",
-                "name": "Test note",
-                "note_title": "Test note",
-                "note_notes": "Note content\n"
-            }]
-        };
+            }
+        ;
 
         expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
     });

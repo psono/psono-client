@@ -121,7 +121,6 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
             if (!rawResponse.ok) {
                 console.log(rawResponse);
                 console.log(data);
-
                 if (rawResponse.status === 404) {
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
@@ -3579,6 +3578,82 @@ const deleteServerSecret = function (
     return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
+const getIvaltApiToken = function (token, sessionSecretKey) {
+    const endpoint = "/user/ivalt-secret/"
+    const method = "GET";
+    const data = null;
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+const validateIvaltTwoFactor = function(token, sessionSecretKey, requestType){
+    const endpoint = "/authentication/ivalt-verify/"
+    const method = "POST"
+    const data = {
+        request_type: requestType
+    }
+    const headers = {
+        Authorization: "Token " + token
+    }
+    return call(method, endpoint, data, headers, sessionSecretKey)
+}
+
+function readIvalt(token, sessionSecretKey) {
+    const endpoint = "/user/ivalt/";
+    const method = "GET";
+    const data = null;
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+const deleteIvalt = function (token, sessionSecretKey, ivaltId) {
+    const endpoint = "/user/ivalt/";
+    const method = "DELETE";
+    const data = {
+        ivalt_id: ivaltId,
+    };
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+function createIvalt(token, sessionSecretKey, mobile) {
+    const endpoint = "/user/ivalt/";
+    const method = "PUT";
+    const data = {
+        mobile: mobile,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+function validateIvalt(token, sessionSecretKey, mobile){
+    const endpoint = "/user/ivalt/";
+    const method = "POST";
+    const data = {
+        mobile: mobile,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
 
 const apiClientService = {
     info: info,
@@ -3701,6 +3776,12 @@ const apiClientService = {
     deleteAvatar: deleteAvatar,
     createServerSecret: createServerSecret,
     deleteServerSecret: deleteServerSecret,
+    validateIvaltTwoFactor: validateIvaltTwoFactor,
+    readIvalt: readIvalt,
+    deleteIvalt: deleteIvalt,
+    createIvalt: createIvalt,
+    validateIvalt: validateIvalt,
+    getIvaltApiToken: getIvaltApiToken,
 };
 
 export default apiClientService;

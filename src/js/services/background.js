@@ -325,6 +325,12 @@ function fillSecretTab(secretId, tab) {
                 browserClient.emitTab(tab.id, "fillpassword", {
                         username: content.website_password_username,
                         password: content.website_password_password,
+                        totp_token: content.website_password_totp_code ? cryptoLibrary.getTotpToken(
+                            content.website_password_totp_code,
+                            content.website_password_totp_period,
+                            content.website_password_totp_algorithm,
+                            content.website_password_totp_digits,
+                        ): "",
                         url_filter: content.website_password_url_filter,
                         auto_submit: content.website_password_auto_submit,
                     }

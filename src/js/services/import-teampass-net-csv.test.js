@@ -40,6 +40,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                         "website_password_url_filter": "192.168.0.34",
                         "website_password_password": "doe",
                         "website_password_username": "john",
+                        "description": "john",
                         "website_password_notes": "\nEmail: john@company.com\n",
                         "website_password_url": "http://192.168.0.34/phpma",
                         "website_password_title": "Database user (db,mydb)"
@@ -50,6 +51,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                         "name": "Server admin (tag1,tag2)",
                         "website_password_password": "test",
                         "website_password_username": "admin",
+                        "description": "admin",
                         "website_password_notes": "sample notes\ncustom1: custom value 1\ncustom2: custom value 2\n",
                         "website_password_url": "192.168.0.34",
                         "website_password_url_filter": "192.168.0.34",
@@ -67,6 +69,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                         "name": "Router",
                         "website_password_password": "easypwd",
                         "website_password_username": "admin",
+                        "description": "admin",
                         "website_password_notes": "\n",
                         "website_password_url": "192.168.0.1",
                         "website_password_url_filter": "192.168.0.1",
@@ -77,6 +80,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                         "name": "Server room code (pin)",
                         "application_password_password": "1234",
                         "application_password_username": "",
+                        "description": "",
                         "application_password_notes": "\n",
                         "application_password_title": "Server room code (pin)"
                     }
@@ -92,6 +96,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                 "website_password_url_filter": "192.168.0.34",
                 "website_password_password": "doe",
                 "website_password_username": "john",
+                "description": "john",
                 "website_password_notes": "\nEmail: john@company.com\n",
                 "website_password_url": "http://192.168.0.34/phpma",
                 "website_password_title": "Database user (db,mydb)"
@@ -102,6 +107,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                 "urlfilter": "192.168.0.34",
                 "website_password_password": "test",
                 "website_password_username": "admin",
+                "description": "admin",
                 "website_password_notes": "sample notes\ncustom1: custom value 1\ncustom2: custom value 2\n",
                 "website_password_url": "192.168.0.34",
                 "website_password_url_filter": "192.168.0.34",
@@ -113,6 +119,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                 "name": "Router",
                 "website_password_password": "easypwd",
                 "website_password_username": "admin",
+                "description": "admin",
                 "website_password_notes": "\n",
                 "website_password_url": "192.168.0.1",
                 "website_password_url_filter": "192.168.0.1",
@@ -123,6 +130,7 @@ describe('Service: importTeampassNetCsv test suite', function () {
                 "name": "Server room code (pin)",
                 "application_password_password": "1234",
                 "application_password_username": "",
+                "description": "",
                 "application_password_notes": "\n",
                 "application_password_title": "Server room code (pin)"
             }

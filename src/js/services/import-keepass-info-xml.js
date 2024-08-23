@@ -73,6 +73,7 @@ function transformToSecret(line) {
 
         if (key === "UserName") {
             secret["website_password_username"] = val;
+            secret["description"] = val;
         }
     }
 

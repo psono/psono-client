@@ -96,6 +96,15 @@ function transferIntoNote(line) {
     if (line[INDEX_NOTE]) {
         note_notes = note_notes + line[INDEX_NOTE] + "\n";
     }
+    if (line[INDEX_EMAIL]) {
+        note_notes = note_notes  + "Email: " + line[INDEX_EMAIL] + "\n";
+    }
+    if (line[INDEX_USERNAME]) {
+        note_notes = note_notes  + "Username: " + line[INDEX_USERNAME] + "\n";
+    }
+    if (line[INDEX_PASSWORD]) {
+        note_notes = note_notes  + "Password: " + line[INDEX_PASSWORD] + "\n";
+    }
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -119,7 +128,7 @@ function transferIntoWebsitePassword(line) {
     const url = line[INDEX_URL];
     const parsed_url = helperService.parseUrl(url);
 
-    let note = line[INDEX_NOTE];
+    let note = '';
     if (line[INDEX_NOTE]) {
         note = note  + line[INDEX_NOTE] + "\n";
     }
@@ -131,6 +140,7 @@ function transferIntoWebsitePassword(line) {
         id : cryptoLibrary.generateUuid(),
         type : "website_password",
         name : line[INDEX_NAME],
+        "description" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "urlfilter" : parsed_url.authority || undefined,
         "website_password_url_filter" : parsed_url.authority || undefined,
         "website_password_password" : line[INDEX_PASSWORD],
@@ -165,7 +175,7 @@ function transferIntoWebsitePassword(line) {
  */
 function transferIntoApplicationPassword(line) {
 
-    let note = line[INDEX_NOTE];
+    let note = '';
     if (line[INDEX_NOTE]) {
         note = note  + line[INDEX_NOTE] + "\n";
     }
@@ -177,6 +187,7 @@ function transferIntoApplicationPassword(line) {
         id : cryptoLibrary.generateUuid(),
         type : "application_password",
         name : line[INDEX_NAME],
+        "description" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "application_password_password" : line[INDEX_PASSWORD],
         "application_password_username" : line[INDEX_USERNAME] || line[INDEX_EMAIL],
         "application_password_notes" : note,
@@ -216,11 +227,14 @@ function transferIntoCreditCard(line) {
         note = note + "Expiration date:" + data['expirationDate'] + "\n";
     }
 
+    const creditCardNumber = data['number'].replace(/\s/g,'');
+
     return {
         id : cryptoLibrary.generateUuid(),
         type : "credit_card",
         name : line[INDEX_NAME],
-        "credit_card_number" : data['number'].replace(/\s/g,''),
+        "description" : creditCardNumber.replace(/.(?=.{4})/g, 'x'),
+        "credit_card_number" : creditCardNumber,
         "credit_card_name" : data['cardholderName'],
         "credit_card_cvc" : data['verificationNumber'],
         "credit_card_valid_through" : expirationDate,

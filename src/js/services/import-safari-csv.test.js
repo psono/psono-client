@@ -34,6 +34,7 @@ describe('Service: importSafariCsv test suite', function () {
                     "website_password_url_filter": "www.amazon.com",
                     "website_password_password": "asdfasdf",
                     "website_password_username": "jdoe13@gmail.com",
+                    "description": "jdoe13@gmail.com",
                     "website_password_notes": "some note",
                     "website_password_url": "https://www.amazon.com/ap/signin",
                     "website_password_title": "www.amazon.com (jdoe13)"
@@ -47,6 +48,7 @@ describe('Service: importSafariCsv test suite', function () {
                 "website_password_url_filter": "www.amazon.com",
                 "website_password_password": "asdfasdf",
                 "website_password_username": "jdoe13@gmail.com",
+                "description": "jdoe13@gmail.com",
                 "website_password_notes": "some note",
                 "website_password_url": "https://www.amazon.com/ap/signin",
                 "website_password_title": "www.amazon.com (jdoe13)"
