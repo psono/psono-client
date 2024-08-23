@@ -173,7 +173,7 @@ const DialogGoOffline = (props) => {
                                     <LinearProgress variant="determinate" value={percentageComplete} />
                                 </Box>
                                 <Box minWidth={35}>
-                                    <span style={{ color: "white", whiteSpace: "nowrap" }}>{percentageComplete} %</span>
+                                    <span style={{whiteSpace: "nowrap" }}>{percentageComplete} %</span>
                                 </Box>
                             </Box>
                         </Grid>
