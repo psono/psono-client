@@ -76,7 +76,7 @@ const OtherImportView = (props) => {
             console.log(data);
             setMessages([]);
             if (data.hasOwnProperty('errors')) {
-                if (data.errors[0] === 'RESSOURCE_NOT_FOUND') {
+                if (data.errors[0] === 'RESOURCE_NOT_FOUND') {
                     setErrors(['FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE'])
                 } else {
                     setErrors(data.errors);
