@@ -1,4 +1,13 @@
 {
+  "https://psono.com/features-for-users": "https://psono.com/features-for-users",
+  "REGISTER_AND_GAIN_ACCESS_TO_THE_FOLLOWING_FEATURES_FOR_FREE": "Register and gain access to the following features for free:",
+  "AND_MANY_MORE_FEATURES": "... and many more features",
+  "FEATURE_ENCRYPTED_PASSWORD_VAULT": "Encrypted password vault",
+  "FEATURE_ACCESS_ACROSS_ALL_DEVICES": "Access across all devices",
+  "FEATURE_SECURE_SHARING": "Share entries securely",
+  "FEATURE_PASSWORD_GENERATOR": "Password generator",
+  "FEATURE_AUTOFILL_OF_FORMS": "Autifill of forms",
+  "FEATURE_MULTIFACTOR_AUTHENTICATION": "Multifactor authentication",
   "ONLY_ONE_IVALT_MOBILE_ALLOWED": "You already have an iVALT mobile number registered with your account. Please remove that iVALT mobile number from your account first.",
   "WAITING_FOR_AUTHENTICATION": "Waiting for Authentication",
   "ENTER_MOBILE_NUMBER_REGISTERED_WITH_IVALT": "Please enter your mobile number registered with iVALT",
