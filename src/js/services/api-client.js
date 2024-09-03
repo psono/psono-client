@@ -125,7 +125,7 @@ function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serve
                     if (rawResponse.statusText) {
                         return reject(rawResponse.statusText);
                     }
-                    return reject({errors: ["RESSOURCE_NOT_FOUND"]});
+                    return reject({errors: ["RESOURCE_NOT_FOUND"]});
                 }
 
                 if (rawResponse.status >= 500) {

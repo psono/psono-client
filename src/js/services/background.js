@@ -39,6 +39,27 @@ const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
 
 function activate() {
+
+    if (typeof browser.runtime.setUninstallURL !== "undefined") {
+        // set url to open if someone uninstalls our extension
+        browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
+    }
+
+    if (typeof browser.runtime.onInstalled !== "undefined") {
+        // set url to open if someone installs our extension
+        browser.runtime.onInstalled.addListener(function (details) {
+            if (details.reason !== "install") {
+                return;
+            }
+
+            browser.tabs.create({
+                url: "/data/install-successful.html",
+            });
+        });
+    }
+}
+
+function activateAfterStore() {
     browserClient.disableBrowserPasswordSaving();
 
     if (typeof chrome.tabs !== "undefined") {
@@ -73,24 +94,6 @@ function activate() {
     browserClient.registerAuthRequiredListener(onAuthRequired);
     // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
     // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
-
-    if (typeof browser.runtime.setUninstallURL !== "undefined") {
-        // set url to open if someone uninstalls our extension
-        browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
-    }
-
-    if (typeof browser.runtime.onInstalled !== "undefined") {
-        // set url to open if someone installs our extension
-        browser.runtime.onInstalled.addListener(function (details) {
-            if (details.reason !== "install") {
-                return;
-            }
-
-            browser.tabs.create({
-                url: "/data/index.html",
-            });
-        });
-    }
 
     if (typeof browser.tabs !== "undefined") {
         // count tabs to logout on browser close
@@ -1371,6 +1374,7 @@ function saveLastLoginCredentials() {
 
 const backgroundService = {
     activate,
+    activateAfterStore,
     getSearchWebsitePasswordsByUrlfilter,
 };
 
