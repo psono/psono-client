@@ -30,6 +30,7 @@ import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
 import RegisterView from "./register";
+import InstallSuccessfulView from "./install-successful";
 import user from "../services/user";
 
 const IndexView = (props) => {
@@ -40,7 +41,7 @@ const IndexView = (props) => {
     React.useEffect(() => {
         statusService.getStatus();
         if (pathname.endsWith("/background.html")) {
-            backgroundService.activate();
+            backgroundService.activateAfterStore();
         }
     }, []);
 
@@ -155,6 +156,8 @@ const IndexView = (props) => {
         return <PrivacyPolicyView {...props} />;
     } else if (pathname.endsWith("/register.html")) {
         return <RegisterView {...props} />;
+    } else if (pathname.endsWith("/install-successful.html")) {
+        return <InstallSuccessfulView {...props} />;
     } else {
         // pathname.endsWith('/index.html')
         if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {

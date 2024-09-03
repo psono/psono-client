@@ -16,9 +16,10 @@ channel.onmessage = function (event) {
 };
 
 function loadAfterStore(dispatch, getState) {
-    backgroundService.activate()
+    backgroundService.activateAfterStore()
 }
 async function activate() {
+    backgroundService.activate()
     const store = await initStore();
     persistStore(store, null, () => {
         if (!alreadyLoaded) {

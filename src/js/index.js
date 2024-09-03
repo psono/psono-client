@@ -22,6 +22,7 @@ initSentry()
 
 import IndexView from "./views/index";
 import DownloadBanner from "./components/download-banner";
+import backgroundService from "./services/background";
 
 
 
@@ -50,6 +51,12 @@ function loadSettingsDatastore(dispatch, getState) {
 const customHistory = createBrowserHistory();
 
 async function initAndRenderApp() {
+
+    const pathname = window.location.pathname;
+    if (pathname.endsWith("/background.html")) {
+        backgroundService.activate();
+    }
+
     const store = await initStore();
     let persistor = persistStore(store, null, () => {
         store.dispatch(loadSettingsDatastore);
