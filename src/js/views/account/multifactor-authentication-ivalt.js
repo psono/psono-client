@@ -8,14 +8,11 @@ import CheckIcon  from '@mui/icons-material/Check';
 import Table from "../../components/table";
 import ivalt from "../../services/ivalt";
 import GridContainerErrors from "../../components/grid-container-errors";
-import { useSelector } from "react-redux";
 import countries from "../../countries";
-import ScLogo from "../../../common/data/img/sc-logo.png";
 
 
 const FlagImage = ({ option }) => {
-    // Dynamically require the images based on the code
-    const flagW20 = require(`../../../common/data/img/flags/${option.code.toLowerCase()}.png`);
+    const flagW20 = `img/flags/${option.code.toLowerCase()}.png`;
 
     return (
         <img
@@ -319,7 +316,7 @@ const MultifactorAuthenticatorIvalt = (props) => {
                                 <div style={{ display: 'flex', justifyContent: 'space-around' }}>
 
                                     <div className={classes.container}>
-                                        <img width={45} height={45} src={ScLogo} alt="Loading" className={classes.image} />
+                                        <img width={45} height={45} src={"img/sc-logo.png"} alt="Loading" className={classes.image} />
                                         <CircularProgress size={60} className={classes.progress} style={{ animation: 'unset', zIndex: 2 }} />
                                     </div>
 

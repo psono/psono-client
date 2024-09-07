@@ -1599,7 +1599,7 @@ const LoginViewForm = (props) => {
 						<img
 							width={45}
 							height={45}
-							src={require("../../../common/data/img/sc-logo.png")}
+							src={"img/sc-logo.png"}
 							alt="Loading"
 							className={classes.image}
 						/>
