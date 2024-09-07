@@ -385,6 +385,44 @@ const LinkShareAccessView = (props) => {
                 </>
             )}
 
+
+            {view === "unsupported_server_version" && (
+                <>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <h4>{t("SERVER_UNSUPPORTED")}</h4>
+                        </Grid>
+                    </Grid>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <MuiAlert
+                                severity="warning"
+                                style={{
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                }}
+                            >
+                                {t("THE_VERSION_OF_THE_SERVER_IS_TOO_OLD_AND_NOT_SUPPORTED_PLEASE_UPGRADE")}
+                            </MuiAlert>
+                        </Grid>
+                    </Grid>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12} style={{marginTop: "5px", marginBottom: "5px"}}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={cancel}
+                                type="submit"
+                            >
+                                {t("BACK")}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    <GridContainerErrors errors={errors} setErrors={setErrors}/>
+                </>
+            )}
+
+
             {errors.length > 0 && (
                 <div className="form-group alert alert-danger" ng-repeat="e in errors">
                     <strong>{t("ERROR")}:</strong>
