@@ -13,7 +13,7 @@ const GridContainerErrors = (props) => {
             {errors && (
                 <Grid item xs={12} sm={12} md={12}>
                     <>
-                        {errors.map((prop, index) => {
+                        {errors.map((error, index) => {
                             return (
                                 <MuiAlert
                                     onClose={() => {
@@ -23,7 +23,7 @@ const GridContainerErrors = (props) => {
                                     severity={severity}
                                     style={{ marginBottom: "5px" }}
                                 >
-                                    {t(prop)}
+                                    {t(error)}
                                 </MuiAlert>
                             );
                         })}

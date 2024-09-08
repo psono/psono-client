@@ -1072,6 +1072,32 @@ function createSecretBulk(
 }
 
 /**
+ * Ajax PUT request to create a secret with the token as authentication together with the encrypted data and nonce
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {array} secretIds The ids of the secrets to read
+ *
+ * @returns {Promise} Returns a promise with the new secretId
+ */
+function readSecretBulk(
+    token,
+    sessionSecretKey,
+    secretIds,
+) {
+    const endpoint = "/bulk-secret-read/";
+    const method = "POST";
+    const data = {
+        secret_ids: secretIds,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax PUT request with the token as authentication and the new secret content
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -3690,6 +3716,7 @@ const apiClientService = {
     writeSecret: writeSecret,
     createSecret: createSecret,
     createSecretBulk: createSecretBulk,
+    readSecretBulk: readSecretBulk,
     moveSecretLink: moveSecretLink,
     deleteSecretLink: deleteSecretLink,
     moveFileLink: moveFileLink,

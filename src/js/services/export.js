@@ -6,8 +6,6 @@ import secretService from "./secret";
 import cryptoLibraryService from "./crypto-library";
 const Papa = require("papaparse");
 
-let timeout = 0;
-
 const _exporter = [];
 
 const registrations = {};
@@ -316,42 +314,13 @@ function composeExport(data, type) {
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
  *
- * @returns {*} The datastore structure where all secrets have been filled
+ * @returns {Promise} The datastore structure where all secrets have been filled
  */
-function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
-    let open_secret_requests = 0;
+async function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
 
-    let resolver;
+    const secrets = {};
 
-    const handle_items = function (items) {
-        const fill_secret = function (item, secret_id, secret_key) {
-            const onSuccess = function (data) {
-                for (let property in data) {
-                    if (!data.hasOwnProperty(property)) {
-                        continue;
-                    }
-                    item[property] = data[property];
-                }
-
-                open_secret_requests = open_secret_requests - 1;
-                emit("get-secret-complete", {});
-                if (open_secret_requests === 0) {
-                    resolver(datastore);
-                }
-            };
-
-            const onError = function () {
-                open_secret_requests = open_secret_requests - 1;
-            };
-
-            open_secret_requests = open_secret_requests + 1;
-            emit("get-secret-started", {});
-
-            timeout = timeout + 50;
-            setTimeout(function () {
-                secretService.readSecret(secret_id, secret_key).then(onSuccess, onError);
-            }, timeout);
-        };
+    const handleItems = function (items) {
         for (let i = 0; i < items.length; i++) {
             if (items[i].hasOwnProperty("share_id") && !includeSharedItems) {
                 continue
@@ -360,42 +329,47 @@ function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
                 if (!includeTrashBinItems && items[i].hasOwnProperty('deleted') && items[i]['deleted']) {
                     continue
                 }
-                fill_secret(items[i], items[i]["secret_id"], items[i]["secret_key"]);
+                secrets[items[i]["secret_id"]] = items[i]
             }
         }
     };
 
-    const handle_folders = function (folders) {
+    const handleFolders = function (folders) {
         for (let i = 0; i < folders.length; i++) {
             if (folders[i].hasOwnProperty("share_id") && !includeSharedItems) {
                 continue
             }
             if (folders[i].hasOwnProperty("folders")) {
-                handle_folders(folders[i]["folders"]);
+                handleFolders(folders[i]["folders"]);
             }
 
             if (folders[i].hasOwnProperty("items")) {
-                handle_items(folders[i]["items"]);
+                handleItems(folders[i]["items"]);
             }
         }
     };
 
-    return new Promise(function (resolve, reject) {
-        resolver = resolve;
-        timeout = 0;
+    if (datastore.hasOwnProperty("folders")) {
+        handleFolders(datastore["folders"]);
+    }
 
-        if (datastore.hasOwnProperty("folders")) {
-            handle_folders(datastore["folders"]);
-        }
+    if (datastore.hasOwnProperty("items")) {
+        handleItems(datastore["items"]);
+    }
+    const bulkObjects = Object.keys(secrets).map(secretId => [secretId, secrets[secretId]['secret_key']]);
 
-        if (datastore.hasOwnProperty("items")) {
-            handle_items(datastore["items"]);
-        }
+    const decryptedSecrets = await secretService.readSecretBulk(bulkObjects);
 
-        if (open_secret_requests === 0) {
-            resolve(datastore);
+    for (const s of decryptedSecrets) {
+        for (let property in s) {
+            if (!s.hasOwnProperty(property)) {
+                continue;
+            }
+            secrets[s['id']][property] = s[property];
         }
-    });
+    }
+
+    return datastore;
 }
 
 /**

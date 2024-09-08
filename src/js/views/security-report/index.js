@@ -319,7 +319,14 @@ const SecurityReportView = (props) => {
         const onError = function (data) {
             setMsgs([]);
             console.log(data);
-            setErrors(data.errors);
+
+            if (data.hasOwnProperty('errors')) {
+                if (data.errors[0] === 'RESOURCE_NOT_FOUND') {
+                    setErrors(['FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE'])
+                } else {
+                    setErrors(data.errors);
+                }
+            }
         };
 
         iniatiateState();
@@ -601,11 +608,12 @@ const SecurityReportView = (props) => {
                                     </Button>
                                 </Grid>
 
-                                <GridContainerErrors errors={errors} setErrors={setErrors} />
+                                <GridContainerErrors errors={errors} setErrors={setErrors} className={classes.muiWarning} />
                                 <GridContainerErrors
                                     errors={msgs}
                                     setErrors={setMsgs}
                                     severity="info"
+                                    className={classes.muiWarning}
                                 />
 
                                 {processing && (
