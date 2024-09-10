@@ -82,7 +82,7 @@ const DatastoreTreeVirtualElement = ({ index, style, data }) => {
                     })}
                 />
             ))}
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
                 {(content.is_folder)
                     ? (
                         <DatastoreTreeFolder

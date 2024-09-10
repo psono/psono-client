@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
         '&::before': {
             content: '""',
             position: 'absolute',
-            top: '20px', // Adjusted alignment for vertical line
+            top: '20px',
             left: '-13px',
             width: '18px',
             height: 0,
@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         padding: '5px 3px',
+        paddingRight: '120px',
         color: '#151f2b',
         '&.selected': {
             backgroundColor: '#F0F7FC',
@@ -58,18 +59,27 @@ const useStyles = makeStyles((theme) => ({
             color: '#bbbbbb',
         },
     },
-    treeFolderTitle: {
-        position: "relative",
-    },
     treeFolderName: {
-        display: 'inline',
+        display: 'inline-block',
         marginLeft: '5px',
         whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        verticalAlign: 'middle',
         zIndex: 2,
     },
-    divider: {
-        marginTop: "8px",
-        marginBottom: "8px",
+    nodeOpenLink: {
+        position: 'absolute',
+        right: 0,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 2,
+    },
+    faStack: {
+        display: 'inline-block',
+        verticalAlign: 'middle',
     },
     icon: {
         fontSize: "18px",
@@ -77,10 +87,9 @@ const useStyles = makeStyles((theme) => ({
     listItemIcon: {
         minWidth: theme.spacing(4),
     },
-    nodeOpenLink: {
-        position: "absolute",
-        right: 0,
-        top: "5px",
+    divider: {
+        marginTop: '8px',
+        marginBottom: '8px',
     },
 }));
 
@@ -226,103 +235,104 @@ const DatastoreTreeFolder = (props) => {
                         onClick={selectNode}
                         onContextMenu={onContextMenu}
                     >
-                        <span className="fa-stack">
+                        <span className={`fa-stack ${classes.faStack}`}>
                             {isExpanded && <i className="fa fa-folder-open" />}
                             {!isExpanded && <i className="fa fa-folder" />}
                             {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
                             {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
                         </span>
                         <span className={classes.treeFolderName}>{content.name}</span>
-                        <ButtonGroup variant="text" aria-label="text button group" className={classes.nodeOpenLink}>
-                            <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
-                                <SettingsIcon fontSize="small" />
-                            </Button>
-                        </ButtonGroup>
-                        <Menu
-                            id="simple-menu"
-                            anchorEl={anchorEl}
-                            keepMounted={false}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                            onContextMenu={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }}
-                        >
-                            {!hideShare && onShare && (
-                                <MenuItem onClick={onShare}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <ShareIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("SHARE")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideShare && <Divider className={classes.divider} />}
-                            {!hideEdit && (
-                                <MenuItem onClick={onEdit}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <EditIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("EDIT")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideNewFolder && (
-                                <MenuItem onClick={onNewFolder}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <CreateNewFolderIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("NEW_FOLDER")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideNewEntry && (
-                                <MenuItem onClick={onNewEntry}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <AddIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("NEW_ENTRY")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideNewUser && (
-                                <MenuItem onClick={onNewUser}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <PersonAddIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("SEARCH_USER")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideMove && (
-                                <MenuItem onClick={onMoveFolder}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <OpenWithIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("MOVE")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {!hideDelete && <Divider className={classes.divider} />}
-                            {!hideDelete && (
-                                <MenuItem onClick={onDelete}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <DeleteIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {props.deleteFolderLabel}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                        </Menu>
+
                     </div>
+                    <ButtonGroup variant="text" aria-label="text button group" className={classes.nodeOpenLink}>
+                        <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
+                            <SettingsIcon fontSize="small" />
+                        </Button>
+                    </ButtonGroup>
+                    <Menu
+                        id="simple-menu"
+                        anchorEl={anchorEl}
+                        keepMounted={false}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                        onContextMenu={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }}
+                    >
+                        {!hideShare && onShare && (
+                            <MenuItem onClick={onShare}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ShareIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("SHARE")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideShare && <Divider className={classes.divider} />}
+                        {!hideEdit && (
+                            <MenuItem onClick={onEdit}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <EditIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("EDIT")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideNewFolder && (
+                            <MenuItem onClick={onNewFolder}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("NEW_FOLDER")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideNewEntry && (
+                            <MenuItem onClick={onNewEntry}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <AddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("NEW_ENTRY")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideNewUser && (
+                            <MenuItem onClick={onNewUser}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <PersonAddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("SEARCH_USER")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideMove && (
+                            <MenuItem onClick={onMoveFolder}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <OpenWithIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("MOVE")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {!hideDelete && <Divider className={classes.divider} />}
+                        {!hideDelete && (
+                            <MenuItem onClick={onDelete}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <DeleteIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {props.deleteFolderLabel}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                    </Menu>
                 </div>
                 <Menu
                     keepMounted={false}

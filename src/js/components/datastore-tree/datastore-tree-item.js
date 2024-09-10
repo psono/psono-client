@@ -38,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
         border: '1px solid #FFF',
         display: 'block',
         textDecoration: 'none',
-        paddingRight: '100px',
+        flexGrow: 1,
+        paddingRight: '120px',
         '&:hover, &:focus': {
             backgroundColor: '#F0F7FC',
             outline: 'none',
@@ -68,39 +69,47 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     treeItemObject: {
-        display: 'flex',
-        alignItems: 'center',
-        '&.notSelectable': {
-            color: '#bbbbbb',
-            '& a': {
-                color: '#bbbbbb',
-            },
-        },
+        display: 'block',
+        position: 'relative',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
     },
     treeItemName: {
-        display: 'inline',
-        marginLeft: 0,
-        zIndex: 2,
+        display: 'inline-block',
+        flexGrow: 1,
+        flexShrink: 1,
+        minWidth: 0,
+        overflow: 'hidden',
         whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        verticalAlign: 'middle',
+    },
+    faStack: {
+        display: 'inline-block',
+        verticalAlign: 'middle',
     },
     divider: {
-        marginTop: "8px",
-        marginBottom: "8px",
+        marginTop: '8px',
+        marginBottom: '8px',
     },
     icon: {
-        fontSize: "18px",
+        fontSize: '18px',
     },
     iconCheckbox: {
-        fontSize: "14px",
-        marginRight: "4px",
+        fontSize: '14px',
+        marginRight: '4px',
     },
     listItemIcon: {
         minWidth: theme.spacing(4),
     },
     nodeOpenLink: {
-        position: "absolute",
+        position: 'absolute',
         right: 0,
-        top: "5px",
+        top: '50%',
+        transform: 'translateY(-50%)',
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 2,
     },
 }));
 
@@ -286,10 +295,10 @@ const DatastoreTreeItem = (props) => {
                 onClick={selectItem}
                 onContextMenu={onContextMenu}
             >
-                <span className="fa-stack">
-                    <i className={widgetService.itemIcon(content)} />
-                    {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
-                    {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
+                <span className={`fa-stack ${classes.faStack}`}>
+                    <i className={widgetService.itemIcon(content)}/>
+                    {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared"/>}
+                    {content.share_id && <i className="fa fa-group fa-stack-2x is-shared"/>}
                 </span>
                 {props.allowMultiselect && props.isSelected(content) && (
                     <i className={"fa fa-check-square-o" + " " + classes.iconCheckbox}  />
@@ -298,140 +307,141 @@ const DatastoreTreeItem = (props) => {
                     <i className={"fa fa-square-o" + " " + classes.iconCheckbox}  />
                 )}
                 <span className={classes.treeItemName}>{content.name} {description ? ` (${description})`: ''}</span>
-                <ButtonGroup variant="text" aria-label="outlined button group" className={classes.nodeOpenLink}>
-                    {Boolean(props.onLinkItem) && ["bookmark", "website_password", "elster_certificate"].indexOf(content.type) !== -1 && (
-                        <Button aria-label="open" onClick={linkItem}>
-                            <OpenInNewIcon fontSize="small" />
-                        </Button>
-                    )}
-                    {Boolean(props.onLinkItem) && ["file"].indexOf(content.type) !== -1 && (
-                        <Button aria-label="open" onClick={linkItem}>
-                            <GetAppIcon fontSize="small" />
-                        </Button>
-                    )}
-                    <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
-                        <SettingsIcon fontSize="small" />
-                    </Button>
-                </ButtonGroup>
-                <Menu
-                    id="simple-menu"
-                    onContextMenu={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }}
-                    anchorEl={anchorEl}
-                    keepMounted={false}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                >
-                    {!hideShare && (
-                        <MenuItem onClick={onShare}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ShareIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("SHARE")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideLinkShare && (
-                        <MenuItem onClick={onLinkShare}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <LinkIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("LINK_SHARE")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideCopyTotpToken && (
-                        <MenuItem onClick={onCopyTotpToken}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_TOTP_TOKEN")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideCopyUsername && (
-                        <MenuItem onClick={onCopyUsername}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_USERNAME")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideCopyPassword && (
-                        <MenuItem onClick={onCopyPassword}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_PASSWORD")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {(!hideShare ||
-                        !hideLinkShare ||
-                        !hideCopyTotpToken ||
-                        !hideCopyUsername ||
-                        !hideCopyPassword) && <Divider className={classes.divider} />}
-                    {!hideEdit && (
-                        <MenuItem onClick={onEdit}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <EditIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("SHOW_OR_EDIT")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideShow && (
-                        <MenuItem onClick={onEdit}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <VisibilityIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("SHOW")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideClone && (
-                        <MenuItem onClick={onClone}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <FileCopyIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("CLONE")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideMove && (
-                        <MenuItem onClick={onMoveEntry}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <OpenWithIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("MOVE")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideDelete && <Divider className={classes.divider} />}
-                    {!hideDelete && (
-                        <MenuItem onClick={onDelete}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <DeleteIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {props.deleteItemLabel}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                </Menu>
+
             </div>
+            <ButtonGroup variant="text" aria-label="outlined button group" className={classes.nodeOpenLink}>
+                {Boolean(props.onLinkItem) && ["bookmark", "website_password", "elster_certificate"].indexOf(content.type) !== -1 && (
+                    <Button aria-label="open" onClick={linkItem}>
+                        <OpenInNewIcon fontSize="small" />
+                    </Button>
+                )}
+                {Boolean(props.onLinkItem) && ["file"].indexOf(content.type) !== -1 && (
+                    <Button aria-label="open" onClick={linkItem}>
+                        <GetAppIcon fontSize="small" />
+                    </Button>
+                )}
+                <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
+                    <SettingsIcon fontSize="small" />
+                </Button>
+            </ButtonGroup>
+            <Menu
+                id="simple-menu"
+                onContextMenu={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }}
+                anchorEl={anchorEl}
+                keepMounted={false}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+            >
+                {!hideShare && (
+                    <MenuItem onClick={onShare}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ShareIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("SHARE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideLinkShare && (
+                    <MenuItem onClick={onLinkShare}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <LinkIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("LINK_SHARE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideCopyTotpToken && (
+                    <MenuItem onClick={onCopyTotpToken}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("COPY_TOTP_TOKEN")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideCopyUsername && (
+                    <MenuItem onClick={onCopyUsername}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("COPY_USERNAME")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideCopyPassword && (
+                    <MenuItem onClick={onCopyPassword}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("COPY_PASSWORD")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {(!hideShare ||
+                    !hideLinkShare ||
+                    !hideCopyTotpToken ||
+                    !hideCopyUsername ||
+                    !hideCopyPassword) && <Divider className={classes.divider} />}
+                {!hideEdit && (
+                    <MenuItem onClick={onEdit}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <EditIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("SHOW_OR_EDIT")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideShow && (
+                    <MenuItem onClick={onEdit}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <VisibilityIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("SHOW")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideClone && (
+                    <MenuItem onClick={onClone}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <FileCopyIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("CLONE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideMove && (
+                    <MenuItem onClick={onMoveEntry}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <OpenWithIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("MOVE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideDelete && <Divider className={classes.divider} />}
+                {!hideDelete && (
+                    <MenuItem onClick={onDelete}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <DeleteIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {props.deleteItemLabel}
+                        </Typography>
+                    </MenuItem>
+                )}
+            </Menu>
             <Menu
                 keepMounted={false}
                 onContextMenu={(event) => {
