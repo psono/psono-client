@@ -181,6 +181,7 @@ const DatastoreToolbar = ({onNewFolder, onNewEntry, newSecurityReportRequired, d
                         </Tooltip>
                     </>
                 )}
+
                 {trashBinOpen && (
                     <DialogTrashBin
                         open={trashBinOpen}

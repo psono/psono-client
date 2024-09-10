@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
 import { ClipLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
-import { alpha } from "@mui/material/styles";
 import { makeStyles } from '@mui/styles';
 import Paper from "@mui/material/Paper";
 import AppBar from "@mui/material/AppBar";
@@ -93,6 +92,7 @@ function useWidth() {
 
 const DatastoreView = (props) => {
     const width = useWidth();
+    const bigScreen = ["lg", "md", "xl"].includes(width);
     let { defaultSearch, secretType, secretId } = useParams();
     const [progress, setProgress] = React.useState(0);
     const serverStatus = useSelector((state) => state.server.status);
@@ -110,7 +110,6 @@ const DatastoreView = (props) => {
         mouseX: null,
         mouseY: null,
     });
-
     const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -136,6 +135,7 @@ const DatastoreView = (props) => {
 
     const [datastore, setDatastore] = useState(null);
 
+
     useHotkeys('shift', (event, handler) => {
         if (event.type === "keydown") {
             setShowMassOperationControls(true);
@@ -147,7 +147,6 @@ const DatastoreView = (props) => {
         'keydown': true,
     })
 
-    const bigScreen = ["lg", "md", "xl"].includes(width);
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -533,15 +532,16 @@ const DatastoreView = (props) => {
                                     newSecurityReportRequired={newSecurityReport !== 'REQUIRED'}
                                 />
                             </AppBar>
-                            <div className={classes.root} onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
+                            <div className={classes.root}
+                                 onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
                                 <Grid container>
                                     <Grid item xs={12} sm={12} md={12}>
-                                        <AlertSecurityReport className={classes.securityReportAlert} />
+                                        <AlertSecurityReport className={classes.securityReportAlert}/>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
                                         {!datastore && newSecurityReport !== 'REQUIRED' && (
                                             <div className={classes.loader}>
-                                                <ClipLoader />
+                                                <ClipLoader/>
                                             </div>
                                         )}
                                         {datastore && newSecurityReport !== 'REQUIRED' && (
@@ -579,7 +579,7 @@ const DatastoreView = (props) => {
                                 anchorReference="anchorPosition"
                                 anchorPosition={
                                     contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
-                                        ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
+                                        ? {top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX}
                                         : undefined
                                 }
                                 onContextMenu={(event) => {
@@ -589,7 +589,7 @@ const DatastoreView = (props) => {
                             >
                                 <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                     <ListItemIcon className={classes.listItemIcon}>
-                                        <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                        <CreateNewFolderIcon className={classes.icon} fontSize="small"/>
                                     </ListItemIcon>
                                     <Typography variant="body2" noWrap>
                                         {t("NEW_FOLDER")}
@@ -597,7 +597,7 @@ const DatastoreView = (props) => {
                                 </MenuItem>
                                 <MenuItem onClick={() => onNewEntry(datastore, [])}>
                                     <ListItemIcon className={classes.listItemIcon}>
-                                        <AddIcon className={classes.icon} fontSize="small" />
+                                        <AddIcon className={classes.icon} fontSize="small"/>
                                     </ListItemIcon>
                                     <Typography variant="body2" noWrap>
                                         {t("NEW_ENTRY")}

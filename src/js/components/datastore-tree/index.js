@@ -25,6 +25,17 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
+    tree: {
+        overflowX: 'visible',
+        overflowY: 'visible',
+        position: 'relative',
+        height: deviceService.hasTitlebar() ? 'calc(100vh - 232px)' : 'calc(100vh - 200px)',
+        '& *': {
+            '-webkit-box-sizing': 'content-box',
+            '-moz-box-sizing': 'content-box',
+            'box-sizing': 'content-box',
+        },
+    }
 }));
 
 const DatastoreTree = (props) => {
@@ -148,9 +159,9 @@ const DatastoreTree = (props) => {
         );
     } else {
         return (
-            <div className={"tree"} style={{ height: deviceService.hasTitlebar() ? 'calc(100vh - 232px)' : 'calc(100vh - 200px)' }}>
+            <div className={classes.tree}>
                 <AutoSizer>
-                    {({ height, width }) => (
+                    {({height, width}) => (
                         <List
                             itemCount={datastoreItems.length}
                             itemSize={46}

@@ -27,6 +27,62 @@ import { getStore } from "../../services/store";
 import widgetService from "../../services/widget";
 
 const useStyles = makeStyles((theme) => ({
+    treeItem: {
+        position: 'relative',
+        height: '34px',
+        lineHeight: '34px',
+        cursor: 'pointer',
+        margin: 0,
+        padding: '5px 3px',
+        color: '#151f2b',
+        border: '1px solid #FFF',
+        display: 'block',
+        textDecoration: 'none',
+        paddingRight: '100px',
+        '&:hover, &:focus': {
+            backgroundColor: '#F0F7FC',
+            outline: 'none',
+            textDecoration: 'none',
+        },
+        '&::before': {
+            display: 'inline-block',
+            content: '""',
+            position: 'absolute',
+            top: '20px',
+            left: '-13px',
+            width: '18px',
+            height: 0,
+            borderTop: '1px dotted #67b2dd',
+            zIndex: 1,
+        },
+        '& a': {
+            color: '#151f2b',
+        },
+        '&.selected': {
+            backgroundColor: 'inherit',
+            borderColor: '#fff',
+            borderRadius: '4px',
+            '&:hover': {
+                backgroundColor: '#F0F7FC',
+            },
+        },
+    },
+    treeItemObject: {
+        display: 'flex',
+        alignItems: 'center',
+        '&.notSelectable': {
+            color: '#bbbbbb',
+            '& a': {
+                color: '#bbbbbb',
+            },
+        },
+    },
+    treeItemName: {
+        display: 'inline',
+        marginLeft: 0,
+        zIndex: 2,
+        whiteSpace: 'nowrap',
+    },
     divider: {
         marginTop: "8px",
         marginBottom: "8px",
@@ -40,6 +96,11 @@ const useStyles = makeStyles((theme) => ({
     },
     listItemIcon: {
         minWidth: theme.spacing(4),
+    },
+    nodeOpenLink: {
+        position: "absolute",
+        right: 0,
+        top: "5px",
     },
 }));
 
@@ -219,9 +280,9 @@ const DatastoreTreeItem = (props) => {
     }
 
     return (
-        <div className={"tree-item"}>
+        <div className={classes.treeItem}>
             <div
-                className={"tree-item-object" + (isSelectable ? "" : " notSelectable")}
+                className={classes.treeItemObject + (isSelectable ? "" : " notSelectable")}
                 onClick={selectItem}
                 onContextMenu={onContextMenu}
             >
@@ -236,8 +297,8 @@ const DatastoreTreeItem = (props) => {
                 {props.allowMultiselect && !props.isSelected(content) && (
                     <i className={"fa fa-square-o" + " " + classes.iconCheckbox}  />
                 )}
-                <span className="tree-item-name">{content.name} {description ? ` (${description})`: ''}</span>
-                <ButtonGroup variant="text" aria-label="outlined button group" className={"node-open-link"}>
+                <span className={classes.treeItemName}>{content.name} {description ? ` (${description})`: ''}</span>
+                <ButtonGroup variant="text" aria-label="outlined button group" className={classes.nodeOpenLink}>
                     {Boolean(props.onLinkItem) && ["bookmark", "website_password", "elster_certificate"].indexOf(content.type) !== -1 && (
                         <Button aria-label="open" onClick={linkItem}>
                             <OpenInNewIcon fontSize="small" />

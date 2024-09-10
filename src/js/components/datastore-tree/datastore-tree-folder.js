@@ -21,6 +21,52 @@ import { makeStyles } from '@mui/styles';
 import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
+    treeFolder: {
+        width: 'auto',
+        minHeight: '20px',
+        position: 'relative',
+        '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '20px', // Adjusted alignment for vertical line
+            left: '-13px',
+            width: '18px',
+            height: 0,
+            borderTop: '1px dotted #67b2dd',
+            zIndex: 1,
+        },
+    },
+    treeFolderHeader: {
+        position: 'relative',
+        height: '34px',
+        lineHeight: '34px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '5px 3px',
+        color: '#151f2b',
+        '&.selected': {
+            backgroundColor: '#F0F7FC',
+            borderRadius: '4px',
+            borderColor: '#fff',
+        },
+        '&:hover, &:focus': {
+            backgroundColor: '#F0F7FC',
+            outline: 'none',
+        },
+        '&.notSelectable': {
+            color: '#bbbbbb',
+        },
+    },
+    treeFolderTitle: {
+        position: "relative",
+    },
+    treeFolderName: {
+        display: 'inline',
+        marginLeft: '5px',
+        whiteSpace: 'nowrap',
+        zIndex: 2,
+    },
     divider: {
         marginTop: "8px",
         marginBottom: "8px",
@@ -30,6 +76,11 @@ const useStyles = makeStyles((theme) => ({
     },
     listItemIcon: {
         minWidth: theme.spacing(4),
+    },
+    nodeOpenLink: {
+        position: "absolute",
+        right: 0,
+        top: "5px",
     },
 }));
 
@@ -168,10 +219,10 @@ const DatastoreTreeFolder = (props) => {
 
     return (
         <>
-            <div className={"tree-folder"}>
-                <div className={"tree-folder-title"}>
+            <div className={classes.treeFolder}>
+                <div className={classes.treeFolderTitle}>
                     <div
-                        className={"tree-folder-header" + (isSelectable ? "" : " notSelectable")}
+                        className={classes.treeFolderHeader + (isSelectable ? "" : " notSelectable")}
                         onClick={selectNode}
                         onContextMenu={onContextMenu}
                     >
@@ -181,8 +232,8 @@ const DatastoreTreeFolder = (props) => {
                             {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
                             {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
                         </span>
-                        <span className="tree-folder-name ng-binding">{content.name}</span>
-                        <ButtonGroup variant="text" aria-label="text button group" className={"node-open-link"}>
+                        <span className={classes.treeFolderName}>{content.name}</span>
+                        <ButtonGroup variant="text" aria-label="text button group" className={classes.nodeOpenLink}>
                             <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
                                 <SettingsIcon fontSize="small" />
                             </Button>
