@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: "30px",
     },
     tree: {
+        width: "100%",
         overflowX: 'visible',
         overflowY: 'visible',
         position: 'relative',
