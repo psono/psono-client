@@ -92,8 +92,15 @@ const OtherExportView = (props) => {
         };
         const onError = function (data) {
             console.log(data);
+
+            if (data.hasOwnProperty('errors')) {
+                if (data.errors[0] === 'RESOURCE_NOT_FOUND') {
+                    setErrors(['FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE'])
+                } else {
+                    setErrors(data.errors);
+                }
+            }
             setMessages([]);
-            setErrors(data.errors);
         };
 
         const calculatedIncludeSharedItems = !getStore().getState().server.complianceDisableExportOfSharedItems && includeSharedItems;
@@ -217,7 +224,7 @@ const OtherExportView = (props) => {
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             {messages && (
                 <Grid item xs={12} sm={12} md={12}>
-                    {errors.map((prop, index) => {
+                    {messages.map((prop, index) => {
                         return (
                             <MuiAlert
                                 key={index}

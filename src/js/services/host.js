@@ -90,6 +90,34 @@ function info() {
 }
 
 /**
+ * Simple semver comparison of two semantic versioned strings like "1.0" and "2.5-alpha" or "3.2+whatever"
+ *
+ * Returns a number encoding the relation
+ * "-1": "a < b",
+ *  "0": "=",
+ *  "1":  ">"
+ *
+ * @param a
+ * @param b
+ * @returns {number}
+ */
+function semverCompare(a, b) {
+    // remove everything after whitespace
+    a = a.replace(/\s.*/, "")
+    b = b.replace(/\s.*/, "")
+    // remove everything after + sign
+    a = a.replace(/\+.*/, "")
+    b = b.replace(/\+.*/, "")
+
+    // handles cases like "1.2.3", ">", "1.2.3-asdf"
+    if (a.startsWith(b + "-")) return -1
+    if (b.startsWith(a + "-")) return  1
+
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: "case", caseFirst: "upper" })
+}
+
+
+/**
  * Validates the signature of the server and compares it to known hosts.
  *
  * @param {String} server The server url
@@ -112,6 +140,20 @@ function checkHost(server, preApprovedVerifyKey) {
                 server_url: serverUrl,
                 status: "invalid_signature",
                 verify_key: undefined,
+                info: info,
+            };
+        }
+
+        const minVersion = {
+            'CE': '4.0.0',
+            'EE': '4.0.0',
+        }
+
+        if (semverCompare(minVersion[data["decoded_info"]["type"]], data["decoded_info"]["version"]) > 0) {
+            return {
+                server_url: serverUrl,
+                status: "unsupported_server_version",
+                verify_key: data["verify_key"],
                 info: info,
             };
         }

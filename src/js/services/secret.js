@@ -13,7 +13,7 @@ import storage from "./storage";
 import { getStore } from "./store";
 
 /**
- * Encrypts the content and creates a new secret out of it.
+ * Bulk write of secrets. Encrypts the content and creates a new secret out of it.
  *
  * @param {array} objects The content of the new secret
  * @param {uuid|undefined} [parentDatastoreId] (optional) The id of the parent datastore, may be left empty if the share resides in a share
@@ -66,6 +66,52 @@ function createSecretBulk(objects, parentDatastoreId, parentShareId) {
         )
         .then(onSuccess, onError);
 }
+
+/**
+ * Bulk read of secrets
+ *
+ * @param {array} bulkObjects A list of tuples. The first one being the secretId, the second one the secretKey
+ *
+ * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
+ */
+function readSecretBulk(bulkObjects) {
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+    const encryptionKeyLookup = {};
+    const secretIds = []
+    for (const o of bulkObjects) {
+        secretIds.push(o[0]);
+        encryptionKeyLookup[o[0]] = o[1]
+    }
+
+    const onError = function (result) {
+        return Promise.reject(result);
+    };
+
+    const onSuccess = function (response) {
+        return response.data.secrets.map(function (content) {
+            const secret = JSON.parse(cryptoLibrary.decryptData(content.data, content.data_nonce, encryptionKeyLookup[content["id"]]));
+            secret["id"] = content["id"];
+            secret["read_count"] = content["read_count"];
+            secret["create_date"] = content["create_date"];
+            secret["write_date"] = content["write_date"];
+            secret["callback_url"] = content["callback_url"];
+            secret["callback_user"] = content["callback_user"];
+            secret["callback_pass"] = content["callback_pass"];
+            return secret;
+        })
+    };
+
+    return apiClient
+        .readSecretBulk(
+            token,
+            sessionSecretKey,
+            secretIds,
+        )
+        .then(onSuccess, onError);
+}
+
 /**
  * Encrypts the content and creates a new secret out of it.
  *
@@ -410,6 +456,7 @@ function copyCreditCardPin(item) {
 
 const secretService = {
     createSecretBulk: createSecretBulk,
+    readSecretBulk: readSecretBulk,
     createSecret: createSecret,
     readSecret: readSecret,
     writeSecret: writeSecret,

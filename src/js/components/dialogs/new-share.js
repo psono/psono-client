@@ -10,8 +10,6 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import { Checkbox, Grid } from "@mui/material";
 import { Check } from "@mui/icons-material";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
@@ -20,11 +18,9 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import helper from "../../services/helper";
 import datastoreUserService from "../../services/datastore-user";
 import groupsService from "../../services/groups";
-import TabPanel from "../tab-panel";
 import Table from "../table";
 import DialogNewUser from "./new-user";
 import CreateGroupDialog from "../../views/groups/create-group-dialog";
-import DialogError from "./error";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

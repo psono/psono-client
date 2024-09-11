@@ -22,7 +22,6 @@ import hostService from "../../services/host";
 import helperService from "../../services/helper";
 import offlineCacheService from "../../services/offline-cache";
 import datastoreService from "../../services/datastore";
-import exportService from "../../services/export";
 import datastorePasswordService from "../../services/datastore-password";
 import cryptoLibrary from "../../services/crypto-library";
 
@@ -65,7 +64,7 @@ const DialogGoOffline = (props) => {
                     .then(function (datastore) {
                         closedRequest = closedRequest + 1;
                         openRequests = openRequests + 1;
-                        exportService.getAllSecrets(datastore, true, true).then(function () {
+                        offlineCacheService.getAllSecrets(datastore, true, true).then(function () {
                             closedRequest = closedRequest + 1;
                             potentiallyCloseDialog();
                         });
@@ -104,31 +103,12 @@ const DialogGoOffline = (props) => {
                 offlineCacheService.setEncryptionPassword(passphrase);
                 offlineCacheService.enable();
 
-                // exportService.on('export-started', function(){
-                //     setProcessing(true)
-                // });
-                // exportService.on('get-secret-started', function(){
-                //     openRequests = openRequests + 1;
-                //     setPercentageComplete(Math.round(closedRequest / openRequests * 1000) / 10)
-                // });
-                //
-                // exportService.on('get-secret-complete', function(){
-                //     closedRequest = closedRequest + 1;
-                //     setPercentageComplete(Math.round(closedRequest / openRequests * 1000) / 10)
-                // });
-                //
-                // exportService.on('export-complete', function(){
-                //     openRequests = 0;
-                //     closedRequest = 0;
-                //     setProcessing(false)
-                // });
-
-                exportService.on("get-secret-started", function () {
+                offlineCacheService.on("get-secret-started", function () {
                     openRequests = openRequests + 1;
                     setPercentageComplete(Math.round((closedRequest / openRequests) * 1000) / 10);
                 });
 
-                exportService.on("get-secret-complete", function () {
+                offlineCacheService.on("get-secret-complete", function () {
                     closedRequest = closedRequest + 1;
                     setPercentageComplete(Math.round((closedRequest / openRequests) * 1000) / 10);
                 });

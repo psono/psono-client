@@ -8,9 +8,13 @@ import offscreenDocument from "./offscreen-document";
 import storage from "./storage";
 import action from "../actions/bound-action-creators";
 import { getStore } from "./store";
+import secretService from "./secret";
 
+let timeout = 0;
 let encryptionKey = "";
 const onSetEncryptionKeyRegistrations = [];
+
+const registrations = {};
 
 activate();
 
@@ -21,6 +25,35 @@ function activate() {
     offscreenDocument.getOfflineCacheEncryptionKey(function (newEncryptionKey) {
         setEncryptionKey(newEncryptionKey);
     });
+}
+
+/**
+ * used to register functions for specific events
+ *
+ * @param {string} event The event to subscribe to
+ * @param {function} func The callback function to subscribe
+ */
+function on(event, func) {
+    if (!registrations.hasOwnProperty(event)) {
+        registrations[event] = [];
+    }
+
+    registrations[event].push(func);
+}
+
+/**
+ * sends an event message to the export service
+ *
+ * @param {string} event The event to trigger
+ * @param {*} data The payload data to send to the subscribed callback functions
+ */
+function emit(event, data) {
+    if (!registrations.hasOwnProperty(event)) {
+        return;
+    }
+    for (let i = registrations[event].length - 1; i >= 0; i--) {
+        registrations[event][i](data);
+    }
 }
 
 /**
@@ -158,6 +191,96 @@ function set(url, method, data) {
     storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
 }
 
+
+/**
+ * Requests all secrets in our datastore and fills the datastore with the content
+ *
+ * @param {object} datastore The datastore structure with secrets
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
+ *
+ * @returns {*} The datastore structure where all secrets have been filled
+ */
+function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
+    let open_secret_requests = 0;
+
+    let resolver;
+
+    const handle_items = function (items) {
+        const fill_secret = function (item, secret_id, secret_key) {
+            const onSuccess = function (data) {
+                for (let property in data) {
+                    if (!data.hasOwnProperty(property)) {
+                        continue;
+                    }
+                    item[property] = data[property];
+                }
+
+                open_secret_requests = open_secret_requests - 1;
+                emit("get-secret-complete", {});
+                if (open_secret_requests === 0) {
+                    resolver(datastore);
+                }
+            };
+
+            const onError = function () {
+                open_secret_requests = open_secret_requests - 1;
+            };
+
+            open_secret_requests = open_secret_requests + 1;
+            emit("get-secret-started", {});
+
+            timeout = timeout + 100;
+            setTimeout(function () {
+                secretService.readSecret(secret_id, secret_key).then(onSuccess, onError);
+            }, timeout);
+        };
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].hasOwnProperty("share_id") && !includeSharedItems) {
+                continue
+            }
+            if (items[i].hasOwnProperty("secret_id") && items[i].hasOwnProperty("secret_key")) {
+                if (!includeTrashBinItems && items[i].hasOwnProperty('deleted') && items[i]['deleted']) {
+                    continue
+                }
+                fill_secret(items[i], items[i]["secret_id"], items[i]["secret_key"]);
+            }
+        }
+    };
+
+    const handle_folders = function (folders) {
+        for (let i = 0; i < folders.length; i++) {
+            if (folders[i].hasOwnProperty("share_id") && !includeSharedItems) {
+                continue
+            }
+            if (folders[i].hasOwnProperty("folders")) {
+                handle_folders(folders[i]["folders"]);
+            }
+
+            if (folders[i].hasOwnProperty("items")) {
+                handle_items(folders[i]["items"]);
+            }
+        }
+    };
+
+    return new Promise(function (resolve, reject) {
+        resolver = resolve;
+        timeout = 0;
+
+        if (datastore.hasOwnProperty("folders")) {
+            handle_folders(datastore["folders"]);
+        }
+
+        if (datastore.hasOwnProperty("items")) {
+            handle_items(datastore["items"]);
+        }
+
+        if (open_secret_requests === 0) {
+            resolve(datastore);
+        }
+    });
+}
+
 /**
  * Returns the cached request
  *
@@ -235,7 +358,10 @@ function onSetEncryptionKey(fnc) {
 }
 
 const offlineCacheService = {
+    on: on,
+    emit: emit,
     isActive: isActive,
+    getAllSecrets: getAllSecrets,
     get: get,
     set: set,
     getEncryptionKey: getEncryptionKey,

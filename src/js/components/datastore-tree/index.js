@@ -25,6 +25,17 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
+    tree: {
+        overflowX: 'visible',
+        overflowY: 'visible',
+        position: 'relative',
+        height: deviceService.hasTitlebar() ? 'calc(100vh - 232px)' : 'calc(100vh - 200px)',
+        '& *': {
+            '-webkit-box-sizing': 'content-box',
+            '-moz-box-sizing': 'content-box',
+            'box-sizing': 'content-box',
+        },
+    }
 }));
 
 const DatastoreTree = (props) => {
@@ -89,6 +100,22 @@ const DatastoreTree = (props) => {
                     return 0;
                 })
                 .filter((item) => !item["hidden"] && !item["deleted"])
+                .filter((item) => {
+                    if (!props.selectedFilters || Object.keys(props.selectedFilters).filter((key) => props.selectedFilters[key]).length === 0) {
+                        return true
+                    }
+                    for (const filter of  Object.keys(props.selectedFilters)) {
+                        if (!props.selectedFilters[filter]) {
+                            continue
+                        }
+                        if (filter.startsWith('entry_type:')) {
+                            if (!item.hasOwnProperty("type") || `entry_type:${item["type"]}` !== filter) {
+                                return false
+                            }
+                        }
+                    }
+                    return true
+                })
                 .forEach(item => formatDatastoreItems(item, acc, false, nodePath.concat(item), currentPath))
         }
 
@@ -148,9 +175,9 @@ const DatastoreTree = (props) => {
         );
     } else {
         return (
-            <div className={"tree"} style={{ height: deviceService.hasTitlebar() ? 'calc(100vh - 232px)' : 'calc(100vh - 200px)' }}>
+            <div className={classes.tree}>
                 <AutoSizer>
-                    {({ height, width }) => (
+                    {({height, width}) => (
                         <List
                             itemCount={datastoreItems.length}
                             itemSize={46}

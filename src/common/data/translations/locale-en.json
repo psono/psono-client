@@ -1,4 +1,8 @@
 {
+  "SHOW_HIDE_FILTER": "Show / hide filter",
+  "FILTERS": "Filters",
+  "SERVER_UNSUPPORTED": "Server unsupported",
+  "THE_VERSION_OF_THE_SERVER_IS_TOO_OLD_AND_NOT_SUPPORTED_PLEASE_UPGRADE": "The version of the server is too old. This client doesn't support the old version anymore. Please update your server or tell your administrator to update it.",
   "GO_TO_DOCUMENTATION": "Go to Documentation",
   "NEED_MORE_HELP_CHECK_OUR_DOCUMENTATION": "Need more help? Check out our documentation.",
   "STEP_1_PIN_EXTENSION_T_BROWSER_TOOLBAR": "Step 1: Pin the extension to your browser toolbar.",

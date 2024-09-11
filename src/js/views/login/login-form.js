@@ -1319,6 +1319,44 @@ const LoginViewForm = (props) => {
         );
     }
 
+    if (view === "unsupported_server_version") {
+        formContent = (
+            <>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <h4>{t("SERVER_UNSUPPORTED")}</h4>
+                    </Grid>
+                </Grid>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="warning"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {t("THE_VERSION_OF_THE_SERVER_IS_TOO_OLD_AND_NOT_SUPPORTED_PLEASE_UPGRADE")}
+                        </MuiAlert>
+                    </Grid>
+                </Grid>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={cancel}
+                            type="submit"
+                        >
+                            {t("BACK")}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
+            </>
+        );
+    }
+
     if (view === "ask_send_plain") {
         formContent = (
             <>
@@ -1599,7 +1637,7 @@ const LoginViewForm = (props) => {
 						<img
 							width={45}
 							height={45}
-							src={require("../../../common/data/img/sc-logo.png")}
+							src={"img/sc-logo.png"}
 							alt="Loading"
 							className={classes.image}
 						/>

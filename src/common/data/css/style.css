@@ -110,9 +110,6 @@ p.horizontalline span {
     display: inline-block;
     padding: 10px 10px 10px 10px;
     width: 100%; }
-  .navigations .dropdown-button-menu {
-    right: 0;
-    left: auto; }
 
 .hideinputcharakter label {
   font-weight: inherit;
@@ -166,10 +163,6 @@ p.horizontalline span {
       color: #333333; }
   .dark .form-control:focus {
     border-color: #2dbb93; }
-  .dark .navigations .node-open-link {
-    position: absolute;
-    right: 50px;
-    top: 3px; }
   .dark .navigations .dropdown {
     position: absolute;
     right: 3px;
@@ -195,62 +188,6 @@ p.horizontalline span {
   position: sticky;
   top: 0; }
 
-/* All Tree Changes */
-.tree::before {
-  bottom: 23px;
-  border-color: #151f2b;
-  top: 0; }
-
-.tree {
-  overflow-x: visible;
-  overflow-y: visible; }
-  .tree .tree-item.selected,
-  .tree .tree-folder .tree-folder-header.selected {
-    background-color: inherit;
-    border-color: #fff;
-    border-radius: 4px; }
-  .tree .tree-folder .tree-folder-header.selected:hover,
-  .tree .tree-item.selected:hover {
-    background-color: #F0F7FC;
-    border-radius: 4px; }
-  .tree .tree-folder::before,
-  .tree .tree-item::before {
-    border-top-color: #151f2b;
-    top: 21px; }
-  .tree .tree-item,
-  .tree .tree-folder .tree-folder-header {
-    height: 34px;
-    line-height: 34px;
-    padding-right: 100px;
-    color: #151f2b; }
-    .tree .tree-item a,
-    .tree .tree-folder .tree-folder-header a {
-      color: #151f2b; }
-  .tree .tree-item,
-  .tree .tree-folder .tree-folder-title {
-    position: relative; }
-  .tree .tree-folder .notSelectable,
-  .tree .tree-item .notSelectable {
-    color: #bbbbbb; }
-    .tree .tree-folder .notSelectable a,
-    .tree .tree-item .notSelectable a {
-      color: #bbbbbb; }
-  .tree .node-dropdown {
-    position: absolute;
-    right: 5px;
-    top: 5px; }
-  .tree .node-open-link {
-    position: absolute;
-    right: 0;
-    top: 5px; }
-  .tree .dropdown-button-menu {
-    right: 0;
-    left: auto; }
-  .tree .tree-folder .tree-folder-content:before {
-    top: -9px;
-    bottom: 23px;
-    left: -14px;
-    border-color: #151f2b; }
 
 /* for the fixed dropdown menu that pops when someone right clicks an entry*/
 .dropdown-rightclick {

@@ -210,7 +210,7 @@ function filterPasswordsHelper(folder, passwords) {
 /**
  * Takes a datastore and returns an array of website passwords
  *
- * @param {object} datastores A list of datastore to filter
+ * @param {Array} datastores A list of datastore to filter
  *
  * @returns {Array} Returns an array of website passwords
  */

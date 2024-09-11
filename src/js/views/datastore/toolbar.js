@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
+import { Badge } from '@mui/material';
 import { alpha } from "@mui/material/styles";
 import { makeStyles } from '@mui/styles';
 import Toolbar from "@mui/material/Toolbar";
@@ -18,6 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenWithIcon from "@mui/icons-material/OpenWith";
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 import Search from "../../components/search";
 import DialogTrashBin from "../../components/dialogs/trash-bin";
@@ -62,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const DatastoreToolbar = ({onNewFolder, onNewEntry, newSecurityReportRequired, datastore, search, setSearch, onMassDelete, onMassMove, hasMassOperationSelected}) => {
+const DatastoreToolbar = ({onNewFolder, onNewEntry, newSecurityReportRequired, datastore, search, setSearch, onMassDelete, onMassMove, hasMassOperationSelected, toggleShowFilter, filterCount}) => {
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const classes = useStyles();
     const { t } = useTranslation();
@@ -85,7 +87,6 @@ const DatastoreToolbar = ({onNewFolder, onNewEntry, newSecurityReportRequired, d
     const openTrashBin = (event) => {
         setTrashBinOpen(true);
     };
-
     return (
         <Toolbar
             className={classes.toolbarRoot}>
@@ -181,6 +182,27 @@ const DatastoreToolbar = ({onNewFolder, onNewEntry, newSecurityReportRequired, d
                         </Tooltip>
                     </>
                 )}
+                {!!toggleShowFilter && (
+                    <>
+                        <Divider className={classes.divider} orientation="vertical"/>
+                        <Tooltip title={t("SHOW_HIDE_FILTER")}>
+                            <IconButton
+                                aria-label="filter"
+                                onClick={toggleShowFilter}
+                                size="large"
+                            >
+                                <Badge
+                                    color="primary"
+                                    badgeContent={filterCount ? filterCount : 0}
+                                    invisible={!filterCount}
+                                >
+                                    <FilterListIcon />
+                                </Badge>
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                )}
+
                 {trashBinOpen && (
                     <DialogTrashBin
                         open={trashBinOpen}
