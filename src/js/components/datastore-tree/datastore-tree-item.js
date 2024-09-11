@@ -83,6 +83,12 @@ const useStyles = makeStyles((theme) => ({
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         verticalAlign: 'middle',
+        lineHeight: '16px',
+    },
+    treeItemDescription: {
+        fontSize: '12px',
+        lineHeight: '13px',
+        color: '#666'
     },
     faStack: {
         display: 'inline-block',
@@ -306,7 +312,11 @@ const DatastoreTreeItem = (props) => {
                 {props.allowMultiselect && !props.isSelected(content) && (
                     <i className={"fa fa-square-o" + " " + classes.iconCheckbox}  />
                 )}
-                <span className={classes.treeItemName}>{content.name} {description ? ` (${description})`: ''}</span>
+                <div className={classes.treeItemName}>
+                    {content.name}
+                    <br />
+                    <span className={classes.treeItemDescription}>{description ? ` ${description}`: ''}</span>
+                </div>
 
             </div>
             <ButtonGroup variant="text" aria-label="outlined button group" className={classes.nodeOpenLink}>
