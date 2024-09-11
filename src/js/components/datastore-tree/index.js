@@ -100,6 +100,22 @@ const DatastoreTree = (props) => {
                     return 0;
                 })
                 .filter((item) => !item["hidden"] && !item["deleted"])
+                .filter((item) => {
+                    if (!props.selectedFilters || Object.keys(props.selectedFilters).filter((key) => props.selectedFilters[key]).length === 0) {
+                        return true
+                    }
+                    for (const filter of  Object.keys(props.selectedFilters)) {
+                        if (!props.selectedFilters[filter]) {
+                            continue
+                        }
+                        if (filter.startsWith('entry_type:')) {
+                            if (!item.hasOwnProperty("type") || `entry_type:${item["type"]}` !== filter) {
+                                return false
+                            }
+                        }
+                    }
+                    return true
+                })
                 .forEach(item => formatDatastoreItems(item, acc, false, nodePath.concat(item), currentPath))
         }
 

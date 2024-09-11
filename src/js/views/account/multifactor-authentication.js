@@ -13,7 +13,6 @@ import MultifactorAuthenticatorDuo from "./multifactor-authentication-duo";
 import MultifactorAuthenticatorIvalt from "./multifactor-authentication-ivalt";
 import deviceService from "../../services/device";
 import browserClient from "../../services/browser-client";
-import userService from "../../services/user";
 import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({

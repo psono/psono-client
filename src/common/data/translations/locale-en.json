@@ -1,4 +1,6 @@
 {
+  "SHOW_HIDE_FILTER": "Show / hide filter",
+  "FILTERS": "Filters",
   "SERVER_UNSUPPORTED": "Server unsupported",
   "THE_VERSION_OF_THE_SERVER_IS_TOO_OLD_AND_NOT_SUPPORTED_PLEASE_UPGRADE": "The version of the server is too old. This client doesn't support the old version anymore. Please update your server or tell your administrator to update it.",
   "GO_TO_DOCUMENTATION": "Go to Documentation",
