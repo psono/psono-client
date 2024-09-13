@@ -623,7 +623,7 @@ const PopupView = (props) => {
         browserClient.copyToClipboard(() => Promise.resolve(content));
     };
     const generatePassword = (passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) => {
-        let password = datastorePassword.generatePassword(passwordLength, passwordLettersUppercase + passwordLettersLowercase + passwordNumbers + passwordSpecialChars);
+        let password = datastorePassword.generate(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars);
         copyToClipboard(password)
         setPassword(password);
     };

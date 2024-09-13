@@ -61,11 +61,11 @@ const DialogGeneratePassword = (props) => {
     );
     const [passwordNumbers, setPasswordNumbers] = useState(settingsDatastore.passwordNumbers);
     const [passwordSpecialChars, setPasswordSpecialChars] = useState(settingsDatastore.passwordSpecialChars);
-    const [password, setPassword] = useState(datastorePassword.generatePassword(passwordLength, passwordLettersUppercase + passwordLettersLowercase + passwordNumbers + passwordSpecialChars));
+    const [password, setPassword] = useState(datastorePassword.generate(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars));
 
 
     const generatePassword = (passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) => {
-        let password = datastorePassword.generatePassword(passwordLength, passwordLettersUppercase + passwordLettersLowercase + passwordNumbers + passwordSpecialChars);
+        let password = datastorePassword.generate(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars);
         setPassword(password);
     };
 
