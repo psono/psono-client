@@ -939,7 +939,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -1064,7 +1064,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -1349,7 +1349,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -1566,7 +1566,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -1636,7 +1636,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -1886,7 +1886,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
@@ -2270,7 +2270,7 @@ const DialogNewEntry = (props) => {
                                     InputProps={{
                                         type: showPassword ? "text" : "password",
                                         classes: {
-                                            input: classes.passwordField,
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">

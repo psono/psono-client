@@ -1230,7 +1230,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -1402,7 +1402,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -1830,7 +1830,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -1901,7 +1901,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -2023,7 +2023,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -2164,7 +2164,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPin ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -2299,7 +2299,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -2474,7 +2474,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -2680,7 +2680,7 @@ const DialogEditEntry = (props) => {
                             readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
-                                input: classes.passwordField,
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                             },
                             endAdornment: (
                                 <InputAdornment position="end">

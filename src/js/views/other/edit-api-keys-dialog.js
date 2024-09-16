@@ -358,7 +358,7 @@ const EditApiKeysDialog = (props) => {
                                         InputProps={{
                                             type: showApiKeyId ? "text" : "password",
                                             classes: {
-                                                input: classes.passwordField,
+                                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
@@ -388,7 +388,7 @@ const EditApiKeysDialog = (props) => {
                                         InputProps={{
                                             type: showApiKeyPrivateKey ? "text" : "password",
                                             classes: {
-                                                input: classes.passwordField,
+                                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
@@ -418,7 +418,7 @@ const EditApiKeysDialog = (props) => {
                                         InputProps={{
                                             type: showApiKeySecretKey ? "text" : "password",
                                             classes: {
-                                                input: classes.passwordField,
+                                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">

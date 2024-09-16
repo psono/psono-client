@@ -100,7 +100,7 @@ const DialogGeneratePassword = (props) => {
                             }}
                             InputProps={{
                                 classes: {
-                                    input: classes.passwordField,
+                                    input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                 },
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -145,11 +145,6 @@ const DialogGeneratePassword = (props) => {
                                 includeSpecialChars ? passwordSpecialChars : '',
                             )
                             setPasswordLength(event.target.value);
-                        }}
-                        InputProps={{
-                            classes: {
-                                input: classes.passwordField,
-                            },
                         }}
                     />
                 </Grid>

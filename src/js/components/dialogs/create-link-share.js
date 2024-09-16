@@ -292,7 +292,7 @@ const DialogCreateLinkShare = (props) => {
                                 InputProps={{
                                     type: showPassphrase ? "text" : "password",
                                     classes: {
-                                        input: classes.passwordField,
+                                        input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">

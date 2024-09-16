@@ -158,7 +158,7 @@ const ActivationForm = (props) => {
                             }}
                             InputProps={{
                                 classes: {
-                                    input: classes.passwordField,
+                                    input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
                                 },
                             }}
                         />
