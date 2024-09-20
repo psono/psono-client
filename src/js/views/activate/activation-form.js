@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { BarLoader } from "react-spinners";
+
 import { Grid } from "@mui/material";
 import { makeStyles } from '@mui/styles';
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
 import Button from "@mui/material/Button";
-import { BarLoader } from "react-spinners";
+
 import browserClient from "../../services/browser-client";
 import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
@@ -63,10 +65,6 @@ const ActivationForm = (props) => {
 
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
-        const allowLostPassword =
-            (!configJson.hasOwnProperty("allow_lost_password") ||
-                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
-            configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
         const allowCustomServer = configJson.allow_custom_server;
 
         setServer(serverUrl);
@@ -87,8 +85,7 @@ const ActivationForm = (props) => {
             setErrors([])
             setMsgs([])
             if (data.response === "success") {
-                setMsgs(['SUCCESSFUL_PLEASE_LOGIN'])
-                setView("success");
+                window.location.href = 'activate-success.html';
             } else {
                 if (data.error_data === null) {
                     setErrors(['SERVER_OFFLINE'])

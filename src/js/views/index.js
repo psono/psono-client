@@ -31,6 +31,7 @@ import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
 import RegisterView from "./register";
 import InstallSuccessfulView from "./install-successful";
+import ActivateSuccessfulView from "./activate-successful";
 import user from "../services/user";
 
 const IndexView = (props) => {
@@ -158,6 +159,8 @@ const IndexView = (props) => {
         return <RegisterView {...props} />;
     } else if (pathname.endsWith("/install-successful.html")) {
         return <InstallSuccessfulView {...props} />;
+    } else if (pathname.endsWith("/activate-successful.html")) {
+        return <ActivateSuccessfulView {...props} />;
     } else {
         // pathname.endsWith('/index.html')
         if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
