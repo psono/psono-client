@@ -145,8 +145,8 @@ function checkHost(server, preApprovedVerifyKey) {
         }
 
         const minVersion = {
-            'CE': '4.0.0',
-            'EE': '4.0.0',
+            'CE': '4.0.2',
+            'EE': '4.0.4',
         }
 
         if (semverCompare(minVersion[data["decoded_info"]["type"]], data["decoded_info"]["version"]) > 0) {
