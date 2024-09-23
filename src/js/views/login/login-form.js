@@ -608,8 +608,7 @@ const LoginViewForm = (props) => {
             (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
         const allowLostPassword =
             (!configJson.hasOwnProperty("allow_lost_password") ||
-                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
-            configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
+                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"]));
         const samlProvider = configJson.saml_provider || [];
         const oidcProvider = configJson.oidc_provider || [];
         const authenticationMethods = configJson.authentication_methods || [];
