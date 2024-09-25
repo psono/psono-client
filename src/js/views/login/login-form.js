@@ -610,10 +610,12 @@ const LoginViewForm = (props) => {
         const allowLostPassword =
             (!configJson.hasOwnProperty("allow_lost_password") ||
                 (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"]));
-        const samlProvider = configJson.saml_provider || [];
-        const oidcProvider = configJson.oidc_provider || [];
-        const authenticationMethods = configJson.authentication_methods || [];
+        const samlProvider = configJson.saml_provider;
+        const oidcProvider = configJson.oidc_provider;
+        const authenticationMethods = configJson.authentication_methods;
         const allowCustomServer = configJson.allow_custom_server;
+        const trustDeviceDefault = configJson.trust_device_default;
+        const rememberMeDefault = configJson.remember_me_default;
         const allowUsernamePasswordLogin =
             authenticationMethods.includes("AUTHKEY") || authenticationMethods.includes("LDAP");
         const authkeyEnabled = configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
@@ -634,6 +636,8 @@ const LoginViewForm = (props) => {
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
+        setTrustDevice(trustDevice || trustDeviceDefault);
+        setRememberMe(rememberMe || rememberMeDefault);
         setAllowCustomServer(allowCustomServer);
         setAllowUsernamePasswordLogin(allowUsernamePasswordLogin);
         setAuthkeyEnabled(authkeyEnabled);
