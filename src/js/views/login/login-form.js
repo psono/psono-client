@@ -562,6 +562,7 @@ const LoginViewForm = (props) => {
         setPassword("");
         setErrors([]);
         setLoginLoading(false);
+        setDecryptLoginDataFunction(null);
     };
 
     const nextLoginStep = (sendPlain, serverCheck) => {
