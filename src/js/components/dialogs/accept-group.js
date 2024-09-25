@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogAcceptGroup = (props) => {
-    const { open, onClose, group, hideUser, title } = props;
+    const { open, onClose, groupIndex, groupIds, hideUser, title } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const [path, setPath] = useState([]);
@@ -115,8 +115,8 @@ const DialogAcceptGroup = (props) => {
     };
 
     const onConfirm = () => {
-        const onSuccess = function (datastore) {
-            const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
+        const onSuccess = async function (datastore) {
+            const breadcrumbs = {id_breadcrumbs: path.map((node) => node.id)};
 
             const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
 
@@ -126,35 +126,45 @@ const DialogAcceptGroup = (props) => {
                 return;
             }
 
-            const onSuccess = function (shares) {
-                return datastorePassword
-                    .createShareLinksInDatastore(
-                        shares,
-                        analyzed_breadcrumbs["target"],
-                        analyzed_breadcrumbs["parent_path"],
-                        analyzed_breadcrumbs["path"],
-                        analyzed_breadcrumbs["parent_share_id"],
-                        analyzed_breadcrumbs["parent_datastore_id"],
-                        analyzed_breadcrumbs["parent_share"],
-                        datastore
-                    )
-                    .then(
-                        () => {
-                            onClose();
-                        },
-                        (data) => {
-                            //pass
-                            console.log(data);
-                        }
-                    );
-            };
+            const shares = []
+            const allPromises = []
 
-            const onError = function (data) {
-                //pass
-                console.log(data);
-            };
+            for (const groupId of groupIds) {
 
-            return groupsService.acceptMembership(group.membership_id).then(onSuccess, onError);
+                const onSuccess = function (newShares) {
+                    shares.push(...newShares);
+                };
+
+                const onError = function (data) {
+                    //pass
+                    console.log(data);
+                };
+
+                allPromises.push(groupsService.acceptMembership(groupIndex[groupId].membership_id).then(onSuccess, onError));
+            }
+
+            await Promise.all(allPromises);
+
+            return datastorePassword
+                .createShareLinksInDatastore(
+                    shares,
+                    analyzed_breadcrumbs["target"],
+                    analyzed_breadcrumbs["parent_path"],
+                    analyzed_breadcrumbs["path"],
+                    analyzed_breadcrumbs["parent_share_id"],
+                    analyzed_breadcrumbs["parent_datastore_id"],
+                    analyzed_breadcrumbs["parent_share"],
+                    datastore
+                )
+                .then(
+                    () => {
+                        onClose();
+                    },
+                    (data) => {
+                        //pass
+                        console.log(data);
+                    }
+                );
         };
         const onError = function (data) {
             //pass
@@ -231,7 +241,7 @@ const DialogAcceptGroup = (props) => {
                             {t("INVITED_BY")}:
                         </Grid>
                     )}
-                    {!hideUser && <TrustedUser user_id={group.user_id} user_username={group.user_username} />}
+                    {!hideUser && <TrustedUser user_id={groupIndex[groupIds[0]].user_id} user_username={groupIndex[groupIds[0]].user_username} />}
                 </Grid>
             </DialogContent>
             <DialogActions>
@@ -258,7 +268,8 @@ DialogAcceptGroup.defaultProps = {
 DialogAcceptGroup.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    group: PropTypes.object.isRequired,
+    groupIndex: PropTypes.object.isRequired,
+    groupIds: PropTypes.array.isRequired,
     hideUser: PropTypes.bool.isRequired,
     title: PropTypes.string,
 };
