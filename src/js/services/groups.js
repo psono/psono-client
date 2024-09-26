@@ -7,6 +7,7 @@ import datastorePasswordService from "./datastore-password";
 import helper from "./helper";
 import { getStore } from "./store";
 import shareService from "./share";
+import datastorePassword from "./datastore-password";
 
 let groups_cache = [];
 const group_secret_key_cache = {};
@@ -539,6 +540,62 @@ function declineMembership(membershipId) {
     return apiClient.declineMembership(token, sessionSecretKey, membershipId).then(onSuccess, onError);
 }
 
+async function acceptMembershipsAndShares(membershipIds, path) {
+
+    let datastore;
+    try {
+        datastore = await datastorePassword.getPasswordDatastore();
+    } catch (e) {
+        // pass
+        console.log(e);
+        return;
+    }
+
+    const breadcrumbs = {id_breadcrumbs: path.map((node) => node.id)};
+
+    const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
+
+    if (typeof analyzed_breadcrumbs["parent_share_id"] !== "undefined") {
+        // No grant right, yet the parent is a a share?!?
+        alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
+        return;
+    }
+
+    const shares = []
+    const allPromises = []
+
+    for (const membershipId of membershipIds) {
+
+        const onSuccess = function (newShares) {
+            shares.push(...newShares);
+        };
+
+        const onError = function (data) {
+            //pass
+            console.log(data);
+        };
+
+        allPromises.push(acceptMembership(membershipId).then(onSuccess, onError));
+    }
+
+    await Promise.all(allPromises);
+
+    return datastorePassword
+        .createShareLinksInDatastore(
+            shares,
+            analyzed_breadcrumbs["target"],
+            analyzed_breadcrumbs["parent_path"],
+            analyzed_breadcrumbs["path"],
+            analyzed_breadcrumbs["parent_share_id"],
+            analyzed_breadcrumbs["parent_datastore_id"],
+            analyzed_breadcrumbs["parent_share"],
+            datastore
+        )
+
+}
+
+
+
 //itemBlueprint.register('getGroupSecretKey', getGroupSecretKey);
 
 const groupsService = {
@@ -559,5 +616,6 @@ const groupsService = {
     decryptGroupShares: decryptGroupShares,
     acceptMembership: acceptMembership,
     declineMembership: declineMembership,
+    acceptMembershipsAndShares: acceptMembershipsAndShares,
 };
 export default groupsService;

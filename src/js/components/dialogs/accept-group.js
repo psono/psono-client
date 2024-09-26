@@ -114,64 +114,20 @@ const DialogAcceptGroup = (props) => {
         return false;
     };
 
-    const onConfirm = () => {
-        const onSuccess = async function (datastore) {
-            const breadcrumbs = {id_breadcrumbs: path.map((node) => node.id)};
+    const onConfirm = async () => {
 
-            const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
+        const membershipIds = [];
 
-            if (typeof analyzed_breadcrumbs["parent_share_id"] !== "undefined") {
-                // No grant right, yet the parent is a a share?!?
-                alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
-                return;
-            }
+        for (const groupId of groupIds) {
+            membershipIds.push(groupIndex[groupId].membership_id);
+        }
 
-            const shares = []
-            const allPromises = []
-
-            for (const groupId of groupIds) {
-
-                const onSuccess = function (newShares) {
-                    shares.push(...newShares);
-                };
-
-                const onError = function (data) {
-                    //pass
-                    console.log(data);
-                };
-
-                allPromises.push(groupsService.acceptMembership(groupIndex[groupId].membership_id).then(onSuccess, onError));
-            }
-
-            await Promise.all(allPromises);
-
-            return datastorePassword
-                .createShareLinksInDatastore(
-                    shares,
-                    analyzed_breadcrumbs["target"],
-                    analyzed_breadcrumbs["parent_path"],
-                    analyzed_breadcrumbs["path"],
-                    analyzed_breadcrumbs["parent_share_id"],
-                    analyzed_breadcrumbs["parent_datastore_id"],
-                    analyzed_breadcrumbs["parent_share"],
-                    datastore
-                )
-                .then(
-                    () => {
-                        onClose();
-                    },
-                    (data) => {
-                        //pass
-                        console.log(data);
-                    }
-                );
-        };
-        const onError = function (data) {
-            //pass
-            console.log(data);
-        };
-
-        return datastorePassword.getPasswordDatastore().then(onSuccess, onError);
+        try {
+            await groupsService.acceptMembershipsAndShares(membershipIds, path);
+        } catch (e) {
+            console.log(e);
+        }
+        onClose();
     };
 
     return (

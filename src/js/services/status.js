@@ -7,6 +7,8 @@ import apiClient from "./api-client";
 import offlineCache from "./offline-cache";
 import { getStore } from "./store";
 import storage from "./storage";
+import datastoreService from "./datastore";
+import groupsService from "./groups";
 
 const validTill = 300000; // in ms, 300000 = 300s = 5min
 const intervalTime = 30000; // in ms, 30000 = 30s
@@ -16,6 +18,49 @@ activate();
 function activate() {
     setInterval(getStatus, intervalTime);
 }
+
+
+async function autoAcceptForcedMemberships() {
+    const overview = await datastoreService.getDatastoreOverview();
+    const datastores=[];
+    for (let i = 0; i < overview.datastores.length; i++) {
+        if (overview.datastores[i]['type'] === 'password') {
+            datastores.push(overview.datastores[i]);
+        }
+    }
+
+    if (datastores.length !== 1) {
+        return;
+    }
+
+    let groups;
+    try {
+        groups = await groupsService.readGroups(true);
+    } catch (e) {
+        //pass
+        console.log(e);
+    }
+
+    const forcedMembershipIds = [];
+    for (let group of groups) {
+        if (!group.forced_membership) {
+            continue;
+        }
+        forcedMembershipIds.push(group.membership_id);
+    }
+
+    if (forcedMembershipIds.length < 1) {
+        return;
+    }
+
+    try {
+        await groupsService.acceptMembershipsAndShares(forcedMembershipIds, []);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+
 /**
  * Queries the server for the current status of the user if the local cached status is outdated.
  *
@@ -74,6 +119,10 @@ function getStatus(forceFresh) {
 
             action().setServerStatus(newServerStatus);
             storage.upsert("various", { key: "server-status", value: newServerStatus });
+
+            if (content.data.hasOwnProperty('unaccepted_forced_groups_count') && content.data.unaccepted_forced_groups_count > 0) {
+                autoAcceptForcedMemberships();
+            }
 
             return newServerStatus;
         };
