@@ -1,4 +1,12 @@
 {
+  "ACCEPT_ALL_GROUPS": "Accept all groups",
+  "ACCEPT_ALL_NEW_SHARES": "Accept all new shares",
+  "TO_TAKE_YOUR_PASSWORDS_WHEREVER_YOU_GO_DOWNLOAD_THE_APP": "To take your passwords wherever you go download the app.",
+  "TO_IMPROVE_YOUR_EXPERIENCE_DOWNLOAD_THE_BROWSER_EXTENSION": "To improve your experience download the browser extension.",
+  "TIP_DOWNLOAD_BROWSER_EXTENSION": "Tip: Download browser extension",
+  "TIP_DOWNLOAD_BROWSER_APP": "Tip: Download Psono App",
+  "SUCCESSFULLY_ACTIVATED": "Successfully activated",
+  "YOU_CAN_NOW_LOGIN_AND_START_USING_THE_APP": "You can login and start using Psono",
   "SHOW_HIDE_FILTER": "Show / hide filter",
   "FILTERS": "Filters",
   "SERVER_UNSUPPORTED": "Server unsupported",

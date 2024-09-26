@@ -148,11 +148,7 @@ const DialogNewUser = (props) => {
         };
 
         const onError = function (data) {
-            if (data.status === 400) {
-                setErrors(["USER_NOT_FOUND"]);
-            } else {
-                console.log(data);
-            }
+            setErrors(["USER_NOT_FOUND"]);
         };
         datastoreUserService.searchUser(searchUsername, searchEmail).then(onSuccess, onError);
     };

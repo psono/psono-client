@@ -15,58 +15,55 @@ import { getStore } from "./store";
 const registrations = {};
 let _shareIndex = {};
 
-const uppercaseMinCount = 1;
-const lowercaseMinCount = 1;
-const numberMinCount = 1;
-const specialMinCount = 1;
-
 /**
  * checks if the given password complies with the minimal complexity
  *
  * @param password
+ * @param characters
+ * @param length
  * @returns {*}
  */
-function isStrongEnough(password) {
-    if (
-        uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount >
-        getStore().getState().settingsDatastore.passwordLength
-    ) {
-        //password can never comply, so we skip check
+function isStrongEnough(password,characters, length) {
+    if (characters.length === 0) {
         return true;
     }
 
-    const {
-        passwordLettersUppercase = '',
-        passwordLettersLowercase = '',
-        passwordNumbers = '',
-        passwordSpecialChars = '',
-    } = getStore().getState().settingsDatastore;
+    const hasUppercaseCharacters = /[A-Z]/.test(characters); // check if characters contain uppercase characters
+    const hasLowercaseCharacters = /[a-z]/.test(characters); // check if characters contain lowercase characters
+    const hasNumbers = /[0-9]/.test(characters); // check if characters contain numbers
+    const hasSpecialCharacters = /[!§@#$%^&*()_+\-=\[\]{};:'",<>.?\/\\|`~]/.test(password); // check if characters contain special chars
 
-    const uc = password.match(
-        new RegExp("([" + escapeRegExp(passwordLettersUppercase) + "])", "g")
-    );
-    const lc = password.match(
-        new RegExp("([" + escapeRegExp(passwordLettersLowercase) + "])", "g")
-    );
-    const n = password.match(
-        new RegExp("([" + escapeRegExp(passwordNumbers) + "])", "g")
-    );
-    const sc = password.match(
-        new RegExp("([" + escapeRegExp(passwordSpecialChars) + "])", "g")
-    );
+    let minLength = 0;
 
-    const uc_test_result =
-        passwordLettersUppercase.length === 0 ||
-        (uc && uc.length >= uppercaseMinCount);
-    const lc_test_result =
-        passwordLettersLowercase.length === 0 ||
-        (lc && lc.length >= lowercaseMinCount);
-    const n_test_result =
-        passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
-    const sc_test_result =
-        passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
+    if (hasUppercaseCharacters) {
+        minLength += 1;
+    }
+    if (hasLowercaseCharacters) {
+        minLength += 1;
+    }
+    if (hasNumbers) {
+        minLength += 1;
+    }
+    if (hasSpecialCharacters) {
+        minLength += 1;
+    }
 
-    return uc_test_result && lc_test_result && n_test_result && sc_test_result;
+    if (minLength > length) {
+        // password can never comply, so we skip check as user asked for length=3 character password.
+        return true;
+    }
+
+    const passwordHasUppercaseCharacters = /[A-Z]/.test(password); // check if password contains uppercase characters
+    const passwordHasLowercaseCharacters = /[a-z]/.test(password); // check if password contains lowercase characters
+    const passwordHasNumbers = /[0-9]/.test(password); // check if password contains numbers
+    const passwordHasSpecialCharacters = /[!§@#$%^&*()_+\-=\[\]{};:'",<>.?\/\\|`~]/.test(password); // check if password contains special chars
+
+    const ucTestResult = !hasUppercaseCharacters || passwordHasUppercaseCharacters;
+    const lcTestResult = !hasLowercaseCharacters || passwordHasLowercaseCharacters;
+    const nTestResult = !hasNumbers || passwordHasNumbers;
+    const scTestResult = !hasSpecialCharacters || passwordHasSpecialCharacters;
+
+    return ucTestResult && lcTestResult && nTestResult && scTestResult;
 }
 
 /**
@@ -140,13 +137,15 @@ function generate(passwordLength, passwordLettersUppercase, passwordLettersLower
         passwordSpecialChars = getStore().getState().settingsDatastore.passwordSpecialChars
     }
 
-    while (!isStrongEnough(password)) {
+    const characters = passwordLettersUppercase +
+        passwordLettersLowercase +
+        passwordNumbers +
+        passwordSpecialChars;
+
+    while (!isStrongEnough(password, characters, passwordLength)) {
         password = generatePassword(
             passwordLength,
-            passwordLettersUppercase +
-            passwordLettersLowercase +
-            passwordNumbers +
-            passwordSpecialChars
+            characters
         );
     }
     return password;

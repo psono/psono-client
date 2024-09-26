@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     },
     successIcon: {
         fontSize: 80,
-        color: '#4caf50',
+        color: '#2dbb93',
     },
     subtitle: {
         color: '#b0b3b8',

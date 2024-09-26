@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from '@mui/styles';
@@ -10,6 +10,14 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Typography from "@mui/material/Typography";
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import TaskIcon from '@mui/icons-material/Task';
+
 import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
@@ -26,12 +34,27 @@ const useStyles = makeStyles((theme) => ({
     root: {
         padding: "15px",
     },
-    toolbarRoot: {
-        display: "flex",
-    },
     button: {
         marginTop: "5px",
         marginBottom: "5px",
+    },
+    iconButton: {
+        padding: 10,
+        display: "inline-flex",
+    },
+    icon: {
+        fontSize: "18px",
+    },
+    listItemIcon: {
+        minWidth: theme.spacing(4),
+    },
+    search: {
+        marginLeft: "auto",
+        position: "absolute",
+        right: 0,
+        [theme.breakpoints.up("sm")]: {
+            marginRight: theme.spacing(1),
+        },
     },
 }));
 
@@ -40,6 +63,7 @@ const GroupsView = (props) => {
     const { t } = useTranslation();
     const disableUnmanagedGroups = useSelector((state) => state.server.complianceDisableUnmanagedGroups);
     let isSubscribed = true;
+    const [anchorEl, setAnchorEl] = useState(null);
     const [editGroup, setEditGroup] = React.useState(null);
     const [leaveGroupData, setLeaveGroupData] = React.useState([]);
     const [groups, setGroups] = React.useState([]);
@@ -48,9 +72,22 @@ const GroupsView = (props) => {
     const [groupNameBeingDeleted, setGroupNameBeingDeleted] = React.useState("");
     const [verifyDeleteGroupOpen, setVerifyDeleteGroupOpen] = React.useState(false);
     const [outstandingShareIndex, setOutstandingShareIndex] = React.useState({});
-    const [acceptGroupId, setAcceptGroupId] = React.useState("");
-    const [acceptGroupSharesGroupId, setAcceptGroupSharesGroupId] = React.useState("");
+    const [acceptGroupIds, setAcceptGroupIds] = React.useState([]);
+    const [acceptGroupSharesGroupIds, setAcceptGroupSharesGroupIds] = React.useState([]);
     const [groupIndex, setGroupIndex] = React.useState({});
+
+
+    const allGroupsIdsWithOutstandingShares = []
+    const allNewGroupIds = []
+
+    for (const group of groups) {
+        if (group[3] === true && outstandingShareIndex[group[0]]) {
+            allGroupsIdsWithOutstandingShares.push(group[0]);
+        }
+        if (group[3] !== false && group[3] !== true) {
+            allNewGroupIds.push(group[0]);
+        }
+    }
 
     React.useEffect(() => {
         loadGroups();
@@ -106,12 +143,20 @@ const GroupsView = (props) => {
     };
 
     const acceptGroup = (rowData) => {
-        setAcceptGroupId(rowData[0]);
+        setAcceptGroupIds([rowData[0]]);
     };
 
     const acceptNewShares = (rowData) => {
-        setAcceptGroupSharesGroupId(rowData[0]);
+        setAcceptGroupSharesGroupIds([rowData[0]]);
     };
+
+    const onAcceptAllGroups = () => {
+        setAcceptGroupIds(allNewGroupIds)
+    }
+
+    const onAcceptAllNewShares = () => {
+        setAcceptGroupSharesGroupIds(allGroupsIdsWithOutstandingShares)
+    }
 
     const declineGroup = (rowData) => {
         const onSuccess = function (data) {
@@ -169,6 +214,19 @@ const GroupsView = (props) => {
         };
 
         return loadGroups().then(onSuccess, onError);
+    };
+
+
+    const openMenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setAnchorEl(null);
     };
 
     const onGroupEdited = () => {
@@ -383,7 +441,54 @@ const GroupsView = (props) => {
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
                         <Toolbar
-                            className={classes.toolbarRoot}>{t("GROUPS")}</Toolbar>
+                            className={classes.toolbarRoot}
+                        >
+                            {t("GROUPS")}
+                            <div className={classes.search}>
+                                {(allNewGroupIds.length > 0 || allGroupsIdsWithOutstandingShares.length > 0) && (<IconButton
+                                    color="primary"
+                                    className={classes.iconButton}
+                                    aria-label="menu"
+                                    onClick={openMenu}
+                                    size="large">
+                                    <MenuOpenIcon/>
+                                </IconButton>)}
+                                <Menu
+                                    id="simple-menu"
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                    onContextMenu={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }}
+                                >
+                                    {allNewGroupIds.length > 0 && (<MenuItem onClick={() => {
+                                        setAnchorEl(null);
+                                        onAcceptAllGroups()
+                                    }}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            <HowToRegIcon className={classes.icon} fontSize="small"/>
+                                        </ListItemIcon>
+                                        <Typography variant="body2" noWrap>
+                                            {t("ACCEPT_ALL_GROUPS")}
+                                        </Typography>
+                                    </MenuItem>)}
+                                    {allGroupsIdsWithOutstandingShares.length > 0 && (<MenuItem onClick={() => {
+                                        setAnchorEl(null);
+                                        onAcceptAllNewShares()
+                                    }}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            <TaskIcon className={classes.icon} fontSize="small"/>
+                                        </ListItemIcon>
+                                        <Typography variant="body2" noWrap>
+                                            {t("ACCEPT_ALL_NEW_SHARES")}
+                                        </Typography>
+                                    </MenuItem>)}
+                                </Menu>
+                            </div>
+                        </Toolbar>
                     </AppBar>
                     <div className={classes.root}>
                         <Table data={groups} columns={columns} options={options} onCreate={disableUnmanagedGroups ? undefined : onCreate} />
@@ -421,25 +526,27 @@ const GroupsView = (props) => {
                         onConfirm={confirmLeaveGroup}
                     />
                 )}
-                {Boolean(acceptGroupId) && (
+                {acceptGroupIds.length > 0 && (
                     <DialogAcceptGroup
-                        group={groupIndex[acceptGroupId]}
-                        open={Boolean(acceptGroupId)}
-                        hideUser={!groupIndex[acceptGroupId].user_id}
+                        groupIndex={groupIndex}
+                        groupIds={acceptGroupIds}
+                        open={acceptGroupIds.length > 0}
+                        hideUser={!groupIndex[acceptGroupIds[0]].user_id || acceptGroupIds.length > 1}
                         onClose={() => {
-                            setAcceptGroupId("");
+                            setAcceptGroupIds([]);
                             loadGroups();
                         }}
                     />
                 )}
-                {Boolean(acceptGroupSharesGroupId) && (
+                {acceptGroupSharesGroupIds.length > 0 && (
                     <DialogAcceptGroupShares
-                        group={groupIndex[acceptGroupSharesGroupId]}
-                        outstandingShareIndex={outstandingShareIndex[acceptGroupSharesGroupId]}
-                        open={Boolean(acceptGroupSharesGroupId)}
-                        hideUser={!groupIndex[acceptGroupSharesGroupId].user_id}
+                        groupIndex={groupIndex}
+                        groupIds={acceptGroupSharesGroupIds}
+                        outstandingShareIndex={outstandingShareIndex}
+                        open={acceptGroupSharesGroupIds.length > 0}
+                        hideUser={!groupIndex[acceptGroupSharesGroupIds[0]].user_id || acceptGroupSharesGroupIds.length > 1}
                         onClose={() => {
-                            setAcceptGroupSharesGroupId("");
+                            setAcceptGroupSharesGroupIds([]);
                             loadGroups();
                             loadOutstandingGroupShares();
                         }}

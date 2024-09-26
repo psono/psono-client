@@ -94,7 +94,7 @@ const FilterSideBar = ({ open, onClose, filters, selectedFilters, toggleFilter }
                         <Typography variant="body2" className={classes.sectionTitle}>
                             {section.label}
                         </Typography>
-                        {section.options.sort((a, b) => t(a.label).localeCompare(t(b.label))).map((option) => (
+                        {section.options.sort((a, b) => a.label.localeCompare(b.label)).map((option) => (
                             <ListItem key={option.key} className={classes.listItem}>
                                 <FormControlLabel
                                     control={

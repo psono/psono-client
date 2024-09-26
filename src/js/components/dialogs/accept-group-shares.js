@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogAcceptGroupShares = (props) => {
-    const { open, onClose, group, outstandingShareIndex, hideUser, title } = props;
+    const { open, onClose, groupIndex, groupIds, outstandingShareIndex, hideUser, title } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const [path, setPath] = useState([]);
@@ -115,8 +115,8 @@ const DialogAcceptGroupShares = (props) => {
     };
 
     const onConfirm = () => {
-        const onSuccess = function (datastore) {
-            const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
+        const onSuccess = async function (datastore) {
+            const breadcrumbs = {id_breadcrumbs: path.map((node) => node.id)};
             const analyzedBreadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
 
             if (typeof analyzedBreadcrumbs["parent_share_id"] !== "undefined") {
@@ -125,51 +125,60 @@ const DialogAcceptGroupShares = (props) => {
                 return;
             }
 
-            const onSuccess = function (group_details) {
-                const encryptedShares = [];
-                for (let i = 0; i < group_details.group_share_rights.length; i++) {
-                    const share = group_details.group_share_rights[i];
-                    if (!outstandingShareIndex.hasOwnProperty(share.share_id)) {
-                        continue;
-                    }
-                    share.share_key = share.key;
-                    share.share_key_nonce = share.key_nonce;
-                    share.share_title = share.title;
-                    share.share_title_nonce = share.title_nonce;
-                    share.share_type = share.type;
-                    share.share_type_nonce = share.type_nonce;
-                    encryptedShares.push(share);
-                }
+            const shares = [];
+            const allPromises = []
 
-                const shares = groupsService.decryptGroupShares(group.group_id, encryptedShares);
-
-                return datastorePassword
-                    .createShareLinksInDatastore(
-                        shares,
-                        analyzedBreadcrumbs["target"],
-                        analyzedBreadcrumbs["parent_path"],
-                        analyzedBreadcrumbs["path"],
-                        analyzedBreadcrumbs["parent_share_id"],
-                        analyzedBreadcrumbs["parent_datastore_id"],
-                        analyzedBreadcrumbs["parent_share"],
-                        datastore
-                    )
-                    .then(
-                        () => {
-                            onClose();
-                        },
-                        (data) => {
-                            //pass
-                            console.log(data);
+            for (const groupId of groupIds) {
+                const onSuccess = function (group_details) {
+                    const encryptedShares = [];
+                    for (let i = 0; i < group_details.group_share_rights.length; i++) {
+                        const share = group_details.group_share_rights[i];
+                        if (!outstandingShareIndex[groupId].hasOwnProperty(share.share_id)) {
+                            continue;
                         }
-                    );
-            };
+                        share.share_key = share.key;
+                        share.share_key_nonce = share.key_nonce;
+                        share.share_title = share.title;
+                        share.share_title_nonce = share.title_nonce;
+                        share.share_type = share.type;
+                        share.share_type_nonce = share.type_nonce;
+                        encryptedShares.push(share);
+                    }
 
-            const onError = function (data) {
-                //pass
-            };
+                    const newShares = groupsService.decryptGroupShares(groupIndex[groupId].group_id, encryptedShares);
+                    shares.push(...newShares);
+                };
 
-            return groupsService.readGroup(group.group_id).then(onSuccess, onError);
+                const onError = function (data) {
+                    //pass
+                };
+
+                allPromises.push(groupsService.readGroup(groupIndex[groupId].group_id).then(onSuccess, onError));
+            }
+
+            await Promise.all(allPromises);
+
+            return datastorePassword
+                .createShareLinksInDatastore(
+                    shares,
+                    analyzedBreadcrumbs["target"],
+                    analyzedBreadcrumbs["parent_path"],
+                    analyzedBreadcrumbs["path"],
+                    analyzedBreadcrumbs["parent_share_id"],
+                    analyzedBreadcrumbs["parent_datastore_id"],
+                    analyzedBreadcrumbs["parent_share"],
+                    datastore
+                )
+                .then(
+                    () => {
+                        onClose();
+                    },
+                    (data) => {
+                        //pass
+                        console.log(data);
+                    }
+                );
+
         };
         const onError = function (data) {
             //pass
@@ -245,7 +254,7 @@ const DialogAcceptGroupShares = (props) => {
                             {t("INVITED_BY")}:
                         </Grid>
                     )}
-                    {!hideUser && <TrustedUser user_id={group.user_id} user_username={group.user_username} />}
+                    {!hideUser && <TrustedUser user_id={groupIndex[groupIds[0]].user_id} user_username={groupIndex[groupIds[0]].user_username} />}
                 </Grid>
             </DialogContent>
             <DialogActions>
@@ -272,7 +281,8 @@ DialogAcceptGroupShares.defaultProps = {
 DialogAcceptGroupShares.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    group: PropTypes.object.isRequired,
+    groupIndex: PropTypes.object.isRequired,
+    groupIds: PropTypes.array.isRequired,
     outstandingShareIndex: PropTypes.object.isRequired,
     hideUser: PropTypes.bool.isRequired,
     title: PropTypes.string,

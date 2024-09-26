@@ -1,18 +1,16 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import NumberFormat from 'react-number-format'
+import NumberFormat from 'react-number-format';
 
 import TextField from '@mui/material/TextField';
 
-
-function InputComponent(props) {
-    const { inputRef, onChange, ...other } = props;
+const InputComponent = React.forwardRef(function InputComponent(props, ref) {
+    const { onChange, ...other } = props;
 
     return (
         <NumberFormat
             {...other}
             format="####"
-            getInputRef={inputRef}
             onValueChange={(values) => {
                 onChange({
                     target: {
@@ -22,12 +20,12 @@ function InputComponent(props) {
                 });
             }}
             isNumericString
+            getInputRef={ref}
         />
     );
-}
+});
 
 InputComponent.propTypes = {
-    inputRef: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
 };

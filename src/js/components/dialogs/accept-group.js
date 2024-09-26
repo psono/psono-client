@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogAcceptGroup = (props) => {
-    const { open, onClose, group, hideUser, title } = props;
+    const { open, onClose, groupIndex, groupIds, hideUser, title } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const [path, setPath] = useState([]);
@@ -114,54 +114,20 @@ const DialogAcceptGroup = (props) => {
         return false;
     };
 
-    const onConfirm = () => {
-        const onSuccess = function (datastore) {
-            const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
+    const onConfirm = async () => {
 
-            const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
+        const membershipIds = [];
 
-            if (typeof analyzed_breadcrumbs["parent_share_id"] !== "undefined") {
-                // No grant right, yet the parent is a a share?!?
-                alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
-                return;
-            }
+        for (const groupId of groupIds) {
+            membershipIds.push(groupIndex[groupId].membership_id);
+        }
 
-            const onSuccess = function (shares) {
-                return datastorePassword
-                    .createShareLinksInDatastore(
-                        shares,
-                        analyzed_breadcrumbs["target"],
-                        analyzed_breadcrumbs["parent_path"],
-                        analyzed_breadcrumbs["path"],
-                        analyzed_breadcrumbs["parent_share_id"],
-                        analyzed_breadcrumbs["parent_datastore_id"],
-                        analyzed_breadcrumbs["parent_share"],
-                        datastore
-                    )
-                    .then(
-                        () => {
-                            onClose();
-                        },
-                        (data) => {
-                            //pass
-                            console.log(data);
-                        }
-                    );
-            };
-
-            const onError = function (data) {
-                //pass
-                console.log(data);
-            };
-
-            return groupsService.acceptMembership(group.membership_id).then(onSuccess, onError);
-        };
-        const onError = function (data) {
-            //pass
-            console.log(data);
-        };
-
-        return datastorePassword.getPasswordDatastore().then(onSuccess, onError);
+        try {
+            await groupsService.acceptMembershipsAndShares(membershipIds, path);
+        } catch (e) {
+            console.log(e);
+        }
+        onClose();
     };
 
     return (
@@ -231,7 +197,7 @@ const DialogAcceptGroup = (props) => {
                             {t("INVITED_BY")}:
                         </Grid>
                     )}
-                    {!hideUser && <TrustedUser user_id={group.user_id} user_username={group.user_username} />}
+                    {!hideUser && <TrustedUser user_id={groupIndex[groupIds[0]].user_id} user_username={groupIndex[groupIds[0]].user_username} />}
                 </Grid>
             </DialogContent>
             <DialogActions>
@@ -258,7 +224,8 @@ DialogAcceptGroup.defaultProps = {
 DialogAcceptGroup.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    group: PropTypes.object.isRequired,
+    groupIndex: PropTypes.object.isRequired,
+    groupIds: PropTypes.array.isRequired,
     hideUser: PropTypes.bool.isRequired,
     title: PropTypes.string,
 };

@@ -4,15 +4,12 @@ import NumberFormat from 'react-number-format'
 
 import TextField from '@mui/material/TextField';
 
-
-function CreditCardFormat(props) {
-    const { inputRef, onChange, ...other } = props;
-
+const CreditCardFormat = React.forwardRef(function CreditCardFormat(props, ref) {
+    const { onChange, ...other } = props;
     return (
         <NumberFormat
             {...other}
             format="#### #### #### #### ####"
-            getInputRef={inputRef}
             onValueChange={(values) => {
                 onChange({
                     target: {
@@ -22,12 +19,12 @@ function CreditCardFormat(props) {
                 });
             }}
             isNumericString
+            getInputRef={ref}  // Pass the ref to NumberFormat
         />
     );
-}
+});
 
 CreditCardFormat.propTypes = {
-    inputRef: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
 };

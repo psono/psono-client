@@ -366,11 +366,20 @@ function _loadConfig() {
             if (!newConfig.hasOwnProperty("saml_provider")) {
                 newConfig["saml_provider"] = [];
             }
+            if (!newConfig.hasOwnProperty("oidc_provider")) {
+                newConfig["oidc_provider"] = [];
+            }
             if (!newConfig.hasOwnProperty("disable_download_bar")) {
                 newConfig["disable_download_bar"] = false;
             }
             if (!newConfig.hasOwnProperty("allow_custom_server")) {
                 newConfig["allow_custom_server"] = true;
+            }
+            if (!newConfig.hasOwnProperty("trust_device_default")) {
+                newConfig["trust_device_default"] = false;
+            }
+            if (!newConfig.hasOwnProperty("remember_me_default")) {
+                newConfig["remember_me_default"] = false;
             }
             if (!newConfig.hasOwnProperty("more_links")) {
                 newConfig["more_links"] = [
