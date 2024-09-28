@@ -12,38 +12,40 @@ client = OpenAI(
 )
 
 LANGUAGE_CODES = [
-    "ar",
-    "da",
-    "de",
-    "es",
-    "fr",
-    "hi",
-    "it",
-    "ja",
-    "ko",
-    "nl",
-    "no",
-    "pl",
-    "pt",
-    "sv",
-    "ru",
-    "pt-br",
-    "zh-cn",
+    ("ar", "Arabic"),
+    ("da", "Danish"),
+    ("de", "German"),
+    ("es", "Spanish"),
+    ("fr", "French"),
+    ("hi", "Hindi"),
+    ("it", "Italian"),
+    ("ja", "Japanese"),
+    ("ko", "Korean"),
+    ("nl", "Dutch"),
+    ("no", "Norwegian"),
+    ("pl", "Polish"),
+    ("pt", "Portuguese"),
+    ("pt-br", "Portuguese"),
+    ("sv", "Swedish"),
+    ("ru", "Russian"),
+    ("zh", "Mandarin Chinese"),
 ]
 
+
+
 # Function to translate text using OpenAI GPT-4o
-def translate_text(text, lang):
+def translate_text(text, lang, language):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Translate the following text to language code '{lang}' and provide only the translated text with no additional commentary or explanations: {text}"}
+            {"role": "user", "content": f"Translate the following text to {language} language code '{lang}' and provide only the translated text with no additional commentary or explanations: {text}"}
         ]
     )
     translated_text = response.choices[0].message.content.strip()
     return translated_text
 
-def translate_language(lang):
+def translate_language(lang, language):
     data = [
         ('api_token', POEDITOR_API_KEY),
         ('action', 'export'),
@@ -87,7 +89,7 @@ def translate_language(lang):
 
     translated_data = {}
     for key, value in data.items():
-        translated_data[key] = translate_text(value, lang)
+        translated_data[key] = translate_text(value, lang, language)
 
     folder_path = os.path.join('untranslated')
     os.makedirs(folder_path, exist_ok=True)
@@ -137,15 +139,9 @@ def get_languages():
     return result['result']['languages']
 
 def main():
-    # Download
-    languages = get_languages()
-    for lang in languages:
-        language_code = lang['code'].lower()
-        if language_code not in LANGUAGE_CODES:
-            print("skipping language " + language_code)
-            continue
-        print("processing language " + language_code)
-        translate_language(language_code)
+    for lang, language in LANGUAGE_CODES:
+        print("processing language " + lang.lower())
+        translate_language(lang.lower(), language)
 
     print("Success")
 
