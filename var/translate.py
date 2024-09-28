@@ -13,6 +13,7 @@ client = OpenAI(
 
 LANGUAGE_CODES = [
     "ar",
+    "da",
     "de",
     "es",
     "fr",
@@ -21,13 +22,14 @@ LANGUAGE_CODES = [
     "ja",
     "ko",
     "nl",
-    "ru",
+    "no",
     "pl",
     "pt",
+    "sv",
+    "ru",
     "pt-br",
     "zh-cn",
 ]
-
 
 # Function to translate text using OpenAI GPT-4o
 def translate_text(text, lang):
