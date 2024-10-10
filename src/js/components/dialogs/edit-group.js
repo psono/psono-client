@@ -215,7 +215,7 @@ const DialogEditGroup = (props) => {
         const onSuccess = function (result) {
             user["membership_id"] = result.membership_id;
             user["group_admin"] = false;
-            user["share_admin"] = true;
+            user["share_admin"] = false;
             user["is_current_user"] = false;
             const _groupMemberIndex = helper.duplicateObject(groupMemberIndex);
             _groupMemberIndex[user["id"]] = user;
