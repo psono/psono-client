@@ -28,7 +28,9 @@ LANGUAGE_CODES = [
     ("pt-br", "Portuguese"),
     ("sv", "Swedish"),
     ("ru", "Russian"),
-    ("zh", "Mandarin Chinese"),
+    ("zh-cn", "Simplified Chinese (China)"),
+    ("zh-hans", "Simplified Chinese"),
+    ("zh-hant", "Traditional Chinese"),
 ]
 
 
@@ -122,21 +124,6 @@ def translate_language(lang, language):
     sleep(30)
 
     return path
-
-def get_languages():
-    data = [
-      ('api_token', POEDITOR_API_KEY),
-      ('id', POEDITOR_PROJECT_ID),
-    ]
-
-    r = requests.post('https://api.poeditor.com/v2/languages/list', data=data, timeout=20.0)
-    if not r.ok:
-        print("Error: get_languages")
-        print(r.json())
-        exit(1)
-    result = r.json()
-    print(result['result']['languages'])
-    return result['result']['languages']
 
 def main():
     for lang, language in LANGUAGE_CODES:
