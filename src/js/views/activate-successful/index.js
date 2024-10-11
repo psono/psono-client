@@ -137,7 +137,7 @@ const ActivateSuccessfulView = (props) => {
         <Button
             variant="contained"
             color="primary"
-            href="/login"
+            href="/"
             style={{ marginTop: '20px' }}
         >
             {t("LOGIN")}

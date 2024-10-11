@@ -126,7 +126,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, inline } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, inline } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
@@ -1026,6 +1026,7 @@ const DialogEditEntry = (props) => {
 
     const linkItem = function (event) {
         event.stopPropagation();
+
         secretService.onItemClick(item);
     };
 
@@ -1172,7 +1173,13 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={linkItem}
+                                        onClick={(event) => {
+                                            if (linkDirectly) {
+                                                browserClientService.openTab(websitePasswordUrl);
+                                            } else {
+                                                linkItem(event)
+                                            }
+                                        }}
                                         size="large">
                                         <OpenInNewIcon fontSize="small" />
                                     </IconButton>
@@ -1288,7 +1295,7 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
-            {item.type === "website_password" && !websitePasswordTotpCode && (
+            {!hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && (
                 <Grid item xs={12} sm={12} md={12}>
                     <Button
                         startIcon={<PlaylistAddIcon />}
@@ -1519,7 +1526,13 @@ const DialogEditEntry = (props) => {
                                     <IconButton
                                         className={classes.iconButton}
                                         aria-label="menu"
-                                        onClick={linkItem}
+                                        onClick={(event) => {
+                                            if (linkDirectly) {
+                                                browserClientService.openTab(bookmarkUrl);
+                                            } else {
+                                                linkItem(event)
+                                            }
+                                        }}
                                         size="large">
                                         <OpenInNewIcon fontSize="small" />
                                     </IconButton>
@@ -2794,7 +2807,9 @@ const DialogEditEntry = (props) => {
 DialogEditEntry.defaultProps = {
     hideLinkToEntry: false,
     hideShowHistory: false,
+    hideAddTOTP: false,
     hideMoreMenu: false,
+    linkDirectly: false,
     inline: false,
 };
 
@@ -2806,7 +2821,9 @@ DialogEditEntry.propTypes = {
     item: PropTypes.object.isRequired,
     hideLinkToEntry: PropTypes.bool,
     hideShowHistory: PropTypes.bool,
+    hideAddTOTP: PropTypes.bool,
     hideMoreMenu: PropTypes.bool,
+    linkDirectly: PropTypes.bool,
     inline: PropTypes.bool,
 };
 

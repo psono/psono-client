@@ -10,7 +10,7 @@ const languages = {
     bn: { code: "bn", lng_code: "LANG_BN", lng_title_native: "বাংলা", active: true },
     ca: { code: "ca", lng_code: "LANG_CA", lng_title_native: "Català", active: true },
     cs: { code: "cs", lng_code: "LANG_CS", lng_title_native: "Česky", active: true },
-    da: { code: "da", lng_code: "LANG_DA", lng_title_native: "" }, // deactivated
+    da: { code: "da", lng_code: "LANG_DA", lng_title_native: "Dansk", active: true },
     de: { code: "de", lng_code: "LANG_DE", lng_title_native: "Deutsch", active: true },
     en: { code: "en", lng_code: "LANG_EN", lng_title_native: "English", active: true, default: true },
     es: { code: "es", lng_code: "LANG_ES", lng_title_native: "Español", active: true },

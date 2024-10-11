@@ -102,6 +102,7 @@ function useWidth() {
 
 
 const DatastoreView = (props) => {
+    const width1700Plus = useMediaQuery('(min-width:1700px)');
     const width = useWidth();
     const bigScreen = ["lg", "md", "xl"].includes(width);
     const hugeScreen = ["xl"].includes(width);
@@ -151,7 +152,7 @@ const DatastoreView = (props) => {
     const [datastore, setDatastore] = useState(null);
 
     React.useEffect(() => {
-        setShowFilter(["xl"].includes(width));
+        setShowFilter(width1700Plus);
     }, [width]);
 
     useHotkeys('shift', (event, handler) => {

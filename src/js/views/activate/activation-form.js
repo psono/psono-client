@@ -85,7 +85,7 @@ const ActivationForm = (props) => {
             setErrors([])
             setMsgs([])
             if (data.response === "success") {
-                window.location.href = 'activate-success.html';
+                window.location.href = 'activate-successful.html';
             } else {
                 if (data.error_data === null) {
                     setErrors(['SERVER_OFFLINE'])
