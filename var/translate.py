@@ -29,8 +29,8 @@ LANGUAGE_CODES = [
     ("sv", "Swedish"),
     ("ru", "Russian"),
     ("zh-cn", "Simplified Chinese (China)"),
-    ("zh-hans", "Simplified Chinese"),
-    ("zh-hant", "Traditional Chinese"),
+    ("zh-Hans", "Simplified Chinese"),
+    ("zh-Hant", "Traditional Chinese"),
 ]
 
 
@@ -127,8 +127,8 @@ def translate_language(lang, language):
 
 def main():
     for lang, language in LANGUAGE_CODES:
-        print("processing language " + lang.lower())
-        translate_language(lang.lower(), language)
+        print("processing language " + lang)
+        translate_language(lang, language)
 
     print("Success")
 
