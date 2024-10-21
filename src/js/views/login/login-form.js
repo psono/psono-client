@@ -137,12 +137,12 @@ const LoginViewForm = (props) => {
     const ivalt = useSelector((store) => store.user.ivalt);
 	const [timer, setTimer] = useState(defaultTimer);
 	const [ivaltLoading, setIvaltLoading] = useState(false);
-	const [errorsResponses, setErrorsResponses] = useState({
-		AUTHENTICATION_FAILED: t("IVALT_AUTH_FAILED"),
-		BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT: t("IVALT_AUTH_REQUEST_SENT"),
-		INVALID_TIMEZONE: t("IVALT_INVALID_TIMEZONE"),
-		INVALID_GEOFENCE: t("IVALT_INVALID_GEOFENCE"),
-	});
+    const errorsResponses = {
+        AUTHENTICATION_FAILED: t("IVALT_AUTH_FAILED"),
+        BIOMETRIC_AUTH_REQUEST_SUCCESSFULLY_SENT: t("IVALT_AUTH_REQUEST_SENT"),
+        INVALID_TIMEZONE: t("IVALT_INVALID_TIMEZONE"),
+        INVALID_GEOFENCE: t("IVALT_INVALID_GEOFENCE"),
+    };
     React.useEffect(() => {
 		let timerInterval;
 		let timeout;
