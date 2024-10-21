@@ -27,7 +27,5 @@ wget "https://psono.jfrog.io/psono/psono/client/languages/locale-uk.json" -outfi
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-he.json" -outfile "src/common/data/translations/locale-he.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-hi.json" -outfile "src/common/data/translations/locale-hi.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-vi.json" -outfile "src/common/data/translations/locale-vi.json"
-wget "https://psono.jfrog.io/psono/psono/client/languages/locale-zh-CN.json" -outfile "src/common/data/translations/locale-zh.json"
-wget "https://psono.jfrog.io/psono/psono/client/languages/locale-zh-CN.json" -outfile "src/common/data/translations/locale-zh-cn.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-zh-Hans.json" -outfile "src/common/data/translations/locale-zh-Hans.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-zh-Hant.json" -outfile "src/common/data/translations/locale-zh-Hant.json"

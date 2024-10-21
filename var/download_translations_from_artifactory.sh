@@ -25,6 +25,5 @@ curl -o src/common/data/translations/locale-pl.json https://psono.jfrog.io/psono
 curl -o src/common/data/translations/locale-ru.json https://psono.jfrog.io/psono/psono/client/languages/locale-ru.json && \
 curl -o src/common/data/translations/locale-sk.json https://psono.jfrog.io/psono/psono/client/languages/locale-sk.json && \
 curl -o src/common/data/translations/locale-vi.json https://psono.jfrog.io/psono/psono/client/languages/locale-vi.json && \
-curl -o src/common/data/translations/locale-zh.json https://psono.jfrog.io/psono/psono/client/languages/locale-zh-cn.json && \
 curl -o src/common/data/translations/locale-zh-Hant.json https://psono.jfrog.io/psono/psono/client/languages/locale-zh-Hant.json && \
 curl -o src/common/data/translations/locale-zh-Hans.json https://psono.jfrog.io/psono/psono/client/languages/locale-zh-Hans.json

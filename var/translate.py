@@ -28,7 +28,6 @@ LANGUAGE_CODES = [
     ("pt-br", "Portuguese"),
     ("sv", "Swedish"),
     ("ru", "Russian"),
-    ("zh-cn", "Simplified Chinese (China)"),
     ("zh-Hans", "Simplified Chinese"),
     ("zh-Hant", "Traditional Chinese"),
 ]
