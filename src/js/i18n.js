@@ -33,7 +33,8 @@ const languages = {
     he: { code: "he", lng_code: "LANG_HE", lng_title_native: "" }, // deactivated
     hi: { code: "hi", lng_code: "LANG_HI", lng_title_native: "हिंदी", active: true  },
     vi: { code: "vi", lng_code: "LANG_VI", lng_title_native: "" }, // deactivated
-    zh: { code: "zh", lng_code: "LANG_ZH", lng_title_native: "漢語", active: true },
+    zh: { code: "zh", lng_code: "LANG_ZH", lng_title_native: "简体中文", active: true },
+    "zh-Hant": { code: "zh-Hant", lng_code: "LANG_ZH_HANT", lng_title_native: "繁體中文", active: true },
 };
 
 const supportedLngs = [];
@@ -66,7 +67,7 @@ i18n
     .init({
         fallbackLng: "en",
         supportedLngs: supportedLngs,
-        load: "languageOnly",
+        load: "all",
         debug: process.env.NODE_ENV === "development",
         backend: {
             // for all available options read the backend's repository readme file

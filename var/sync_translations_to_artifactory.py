@@ -24,7 +24,7 @@ LANGUAGE_CODES = [
     "es", "es-ar", "es-gt", "es-cr", "es-pa", "es-do", "es-mx", "es-ve", "es-co",
     "es-pe", "es-ec", "es-cl", "es-uy", "es-py", "es-bo", "es-sv", "es-hn", "es-ni",
     "es-pr", "sx", "sv", "sv-fi", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
-    "ji", "zu", "ar", "bn", "zh-hant", "zh-hans"
+    "ji", "zu", "ar", "bn", "zh", "zh-Hant", "zh-Hans"
 ]
 
 def download_language(lang):
@@ -91,13 +91,12 @@ def main():
     # Download
     languages = get_languages()
     for lang in languages:
-        language_code = lang['code'].lower()
-        if language_code not in LANGUAGE_CODES:
+        if lang['code'] not in LANGUAGE_CODES:
             print("Error: main")
-            print("Invalid Language Code " + language_code)
+            print("Invalid Language Code " + lang['code'])
             exit(1)
-        file = download_language(language_code)
-        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
+        file = download_language(lang['code'])
+        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, lang['code'], file)
 
     print("Success")
 
