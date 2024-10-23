@@ -56,6 +56,7 @@ import DialogCreateLinkShare from "./create-link-share";
 import DialogAddTotp from "./add-totp";
 import Divider from "@mui/material/Divider";
 import DialogGeneratePassword from "./generate-password";
+import DialogVerify from "./verify";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -264,6 +265,7 @@ const DialogEditEntry = (props) => {
         Boolean(elsterCertificateFileContent) &&
         Boolean(elsterCertificatePassword);
     const canSave =
+        (!getStore().getState().settingsDatastore.noSaveMode) && (
         (item.type === "website_password" && isValidWebsitePassword) ||
         (item.type === "passkey" && isValidPasskey) ||
         (item.type === "application_password" && isValidApplicationPassword) ||
@@ -275,8 +277,11 @@ const DialogEditEntry = (props) => {
         (item.type === "credit_card" && isValidCreditCard) ||
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile) ||
-        (item.type === "elster_certificate" && isValidElsterCertificate);
-
+        (item.type === "elster_certificate" && isValidElsterCertificate)
+        );
+    const [dataChanged, setDataChanged] = useState(false);
+    const [verifyDataChanged, setVerifyDataChanged] = useState(false);
+    const [verifyDataChangedOpen, setVerifyDataChangedOpen] = useState(false);
     useHotkeys('alt+b', () => {
         // copy username
         onCopyUsername();
@@ -1024,6 +1029,11 @@ const DialogEditEntry = (props) => {
         setAnchorElMoreMenu(null);
     };
 
+    const verify_data_change_close = () => {
+        setVerifyDataChangedOpen(false)
+        setDataChanged(false)
+        onClose()
+    }
     const linkItem = function (event) {
         event.stopPropagation();
 
@@ -1038,6 +1048,15 @@ const DialogEditEntry = (props) => {
         onClose();
     }
 
+    const checkDataChanged = () => {
+        if (dataChanged && getStore().getState().settingsDatastore.confirmOnUnsavedChanges) {
+            setVerifyDataChangedOpen(true)
+            return false
+        } else {
+            return true
+        }
+    }
+
     let title = ''
     if (item.share_rights && item.share_rights.read) {
         title = item.share_rights && item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
@@ -1049,7 +1068,9 @@ const DialogEditEntry = (props) => {
         <React.Fragment>
             <Button
                 onClick={() => {
-                    onClose();
+                    if (checkDataChanged()) {
+                        onClose();
+                    }
                 }}
             >
                 {t("CLOSE")}
@@ -1113,6 +1134,18 @@ const DialogEditEntry = (props) => {
             {historyDialogOpen && (
                 <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />
             )}
+            {verifyDataChangedOpen && (
+                    <DialogVerify
+                        title={"DATA_CHANGED"}
+                        description={
+                            "ITEM_UNSAVED_WARNING"
+                        }
+                        
+                        open={verifyDataChangedOpen}
+                        onClose={() => verify_data_change_close()}
+                        onConfirm={() => setVerifyDataChangedOpen(false)}
+                    />
+                )}
         </React.Fragment>
     )
     const content = (
@@ -1131,6 +1164,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setPasskeyTitle(event.target.value);
                         }}
                     />
@@ -1150,6 +1184,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordTitle(event.target.value);
                         }}
                     />
@@ -1187,6 +1222,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
                             if (!event.target.value) {
@@ -1214,6 +1250,7 @@ const DialogEditEntry = (props) => {
                         value={websitePasswordUsername}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordUsername(event.target.value);
                         }}
                     />
@@ -1231,6 +1268,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={websitePasswordPassword}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordPassword(event.target.value);
                         }}
                         InputProps={{
@@ -1345,6 +1383,7 @@ const DialogEditEntry = (props) => {
                         value={websitePasswordNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordNotes(event.target.value);
                         }}
                         multiline
@@ -1368,6 +1407,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setApplicationPasswordTitle(event.target.value);
                         }}
                     />
@@ -1386,6 +1426,7 @@ const DialogEditEntry = (props) => {
                         value={applicationPasswordUsername}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setApplicationPasswordUsername(event.target.value);
                         }}
                     />
@@ -1403,6 +1444,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={applicationPasswordPassword}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setApplicationPasswordPassword(event.target.value);
                         }}
                         InputProps={{
@@ -1479,6 +1521,7 @@ const DialogEditEntry = (props) => {
                         value={applicationPasswordNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setApplicationPasswordNotes(event.target.value);
                         }}
                         multiline
@@ -1502,6 +1545,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setBookmarkTitle(event.target.value);
                         }}
                     />
@@ -1540,6 +1584,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
                             if (!event.target.value) {
@@ -1567,6 +1612,7 @@ const DialogEditEntry = (props) => {
                         value={bookmarkNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setBookmarkNotes(event.target.value);
                         }}
                         multiline
@@ -1590,6 +1636,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setNoteTitle(event.target.value);
                         }}
                     />
@@ -1608,6 +1655,7 @@ const DialogEditEntry = (props) => {
                         value={noteNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setNoteNotes(event.target.value);
                         }}
                         multiline
@@ -1631,6 +1679,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setTotpTitle(event.target.value);
                         }}
                     />
@@ -1661,6 +1710,7 @@ const DialogEditEntry = (props) => {
                         value={totpNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setTotpNotes(event.target.value);
                         }}
                         multiline
@@ -1684,6 +1734,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setEnvironmentVariablesTitle(event.target.value);
                         }}
                     />
@@ -1708,6 +1759,7 @@ const DialogEditEntry = (props) => {
                                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
+                                            setDataChanged(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["key"] = event.target.value;
@@ -1728,6 +1780,7 @@ const DialogEditEntry = (props) => {
                                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
+                                            setDataChanged(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["value"] = event.target.value;
@@ -1740,6 +1793,7 @@ const DialogEditEntry = (props) => {
                                         className={classes.iconButton2}
                                         aria-label="menu"
                                         onClick={() => {
+                                            setDataChanged(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs.splice(index, 1);
@@ -1784,6 +1838,7 @@ const DialogEditEntry = (props) => {
                         value={environmentVariablesNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setEnvironmentVariablesNotes(event.target.value);
                         }}
                         multiline
@@ -1807,6 +1862,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setElsterCertificateTitle(event.target.value);
                         }}
                     />
@@ -1837,6 +1893,7 @@ const DialogEditEntry = (props) => {
                         required
                         value={elsterCertificatePassword}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setElsterCertificatePassword(event.target.value);
                         }}
                         InputProps={{
@@ -1908,6 +1965,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={elsterCertificateRetrievalCode}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setElsterCertificateRetrievalCode(event.target.value);
                         }}
                         InputProps={{
@@ -1970,6 +2028,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={elsterCertificateNotes}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setElsterCertificateNotes(event.target.value);
                         }}
                         multiline
@@ -1994,6 +2053,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setFileTitle(event.target.value);
                         }}
                     />
@@ -2014,6 +2074,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardTitle(event.target.value);
                         }}
                     />
@@ -2082,6 +2143,7 @@ const DialogEditEntry = (props) => {
                         }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardNumber(event.target.value);
                         }}
                     />
@@ -2105,6 +2167,7 @@ const DialogEditEntry = (props) => {
                         }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardName(event.target.value);
                         }}
                     />
@@ -2126,6 +2189,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardValidThrough(event.target.value)
                         }}
                     />
@@ -2147,6 +2211,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardCVC(event.target.value)
                         }}
                     />
@@ -2166,6 +2231,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardPIN}
                         onChange={(event) => {
+                            setDataChanged(true);
                             //check whether our string only contains numbers
                             const pattern = new RegExp('^[0-9]*$');
                             if (!pattern.test(event.target.value)) {
@@ -2237,6 +2303,7 @@ const DialogEditEntry = (props) => {
                         value={creditCardNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCreditCardNotes(event.target.value);
                         }}
                         multiline
@@ -2262,6 +2329,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setSshOwnKeyTitle(event.target.value);
                         }}
                     />
@@ -2281,6 +2349,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setSshOwnKeyPublic(event.target.value);
                         }}
                         multiline
@@ -2303,6 +2372,7 @@ const DialogEditEntry = (props) => {
                         value={sshOwnKeyPrivate}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setSshOwnKeyPrivate(event.target.value);
                         }}
                         multiline={showPassword}
@@ -2369,6 +2439,7 @@ const DialogEditEntry = (props) => {
                         value={sshOwnKeyNotes}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setSshOwnKeyNotes(event.target.value);
                         }}
                         multiline
@@ -2396,6 +2467,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setMailGpgOwnKeyTitle(event.target.value);
                         }}
                     />
@@ -2415,6 +2487,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setMailGpgOwnKeyEmail(event.target.value);
                         }}
                         disabled
@@ -2435,6 +2508,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setMailGpgOwnKeyName(event.target.value);
                         }}
                         disabled
@@ -2455,6 +2529,7 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setMailGpgOwnKeyPublic(event.target.value);
                         }}
                         disabled
@@ -2477,6 +2552,7 @@ const DialogEditEntry = (props) => {
                         value={mailGpgOwnKeyPrivate}
                         required
                         onChange={(event) => {
+                            setDataChanged(true);
                             setMailGpgOwnKeyPrivate(event.target.value);
                         }}
                         disabled
@@ -2572,6 +2648,7 @@ const DialogEditEntry = (props) => {
                     <Checkbox
                         checked={passkeyAutoSubmit}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setPasskeyAutoSubmit(event.target.checked);
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
@@ -2589,6 +2666,7 @@ const DialogEditEntry = (props) => {
                     <Checkbox
                         checked={websitePasswordAutoSubmit}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordAutoSubmit(event.target.checked);
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
@@ -2614,6 +2692,7 @@ const DialogEditEntry = (props) => {
                         value={websitePasswordUrlFilter}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setWebsitePasswordUrlFilter(event.target.value);
                         }}
                     />
@@ -2633,6 +2712,7 @@ const DialogEditEntry = (props) => {
                         value={bookmarkUrlFilter}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setBookmarkUrlFilter(event.target.value);
                         }}
                     />
@@ -2652,6 +2732,7 @@ const DialogEditEntry = (props) => {
                         value={callbackUrl}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCallbackUrl(event.target.value);
                         }}
                     />
@@ -2670,6 +2751,7 @@ const DialogEditEntry = (props) => {
                         value={callbackUser}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCallbackUser(event.target.value);
                         }}
                     />
@@ -2687,6 +2769,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={callbackPass}
                         onChange={(event) => {
+                            setDataChanged(true);
                             setCallbackPass(event.target.value);
                         }}
                         InputProps={{
@@ -2735,6 +2818,7 @@ const DialogEditEntry = (props) => {
                         totpDigits,
                         totpCode,
                     ) => {
+                        setDataChanged(true);
                         setWebsitePasswordTotpPeriod(totpPeriod);
                         setWebsitePasswordTotpAlgorithm(totpAlgorithm);
                         setWebsitePasswordTotpDigits(totpDigits);
@@ -2802,6 +2886,7 @@ const DialogEditEntry = (props) => {
             </Dialog>
         )
     }
+
 };
 
 DialogEditEntry.defaultProps = {

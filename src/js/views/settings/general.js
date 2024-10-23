@@ -6,11 +6,15 @@ import { Checkbox, Grid } from "@mui/material";
 
 import { Check } from "@mui/icons-material";
 import { makeStyles } from '@mui/styles';
+import Button from "@mui/material/Button";
+import GridContainerErrors from "../../components/grid-container-errors";
+
 import action from "../../actions/bound-action-creators";
 import browserClientService from "../../services/browser-client";
 import SelectFieldLanguage from "../../components/select-field/language";
 import { languages } from "../../i18n";
 import userService from "../../services/user";
+import optionsBlueprintService from "../../services/options-blueprint";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -41,6 +45,41 @@ const SettingsGeneralView = (props) => {
     const { t, i18n } = useTranslation();
     const classes = useStyles();
     const disableBrowserPm = useSelector((state) => state.client.disableBrowserPm);
+    const settingsDatastore = useSelector((state) => state.settingsDatastore);
+    const [noSaveMode, setNoSaveMode] = useState(settingsDatastore.noSaveMode);
+    const [showNoSaveToggle, setShowNoSaveToggle] = useState(settingsDatastore.showNoSaveToggle);
+    const [confirmOnUnsavedChanges, setConfirmOnUnsavedChanges] = useState(settingsDatastore.confirmOnUnsavedChanges);
+    const [msgs, setMsgs] = React.useState([]);
+
+
+    const stateLookupDict = {
+        "nosave": {
+            'value': noSaveMode,
+            'setter': setNoSaveMode,
+        },
+        "nosavetoggle": {
+            'value': showNoSaveToggle,
+            'setter': setShowNoSaveToggle,
+        },
+        "confirm_unsaved": {
+            'value': confirmOnUnsavedChanges,
+            'setter': setConfirmOnUnsavedChanges,
+        },
+    };
+    React.useEffect(() => {
+        setNoSaveMode(settingsDatastore.noSaveMode);
+        setShowNoSaveToggle(settingsDatastore.showNoSaveToggle);
+        setConfirmOnUnsavedChanges(settingsDatastore.confirmOnUnsavedChanges);
+    }, [settingsDatastore]);
+
+    const save = (event) => {
+        action().setClientOptionsConfig(
+            stateLookupDict['nosave'].value,
+            stateLookupDict['nosavetoggle'].value,
+            stateLookupDict['confirm_unsaved'].value);
+        setMsgs(["SAVE_SUCCESS"])
+    };
+    const entryTypes = optionsBlueprintService.getEntryTypes();
 
     const [passwordSavingControlledByThisExtension, setPasswordSavingControlledByThisExtension] = useState(false);
 
@@ -52,6 +91,8 @@ const SettingsGeneralView = (props) => {
             });
         return () => (isSubscribed = false);
     }, []);
+
+
 
     return (
         <Grid container>
@@ -91,6 +132,34 @@ const SettingsGeneralView = (props) => {
                 />{" "}
                 {t("DISABLE_BROWSER_PM")}
             </Grid>)}
+            {entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title))).map((entryType) => (<Grid item xs={12} sm={12} md={12} key={entryType.value}>
+                <Checkbox
+                    tabIndex={1}
+                    checked={stateLookupDict[entryType.value].value}
+                    onChange={(event) => {
+                        stateLookupDict[entryType.value].setter(event.target.checked)
+                    }}
+                    checkedIcon={<Check className={classes.checkedIcon} />}
+                    icon={<Check className={classes.uncheckedIcon} />}
+                    classes={{
+                        checked: classes.checked,
+                    }}
+                />{" "}
+                {t(entryType.title)}
+            </Grid>))}
+            <Grid container style={{ marginBottom: "8px",  marginTop: "8px" }}>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={save}
+                    >
+                        {t("SAVE")}
+                    </Button>
+                </Grid>
+            </Grid>
+            <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
+
         </Grid>
     );
 };
