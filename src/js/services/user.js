@@ -521,6 +521,7 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
         await logoutLocal();
 
         accountService.broadcastReinitializeAppEvent();
+        accountService.broadcastReinitializeBackgroundEvent();
 
         const response = {
             "response": "success",

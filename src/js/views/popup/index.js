@@ -49,6 +49,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import offlineCache from "../../services/offline-cache";
 import AddIcon from "@mui/icons-material/Add";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
+import accountService from "../../services/account";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -565,6 +566,7 @@ const PopupView = (props) => {
         });
 
         reloadDatastoreOverview();
+        accountService.broadcastReinitializeBackgroundEvent();
         return () => (isSubscribed = false);
     }, []);
 
