@@ -161,7 +161,6 @@ const Topbar = (props) => {
     const [datastores, setDatastores] = React.useState([]);
     const [profilePic, setProfilePic] = useState("");
     const settingsDatastore = useSelector((state) => state.settingsDatastore);
-    //const [noSaveMode, setNoSaveMode] = useState(settingsDatastore.noSaveMode);
 
 
     const setClientOptions = (nosavemode) => {
@@ -172,7 +171,6 @@ const Topbar = (props) => {
     }
     let isSubscribed = true;
     React.useEffect(() => {
-        //setClientOptions();
         reloadDatastoreOverview();
         loadAvatar();
         return () => (isSubscribed = false);

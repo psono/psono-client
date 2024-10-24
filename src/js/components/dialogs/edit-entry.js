@@ -264,9 +264,7 @@ const DialogEditEntry = (props) => {
         Boolean(elsterCertificateTitle) &&
         Boolean(elsterCertificateFileContent) &&
         Boolean(elsterCertificatePassword);
-    const canSave =
-        (!getStore().getState().settingsDatastore.noSaveMode) && (
-        (item.type === "website_password" && isValidWebsitePassword) ||
+    const canSave =  (item.type === "website_password" && isValidWebsitePassword) ||
         (item.type === "passkey" && isValidPasskey) ||
         (item.type === "application_password" && isValidApplicationPassword) ||
         (item.type === "bookmark" && isValidBookmark) ||
@@ -278,7 +276,6 @@ const DialogEditEntry = (props) => {
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile) ||
         (item.type === "elster_certificate" && isValidElsterCertificate)
-        );
     const [dataChanged, setDataChanged] = useState(false);
     const [verifyDataChanged, setVerifyDataChanged] = useState(false);
     const [verifyDataChangedOpen, setVerifyDataChangedOpen] = useState(false);
@@ -1076,7 +1073,7 @@ const DialogEditEntry = (props) => {
                 {t("CLOSE")}
             </Button>
             {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && (props.onEdit || props.onCustomSave) && (
-                <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave} type="submit">
+                <Button onClick={onEdit} variant="contained" color="primary" disabled={(!canSave || (getStore().getState().settingsDatastore.noSaveMode))} type="submit">
                     {t("SAVE")}
                 </Button>
             )}

@@ -285,11 +285,7 @@ function setClientOptionsConfig(
         { key: "setting_show_no_save_toggle", value: showNoSaveToggle },
         { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges },
  ]);
- console.log("Setting options")
- console.log(noSaveMode)
- console.log(showNoSaveToggle)
- console.log(confirmOnUnsavedChanges)
- 
+
  return (dispatch) => {
     dispatch({
         type: SET_CLIENT_CONFIG,
