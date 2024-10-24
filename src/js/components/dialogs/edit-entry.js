@@ -218,6 +218,8 @@ const DialogEditEntry = (props) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorEl2, setAnchorEl2] = React.useState(null);
     const [anchorElMoreMenu, setAnchorElMoreMenu] = React.useState(null);
+    const [anchorEls, setAnchorEls] = React.useState({});
+    const [showPasswords, setShowPasswords] = React.useState({});
 
     const [callbackUrl, setCallbackUrl] = useState("");
     const [callbackPass, setCallbackPass] = useState("");
@@ -953,6 +955,14 @@ const DialogEditEntry = (props) => {
             browserClientService.copyToClipboard(() => Promise.resolve(elsterCertificateRetrievalCode));
         }
         notification.push("password_copy", t("RETRIEVAL_CODE_COPY_NOTIFICATION"));
+    };
+
+    const onCopyValue = (value) => {
+        handleClose();
+        if (item.type === "environment_variables") {
+            browserClientService.copyToClipboard(() => Promise.resolve(value));
+        }
+        notification.push("value_copy", t("VALUE_COPY_NOTIFICATION"));
     };
 
     const onCopyUrl = (event) => {
@@ -1708,8 +1718,7 @@ const DialogEditEntry = (props) => {
                                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
-                                            const newEnvs =
-                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["key"] = event.target.value;
                                             setEnvironmentVariablesVariables(newEnvs);
                                         }}
@@ -1725,11 +1734,61 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-value-" + index}
                                         autoComplete={"environmentVariablesVariables-value-" + index}
                                         value={variable.value}
-                                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                                        InputProps={{
+                                            readOnly: !item.share_rights || !item.share_rights.write,
+                                            type: showPasswords[index] ? "text" : "password",
+                                            classes: {
+                                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                            },
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        className={classes.iconButton}
+                                                        aria-label="menu"
+                                                        onClick={(event) => {
+                                                            setAnchorEls({ ...anchorEls, [index]: event.currentTarget });
+                                                        }}
+                                                        size="large">
+                                                        <MenuOpenIcon fontSize="small" />
+                                                    </IconButton>
+                                                    <Menu
+                                                        id={`simple-menu-${index}`}
+                                                        anchorEl={anchorEls[index]}
+                                                        keepMounted
+                                                        open={Boolean(anchorEls[index])}
+                                                        onClose={() => setAnchorEls({ ...anchorEls, [index]: null })}
+                                                    >
+                                                        <MenuItem
+                                                            onClick={() => {
+                                                                setShowPasswords({
+                                                                    ...showPasswords,
+                                                                    [index]: !showPasswords[index],
+                                                                });
+                                                                setAnchorEls({ ...anchorEls, [index]: null });
+                                                            }}
+                                                        >
+                                                            <ListItemIcon className={classes.listItemIcon}>
+                                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                                            </ListItemIcon>
+                                                            <Typography variant="body2" noWrap>
+                                                                {t("SHOW_OR_HIDE_VALUE")}
+                                                            </Typography>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => onCopyValue(variable.value)}>
+                                                            <ListItemIcon className={classes.listItemIcon}>
+                                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                                            </ListItemIcon>
+                                                            <Typography variant="body2" noWrap>
+                                                                {t("COPY_VALUE")}
+                                                            </Typography>
+                                                        </MenuItem>
+                                                    </Menu>
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                         required
                                         onChange={(event) => {
-                                            const newEnvs =
-                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["value"] = event.target.value;
                                             setEnvironmentVariablesVariables(newEnvs);
                                         }}
@@ -1740,8 +1799,7 @@ const DialogEditEntry = (props) => {
                                         className={classes.iconButton2}
                                         aria-label="menu"
                                         onClick={() => {
-                                            const newEnvs =
-                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs.splice(index, 1);
                                             setEnvironmentVariablesVariables(newEnvs);
                                         }}
@@ -1753,6 +1811,7 @@ const DialogEditEntry = (props) => {
                         );
                     })}
                 </React.Fragment>
+
             )}
             {item.type === "environment_variables" && (
                 <Grid item xs={12} sm={12} md={12}>
