@@ -108,9 +108,9 @@ const LoginViewForm = (props) => {
 	);
     const [password, setPassword] = useState("");
     const [server, setServer] = useState(getStore().getState().server.url);
-    const [rememberMe, setRememberMe] = useState(false);
+    const [rememberMe, setRememberMe] = useState(getStore().getState().user.rememberMe);
     const [providerId, setProviderId] = useState(0);
-    const [trustDevice, setTrustDevice] = useState(false);
+    const [trustDevice, setTrustDevice] = useState(getStore().getState().user.trustDevice);
     const [loginLoading, setLoginLoading] = useState(false);
     const [loginPossible, setLoginPossible] = useState(false);
     const [domain, setDomain] = useState("");
