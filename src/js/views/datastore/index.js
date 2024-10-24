@@ -43,6 +43,7 @@ import {useHotkeys} from "react-hotkeys-hook";
 import DatastoreToolbar from "./toolbar";
 import FilterSideBar from "../../components/filter-sidebar";
 import itemBlueprintService from "../../services/item-blueprint";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -102,7 +103,6 @@ function useWidth() {
 
 
 const DatastoreView = (props) => {
-    const width1700Plus = useMediaQuery('(min-width:1700px)');
     const width = useWidth();
     const bigScreen = ["lg", "md", "xl"].includes(width);
     const hugeScreen = ["xl"].includes(width);
@@ -125,7 +125,7 @@ const DatastoreView = (props) => {
         mouseY: null,
     });
 
-    const [showFilter, setShowFilter] = useState(false);
+    const showFilters = useSelector((state) => !!state.client.showFilters);
     const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -150,10 +150,6 @@ const DatastoreView = (props) => {
     const [createLinkShareData, setCreateLinkShareData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
-
-    React.useEffect(() => {
-        setShowFilter(width1700Plus);
-    }, [width]);
 
     useHotkeys('shift', (event, handler) => {
         if (event.type === "keydown") {
@@ -514,7 +510,7 @@ const DatastoreView = (props) => {
     };
 
     const toggleShowFilter = () => {
-        setShowFilter(!showFilter);
+        action().setShowFilters(!showFilters);
     };
 
     const toggleFilter = (key) => {
@@ -582,7 +578,7 @@ const DatastoreView = (props) => {
                             </AppBar>
                             <div className={classes.root}
                                  onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
-                                <Grid container className={`${(showFilter && bigScreen && !editEntryOpen) || (showFilter && hugeScreen) ? classes.contentShift : ''}`}>
+                                <Grid container className={`${(showFilters && bigScreen && !editEntryOpen) || (showFilters && hugeScreen) ? classes.contentShift : ''}`}>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <AlertSecurityReport className={classes.securityReportAlert}/>
                                     </Grid>
@@ -619,8 +615,8 @@ const DatastoreView = (props) => {
                                             />
                                         )}
                                         <FilterSideBar
-                                            open={showFilter}
-                                            onClose={() => setShowFilter(false)}
+                                            open={showFilters}
+                                            onClose={() => action().setShowFilters(false)}
                                             filters={filters}
                                             toggleFilter={toggleFilter}
                                             selectedFilters={selectedFilters}

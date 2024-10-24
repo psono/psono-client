@@ -18,6 +18,7 @@ import {
     SET_OFFLINE_CACHE_ENCRYPTION_INFO,
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
+    SET_SHOW_FILTERS,
     SETTINGS_DATASTORE_LOADED,
     SET_PASSWORD_CONFIG,
     SET_SHOWN_ENTRIES_CONFIG,
@@ -205,6 +206,14 @@ function setDisableBrowserPm(disableBrowserPm) {
         dispatch({
             type: SET_DISABLE_BROWSER_PM,
             disableBrowserPm,
+        });
+    };
+}
+function setShowFilters(showFilters) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SHOW_FILTERS,
+            showFilters,
         });
     };
 }
@@ -466,6 +475,7 @@ const actionCreators = {
     setOfflineCacheEncryptionInfo,
     setNotificationOnCopy,
     setDisableBrowserPm,
+    setShowFilters,
     setHideDownloadBanner,
     setLastPopupSearch,
     setPasswordConfig,
