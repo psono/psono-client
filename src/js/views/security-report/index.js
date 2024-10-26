@@ -27,6 +27,9 @@ import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
 import TextFieldPassword from "../../components/text-field/password";
 import AlertSecurityReport from "../../components/alert/security-report";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import browserClient from "../../services/browser-client";
 
 Chart.register(ArcElement, Tooltip);
 
@@ -399,6 +402,23 @@ const SecurityReportView = (props) => {
             },
         },
         { name: t("ADVICE"), options: { filter: false } },
+        {
+            name: t("EDIT"),
+            options: {
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                browserClient.openTab("index.html#!/datastore/edit/" + tableMeta.rowData[8].type + "/" + tableMeta.rowData[8].secret_id);
+                            }}
+                            disabled={!tableMeta.rowData[8].secret_id}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    );
+                },
+            },
+        },
     ];
 
     const options = {
@@ -415,6 +435,7 @@ const SecurityReportView = (props) => {
             pw.breached > 0,
             pw.duplicate,
             t(pw.advice, pw),
+            pw
         ];
     });
 

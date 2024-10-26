@@ -183,6 +183,7 @@ function filterPasswordsHelper(folder, passwords) {
             passwords.push({
                 type: folder["items"][i]["type"],
                 name: folder["items"][i]["name"],
+                secret_id: folder["items"][i]["secret_id"],
                 username: folder["items"][i]["application_password_username"],
                 password: folder["items"][i]["application_password_password"],
                 create_date: folder["items"][i]["create_date"],
@@ -193,6 +194,7 @@ function filterPasswordsHelper(folder, passwords) {
             passwords.push({
                 type: folder["items"][i]["type"],
                 name: folder["items"][i]["name"],
+                secret_id: folder["items"][i]["secret_id"],
                 username: folder["items"][i]["website_password_username"],
                 password: folder["items"][i]["website_password_password"],
                 create_date: folder["items"][i]["create_date"],
@@ -269,13 +271,14 @@ function analyzePasswordLength(secrets) {
         analysis.passwords.push({
             name: secrets[i]["name"],
             password: secrets[i]["password"],
+            secret_id: secrets[i]["secret_id"],
             master_password: secrets[i]["master_password"],
             rating: rating["score"],
             min_password_length: rating["min_password_length"],
             password_length: rating["password_length"],
             variation_count: rating["variation_count"],
             breached: rating["breached"],
-            type: "website_password",
+            type: rating["type"] || "website_password",
             input_type: "password",
             advice: rating["advice"],
             create_age: getAgeInDays(secrets[i]["create_date"]),
@@ -530,7 +533,6 @@ function summarizeUser(analysis) {
         if (Object.prototype.toString.call(users) === "[object Array]") {
             users.map((user) => {
                 if (user.username === getStore().getState().user.username) {
-                    console.log(user);
                     analysis["user_summary"]["multifactor_auth_enabled"] = user.multifactor_auth_enabled;
                     analysis["user_summary"]["recovery_code_enabled"] = user.recovery_code_enabled;
                 }
