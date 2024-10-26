@@ -379,6 +379,24 @@ const SecurityReportView = (props) => {
             },
         },
         {
+            name: t("PASSWORD_LENGTH"),
+            options: {
+                display: false,
+                filter: false,
+                sort: true,
+                empty: false,
+            },
+        },
+        {
+            name: t("CHARACTER_GROUPS"),
+            options: {
+                display: false,
+                filter: false,
+                sort: true,
+                empty: false,
+            },
+        },
+        {
             name: t("BREACHED"),
             options: {
                 display: checkHaveibeenpwned,
@@ -386,7 +404,7 @@ const SecurityReportView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return tableMeta.rowData[5] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
+                    return tableMeta.rowData[7] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
                 },
             },
         },
@@ -397,7 +415,7 @@ const SecurityReportView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return tableMeta.rowData[6] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
+                    return tableMeta.rowData[8] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
                 },
             },
         },
@@ -409,9 +427,9 @@ const SecurityReportView = (props) => {
                     return (
                         <IconButton
                             onClick={() => {
-                                browserClient.openTab("index.html#!/datastore/edit/" + tableMeta.rowData[8].type + "/" + tableMeta.rowData[8].secret_id);
+                                browserClient.openTab("index.html#!/datastore/edit/" + tableMeta.rowData[10].type + "/" + tableMeta.rowData[10].secret_id);
                             }}
-                            disabled={!tableMeta.rowData[8].secret_id}
+                            disabled={!tableMeta.rowData[10].secret_id}
                         >
                             <EditIcon />
                         </IconButton>
@@ -432,6 +450,8 @@ const SecurityReportView = (props) => {
             pw.password,
             pw.rating,
             pw.write_age,
+            pw.password_length,
+            pw.variation_count,
             pw.breached > 0,
             pw.duplicate,
             t(pw.advice, pw),

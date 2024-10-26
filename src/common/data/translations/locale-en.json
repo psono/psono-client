@@ -1,4 +1,5 @@
 {
+  "CHARACTER_GROUPS": "Character groups",
   "SEARCH_DATASTORE_IDENTIFIER": "Search datastore: {{identifier}}",
   "ACCEPT_ALL_GROUPS": "Accept all groups",
   "ACCEPT_ALL_NEW_SHARES": "Accept all new shares",
