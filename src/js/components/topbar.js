@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.common.white,
         color: "#777",
         borderColor: "rgb(231, 231, 231)",
         borderStyle: "solid",
@@ -88,7 +88,6 @@ const useStyles = makeStyles((theme) => ({
     avatarPlaceholder: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         paddingTop: '6px',
         marginLeft: '6px',
@@ -112,7 +111,6 @@ const useStyles = makeStyles((theme) => ({
     overlayedIcon: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         marginLeft: '0px',
         marginRight: '0px',

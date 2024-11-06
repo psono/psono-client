@@ -2,9 +2,93 @@
  * The browser interface, responsible for the cross browser / platform compatibility.
  */
 
+const _ = require('lodash');
+
 import helperService from "./helper";
 import { getStore } from "./store";
 import deviceService from "./device";
+
+const theme = {
+    "palette": {
+        "background": {
+            "default": "#0f1118"
+        },
+        "primary": {
+            "main": "#2dbb93"
+        },
+        "secondary": {
+            "main": "#0b4a23"
+        },
+        "action": {
+            "disabledBackground": "#2dbb9380"
+        },
+        "lightGreyText": {
+            "main": "#b1b6c1",
+            "light": "#b1b6c1",
+            "dark": "#b1b6c1",
+            "contrastText": "#b1b6c1"
+        },
+        "greyText": {
+            "main": "#666",
+            "light": "#666",
+            "dark": "#666",
+            "contrastText": "#666"
+        },
+        "checked": {
+            "main": "#9c27b0",
+            "light": "#9c27b0",
+            "dark": "#9c27b0",
+            "contrastText": "#9c27b0"
+        },
+        "blueBackground": {
+            "main": "#151f2b",
+            "light": "#151f2b",
+            "dark": "#151f2b",
+            "contrastText": "#151f2b"
+        }
+    },
+    "typography": {
+        "fontFamily": "\"Open Sans\", sans-serif",
+        "fontSize": 13
+    },
+    "components": {
+        "MuiTextField": {
+            "defaultProps": {
+                "margin": "dense",
+                "size": "small"
+            }
+        },
+        "MuiToolbar": {
+            "styleOverrides": {
+                "regular": {
+                    "height": "48px",
+                    "minHeight": "48px",
+                    "@media(min-width:600px)": {
+                        "minHeight": "48px"
+                    }
+                }
+            }
+        },
+        "MUIDataTable": {
+            "styleOverrides": {
+                "paper": {
+                    "boxShadow": "none"
+                }
+            }
+        },
+        "MuiButton": {
+            "styleOverrides": {
+                "containedPrimary": {
+                    "color": "white"
+                },
+                "root": {
+                    "color": "rgba(0, 0, 0, 0.87)"
+                }
+            }
+        }
+    }
+}
+
 
 
 /**
@@ -342,6 +426,12 @@ function _loadConfig() {
 
         const standardizeConfig = function (newConfig, url) {
             const parsed_url = helperService.parseUrl(url);
+
+            if (!newConfig.hasOwnProperty("theme")) {
+                newConfig["theme"] = theme;
+            } else {
+                newConfig["theme"] = _.merge({}, theme, newConfig["theme"]);
+            }
 
             if (!newConfig.hasOwnProperty("base_url")) {
                 newConfig["base_url"] = parsed_url["base_url"] + "/";

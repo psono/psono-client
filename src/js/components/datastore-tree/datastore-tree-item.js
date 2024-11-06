@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         },
         '&.selected': {
             backgroundColor: 'inherit',
-            borderColor: '#fff',
+            borderColor: theme.palette.common.white,
             borderRadius: '4px',
             '&:hover': {
                 backgroundColor: '#F0F7FC',
@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     treeItemDescription: {
         fontSize: '12px',
         lineHeight: '13px',
-        color: '#666'
+        color: theme.palette.greyText.main
     },
     faStack: {
         display: 'inline-block',
@@ -116,6 +116,16 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         zIndex: 2,
+    },
+    faCircleShared: {
+        color: "#2dbb93",
+        fontSize: "80%",
+        marginTop: "50%",
+    },
+    faGroupShared: {
+        color: "#0f1118",
+        fontSize: "35%",
+        marginTop: "60%",
     },
 }));
 
@@ -303,8 +313,8 @@ const DatastoreTreeItem = (props) => {
             >
                 <span className={`fa-stack ${classes.faStack}`}>
                     <i className={widgetService.itemIcon(content)}/>
-                    {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared"/>}
-                    {content.share_id && <i className="fa fa-group fa-stack-2x is-shared"/>}
+                    {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`}/>}
+                    {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`}/>}
                 </span>
                 {props.allowMultiselect && props.isSelected(content) && (
                     <i className={"fa fa-check-square-o" + " " + classes.iconCheckbox}  />

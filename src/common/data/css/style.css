@@ -1,4 +1,3 @@
-/*fbfbfc*/
 /* Generic styles */
 html {
   height: 100%;}
@@ -52,17 +51,6 @@ a {
 .btn-link {
   color: #151f2b; }
 
-p.horizontalline {
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #0f1118;
-  line-height: 0.1em;
-  margin: 20px 0 20px; }
-
-p.horizontalline span {
-  background: #151f2b;
-  padding: 0 10px; }
-
 #panel {
   padding: 10px; }
 
@@ -73,121 +61,9 @@ p.horizontalline span {
   vertical-align: top;
 }
 
-.loginbox-translate {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  color: #b1b6c1; }
-  .loginbox-translate .btn-primary, .loginbox-translate .btn-primary:hover, .loginbox-translate .btn-primary:focus, .loginbox-translate .btn-primary:active, .loginbox-translate .btn-primary.active, .loginbox-translate .open .dropdown-toggle.btn-primary {
-    background-color: #151f2b;
-    border-color: #151f2b; }
-
-#panel .loginbox-translate {
-  top: 10px; }
-
-.loginbox .pull-right {
-  line-height: 31px; }
-
 .wrapper {
   overflow: auto;
   max-height: 100vh; }
-
-.navigations {
-  list-style-type: none;
-  padding: 0;
-  margin: 0; }
-  .navigations li {
-    position: relative;
-    margin-top: 1px;
-    border-radius: 4px; }
-  .navigations li .navigationitem {
-    text-decoration: none;
-    display: inline-block;
-    padding: 10px 100px 10px 10px;
-    width: 100%; }
-  .navigations li .navigationitem2 {
-    text-decoration: none;
-    display: inline-block;
-    padding: 10px 10px 10px 10px;
-    width: 100%; }
-
-.hideinputcharakter label {
-  font-weight: inherit;
-  width: 45px; }
-
-.hideinputcharakter .form-control {
-  width: 250px;
-  display: inline-block; }
-
-.hideinputcharakter .form-control:not(:focus) {
-  background-color: transparent;
-  border: 0;
-  color: inherit;
-  box-shadow: none !important; }
-
-@media only screen and (min-width: 600px) {
-  .hideinputcharakter .form-control {
-    width: 450px; } }
-
-#username-addon {
-  max-width: 150px;
-  text-overflow: ellipsis;
-  overflow: hidden; }
-
-@media only screen and (min-width: 600px) {
-  #username-addon {
-    max-width: none;
-    text-overflow: clip; } }
-
-.dark {
-  background-color: #151f2b;
-  color: #b1b6c1; }
-  .dark a {
-    color: #b1b6c1; }
-  .dark a.btn-danger {
-    color: #fff; }
-  .dark h2 {
-    padding: 10px 10px; }
-  .dark .btn-danger {
-    background-color: #2dbb93;
-    border-color: #2dbb93; }
-  .dark .box-footer {
-    position: absolute;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    bottom: -30px; }
-    .dark .box-footer a {
-      color: #333333; }
-  .dark .form-control:focus {
-    border-color: #2dbb93; }
-  .dark .navigations .dropdown {
-    position: absolute;
-    right: 3px;
-    top: 3px; }
-  .dark .navigations li:hover {
-    background-color: #fff;
-    color: #151f2b; }
-    .dark .navigations li:hover a {
-      color: #151f2b; }
-  .dark .navigations li.active {
-    background-color: #2dbb93; }
-    .dark .navigations li.active a {
-      color: #fff; }
-
-.popover-content {
-  color: #151f2b; }
-  .popover-content a {
-    color: #151f2b; }
-
-.modal-edit {
-  position: -webkit-sticky;
-  /* Safari */
-  position: sticky;
-  top: 0; }
-
 
 /* for the fixed dropdown menu that pops when someone right clicks an entry*/
 .dropdown-rightclick {
@@ -199,13 +75,6 @@ p.horizontalline span {
   margin-left: -335px;
   margin-top: -30px; }
 
-.position-fixed {
-  position: fixed; }
-
-.expand15 {
-  margin: -15px;
-  padding: 15px; }
-
 .dropdown-menu .fa {
   margin-right: 10px;
   width: 15px; }
@@ -213,87 +82,6 @@ p.horizontalline span {
 /* classes for error handling */
 .form-group.has-error .help-block {
   display: block; }
-
-.form-field-validation-pass {
-  background-color: #fff; }
-
-.form-field-validation-fail {
-  background-color: #ff8888; }
-
-/* Bootstrap fixes */
-.tabset_expand {
-  margin-left: -20px;
-  margin-right: -20px; }
-  .tabset_expand .nav-tabs li:first-child {
-    margin-left: 20px; }
-  .tabset_expand .tab-content {
-    padding: 20px 20px 5px 20px;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 15px; }
-
-.progress {
-  background-color: #223144; }
-
-/* Loading colors */
-#loading-bar .bar {
-  background: #2ba880; }
-
-#loading-bar .peg {
-  -moz-box-shadow: #2ba880 1px 0 6px 1px;
-  -ms-box-shadow: #2ba880 1px 0 6px 1px;
-  -webkit-box-shadow: #2ba880 1px 0 6px 1px;
-  box-shadow: #2ba880 1px 0 6px 1px; }
-
-#loading-bar-spinner .spinner-icon {
-  border-top-color: #2ba880;
-  border-left-color: #2ba880; }
-
-.progress-box {
-  width: 340px;
-  padding: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -70px 0 0 -170px;
-  border-radius: 4px;
-  background-color: #151f2b;
-  color: #b1b6c1; }
-  .progress-box .progress {
-    margin-top: 20px; }
-
-.loading-lock {
-  width: 340px;
-  height: 260px;
-  padding: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -70px 0 0 -170px;
-  border-radius: 4px;
-  background-color: #151f2b;
-  color: #b1b6c1;
-  text-align: center; }
-  .loading-lock .loading-lock-logo {
-    font-size: 90px;
-    position: relative;
-    height: 130px; }
-    .loading-lock .loading-lock-logo .loading-lock-logo-unloaded {
-      color: #0f1118;
-      position: absolute;
-      top: 0;
-      margin-left: 50%; }
-      .loading-lock .loading-lock-logo .loading-lock-logo-unloaded i {
-        margin-left: -100%;
-        overflow: hidden; }
-    .loading-lock .loading-lock-logo .loading-lock-logo-loaded {
-      color: #2dbb93;
-      position: absolute;
-      top: 0;
-      margin-left: 50%; }
-      .loading-lock .loading-lock-logo .loading-lock-logo-loaded i {
-        margin-left: -200%;
-        width: 0;
-        overflow: hidden; }
 
 .drag {
   -webkit-user-select: none;

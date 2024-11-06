@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.common.white,
         color: "#777",
         borderColor: "rgb(231, 231, 231)",
         borderStyle: "solid",
@@ -79,19 +79,19 @@ const useStyles = makeStyles((theme) => ({
         width: "100%",
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
 }));

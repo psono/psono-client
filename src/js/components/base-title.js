@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
         paddingLeft: "15px",
         paddingRight: "15px",
         marginBottom: "15px",
-        color: "#0f1118",
+        color: theme.palette.background.default,
         [theme.breakpoints.up("sm")]: {
             maxWidth: `calc(100% - 240px)`,
             fontSize: "20px",

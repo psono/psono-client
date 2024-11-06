@@ -25,45 +25,46 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
 import datastoreSettingService from "../../services/datastore-setting";
 import TextWithLineBreaks from "../../components/text-with-linebreaks";
+import {useTheme} from "@mui/material/styles";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
 	container: {
@@ -86,19 +87,34 @@ const useStyles = makeStyles((theme) => ({
 		zIndex: 0,
 	},
     inputAdornment: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
     borderSection: {
-        border: "1px solid #0f1118",
+        border: `1px solid ${theme.palette.background.default}` ,
         padding: "8px",
         marginLeft: "-8px",
         marginRight: "-8px",
         marginBottom: "theme.spacing(1)",
         marginTop: theme.spacing(2),
     },
+    horizontalline: {
+        width: "100%",
+        textAlign: "center",
+        borderBottom: `1px solid ${theme.palette.background.default}` ,
+        lineHeight: "0.1em",
+        margin: "20px 0",
+        "& span": {
+            backgroundColor: theme.palette.blueBackground.main,
+            padding: "0 10px",
+        },
+    },
 }));
 const defaultTimer = 2 * 60;
 const LoginViewForm = (props) => {
+    const theme = useTheme();
     const classes = useStyles();
     const { t } = useTranslation();
     const history = useHistory();
@@ -910,7 +926,7 @@ const LoginViewForm = (props) => {
                             {t("DECRYPT")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -927,7 +943,7 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            {i > 0 && <p className="horizontalline">
+                            {i > 0 && <p className={classes.horizontalline}>
                                 <span>{t("OR")}</span>
                             </p>}
                             <Grid item xs={12} sm={12} md={12}>
@@ -959,7 +975,7 @@ const LoginViewForm = (props) => {
                     );
                 })}
                 {oidcEnabled && oidcProvider.length > 0 && (samlEnabled || authkeyEnabled || ldapEnabled) && (
-                    <p className="horizontalline">
+                    <p className={classes.horizontalline}>
                         <span>{t("OR")}</span>
                     </p>
                 )}
@@ -969,7 +985,7 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            {i > 0 && <p className="horizontalline">
+                            {i > 0 && <p className={classes.horizontalline}>
                                 <span>{t("OR")}</span>
                             </p>}
                             <Grid item xs={12} sm={12} md={12}>
@@ -1001,7 +1017,7 @@ const LoginViewForm = (props) => {
                     );
                 })}
                 {samlEnabled && samlProvider.length > 0 && (authkeyEnabled || ldapEnabled) && (
-                    <p className="horizontalline">
+                    <p className={classes.horizontalline}>
                         <span>{t("OR")}</span>
                     </p>
                 )}
@@ -1081,7 +1097,7 @@ const LoginViewForm = (props) => {
                                         }
                                     }}
                                 >
-                                    <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
+                                    <span className={classes.regularButtonText}>{t("REGISTER")}</span>
                                 </Button>
                             )}
                         </Grid>
@@ -1235,7 +1251,7 @@ const LoginViewForm = (props) => {
                             {t("APPROVE")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1314,7 +1330,7 @@ const LoginViewForm = (props) => {
                             {t("CANCEL")}
                         </Button>
                         <Button onClick={approveHost}>
-                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
+                            <span className={classes.regularButtonText}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1394,7 +1410,7 @@ const LoginViewForm = (props) => {
                             {t("APPROVE_UNSAFE")}
                         </Button>
                         <Button onClick={disapproveSendPlain}>
-                            <span style={{color: "#b1b6c1"}}>{t("DECLINE_SAFE")}</span>
+                            <span className={classes.regularButtonText}>{t("DECLINE_SAFE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1443,7 +1459,7 @@ const LoginViewForm = (props) => {
                             {t("SEND")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1492,7 +1508,7 @@ const LoginViewForm = (props) => {
                             {t("SEND")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1541,7 +1557,7 @@ const LoginViewForm = (props) => {
                             {t("SEND")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1561,7 +1577,7 @@ const LoginViewForm = (props) => {
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -1617,7 +1633,7 @@ const LoginViewForm = (props) => {
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>

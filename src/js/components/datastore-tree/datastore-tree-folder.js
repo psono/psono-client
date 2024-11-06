@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
         '&.selected': {
             backgroundColor: '#F0F7FC',
             borderRadius: '4px',
-            borderColor: '#fff',
+            borderColor: theme.palette.common.white,
         },
         '&:hover, &:focus': {
             backgroundColor: '#F0F7FC',
@@ -90,6 +90,16 @@ const useStyles = makeStyles((theme) => ({
     divider: {
         marginTop: '8px',
         marginBottom: '8px',
+    },
+    faCircleShared: {
+        color: "#2dbb93",
+        fontSize: "80%",
+        marginTop: "50%",
+    },
+    faGroupShared: {
+        color: "#0f1118",
+        fontSize: "35%",
+        marginTop: "60%",
     },
 }));
 
@@ -238,8 +248,8 @@ const DatastoreTreeFolder = (props) => {
                         <span className={`fa-stack ${classes.faStack}`}>
                             {isExpanded && <i className="fa fa-folder-open" />}
                             {!isExpanded && <i className="fa fa-folder" />}
-                            {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
-                            {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
+                            {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`} />}
+                            {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`} />}
                         </span>
                         <span className={classes.treeFolderName}>{content.name}</span>
 

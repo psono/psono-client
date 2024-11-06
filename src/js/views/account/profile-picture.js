@@ -47,14 +47,14 @@ const useStyles = makeStyles((theme) => ({
         width: 150,
         height: 150,
         fontSize: '11rem',
-        backgroundColor: '#2dbb93',
+        backgroundColor: theme.palette.primary.main,
         paddingTop: '20px',
         color: 'white',
     },
     avatarPlaceholderText: {
         position: "absolute",
         bottom: "30px",
-        color: '#666',
+        color: theme.palette.greyText.main,
         fontSize: '0.8rem',
     },
     badge: {

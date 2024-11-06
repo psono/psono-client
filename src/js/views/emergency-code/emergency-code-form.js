@@ -24,23 +24,23 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
@@ -51,7 +51,10 @@ const useStyles = makeStyles((theme) => ({
         color: "white !important",
     },
     inputAdornment: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -416,7 +419,7 @@ const EmergencyCodeViewForm = (props) => {
                             {t("APPROVE")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -496,7 +499,7 @@ const EmergencyCodeViewForm = (props) => {
                         </Button>
 
                         <Button onClick={approveNewServer}>
-                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
+                            <span className={classes.regularButtonText}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>

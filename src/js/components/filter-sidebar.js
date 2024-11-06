@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     sectionTitle: {
         marginTop: theme.spacing(1.5),
         marginBottom: theme.spacing(0.5),
-        color: '#666',
+        color: theme.palette.greyText.main,
     },
     listItem: {
         paddingTop: 0,

@@ -81,7 +81,7 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
-                        <LoginView {...props} />
+                        <LoginView {...props} fullWidth />
                     </Route>
                 </Switch>
             );
@@ -136,7 +136,7 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
-                        <LoginView {...props} />
+                        <LoginView {...props} fullWidth />
                     </Route>
                 </Switch>
             );

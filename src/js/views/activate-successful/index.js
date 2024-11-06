@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Container, Grid, Box, Typography, Button, useMediaQuery } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { makeStyles } from '@mui/styles';
-import GetAppIcon from '@mui/icons-material/GetApp';
 
 import browserClient from "../../services/browser-client";
 import deviceService from "../../services/device";
@@ -11,8 +10,8 @@ import deviceService from "../../services/device";
 const useStyles = makeStyles((theme) => ({
     root: {
         textAlign: 'center',
-        backgroundColor: '#0f1118',
-        color: '#ffffff',
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.common.white,
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -32,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     },
     stepsSection: {
         padding: theme.spacing(4),
-        backgroundColor: '#0f1118',
+        backgroundColor: theme.palette.background.default,
         flex: '1',
         display: 'flex',
         flexDirection: 'column',
@@ -46,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
     successIcon: {
         fontSize: 80,
-        color: '#2dbb93',
+        color: theme.palette.primary.main,
     },
     subtitle: {
         color: '#b0b3b8',
@@ -60,13 +59,13 @@ const useStyles = makeStyles((theme) => ({
     },
     helpButton: {
         marginTop: theme.spacing(2),
-        color: '#ffffff',
-        borderColor: '#ffffff',
+        color: theme.palette.common.white,
+        borderColor: theme.palette.common.white,
     },
     downloadButton: {
         marginTop: theme.spacing(2),
-        color: '#ffffff',
-        backgroundColor: '#2dbb93',
+        color: theme.palette.common.white,
+        backgroundColor: theme.palette.primary.main,
     },
     downloadButtonImage: {
         width: '200px',

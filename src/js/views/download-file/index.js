@@ -13,6 +13,17 @@ const useStyles = makeStyles((theme) => ({
     textCenter: {
         textAlign: "center",
     },
+    progressBox: {
+        width: "340px",
+        padding: "20px",
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        margin: "-70px 0 0 -170px",
+        borderRadius: "4px",
+        backgroundColor: theme.palette.blueBackground.main,
+        color: theme.palette.lightGreyText.main,
+    },
 }));
 
 const DownloadFileView = (props) => {
@@ -65,7 +76,7 @@ const DownloadFileView = (props) => {
     }, []);
 
     return (
-        <div className={"progress-box " + classes.textCenter}>
+        <div className={`${classes.textCenter} ${classes.progressBox}`}>
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
