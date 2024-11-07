@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: "8px",
     },
     search: {
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.lightBackground.main,
         position: "absolute",
         right: "28px",
         top: theme.spacing(2),

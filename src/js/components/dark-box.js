@@ -3,13 +3,13 @@ import {makeStyles} from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
     dark: {
-        backgroundColor: '#151f2b',
+        backgroundColor: theme.palette.blueBackground.main,
         color: theme.palette.lightGreyText.main,
         '& a': {
             color: theme.palette.lightGreyText.main,
         },
         '& a.btn-danger': {
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
         },
         '& h2': {
             padding: '10px 10px',
@@ -39,16 +39,16 @@ const useStyles = makeStyles((theme) => ({
             top: '3px',
         },
         '& .navigations li:hover': {
-            backgroundColor: theme.palette.common.white,
-            color: '#151f2b',
+            backgroundColor: theme.palette.lightBackground.main,
+            color: theme.palette.blueBackground.main,
             '& a': {
-                color: '#151f2b',
+                color: theme.palette.blueBackground.main,
             },
         },
         '& .navigations li.active': {
             backgroundColor: theme.palette.primary.main,
             '& a': {
-                color: theme.palette.common.white,
+                color: theme.palette.lightBackground.main,
             },
         },
     },

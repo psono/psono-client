@@ -33,13 +33,17 @@ import RegisterView from "./register";
 import InstallSuccessfulView from "./install-successful";
 import ActivateSuccessfulView from "./activate-successful";
 import user from "../services/user";
+import {GlobalStyles} from "@mui/material";
+import {useTheme} from "@mui/material/styles";
 
 const IndexView = (props) => {
+    const theme = useTheme();
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const pathname = window.location.pathname;
 
     React.useEffect(() => {
+        document.body.classList.remove('loading');
         statusService.getStatus();
         if (pathname.endsWith("/background.html")) {
             backgroundService.activateAfterStore();
@@ -81,6 +85,11 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
+                        <GlobalStyles
+                            styles={{
+                                body: { backgroundColor: theme.palette.blueBackground.main },
+                            }}
+                        />
                         <LoginView {...props} fullWidth />
                     </Route>
                 </Switch>
@@ -89,6 +98,11 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
+                        <GlobalStyles
+                            styles={{
+                                body: { backgroundColor: theme.palette.blueBackground.main },
+                            }}
+                        />
                         <PopupView {...props} />
                     </Route>
                 </Switch>

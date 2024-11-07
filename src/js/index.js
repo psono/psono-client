@@ -90,7 +90,6 @@ async function initAndRenderApp() {
                     <PersistGate loading={<HashLoader />} persistor={persistor}>
                         <I18nextProvider i18n={i18n}>
                             <LazyThemeProvider>
-                                <CssBaseline />
                                 <HashRouter history={customHistory} hashType="hashbang">
                                     <DownloadBanner />
                                     <IndexView />
@@ -108,6 +107,8 @@ async function initAndRenderApp() {
 }
 
 initAndRenderApp();
+
+
 
 console.log("%cDanger:", "color:red;font-size:40px;");
 console.log(

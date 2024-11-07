@@ -24,10 +24,10 @@ const useStyles = makeStyles((theme) => ({
             transition: "0.3s",
         },
         "& a:hover": {
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
         },
         "& a:focus": {
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
         },
     },
     overlayContent: {

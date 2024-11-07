@@ -4,13 +4,16 @@ html {
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
-  background-color: #0f1118;
   margin: 0;
   padding: 0;
   min-width: 320px;
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+body.loading {
+  background-color: #0f1118;
 }
 
 html, body {

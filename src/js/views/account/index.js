@@ -21,8 +21,21 @@ import AccountChangeEmailView from "./change-email";
 import ProfilePicture from "./profile-picture";
 import AccountChangePasswordView from "./change-password";
 import TabPanel from "../../components/tab-panel";
+import {makeStyles} from "@mui/styles";
+
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        backgroundColor: theme.palette.lightBackground.main,
+        height: '100%',
+    },
+    tabs: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
+}));
 
 const AccountView = (props) => {
+    const classes = useStyles();
     const { t } = useTranslation();
     let location = useLocation();
     const [value, setValue] = React.useState(location.pathname);
@@ -34,17 +47,18 @@ const AccountView = (props) => {
                 <Grid container>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
 
-                        <Paper square style={{ height: '100%' }}>
+                        <Paper square className={classes.paper}>
                             <ProfilePicture />
                         </Paper>
                     </Grid>
                     <Grid item xs={12} sm={6} md={8} lg={9}>
-                        <Paper square style={{ height: '100%' }}>
+                        <Paper square className={classes.paper}>
                             <AppBar elevation={0} position="static" color="default">
                                 <Tabs
                                     variant="scrollable"
                                     scrollButtons="auto"
                                     value={value}
+                                    className={classes.tabs}
                                     aria-label="scrollable auto tabs example"
                                 >
                                     <Tab

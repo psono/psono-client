@@ -45,6 +45,18 @@ const theme = {
             "light": "#151f2b",
             "dark": "#151f2b",
             "contrastText": "#151f2b"
+        },
+        "lightBackground": {
+            "main": "#fff",
+            "light": "#fff",
+            "dark": "#fff",
+            "contrastText": "#fff"
+        },
+        "baseTitleBackground": {
+            "main": "#f2f5f7",
+            "light": "#f2f5f7",
+            "dark": "#f2f5f7",
+            "contrastText": "#f2f5f7"
         }
     },
     "typography": {

@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         textAlign: 'center',
         backgroundColor: theme.palette.background.default,
-        color: theme.palette.common.white,
+        color: theme.palette.lightBackground.main,
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -52,8 +52,8 @@ const useStyles = makeStyles((theme) => ({
     },
     helpButton: {
         marginTop: theme.spacing(2),
-        color: theme.palette.common.white,
-        borderColor: theme.palette.common.white,
+        color: theme.palette.lightBackground.main,
+        borderColor: theme.palette.lightBackground.main,
     },
 }));
 

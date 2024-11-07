@@ -37,9 +37,6 @@ const useStyles = makeStyles((theme) => ({
             },
         },
     },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
-    },
     button: {
         color: "white !important",
     },
@@ -160,7 +157,6 @@ const EnforceTwoFaViewForm = (props) => {
             <Grid container>
                 <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <Button
-                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >

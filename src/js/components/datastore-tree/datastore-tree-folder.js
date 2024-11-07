@@ -45,11 +45,10 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         padding: '5px 3px',
         paddingRight: '120px',
-        color: '#151f2b',
         '&.selected': {
             backgroundColor: '#F0F7FC',
             borderRadius: '4px',
-            borderColor: theme.palette.common.white,
+            borderColor: theme.palette.lightBackground.main,
         },
         '&:hover, &:focus': {
             backgroundColor: '#F0F7FC',
@@ -97,7 +96,7 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "50%",
     },
     faGroupShared: {
-        color: "#0f1118",
+        color: theme.palette.background.default,
         fontSize: "35%",
         marginTop: "60%",
     },

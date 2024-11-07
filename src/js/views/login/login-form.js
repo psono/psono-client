@@ -1079,7 +1079,6 @@ const LoginViewForm = (props) => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                classes={{ disabled: classes.disabledButton }}
                                 onClick={initiateLogin}
                                 type="submit"
                                 disabled={!loginPossible || loginLoading}
@@ -1454,7 +1453,6 @@ const LoginViewForm = (props) => {
                             type="submit"
                             style={{ marginRight: "10px" }}
                             disabled={!gaToken || gaToken.length < 6}
-                            classes={{ disabled: classes.disabledButton }}
                         >
                             {t("SEND")}
                         </Button>
@@ -1503,7 +1501,6 @@ const LoginViewForm = (props) => {
                             type="submit"
                             style={{ marginRight: "10px" }}
                             disabled={!yubikeyOtpToken || yubikeyOtpToken.length < 6}
-                            classes={{ disabled: classes.disabledButton }}
                         >
                             {t("SEND")}
                         </Button>
@@ -1552,7 +1549,6 @@ const LoginViewForm = (props) => {
                             type="submit"
                             style={{ marginRight: "10px" }}
                             disabled={!duoToken || duoToken.length < 6}
-                            classes={{ disabled: classes.disabledButton }}
                         >
                             {t("SEND")}
                         </Button>

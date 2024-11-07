@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.lightBackground.main,
         color: "#777",
         borderColor: "rgb(231, 231, 231)",
         borderStyle: "solid",

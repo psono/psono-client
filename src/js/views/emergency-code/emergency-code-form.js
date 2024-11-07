@@ -44,9 +44,6 @@ const useStyles = makeStyles((theme) => ({
             },
         },
     },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
-    },
     button: {
         color: "white !important",
     },
@@ -273,7 +270,6 @@ const EmergencyCodeViewForm = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            classes={{ disabled: classes.disabledButton }}
                             onClick={armEmergencyCode}
                             type="submit"
                             disabled={(!words && (!code1 || !code2)) || !username}

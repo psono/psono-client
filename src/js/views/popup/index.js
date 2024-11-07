@@ -51,6 +51,7 @@ import datastoreService from "../../services/datastore";
 import offlineCache from "../../services/offline-cache";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
 import accountService from "../../services/account";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -92,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
             justifyContent: "left",
         },
         "&:hover": {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: theme.palette.lightBackground.main,
             color: theme.palette.blueBackground.main,
         },
     },
@@ -112,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.lightGreyText.main,
         },
         "&:hover": {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: theme.palette.lightBackground.main,
             color: theme.palette.blueBackground.main,
         },
         "&:hover a": {

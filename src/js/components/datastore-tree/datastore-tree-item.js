@@ -34,7 +34,6 @@ const useStyles = makeStyles((theme) => ({
         cursor: 'pointer',
         margin: 0,
         padding: '5px 3px',
-        color: '#151f2b',
         border: '1px solid #FFF',
         display: 'block',
         textDecoration: 'none',
@@ -56,12 +55,9 @@ const useStyles = makeStyles((theme) => ({
             borderTop: '1px dotted #67b2dd',
             zIndex: 1,
         },
-        '& a': {
-            color: '#151f2b',
-        },
         '&.selected': {
             backgroundColor: 'inherit',
-            borderColor: theme.palette.common.white,
+            borderColor: theme.palette.lightBackground.main,
             borderRadius: '4px',
             '&:hover': {
                 backgroundColor: '#F0F7FC',
@@ -123,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "50%",
     },
     faGroupShared: {
-        color: "#0f1118",
+        color: theme.palette.background.default,
         fontSize: "35%",
         marginTop: "60%",
     },

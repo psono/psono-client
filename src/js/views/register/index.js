@@ -11,11 +11,12 @@ import RegisterViewForm from "./register-form";
 import FrameControls from "../../components/frame-controls";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
+import {alpha} from "@mui/material/styles";
 
 
 const useStyles = makeStyles((theme) => ({
     leftSection: {
-        backgroundColor: '#151f2b',
+        backgroundColor: theme.palette.blueBackground.main,
         paddingLeft: "30%",
         paddingRight: "10%",
         position: 'relative',
@@ -39,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     title: {
-        color: theme.palette.common.white,
+        color: theme.palette.lightBackground.main,
         textAlign: 'left',
     },
     rightContent: {
@@ -54,14 +55,14 @@ const useStyles = makeStyles((theme) => ({
         "& li": {
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#1f2d3a',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
             padding: theme.spacing(1),
             "@media(min-width:2000px)": {
                 padding: theme.spacing(2),
             },
             borderRadius: theme.shape.borderRadius,
             marginBottom: theme.spacing(1),
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
             boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
             "&:hover": {
                 backgroundColor: '#243447',

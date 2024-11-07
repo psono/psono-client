@@ -49,20 +49,20 @@ const useStyles = makeStyles((theme) => ({
     },
     listItemRootActive: {
         "&:hover": {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: theme.palette.lightBackground.main,
             color: theme.palette.blueBackground.main,
         },
         "&.Mui-selected": {
             backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
             "& .MuiListItemIcon-root": {
-                color: theme.palette.common.white,
+                color: theme.palette.lightBackground.main,
             },
         },
     },
     listItemRoot: {
         "&:hover": {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: theme.palette.lightBackground.main,
             color: theme.palette.blueBackground.main,
             "& .MuiListItemIcon-root": {
                 color: theme.palette.blueBackground.main,
@@ -70,9 +70,9 @@ const useStyles = makeStyles((theme) => ({
         },
         "&.Mui-selected": {
             backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
             "& .MuiListItemIcon-root": {
-                color: theme.palette.common.white,
+                color: theme.palette.lightBackground.main,
             },
         },
     },
@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
             fontSize: "0.75rem",
             height: "15px",
             minWidth: "15px",
-            color: theme.palette.common.white,
+            color: theme.palette.lightBackground.main,
             backgroundColor: "#777",
             right: "-8px",
         },
@@ -92,7 +92,7 @@ const useStyles = makeStyles((theme) => ({
         minWidth: theme.spacing(4),
     },
     listItemIconSelected: {
-        color: theme.palette.common.white,
+        color: theme.palette.lightBackground.main,
         minWidth: theme.spacing(4),
     },
     icon: {

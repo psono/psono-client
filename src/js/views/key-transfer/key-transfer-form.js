@@ -49,9 +49,6 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: theme.palette.blueBackground.main,
         },
     },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
-    },
     button: {
         color: "white !important",
     },
@@ -215,7 +212,6 @@ const KeyTransferForm = (props) => {
                         {t("APPROVE")}
                     </ButtonDanger>}
                     <Button
-                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >

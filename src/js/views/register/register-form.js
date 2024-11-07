@@ -17,6 +17,7 @@ import userService from "../../services/user";
 import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 import cryptoLibrary from "../../services/crypto-library";
+import {alpha} from "@mui/material/styles";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -46,9 +47,6 @@ const useStyles = makeStyles((theme) => ({
         "& .MuiLinearProgress-colorPrimary": {
             backgroundColor: theme.palette.blueBackground.main,
         },
-    },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
     },
     button: {
         color: "white !important",
@@ -299,7 +297,6 @@ const RegisterForm = (props) => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                classes={{ disabled: classes.disabledButton }}
                                 onClick={register}
                                 type="submit"
                                 disabled={
