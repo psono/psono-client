@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
         height: "100%",
         width: "100%",
         overflow: "auto",
-        backgroundColor: "#ebeeef",
+        backgroundColor: theme.palette.baseBackground.main,
         position: "absolute",
         paddingBottom: "30px",
     },

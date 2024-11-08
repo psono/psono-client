@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
             height: "15px",
             minWidth: "15px",
             color: theme.palette.lightBackground.main,
-            backgroundColor: "#777",
+            backgroundColor: theme.palette.badgeBackground.main,
             right: "-8px",
         },
     },

@@ -34,6 +34,9 @@ import browserClient from "../../services/browser-client";
 Chart.register(ArcElement, Tooltip);
 
 const useStyles = makeStyles((theme) => ({
+    toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
     root: {
         display: "flex",
         padding: "15px",

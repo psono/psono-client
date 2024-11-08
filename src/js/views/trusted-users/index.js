@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
         margin: "auto",
     },
     toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
         display: "flex",
     },
     toolbarTitle: {

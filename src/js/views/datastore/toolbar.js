@@ -26,6 +26,9 @@ import DialogTrashBin from "../../components/dialogs/trash-bin";
 import DialogVerify from "../../components/dialogs/verify";
 
 const useStyles = makeStyles((theme) => ({
+    toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
     toolbarTitle: {
         display: "none",
         [theme.breakpoints.up("sm")]: {

@@ -11,7 +11,8 @@ import deviceService from "./device";
 const theme = {
     "palette": {
         "background": {
-            "default": "#0f1118"
+            "default": "#0f1118",
+            "paper": "#fff"
         },
         "primary": {
             "main": "#2dbb93"
@@ -45,6 +46,42 @@ const theme = {
             "light": "#151f2b",
             "dark": "#151f2b",
             "contrastText": "#151f2b"
+        },
+        "badgeBackground": {
+            "main": "#777",
+            "light": "#777",
+            "dark": "#777",
+            "contrastText": "#777"
+        },
+        "appBarText": {
+            "main": "#777",
+            "light": "#777",
+            "dark": "#777",
+            "contrastText": "#777"
+        },
+        "appBarReadOnlyText": {
+            "main": "#777",
+            "light": "#777",
+            "dark": "#777",
+            "contrastText": "#777"
+        },
+        "appBarReadOnlyBackground": {
+            "main": "#fad8a6",
+            "light": "#fad8a6",
+            "dark": "#fad8a6",
+            "contrastText": "#fad8a6"
+        },
+        "appBarBackground": {
+            "main": "#fff",
+            "light": "#fff",
+            "dark": "#fff",
+            "contrastText": "#fff"
+        },
+        "baseBackground": {
+            "main": "#ebeeef",
+            "light": "#ebeeef",
+            "dark": "#ebeeef",
+            "contrastText": "#ebeeef"
         },
         "lightBackground": {
             "main": "#fff",

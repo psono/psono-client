@@ -64,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
         padding: "15px",
     },
     toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
         display: "flex",
     },
     inlineEditPaper: {

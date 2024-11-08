@@ -50,9 +50,9 @@ const useStyles = makeStyles((theme) => ({
             position: 'absolute',
             top: '20px',
             left: '-13px',
-            width: '18px',
+            width: '12px',
             height: 0,
-            borderTop: '1px dotted #67b2dd',
+            borderTop: `1px dotted ${theme.palette.blueBackground.main}`,
             zIndex: 1,
         },
         '&.selected': {
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 2,
     },
     faCircleShared: {
-        color: "#2dbb93",
+        color: theme.palette.primary.main,
         fontSize: "80%",
         marginTop: "50%",
     },

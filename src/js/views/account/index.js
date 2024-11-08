@@ -26,7 +26,6 @@ import {makeStyles} from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        backgroundColor: theme.palette.lightBackground.main,
         height: '100%',
     },
     tabs: {
