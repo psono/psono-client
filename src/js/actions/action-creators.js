@@ -33,6 +33,7 @@ import {
     SET_HIDE_DOWNLOAD_BANNER,
     SET_LAST_POPUP_SEARCH,
     SET_REQUESTS_IN_PROGRESS,
+    SET_CLIENT_CONFIG
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
@@ -281,6 +282,30 @@ function setPasswordConfig(
         });
     };
 }
+
+
+function setClientOptionsConfig(
+    noSaveMode,
+    showNoSaveToggle,
+    confirmOnUnsavedChanges,
+) {
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_no_save_mode", value: noSaveMode },
+        { key: "setting_show_no_save_toggle", value: showNoSaveToggle },
+        { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges },
+ ]);
+
+ return (dispatch) => {
+    dispatch({
+        type: SET_CLIENT_CONFIG,
+        noSaveMode,
+        showNoSaveToggle,
+        confirmOnUnsavedChanges,
+    });
+};
+}
+
+
 function setShownEntriesConfig(
     showWebsitePassword,
     showApplicationPassword,
@@ -490,6 +515,7 @@ const actionCreators = {
     sendNotification,
     setNotifications,
     setRequestsInProgress,
+    setClientOptionsConfig
 };
 
 export default actionCreators;

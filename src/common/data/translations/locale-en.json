@@ -1153,5 +1153,13 @@
   "MAYOTTE": "Mayotte",
   "SOUTH_AFRICA": "South Africa",
   "ZAMBIA": "Zambia",
-  "ZIMBABWE": "Zimbabwe"
+  "ZIMBABWE": "Zimbabwe",
+  "CONFIRM_ON_UNSAVED_CHANGES": "Confirm on unsaved changes",
+  "NO_SAVE_MODE": "Read-only mode",
+  "SHOW_SAVE_MODE_TOGGLE": "Display read-only mode toggle on the top bar",
+  "ITEM_UNSAVED_WARNING": "You have unsaved changes. Press Return to continue editing or Discard to discard changes and close the entry.",
+  "DATA_CHANGED": "The entry has been modified",
+  "DISCARD": "Discard",
+  "RETURN": "Return"
 }
+

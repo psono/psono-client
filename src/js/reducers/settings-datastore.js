@@ -4,6 +4,7 @@ import {
     SET_SHOWN_ENTRIES_CONFIG,
     SET_GPG_CONFIG,
     SET_GPG_DEFAULT_KEY,
+    SET_CLIENT_CONFIG
 } from "../actions/action-types";
 import { getStore } from "../services/store";
 
@@ -67,6 +68,10 @@ function settingsDatastore(
                 showBookmark: action.data.hasOwnProperty("setting_show_bookmark") ? action.data.setting_show_bookmark : true,
                 showElsterCertificate: action.data.hasOwnProperty("setting_show_elster_certificate") ? action.data.setting_show_elster_certificate : false,
                 showFile: action.data.hasOwnProperty("setting_show_file") ? action.data.setting_show_file : true,
+                showNoSaveToggle: action.data.hasOwnProperty("setting_show_no_save_toggle") ? action.data.setting_show_no_save_toggle : false,
+                noSaveMode: action.data.hasOwnProperty("setting_no_save_mode") ? action.data.setting_no_save_mode : false,
+                confirmOnUnsavedChanges: action.data.hasOwnProperty("setting_confirm_unsaved_changes") ? action.data.setting_confirm_unsaved_changes : true,
+
             });
         case SET_PASSWORD_CONFIG:
             return Object.assign({}, state, {
@@ -96,6 +101,12 @@ function settingsDatastore(
                 gpgDefaultKey: action.gpgDefaultKey,
                 gpgHkpKeyServer: action.gpgHkpKeyServer,
                 gpgHkpSearch: action.gpgHkpSearch,
+            });
+        case SET_CLIENT_CONFIG:
+            return Object.assign({}, state, {
+                noSaveMode: action.noSaveMode,
+                showNoSaveToggle: action.showNoSaveToggle,
+                confirmOnUnsavedChanges: action.confirmOnUnsavedChanges,
             });
         case SET_GPG_DEFAULT_KEY:
             return Object.assign({}, state, {
