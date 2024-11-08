@@ -225,7 +225,6 @@ const Topbar = (props) => {
     };
 
     const toggleNoSaveMode = (checked) => {
-        console.log(checked)
         setClientOptions(checked)
     }
 
@@ -334,14 +333,14 @@ const Topbar = (props) => {
                         </div>)}
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
-                            {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
                                     <Switch
                                             checked={settingsDatastore.noSaveMode}
                                             onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
                                             //inputProps={{ 'aria-label': 'controlled' }}
                                             disabled={!settingsDatastore.showNoSaveToggle}
-                                            />
-                                    )}
+                                    />
+                                )}
                                 <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
                                     <IconButton
                                         variant="contained"
@@ -383,20 +382,20 @@ const Topbar = (props) => {
                                 </ButtonGroup>
                             </Hidden>
                             <Hidden mdDown>
-                            <div className={classes.signInTextContainer}>
-                                {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
-                                    <FormControl component="fieldset">
-                                        <FormControlLabel
-                                        value="end"
-                                        control={<Switch
-                                            checked={settingsDatastore.noSaveMode}
-                                            onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
-                                            //inputProps={{ 'aria-label': 'controlled' }}
-                                            disabled={!settingsDatastore.showNoSaveToggle}
-                                            />}
-                                        label={t("NO_SAVE_MODE")}
-                                        labelPlacement="end"/>
-                                    </FormControl>
+                                <div className={classes.signInTextContainer}>
+                                    {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                        <FormControl component="fieldset">
+                                            <FormControlLabel
+                                            value="end"
+                                            control={<Switch
+                                                checked={settingsDatastore.noSaveMode}
+                                                onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                                //inputProps={{ 'aria-label': 'controlled' }}
+                                                disabled={!settingsDatastore.showNoSaveToggle}
+                                                />}
+                                            label={t("NO_SAVE_MODE")}
+                                            labelPlacement="end"/>
+                                        </FormControl>
                                     )}
                                     {t("SIGNED_IN_AS")}&nbsp;
                                     <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
