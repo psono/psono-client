@@ -127,7 +127,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, inline } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, inline, setDirty } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
@@ -276,9 +276,7 @@ const DialogEditEntry = (props) => {
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile) ||
         (item.type === "elster_certificate" && isValidElsterCertificate)
-    const [dataChanged, setDataChanged] = useState(false);
-    const [verifyDataChanged, setVerifyDataChanged] = useState(false);
-    const [verifyDataChangedOpen, setVerifyDataChangedOpen] = useState(false);
+    
     useHotkeys('alt+b', () => {
         // copy username
         onCopyUsername();
@@ -1026,11 +1024,7 @@ const DialogEditEntry = (props) => {
         setAnchorElMoreMenu(null);
     };
 
-    const verify_data_change_close = () => {
-        setVerifyDataChangedOpen(false)
-        setDataChanged(false)
-        onClose()
-    }
+
     const linkItem = function (event) {
         event.stopPropagation();
 
@@ -1045,15 +1039,6 @@ const DialogEditEntry = (props) => {
         onClose();
     }
 
-    const checkDataChanged = () => {
-        if (dataChanged && getStore().getState().settingsDatastore.confirmOnUnsavedChanges) {
-            setVerifyDataChangedOpen(true)
-            return false
-        } else {
-            return true
-        }
-    }
-
     let title = ''
     if (item.share_rights && item.share_rights.read) {
         title = item.share_rights && item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
@@ -1065,9 +1050,7 @@ const DialogEditEntry = (props) => {
         <React.Fragment>
             <Button
                 onClick={() => {
-                    if (checkDataChanged()) {
-                        onClose();
-                    }
+                    onClose();
                 }}
             >
                 {t("CLOSE")}
@@ -1131,18 +1114,6 @@ const DialogEditEntry = (props) => {
             {historyDialogOpen && (
                 <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />
             )}
-            {verifyDataChangedOpen && (
-                    <DialogVerify
-                        title={"DATA_CHANGED"}
-                        description={
-                            "ITEM_UNSAVED_WARNING"
-                        }
-                        
-                        open={verifyDataChangedOpen}
-                        onClose={() => verify_data_change_close()}
-                        onConfirm={() => setVerifyDataChangedOpen(false)}
-                    />
-                )}
         </React.Fragment>
     )
     const content = (
@@ -1158,10 +1129,10 @@ const DialogEditEntry = (props) => {
                         name="passkeyTitle"
                         autoComplete="off"
                         value={passkeyTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setPasskeyTitle(event.target.value);
                         }}
                     />
@@ -1178,10 +1149,10 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordTitle"
                         autoComplete="off"
                         value={websitePasswordTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordTitle(event.target.value);
                         }}
                     />
@@ -1199,7 +1170,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={websitePasswordUrl}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
@@ -1219,7 +1190,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
                             if (!event.target.value) {
@@ -1245,9 +1216,9 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUsername"
                         autoComplete="off"
                         value={websitePasswordUsername}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordUsername(event.target.value);
                         }}
                     />
@@ -1265,11 +1236,11 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={websitePasswordPassword}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1378,9 +1349,9 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordNotes"
                         autoComplete="off"
                         value={websitePasswordNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordNotes(event.target.value);
                         }}
                         multiline
@@ -1401,10 +1372,10 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordTitle"
                         autoComplete="off"
                         value={applicationPasswordTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
-                        onChange={(event) => {
-                            setDataChanged(true);
+                       onChange={(event) => {
+                            setDirty(true);
                             setApplicationPasswordTitle(event.target.value);
                         }}
                     />
@@ -1421,9 +1392,9 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordUsername"
                         autoComplete="off"
                         value={applicationPasswordUsername}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setApplicationPasswordUsername(event.target.value);
                         }}
                     />
@@ -1441,11 +1412,11 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={applicationPasswordPassword}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setApplicationPasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1516,9 +1487,9 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordNotes"
                         autoComplete="off"
                         value={applicationPasswordNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setApplicationPasswordNotes(event.target.value);
                         }}
                         multiline
@@ -1539,10 +1510,10 @@ const DialogEditEntry = (props) => {
                         name="bookmarkTitle"
                         autoComplete="off"
                         value={bookmarkTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setBookmarkTitle(event.target.value);
                         }}
                     />
@@ -1561,7 +1532,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={bookmarkUrl}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
@@ -1581,7 +1552,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
                             if (!event.target.value) {
@@ -1607,9 +1578,9 @@ const DialogEditEntry = (props) => {
                         name="bookmarkNotes"
                         autoComplete="off"
                         value={bookmarkNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setBookmarkNotes(event.target.value);
                         }}
                         multiline
@@ -1630,10 +1601,10 @@ const DialogEditEntry = (props) => {
                         name="noteTitle"
                         autoComplete="off"
                         value={noteTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setNoteTitle(event.target.value);
                         }}
                     />
@@ -1650,9 +1621,9 @@ const DialogEditEntry = (props) => {
                         name="noteNotes"
                         autoComplete="off"
                         value={noteNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setNoteNotes(event.target.value);
                         }}
                         multiline
@@ -1673,10 +1644,10 @@ const DialogEditEntry = (props) => {
                         name="totpTitle"
                         autoComplete="off"
                         value={totpTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setTotpTitle(event.target.value);
                         }}
                     />
@@ -1705,9 +1676,9 @@ const DialogEditEntry = (props) => {
                         name="totpNotes"
                         autoComplete="off"
                         value={totpNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setTotpNotes(event.target.value);
                         }}
                         multiline
@@ -1728,10 +1699,10 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesTitle"
                         autoComplete="off"
                         value={environmentVariablesTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setEnvironmentVariablesTitle(event.target.value);
                         }}
                     />
@@ -1753,10 +1724,10 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-key-" + index}
                                         autoComplete={"environmentVariablesVariables-key-" + index}
                                         value={variable.key}
-                                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
-                                            setDataChanged(true);
+                                            setDirty(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["key"] = event.target.value;
@@ -1774,10 +1745,10 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-value-" + index}
                                         autoComplete={"environmentVariablesVariables-value-" + index}
                                         value={variable.value}
-                                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
-                                            setDataChanged(true);
+                                            setDirty(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs[index]["value"] = event.target.value;
@@ -1790,7 +1761,7 @@ const DialogEditEntry = (props) => {
                                         className={classes.iconButton2}
                                         aria-label="menu"
                                         onClick={() => {
-                                            setDataChanged(true);
+                                            setDirty(true);
                                             const newEnvs =
                                                 helperService.duplicateObject(environmentVariablesVariables);
                                             newEnvs.splice(index, 1);
@@ -1833,9 +1804,9 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesNotes"
                         autoComplete="off"
                         value={environmentVariablesNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setEnvironmentVariablesNotes(event.target.value);
                         }}
                         multiline
@@ -1856,10 +1827,10 @@ const DialogEditEntry = (props) => {
                         name="elsterCertificateTitle"
                         autoComplete="off"
                         value={elsterCertificateTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setElsterCertificateTitle(event.target.value);
                         }}
                     />
@@ -1890,11 +1861,11 @@ const DialogEditEntry = (props) => {
                         required
                         value={elsterCertificatePassword}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setElsterCertificatePassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1962,11 +1933,11 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={elsterCertificateRetrievalCode}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setElsterCertificateRetrievalCode(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2025,7 +1996,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={elsterCertificateNotes}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setElsterCertificateNotes(event.target.value);
                         }}
                         multiline
@@ -2047,10 +2018,10 @@ const DialogEditEntry = (props) => {
                         name="fileTitle"
                         autoComplete="off"
                         value={fileTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setFileTitle(event.target.value);
                         }}
                     />
@@ -2068,10 +2039,10 @@ const DialogEditEntry = (props) => {
                         name="creditCardTitle"
                         autoComplete="off"
                         value={creditCardTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardTitle(event.target.value);
                         }}
                     />
@@ -2091,7 +2062,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardNumber}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2140,7 +2111,7 @@ const DialogEditEntry = (props) => {
                         }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardNumber(event.target.value);
                         }}
                     />
@@ -2160,11 +2131,11 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardName}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                         }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardName(event.target.value);
                         }}
                     />
@@ -2183,10 +2154,10 @@ const DialogEditEntry = (props) => {
                         name="creditCardValidThrough"
                         autoComplete="off"
                         value={creditCardValidThrough}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardValidThrough(event.target.value)
                         }}
                     />
@@ -2205,10 +2176,10 @@ const DialogEditEntry = (props) => {
                         name="creditCardCVC"
                         autoComplete="off"
                         value={creditCardCVC}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardCVC(event.target.value)
                         }}
                     />
@@ -2228,7 +2199,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardPIN}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             //check whether our string only contains numbers
                             const pattern = new RegExp('^[0-9]*$');
                             if (!pattern.test(event.target.value)) {
@@ -2237,7 +2208,7 @@ const DialogEditEntry = (props) => {
                             setCreditCardPIN(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPin ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2298,9 +2269,9 @@ const DialogEditEntry = (props) => {
                         name="creditCardNotes"
                         autoComplete="off"
                         value={creditCardNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCreditCardNotes(event.target.value);
                         }}
                         multiline
@@ -2323,10 +2294,10 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyTitle"
                         autoComplete="off"
                         value={sshOwnKeyTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setSshOwnKeyTitle(event.target.value);
                         }}
                     />
@@ -2343,10 +2314,10 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyPublic"
                         autoComplete="off"
                         value={sshOwnKeyPublic}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setSshOwnKeyPublic(event.target.value);
                         }}
                         multiline
@@ -2369,14 +2340,14 @@ const DialogEditEntry = (props) => {
                         value={sshOwnKeyPrivate}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setSshOwnKeyPrivate(event.target.value);
                         }}
                         multiline={showPassword}
                         minRows={3}
                         maxRows={10}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2434,9 +2405,9 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyNotes"
                         autoComplete="off"
                         value={sshOwnKeyNotes}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setSshOwnKeyNotes(event.target.value);
                         }}
                         multiline
@@ -2461,10 +2432,10 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyTitle"
                         autoComplete="off"
                         value={mailGpgOwnKeyTitle}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setMailGpgOwnKeyTitle(event.target.value);
                         }}
                     />
@@ -2481,10 +2452,10 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyEmail"
                         autoComplete="off"
                         value={mailGpgOwnKeyEmail}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setMailGpgOwnKeyEmail(event.target.value);
                         }}
                         disabled
@@ -2502,10 +2473,10 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyName"
                         autoComplete="off"
                         value={mailGpgOwnKeyName}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setMailGpgOwnKeyName(event.target.value);
                         }}
                         disabled
@@ -2523,10 +2494,10 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyPublic"
                         autoComplete="off"
                         value={mailGpgOwnKeyPublic}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setMailGpgOwnKeyPublic(event.target.value);
                         }}
                         disabled
@@ -2549,7 +2520,7 @@ const DialogEditEntry = (props) => {
                         value={mailGpgOwnKeyPrivate}
                         required
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setMailGpgOwnKeyPrivate(event.target.value);
                         }}
                         disabled
@@ -2557,7 +2528,7 @@ const DialogEditEntry = (props) => {
                         minRows={3}
                         maxRows={10}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2645,7 +2616,7 @@ const DialogEditEntry = (props) => {
                     <Checkbox
                         checked={passkeyAutoSubmit}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setPasskeyAutoSubmit(event.target.checked);
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
@@ -2663,7 +2634,7 @@ const DialogEditEntry = (props) => {
                     <Checkbox
                         checked={websitePasswordAutoSubmit}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordAutoSubmit(event.target.checked);
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
@@ -2687,9 +2658,9 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUrlFilter"
                         autoComplete="off"
                         value={websitePasswordUrlFilter}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setWebsitePasswordUrlFilter(event.target.value);
                         }}
                     />
@@ -2707,9 +2678,9 @@ const DialogEditEntry = (props) => {
                         name="bookmarkUrlFilter"
                         autoComplete="off"
                         value={bookmarkUrlFilter}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setBookmarkUrlFilter(event.target.value);
                         }}
                     />
@@ -2727,9 +2698,9 @@ const DialogEditEntry = (props) => {
                         name="callbackUrl"
                         autoComplete="off"
                         value={callbackUrl}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCallbackUrl(event.target.value);
                         }}
                     />
@@ -2746,9 +2717,9 @@ const DialogEditEntry = (props) => {
                         name="callbackUser"
                         autoComplete="off"
                         value={callbackUser}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCallbackUser(event.target.value);
                         }}
                     />
@@ -2766,11 +2737,11 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={callbackPass}
                         onChange={(event) => {
-                            setDataChanged(true);
+                            setDirty(true);
                             setCallbackPass(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights || !item.share_rights.write,
+                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2815,7 +2786,7 @@ const DialogEditEntry = (props) => {
                         totpDigits,
                         totpCode,
                     ) => {
-                        setDataChanged(true);
+                        setDirty(true);
                         setWebsitePasswordTotpPeriod(totpPeriod);
                         setWebsitePasswordTotpAlgorithm(totpAlgorithm);
                         setWebsitePasswordTotpDigits(totpDigits);

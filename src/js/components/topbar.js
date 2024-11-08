@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "orange",
+        backgroundColor: "#ffb84d",
         color: "#777",
         borderColor: "rgb(231, 231, 231)",
         borderStyle: "solid",
@@ -334,6 +334,14 @@ const Topbar = (props) => {
                         </div>)}
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
+                            {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                    <Switch
+                                            checked={settingsDatastore.noSaveMode}
+                                            onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                            //inputProps={{ 'aria-label': 'controlled' }}
+                                            disabled={!settingsDatastore.showNoSaveToggle}
+                                            />
+                                    )}
                                 <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
                                     <IconButton
                                         variant="contained"
