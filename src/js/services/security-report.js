@@ -166,7 +166,8 @@ function filterPasswordsHelper(folder, passwords) {
     for (i = 0; folder.hasOwnProperty("items") && i < folder["items"].length; i++) {
         if (
             folder["items"][i]["type"] !== "website_password" &&
-            folder["items"][i]["type"] !== "application_password"
+            folder["items"][i]["type"] !== "application_password" &&
+            folder["items"][i]["type"] !== "elster_certificate"
         ) {
             continue;
         }
@@ -190,13 +191,24 @@ function filterPasswordsHelper(folder, passwords) {
                 write_date: folder["items"][i]["write_date"],
                 master_password: false,
             });
-        } else {
+        } else if (folder["items"][i]["type"] === "website_password")  {
             passwords.push({
                 type: folder["items"][i]["type"],
                 name: folder["items"][i]["name"],
                 secret_id: folder["items"][i]["secret_id"],
                 username: folder["items"][i]["website_password_username"],
                 password: folder["items"][i]["website_password_password"],
+                create_date: folder["items"][i]["create_date"],
+                write_date: folder["items"][i]["write_date"],
+                master_password: false,
+            });
+        } else if (folder["items"][i]["type"] === "elster_certificate")  {
+            passwords.push({
+                type: folder["items"][i]["type"],
+                name: folder["items"][i]["name"],
+                secret_id: folder["items"][i]["secret_id"],
+                username: '',
+                password: folder["items"][i]["elster_certificate_password"],
                 create_date: folder["items"][i]["create_date"],
                 write_date: folder["items"][i]["write_date"],
                 master_password: false,
@@ -278,7 +290,7 @@ function analyzePasswordLength(secrets) {
             password_length: rating["password_length"],
             variation_count: rating["variation_count"],
             breached: rating["breached"],
-            type: rating["type"] || "website_password",
+            type: secrets[i]["type"] || "website_password",
             input_type: "password",
             advice: rating["advice"],
             create_age: getAgeInDays(secrets[i]["create_date"]),
