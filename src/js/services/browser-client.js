@@ -499,6 +499,15 @@ function _loadConfig() {
                 }
             }
 
+            if (!newConfig.hasOwnProperty("allow_registration")) {
+                newConfig["allow_registration"] = true;
+            }
+            if (!newConfig.hasOwnProperty("allow_lost_password")) {
+                newConfig["allow_lost_password"] = true;
+            }
+            if (!newConfig.hasOwnProperty("allow_delete_account")) {
+                newConfig["allow_delete_account"] = true;
+            }
             if (!newConfig.hasOwnProperty("authentication_methods")) {
                 newConfig["authentication_methods"] = ["AUTHKEY", "LDAP", "SAML", "OIDC"];
             }

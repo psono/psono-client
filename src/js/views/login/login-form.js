@@ -139,6 +139,7 @@ const LoginViewForm = (props) => {
     const [loginType, setLoginType] = useState("");
     const [plainPasswordWhitelistedServerUrls, setPlainPasswordWhitelistedServerUrls] = useState([]);
     const [allowLostPassword, setAllowLostPassword] = useState(false);
+    const [allowDeleteAccount, setAllowDeleteAccount] = useState(false);
     const [authkeyEnabled, setAuthkeyEnabled] = useState(false);
     const [ldapEnabled, setLdapEnabled] = useState(false);
     const [samlEnabled, setSamlEnabled] = useState(false);
@@ -623,12 +624,11 @@ const LoginViewForm = (props) => {
         const allowRegistration =
             !configJson.hasOwnProperty("allow_registration") ||
             (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
-        const allowLostPassword =
-            (!configJson.hasOwnProperty("allow_lost_password") ||
-                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"]));
+        const allowLostPassword = configJson.allow_lost_password;
         const samlProvider = configJson.saml_provider;
         const oidcProvider = configJson.oidc_provider;
         const authenticationMethods = configJson.authentication_methods;
+        const allowDeleteAccount = configJson.allow_delete_account;
         const allowCustomServer = configJson.allow_custom_server;
         const trustDeviceDefault = configJson.trust_device_default;
         const rememberMeDefault = configJson.remember_me_default;
@@ -642,6 +642,7 @@ const LoginViewForm = (props) => {
 
         setPlainPasswordWhitelistedServerUrls(plainPasswordWhitelistedServerUrls);
         setAllowLostPassword(allowLostPassword);
+        setAllowDeleteAccount(allowDeleteAccount);
         setAllowRegistration(allowRegistration);
         let newServer = server;
         if (!newServer) {
@@ -1731,17 +1732,38 @@ const LoginViewForm = (props) => {
                 )}
 
                 {allowLostPassword && !window.location.pathname.endsWith("/default_popup.html") && (
-                    <a href="lost-password.html">{t("LOST_PASSWORD")}</a>
+                    <>
+                        <a href="lost-password.html">{t("LOST_PASSWORD")}</a>
+                        &nbsp;&nbsp;
+                    </>
                 )}
                 {allowLostPassword && window.location.pathname.endsWith("/default_popup.html") && (
+                    <>
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                browserClient.openTab("lost-password.html");
+                            }}
+                        >
+                            {t("LOST_PASSWORD")}
+                        </a>
+                        &nbsp;&nbsp;
+                    </>
+                )}
+
+                {allowDeleteAccount && !window.location.pathname.endsWith("/default_popup.html") && (
+                    <a href="delete-user.html">{t("DELETE_ACCOUNT")}</a>
+                )}
+                {allowDeleteAccount && window.location.pathname.endsWith("/default_popup.html") && (
                     <a
                         href="#"
                         onClick={(e) => {
                             e.preventDefault();
-                            browserClient.openTab("lost-password.html");
+                            browserClient.openTab("delete-user.html");
                         }}
                     >
-                        {t("LOST_PASSWORD")}
+                        {t("DELETE_ACCOUNT")}
                     </a>
                 )}
                 &nbsp;&nbsp;

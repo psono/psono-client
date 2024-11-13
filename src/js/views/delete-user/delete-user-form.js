@@ -12,9 +12,6 @@ import Button from "@mui/material/Button";
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";
-import converterService from "../../services/converter";
-import host from "../../services/host";
-import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
@@ -49,28 +46,31 @@ const useStyles = makeStyles((theme) => ({
     inputAdornment: {
         color: theme.palette.lightGreyText.main,
     },
-    regularButtonText: {
-        color: theme.palette.lightGreyText.main,
+    horizontalline: {
+        width: "100%",
+        textAlign: "center",
+        borderBottom: `1px solid ${theme.palette.background.default}` ,
+        lineHeight: "0.1em",
+        margin: "20px 0",
+        "& span": {
+            backgroundColor: theme.palette.blueBackground.main,
+            padding: "0 10px",
+        },
     },
 }));
 
-const LostPasswordViewForm = (props) => {
+const DeleteUserViewForm = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
     const [username, setUsername] = useState(getStore().getState().user.username);
-    const [code1, setCode1] = useState("");
-    const [code2, setCode2] = useState("");
-    const [words, setWords] = useState("");
+
+    const [email, setEmail] = useState("");
     const [server, setServer] = useState(getStore().getState().server.url);
-    const [password, setPassword] = useState("");
-    const [passwordRepeat, setPasswordRepeat] = useState("");
     const [domain, setDomain] = useState("");
     const [errors, setErrors] = useState([]);
-    const [recoveryData, setRecoveryData] = useState({});
-    const [recoveryCode, setRecoveryCode] = useState({});
-    const [allowLostPassword, setAllowLostPassword] = useState(false);
+    const [allowDeleteAccount, setAllowDeleteAccount] = useState(false);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
 
     let isSubscribed = true;
@@ -79,56 +79,6 @@ const LostPasswordViewForm = (props) => {
         return () => (isSubscribed = false);
     }, []);
 
-    const cancel = (e) => {
-        setView("default");
-        setErrors([]);
-    };
-
-    const setNewPassword = (e) => {
-        setErrors([]);
-
-        host.info().then(
-            function (info) {
-                const test_error = helperService.isValidPassword(
-                    password,
-                    passwordRepeat,
-                    info.data["decoded_info"]["compliance_min_master_password_length"],
-                    info.data["decoded_info"]["compliance_min_master_password_complexity"]
-                );
-
-                if (test_error) {
-                    setErrors([test_error]);
-                    return;
-                }
-
-                function onError() {
-                    alert("Error, should not happen.");
-                }
-
-                function onSuccess() {
-                    setView("success");
-                }
-                let parsedUrl = helperService.parseUrl(server);
-                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
-
-                // Validate now the username
-                user.setPassword(
-                    fullUsername,
-                    recoveryCode,
-                    password,
-                    recoveryData.user_private_key,
-                    recoveryData.user_secret_key,
-                    recoveryData.user_sauce,
-                    recoveryData.verifier_public_key
-                ).then(onSuccess, onError);
-            },
-            function (data) {
-                console.log(data);
-                // handle server is offline
-                setErrors(["SERVER_OFFLINE"]);
-            }
-        );
-    };
 
     const onNewConfigLoaded = (configJson) => {
         if (!isSubscribed) {
@@ -136,16 +86,16 @@ const LostPasswordViewForm = (props) => {
         }
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
-        const allowLostPassword = configJson.allow_lost_password;
+        const allowDeleteAccount = configJson.allow_delete_account;
         const allowCustomServer = configJson.allow_custom_server;
 
-        setAllowLostPassword(allowLostPassword);
+        setAllowDeleteAccount(allowDeleteAccount);
         setServer(serverUrl);
         setDomain(domain);
         setAllowCustomServer(allowCustomServer);
     };
 
-    const recoveryEnable = () => {
+    const deleteAccount = () => {
         setErrors([]);
         let parsedUrl = helperService.parseUrl(server);
 
@@ -154,24 +104,6 @@ const LostPasswordViewForm = (props) => {
         const testResult = helperService.isValidUsername(fullUsername);
         if (testResult) {
             setErrors([testResult]);
-            return;
-        }
-
-        // Validate now the recovery code information (words and codes)
-        let recoveryCode;
-        if (typeof words !== "undefined" && words !== "") {
-            recoveryCode = converterService.hexToBase58(converterService.wordsToHex(words.split(" ")));
-        } else if (typeof code1 !== "undefined" && code1 !== "" && typeof code2 !== "undefined" && code2 !== "") {
-            if (
-                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
-                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
-            ) {
-                setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
-                return;
-            }
-            recoveryCode = cryptoLibrary.recoveryCodeStripChecksums(code1 + code2);
-        } else {
-            setErrors(["SOMETHING_STRANGE_HAPPENED"]);
             return;
         }
 
@@ -194,15 +126,11 @@ const LostPasswordViewForm = (props) => {
             if (data.hasOwnProperty("message")) {
                 setErrors([data.message]);
             } else {
-                setView("set_password");
-                setRecoveryCode(recoveryCode);
-                setRecoveryData(data);
-
-                // TODO start timer with data.verifier_time_valid seconds
+                setView("success");
             }
         }
 
-        user.recoveryEnable(fullUsername, recoveryCode, server).then(onSuccess, onError);
+        user.unregister(username, email).then(onSuccess, onError);
     };
 
     let formContent;
@@ -210,7 +138,7 @@ const LostPasswordViewForm = (props) => {
     if (view === "default") {
         formContent = (
             <>
-                {!allowLostPassword && (
+                {!allowDeleteAccount && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
                             <MuiAlert
@@ -220,7 +148,7 @@ const LostPasswordViewForm = (props) => {
                                     marginTop: "5px",
                                 }}
                             >
-                                {t("PASSWORD_RESET_HAS_BEEN_DISABLED")}
+                                {t("USER_ACCOUNT_DELETION_HAS_BEEN_DISABLED")}
                             </MuiAlert>
                         </Grid>
                         <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
@@ -236,7 +164,7 @@ const LostPasswordViewForm = (props) => {
                         </Grid>
                     </Grid>
                 )}
-                {allowLostPassword && (
+                {allowDeleteAccount && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
@@ -259,68 +187,55 @@ const LostPasswordViewForm = (props) => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={6} md={6}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="code1"
-                                placeholder="DdSLuiDcPuY2F"
-                                name="code1"
-                                autoComplete="off"
-                                value={code1}
-                                onChange={(event) => {
-                                    setCode1(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={6} md={6}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="code2"
-                                placeholder="Dsxf82sKQdqPs"
-                                name="code2"
-                                autoComplete="off"
-                                value={code2}
-                                onChange={(event) => {
-                                    setCode2(event.target.value);
-                                }}
-                            />
+                        <Grid item xs={12} sm={12} md={12}>
+                            <p className={classes.horizontalline}>
+                                <span>{t("OR")}</span>
+                            </p>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
                                 margin="dense" size="small"
-                                id="words"
-                                placeholder={t("OR_WORDLIST")}
-                                name="words"
+                                id="email"
+                                type="email"
+                                label={t("EMAIL")}
+                                name="email"
                                 autoComplete="off"
-                                value={words}
+                                value={email}
                                 onChange={(event) => {
-                                    setWords(event.target.value);
+                                    setEmail(event.target.value);
                                 }}
                             />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <MuiAlert
+                                severity="info"
+                                style={{
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                }}
+                            >
+                                {t("DELETE_ACCOUNT_INFO")}
+                            </MuiAlert>
                         </Grid>
                     </Grid>
                 )}
 
-                {allowLostPassword && (
+                {allowDeleteAccount && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={recoveryEnable}
+                                onClick={deleteAccount}
                                 type="submit"
-                                disabled={(!words && (!code1 || !code2)) || !username}
+                                disabled={Boolean((!username && !email) || (username && email))}
                             >
-                                {t("REQUEST_PASSWORD_RESET")}
+                                {t("REQUEST_ACCOUNT_DELETION")}
                             </Button>
                             <Button href={"index.html"}>
-                                <span className={classes.regularButtonText}>{t("ABORT")}</span>
+                                {t("ABORT")}
                             </Button>
                         </Grid>
                     </Grid>
@@ -352,81 +267,23 @@ const LostPasswordViewForm = (props) => {
 
     if (view === "success") {
         formContent = (
-            <Grid container>
-                <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                    <ThumbUpIcon style={{ fontSize: 160 }} />
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        href={"index.html"}
-                        className={classes.button}
-                    >
-                        {t("BACK_TO_HOME")}
-                    </Button>
-                </Grid>
-            </Grid>
-        );
-    }
-
-    if (view === "set_password") {
-        formContent = (
             <>
-                <Grid item xs={12} sm={12} md={12}>
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="password"
-                        label={t("NEW_PASSWORD")}
-                        InputProps={{
-                            type: "password",
-                        }}
-                        name="password"
-                        autoComplete="off"
-                        value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value);
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="passwordRepeat"
-                        label={t("NEW_PASSWORD_REPEAT")}
-                        InputProps={{
-                            type: "password",
-                        }}
-                        name="passwordRepeat"
-                        autoComplete="off"
-                        value={passwordRepeat}
-                        onChange={(event) => {
-                            setPasswordRepeat(event.target.value);
-                        }}
-                    />
-                </Grid>
                 <Grid container>
-                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
+                        <ThumbUpIcon style={{ fontSize: 160 }} />
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={setNewPassword}
                             type="submit"
-                            style={{ marginRight: "10px" }}
+                            href={"index.html"}
+                            className={classes.button}
                         >
-                            {t("SET_NEW_PASSWORD")}
-                        </Button>
-                        <Button onClick={cancel}>
-                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
+                            {t("BACK_TO_HOME")}
                         </Button>
                     </Grid>
                 </Grid>
-                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -436,7 +293,7 @@ const LostPasswordViewForm = (props) => {
             onSubmit={(e) => {
                 e.preventDefault();
             }}
-            name="lostpasswordForm"
+            name="deleteUserForm"
             autoComplete="off"
         >
             {formContent}
@@ -447,4 +304,4 @@ const LostPasswordViewForm = (props) => {
     );
 };
 
-export default LostPasswordViewForm;
+export default DeleteUserViewForm;
