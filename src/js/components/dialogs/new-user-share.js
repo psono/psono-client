@@ -498,7 +498,6 @@ const DialogNewUserShare = (props) => {
                     {view === "create" && Boolean(foundUserId) && (
                         <Button
                             onClick={create}
-                            disabled={!read && !write && !grant}
                             variant="contained"
                             color="primary"
                             type="submit"
