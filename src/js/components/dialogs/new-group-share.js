@@ -49,48 +49,24 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const DialogNewShare = (props) => {
+const DialogNewGroupShare = (props) => {
     const { open, onClose, onCreate, node } = props;
     const { t } = useTranslation();
     const disableUnmanagedGroups = useSelector((state) => state.server.complianceDisableUnmanagedGroups);
     const classes = useStyles();
-    const [value, setValue] = useState(0);
     const [read, setRead] = useState(true);
     const [write, setWrite] = useState(false);
     const [grant, setGrant] = useState(false);
-    const [users, setUsers] = useState([]);
     const [groups, setGroups] = useState([]);
     const [newGroupOpen, setNewGroupOpen] = useState(false);
-    const [userDatastore, setUserDatastore] = useState({});
-    const [newUserOpen, setNewUserOpen] = useState(false);
-    const [userColumnData, setUserColumnData] = useState([]);
     const [groupColumnData, setGroupColumnData] = useState([]);
     const [selectedGroups, setSelectedGroups] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
 
     let isSubscribed = true;
     React.useEffect(() => {
-        if (props.users) {
-            loadUsers();
-        }
-        if (props.groups) {
-            loadGroups();
-        }
+        loadGroups();
         return () => (isSubscribed = false);
     }, []);
-
-    const loadUsers = () => {
-        datastoreUserService.getUserDatastore().then(function (newUserDatastore) {
-            if (!isSubscribed) {
-                return;
-            }
-            const newUsers = [];
-            setUserDatastore(newUserDatastore);
-            helper.createList(newUserDatastore, newUsers);
-            setUsers(newUsers);
-            setUserColumnData(newUsers.map((user) => [user.id, user.name]));
-        });
-    };
 
     const loadGroups = () => {
         groupsService.readGroups(true).then(function (newGroups) {
@@ -107,11 +83,7 @@ const DialogNewShare = (props) => {
 
     const toggleSelect = (entityId, type) => {
         let searchArray;
-        if (type === "user") {
-            searchArray = helper.duplicateObject(selectedUsers);
-        } else {
-            searchArray = helper.duplicateObject(selectedGroups);
-        }
+        searchArray = helper.duplicateObject(selectedGroups);
 
         var array_index = searchArray.indexOf(entityId);
         if (array_index > -1) {
@@ -120,27 +92,7 @@ const DialogNewShare = (props) => {
         } else {
             searchArray.push(entityId);
         }
-        if (type === "user") {
-            setSelectedUsers(searchArray);
-        } else {
-            setSelectedGroups(searchArray);
-        }
-    };
-
-    const onNewUserCreate = (userObject) => {
-        setNewUserOpen(false);
-        datastoreUserService.addUserToDatastore(userDatastore, userObject).then(
-            () => {
-                loadUsers();
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
-    };
-
-    const onCreateTrustedUser = () => {
-        setNewUserOpen(true);
+        setSelectedGroups(searchArray);
     };
 
     const onCloseCreateGroupModal = () => {
@@ -150,47 +102,6 @@ const DialogNewShare = (props) => {
     const onCreateGroup = () => {
         setNewGroupOpen(true);
     };
-
-    const userColumns = [
-        { name: t("ID"), options: { display: false } },
-        {
-            name: t("USER"),
-            options: {
-                filter: true,
-                sort: true,
-                empty: false,
-                customBodyRender: (value, tableMeta, updateValue) => {
-                    return (
-                        <React.Fragment>
-                            {tableMeta.rowData[1].length > 58
-                                ? tableMeta.rowData[1].substring(0, 58) + "...)"
-                                : tableMeta.rowData[1]}
-                        </React.Fragment>
-                    );
-                },
-            },
-        },
-        {
-            name: t("INVITE"),
-            options: {
-                filter: true,
-                sort: true,
-                empty: false,
-                customHeadLabelRender: () => null,
-                customBodyRender: (value, tableMeta, updateValue) => {
-                    return (
-                        <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "user")} size="large">
-                            {selectedUsers.indexOf(tableMeta.rowData[0]) > -1 ? (
-                                <CheckBoxIcon />
-                            ) : (
-                                <CheckBoxOutlineBlankIcon />
-                            )}
-                        </IconButton>
-                    );
-                },
-            },
-        },
-    ];
 
     const groupColumns = [
         { name: t("ID"), options: { display: false } },
@@ -308,22 +219,12 @@ const DialogNewShare = (props) => {
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
-                            {props.users && (
-                                <Table
-                                    data={userColumnData}
-                                    columns={userColumns}
-                                    options={options}
-                                    onCreate={onCreateTrustedUser}
-                                />
-                            )}
-                            {props.groups && (
-                                <Table
-                                    data={groupColumnData}
-                                    columns={groupColumns}
-                                    options={options}
-                                    onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}
-                                />
-                            )}
+                            <Table
+                                data={groupColumnData}
+                                columns={groupColumns}
+                                options={options}
+                                onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}
+                            />
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -338,7 +239,6 @@ const DialogNewShare = (props) => {
                     <Button
                         onClick={() => {
                             onCreate(
-                                users.filter((user) => selectedUsers.indexOf(user.id) > -1),
                                 groups.filter((group) => selectedGroups.indexOf(group.group_id) > -1),
                                 read,
                                 write,
@@ -354,21 +254,16 @@ const DialogNewShare = (props) => {
                     </Button>
                 </DialogActions>
                 {newGroupOpen && <CreateGroupDialog {...props} open={newGroupOpen} onClose={onCloseCreateGroupModal} />}
-                {newUserOpen && (
-                    <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />
-                )}
             </form>
         </Dialog>
     );
 };
 
-DialogNewShare.propTypes = {
+DialogNewGroupShare.propTypes = {
     onClose: PropTypes.func.isRequired,
     onCreate: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     node: PropTypes.object.isRequired,
-    users: PropTypes.bool.isRequired,
-    groups: PropTypes.bool.isRequired,
 };
 
-export default DialogNewShare;
+export default DialogNewGroupShare;

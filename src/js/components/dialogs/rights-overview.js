@@ -24,13 +24,15 @@ import Table from "../table";
 import { getStore } from "../../services/store";
 import helper from "../../services/helper";
 import DialogVerify from "./verify";
-import DialogNewShare from "./new-share";
+import DialogNewGroupShare from "./new-group-share";
+import DialogNewUserShare from "./new-user-share";
 import datastorePasswordService from "../../services/datastore-password";
 import datastoreService from "../../services/datastore";
 import groupsService from "../../services/groups";
 import DialogError from "./error";
 import DialogProgress from "./progress";
 import offlineCache from "../../services/offline-cache";
+import DialogNewShare from "./new-group-share";
 
 const useStyles = makeStyles((theme) => ({
     tabPanel: {
@@ -726,23 +728,23 @@ const DialogRightsOverview = (props) => {
                 />
             )}
             {newShareUserOpen && (
-                <DialogNewShare
+                <DialogNewUserShare
                     open={newShareUserOpen}
                     onClose={() => setNewShareUserOpen(false)}
-                    onCreate={onNewShareCreate}
+                    onCreate={(users, read, write, grant) => {
+                        onNewShareCreate(users, [], read, write, grant )
+                    }}
                     node={item}
-                    users={true}
-                    groups={false}
                 />
             )}
             {newShareGroupOpen && (
-                <DialogNewShare
+                <DialogNewGroupShare
                     open={newShareGroupOpen}
                     onClose={() => setNewShareGroupOpen(false)}
-                    onCreate={onNewShareCreate}
+                    onCreate={(groups, read, write, grant) => {
+                        onNewShareCreate([], groups, read, write, grant )
+                    }}
                     node={item}
-                    users={false}
-                    groups={true}
                 />
             )}
             {error !== null && (
