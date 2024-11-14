@@ -345,6 +345,7 @@ const DialogNewShare = (props) => {
                                 grant
                             );
                         }}
+                        disabled={!read && !write && !grant}
                         variant="contained"
                         color="primary"
                         type="submit"
