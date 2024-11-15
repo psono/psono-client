@@ -165,6 +165,7 @@ const DialogRightsOverview = (props) => {
     }
 
     const deleteOwnShareRightConfirmed = () => {
+        setVerifyDeleteOwnShareRightOpen(false)
         return deleteRightWithoutFurtherWarning(verifyDeleteOwnShareRightData.right);
     };
 
