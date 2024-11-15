@@ -18,6 +18,7 @@ import {
     SET_OFFLINE_CACHE_ENCRYPTION_INFO,
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
+    SET_SHOW_FILTERS,
     SETTINGS_DATASTORE_LOADED,
     SET_PASSWORD_CONFIG,
     SET_SHOWN_ENTRIES_CONFIG,
@@ -32,6 +33,7 @@ import {
     SET_HIDE_DOWNLOAD_BANNER,
     SET_LAST_POPUP_SEARCH,
     SET_REQUESTS_IN_PROGRESS,
+    SET_CLIENT_CONFIG
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
@@ -208,6 +210,14 @@ function setDisableBrowserPm(disableBrowserPm) {
         });
     };
 }
+function setShowFilters(showFilters) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SHOW_FILTERS,
+            showFilters,
+        });
+    };
+}
 function setHideDownloadBanner(hideDownloadBanner) {
     return (dispatch) => {
         dispatch({
@@ -272,6 +282,30 @@ function setPasswordConfig(
         });
     };
 }
+
+
+function setClientOptionsConfig(
+    noSaveMode,
+    showNoSaveToggle,
+    confirmOnUnsavedChanges,
+) {
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_no_save_mode", value: noSaveMode },
+        { key: "setting_show_no_save_toggle", value: showNoSaveToggle },
+        { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges },
+ ]);
+
+ return (dispatch) => {
+    dispatch({
+        type: SET_CLIENT_CONFIG,
+        noSaveMode,
+        showNoSaveToggle,
+        confirmOnUnsavedChanges,
+    });
+};
+}
+
+
 function setShownEntriesConfig(
     showWebsitePassword,
     showApplicationPassword,
@@ -466,6 +500,7 @@ const actionCreators = {
     setOfflineCacheEncryptionInfo,
     setNotificationOnCopy,
     setDisableBrowserPm,
+    setShowFilters,
     setHideDownloadBanner,
     setLastPopupSearch,
     setPasswordConfig,
@@ -480,6 +515,7 @@ const actionCreators = {
     sendNotification,
     setNotifications,
     setRequestsInProgress,
+    setClientOptionsConfig
 };
 
 export default actionCreators;

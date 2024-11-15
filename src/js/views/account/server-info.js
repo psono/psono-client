@@ -2,17 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from '@mui/styles';
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
 import Divider from "@mui/material/Divider";
-import DialogTitle from "@mui/material/DialogTitle";
 import { Grid } from "@mui/material";
 
 import { getStore } from "../../services/store";
-import browserClient from "../../services/browser-client";
-import TextFieldQrCode from "../../components/text-field/qr";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

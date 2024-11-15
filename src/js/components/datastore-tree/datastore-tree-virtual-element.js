@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
             top: -23,
             bottom: 24,
             left: 9,
-            border: 'dotted #151f2b',
+            border: `dotted ${theme.palette.blueBackground.main}`,
             borderWidth: '0 0 0 1px',
             zIndex: 1,
         }

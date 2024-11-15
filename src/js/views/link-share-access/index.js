@@ -25,26 +25,37 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
+    progressBox: {
+        width: "340px",
+        padding: "20px",
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        margin: "-70px 0 0 -170px",
+        borderRadius: "4px",
+        backgroundColor: theme.palette.blueBackground.main,
+        color: theme.palette.lightGreyText.main,
+    }
 }));
 
 const LinkShareAccessView = (props) => {
@@ -181,7 +192,7 @@ const LinkShareAccessView = (props) => {
     };
 
     return (
-        <div className={"progress-box " + classes.textCenter}>
+        <div className={classes.progressBox}>
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>

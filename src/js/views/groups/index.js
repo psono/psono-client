@@ -31,6 +31,9 @@ import DialogAcceptGroup from "../../components/dialogs/accept-group";
 import DialogAcceptGroupShares from "../../components/dialogs/accept-group-shares";
 
 const useStyles = makeStyles((theme) => ({
+    toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
     root: {
         padding: "15px",
     },

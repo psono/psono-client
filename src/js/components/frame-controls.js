@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
         height: '32px',
         width: `calc(100% - 2px)`,
         padding: '4px',
-        color: '#b1b6c1',
+        color: theme.palette.lightGreyText.main,
     },
     dragRegion: {
         width: `calc(100% + 132px)`,

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import CssBaseline from "@mui/material/CssBaseline";
 import { makeStyles } from '@mui/styles';
 import Sidebar from "./sidebar";
 import Topbar from "./topbar";
@@ -21,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
         height: "100%",
         width: "100%",
         overflow: "auto",
-        backgroundColor: "#ebeeef",
+        backgroundColor: theme.palette.baseBackground.main,
         position: "absolute",
         paddingBottom: "30px",
     },
@@ -34,7 +33,6 @@ const Base = (props) => {
 
     return (
         <div className={classes.root}>
-            <CssBaseline />
             <Topbar {...props} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
             <Sidebar {...props} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
             <div className={classes.fullContent}>

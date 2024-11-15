@@ -102,6 +102,13 @@ function broadcastReinitializeAppEvent() {
     });
 }
 
+function broadcastReinitializeBackgroundEvent() {
+    channel.postMessage({
+        'event': 'reinitialize-background',
+        'data': null,
+    });
+}
+
 async function updateCurrentId(id) {
     action().disableOfflineMode();
     storage.removeAll();
@@ -111,6 +118,7 @@ async function updateCurrentId(id) {
     await clearUnused();
 
     broadcastReinitializeAppEvent()
+    broadcastReinitializeBackgroundEvent()
 }
 
 async function addAccount() {
@@ -212,6 +220,7 @@ const accountService = {
     updateInfoCurrent: updateInfoCurrent,
     addAccount: addAccount,
     broadcastReinitializeAppEvent: broadcastReinitializeAppEvent,
+    broadcastReinitializeBackgroundEvent: broadcastReinitializeBackgroundEvent,
     logout: logout,
     logoutAll: logoutAll,
 };

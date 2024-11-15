@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
 const DialogVerify = (props) => {
-    const { open, onClose, onConfirm, entries, affectedEntriesText, title, description } = props;
+    const { open, onClose, onConfirm, entries, affectedEntriesText, title, description, close, confirm} = props;
     const { t } = useTranslation();
 
     return (
@@ -60,9 +60,9 @@ const DialogVerify = (props) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>{t("CLOSE")}</Button>
+                    <Button onClick={onClose}>{close == null ? t("CLOSE") : t(close)}</Button>
                     <Button onClick={onConfirm} variant="contained" color="primary" type="submit">
-                        {t("CONFIRM")}
+                        {confirm == null ? t("CONFIRM") : t(confirm)}
                     </Button>
                 </DialogActions>
             </form>

@@ -253,6 +253,12 @@ function redirectSecret(type, secretId) {
 
                 let url = content.website_password_url;
 
+                if (!url) {
+                    return Promise.reject({
+                        'non_field_errors': ["URL_EMPTY_CANNOT_REDIRECT"]
+                    })
+                }
+
                 if (!url.includes("://")) {
                     url = 'https://' + url;
                 }
@@ -260,6 +266,12 @@ function redirectSecret(type, secretId) {
             } else if (type === "bookmark") {
 
                 let url = content.bookmark_url;
+
+                if (!url) {
+                    return Promise.reject({
+                        'non_field_errors': ["URL_EMPTY"]
+                    })
+                }
 
                 if (!url.includes("://")) {
                     url = 'https://' + url;

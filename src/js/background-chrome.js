@@ -10,7 +10,7 @@ channel.onmessage = function (event) {
     if (!event.data.hasOwnProperty("event")) {
         return;
     }
-    if (event.data.event === 'reinitialize-app') {
+    if (event.data.event === 'reinitialize-background') {
         activate()
     }
 };

@@ -28,6 +28,7 @@ import DialogEditFolder from "../../components/dialogs/edit-folder";
 import DialogEditEntry from "../../components/dialogs/edit-entry";
 import fileTransferService from "../../services/file-transfer";
 import secretService from "../../services/secret";
+import { getStore } from "../../services/store";
 import DialogCreateLinkShare from "../../components/dialogs/create-link-share";
 import DialogRightsOverview from "../../components/dialogs/rights-overview";
 import DialogError from "../../components/dialogs/error";
@@ -43,6 +44,8 @@ import {useHotkeys} from "react-hotkeys-hook";
 import DatastoreToolbar from "./toolbar";
 import FilterSideBar from "../../components/filter-sidebar";
 import itemBlueprintService from "../../services/item-blueprint";
+import action from "../../actions/bound-action-creators";
+import DialogVerify from "../../components/dialogs/verify";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -102,7 +105,6 @@ function useWidth() {
 
 
 const DatastoreView = (props) => {
-    const width1700Plus = useMediaQuery('(min-width:1700px)');
     const width = useWidth();
     const bigScreen = ["lg", "md", "xl"].includes(width);
     const hugeScreen = ["xl"].includes(width);
@@ -125,7 +127,7 @@ const DatastoreView = (props) => {
         mouseY: null,
     });
 
-    const [showFilter, setShowFilter] = useState(false);
+    const showFilters = useSelector((state) => !!state.client.showFilters);
     const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -139,6 +141,14 @@ const DatastoreView = (props) => {
 
     const [editEntryOpen, setEditEntryOpen] = useState(false);
     const [editEntryData, setEditEntryData] = useState({});
+    
+    const [editEntryDirty, setEditEntryDirty] = useState(false);
+    const [editEntryConfirmDialog, setEditEntryConfirmDialog] = useState(false);
+
+
+    const getEditEntryConfirmDialog = () => {
+        return editEntryConfirmDialog
+    }
 
     const [rightsOverviewOpen, setRightsOverviewOpen] = useState(false);
     const [rightsOverviewData, setRightsOverviewData] = useState({});
@@ -151,9 +161,8 @@ const DatastoreView = (props) => {
 
     const [datastore, setDatastore] = useState(null);
 
-    React.useEffect(() => {
-        setShowFilter(width1700Plus);
-    }, [width]);
+    const [preselectItem, setPreselectItem] = useState(null);
+    const [preselectPath, setPreselectPath] = useState(null);
 
     useHotkeys('shift', (event, handler) => {
         if (event.type === "keydown") {
@@ -346,12 +355,49 @@ const DatastoreView = (props) => {
         widget.editItemSave(datastore, node, editEntryData.path, datastorePasswordService);
     };
 
+    const onCloseEdit = () => {
+        if (editEntryDirty && getStore().getState().settingsDatastore.confirmOnUnsavedChanges) {
+            setEditEntryConfirmDialog(true)
+        } else {
+            setEditEntryOpen(false)
+            setEditEntryDirty(false)
+        }
+
+    }
+
+
+    const verifyConfirmDialog = () => {
+        setEditEntryDirty(false)
+       
+        if (preselectItem != null) {
+            setEditEntryData({
+                item: preselectItem,
+                path: preselectPath,
+            });
+            setPreselectItem(null);
+            setPreselectPath(null);
+            setEditEntryOpen(true)
+        } else {
+            setEditEntryOpen(false)
+        }
+        setEditEntryConfirmDialog(false)
+        
+    }
+
     const onEditEntry = (item, path) => {
-        setEditEntryData({
-            item: item,
-            path: path,
-        });
-        setEditEntryOpen(true);
+
+        if (editEntryOpen && editEntryDirty) {
+            setEditEntryConfirmDialog(true)
+            setPreselectItem(item)
+            setPreselectPath(path)
+        }
+        else {
+            setEditEntryData({
+                item: item,
+                path: path,
+            });
+            setEditEntryOpen(true);
+        }
     };
 
     const onSelectEntry = (item, path) => {
@@ -514,7 +560,7 @@ const DatastoreView = (props) => {
     };
 
     const toggleShowFilter = () => {
-        setShowFilter(!showFilter);
+        action().setShowFilters(!showFilters);
     };
 
     const toggleFilter = (key) => {
@@ -582,7 +628,7 @@ const DatastoreView = (props) => {
                             </AppBar>
                             <div className={classes.root}
                                  onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
-                                <Grid container className={`${(showFilter && bigScreen && !editEntryOpen) || (showFilter && hugeScreen) ? classes.contentShift : ''}`}>
+                                <Grid container className={`${(showFilters && bigScreen && !editEntryOpen) || (showFilters && hugeScreen) ? classes.contentShift : ''}`}>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <AlertSecurityReport className={classes.securityReportAlert}/>
                                     </Grid>
@@ -619,8 +665,8 @@ const DatastoreView = (props) => {
                                             />
                                         )}
                                         <FilterSideBar
-                                            open={showFilter}
-                                            onClose={() => setShowFilter(false)}
+                                            open={showFilters}
+                                            onClose={() => action().setShowFilters(false)}
                                             filters={filters}
                                             toggleFilter={toggleFilter}
                                             selectedFilters={selectedFilters}
@@ -689,8 +735,12 @@ const DatastoreView = (props) => {
                                     open={editEntryOpen}
                                     onClose={() => setEditEntryOpen(false)}
                                     onEdit={onEditEntrySave}
+                                    setDirty={setEditEntryDirty}
+                                    isDirty={editEntryDirty}
                                     item={editEntryData.item}
                                     onDeleteItem={onDeleteItemFromEditModal}
+                                    getShowConfirmDialog={getEditEntryConfirmDialog}
+                                    setConfirmDialog={setEditEntryConfirmDialog}
                                 />
                             )}
                             {createLinkShareOpen && (
@@ -747,11 +797,15 @@ const DatastoreView = (props) => {
                             {editEntryOpen && (
                                 <DialogEditEntry
                                     open={editEntryOpen}
-                                    onClose={() => setEditEntryOpen(false)}
+                                    onClose={onCloseEdit} 
                                     onEdit={onEditEntrySave}
                                     item={editEntryData.item}
                                     onDeleteItem={onDeleteItemFromEditModal}
                                     inline={true}
+                                    setDirty={setEditEntryDirty}
+                                    isDirty={editEntryDirty}
+                                    getShowConfirmDialog={getEditEntryConfirmDialog}
+                                    setConfirmDialog={setEditEntryConfirmDialog}
                                 />
                             )}
                         </Grid>
@@ -760,6 +814,21 @@ const DatastoreView = (props) => {
 
                 {progressDialogOpen && (
                     <DialogProgress percentageComplete={progress} open={progressDialogOpen}/>
+                )}
+
+                {editEntryConfirmDialog && (
+                    <DialogVerify
+                        title={"DATA_CHANGED"}
+                        description={
+                            "ITEM_UNSAVED_WARNING"
+                        }
+                        
+                        open={editEntryConfirmDialog}
+                        onClose={() => verifyConfirmDialog()}
+                        onConfirm={() => setEditEntryConfirmDialog(false)}
+                        close={"DISCARD"}
+                        confirm={"RETURN"}
+                    />
                 )}
 
             </BaseContent>

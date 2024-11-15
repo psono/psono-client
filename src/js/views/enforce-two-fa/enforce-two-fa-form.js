@@ -17,31 +17,31 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
-    },
     button: {
         color: "white !important",
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -157,11 +157,10 @@ const EnforceTwoFaViewForm = (props) => {
             <Grid container>
                 <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <Button
-                        classes={{disabled: classes.disabledButton}}
                         onClick={logout}
                         type="submit"
                     >
-                        <span style={{color: "#b1b6c1"}}>{t("LOGOUT")}</span>
+                        <span className={classes.regularButtonText}>{t("LOGOUT")}</span>
                     </Button>
                 </Grid>
             </Grid>

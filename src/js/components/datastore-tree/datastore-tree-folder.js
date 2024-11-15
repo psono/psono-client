@@ -30,9 +30,9 @@ const useStyles = makeStyles((theme) => ({
             position: 'absolute',
             top: '20px',
             left: '-13px',
-            width: '18px',
+            width: '12px',
             height: 0,
-            borderTop: '1px dotted #67b2dd',
+            borderTop: `1px dotted ${theme.palette.blueBackground.main}`,
             zIndex: 1,
         },
     },
@@ -45,11 +45,10 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         padding: '5px 3px',
         paddingRight: '120px',
-        color: '#151f2b',
         '&.selected': {
             backgroundColor: '#F0F7FC',
             borderRadius: '4px',
-            borderColor: '#fff',
+            borderColor: theme.palette.lightBackground.main,
         },
         '&:hover, &:focus': {
             backgroundColor: '#F0F7FC',
@@ -90,6 +89,16 @@ const useStyles = makeStyles((theme) => ({
     divider: {
         marginTop: '8px',
         marginBottom: '8px',
+    },
+    faCircleShared: {
+        color: theme.palette.primary.main,
+        fontSize: "80%",
+        marginTop: "50%",
+    },
+    faGroupShared: {
+        color: theme.palette.background.default,
+        fontSize: "35%",
+        marginTop: "60%",
     },
 }));
 
@@ -238,8 +247,8 @@ const DatastoreTreeFolder = (props) => {
                         <span className={`fa-stack ${classes.faStack}`}>
                             {isExpanded && <i className="fa fa-folder-open" />}
                             {!isExpanded && <i className="fa fa-folder" />}
-                            {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
-                            {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
+                            {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`} />}
+                            {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`} />}
                         </span>
                         <span className={classes.treeFolderName}>{content.name}</span>
 

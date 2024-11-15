@@ -12,8 +12,8 @@ import ConfigLogo from "../../components/config-logo";
 const useStyles = makeStyles((theme) => ({
     root: {
         display: "flex",
-        backgroundColor: "#151f2b",
-        color: "#b1b6c1",
+        backgroundColor: theme.palette.blueBackground.main,
+        color: theme.palette.lightGreyText.main,
     },
     buttonLabel: {
         fontSize: "1.5rem",
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
         minWidth: "32px",
     },
     close: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
         padding: "6px",
     },
     loader: {
@@ -56,6 +56,9 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "20px",
         marginBottom: "20px",
         margin: "auto",
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -126,7 +129,7 @@ const NotificationBarView = (props) => {
                                 color={button.color}
                                 onClick={() => buttonClick(index)}
                             >
-                                <span style={{color: "#b1b6c1"}}>{button.title}</span>
+                                <span className={classes.regularButtonText}>{button.title}</span>
                             </Button>)
                         }
                     })}

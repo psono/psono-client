@@ -6,7 +6,7 @@ import Paper from "@mui/material/Paper";
 
 const useStyles = makeStyles((theme) => ({
     title: {
-        backgroundColor: "#f2f5f7",
+        backgroundColor: theme.palette.baseTitleBackground.main,
         textAlign: "right",
         fontSize: "16px",
         paddingTop: theme.spacing(1),
@@ -14,14 +14,14 @@ const useStyles = makeStyles((theme) => ({
         paddingLeft: "15px",
         paddingRight: "15px",
         marginBottom: "15px",
-        color: "#0f1118",
+        color: theme.palette.background.default,
         [theme.breakpoints.up("sm")]: {
             maxWidth: `calc(100% - 240px)`,
             fontSize: "20px",
         },
     },
     sessionExpirationTimer: {
-        backgroundColor: "#f2f5f7",
+        backgroundColor: theme.palette.baseTitleBackground.main,
         textAlign: "right",
         fontSize: "10px",
         paddingTop: "5px",

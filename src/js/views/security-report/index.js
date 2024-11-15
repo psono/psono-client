@@ -27,10 +27,16 @@ import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
 import TextFieldPassword from "../../components/text-field/password";
 import AlertSecurityReport from "../../components/alert/security-report";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import browserClient from "../../services/browser-client";
 
 Chart.register(ArcElement, Tooltip);
 
 const useStyles = makeStyles((theme) => ({
+    toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
     root: {
         display: "flex",
         padding: "15px",
@@ -42,19 +48,19 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     muiWarning: {
@@ -376,6 +382,24 @@ const SecurityReportView = (props) => {
             },
         },
         {
+            name: t("PASSWORD_LENGTH"),
+            options: {
+                display: false,
+                filter: false,
+                sort: true,
+                empty: false,
+            },
+        },
+        {
+            name: t("CHARACTER_GROUPS"),
+            options: {
+                display: false,
+                filter: false,
+                sort: true,
+                empty: false,
+            },
+        },
+        {
             name: t("BREACHED"),
             options: {
                 display: checkHaveibeenpwned,
@@ -383,7 +407,7 @@ const SecurityReportView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return tableMeta.rowData[5] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
+                    return tableMeta.rowData[7] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
                 },
             },
         },
@@ -394,11 +418,28 @@ const SecurityReportView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return tableMeta.rowData[6] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
+                    return tableMeta.rowData[8] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />;
                 },
             },
         },
         { name: t("ADVICE"), options: { filter: false } },
+        {
+            name: t("EDIT"),
+            options: {
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                browserClient.openTab("index.html#!/datastore/edit/" + tableMeta.rowData[10].type + "/" + tableMeta.rowData[10].secret_id);
+                            }}
+                            disabled={!tableMeta.rowData[10].secret_id}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    );
+                },
+            },
+        },
     ];
 
     const options = {
@@ -412,9 +453,12 @@ const SecurityReportView = (props) => {
             pw.password,
             pw.rating,
             pw.write_age,
+            pw.password_length,
+            pw.variation_count,
             pw.breached > 0,
             pw.duplicate,
             t(pw.advice, pw),
+            pw
         ];
     });
 

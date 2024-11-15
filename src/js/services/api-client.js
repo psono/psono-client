@@ -605,6 +605,51 @@ function register(
 }
 
 /**
+ * Ajax POST request to the backend with the email or username, returns nothing but an email is sent to the user
+ * with an account deletion code
+ *
+ * @param {string} username username of the user (in email format)
+ * @param {string} email email address of the user
+ * @param {string} base_url the base url for the account deletion link
+ *
+ * @returns {Promise} promise
+ */
+function unregister(
+    username,
+    email,
+    base_url
+) {
+    const endpoint = "/authentication/unregister/";
+    const method = "POST";
+    const data = {
+        email: email,
+        username: username,
+        base_url: base_url,
+    };
+    const headers = null;
+
+    return call(method, endpoint, data, headers);
+}
+
+/**
+ * Ajax POST request to the backend with the unregistration_code for the email
+ *
+ * @param {string} unregisterCode The unregistration code that has been sent via email
+ *
+ * @returns {Promise} Returns a promise with the unregistration status
+ */
+function unregisterConfirm(unregisterCode) {
+    const endpoint = "/authentication/unregister/";
+    const method = "PUT";
+    const data = {
+        unregister_code: unregisterCode,
+    };
+    const headers = null;
+
+    return call(method, endpoint, data, headers);
+}
+
+/**
  * Ajax POST request to the backend with the activation_code for the email, returns nothing. If successful the user
  * can login afterwards
  *
@@ -3699,6 +3744,8 @@ const apiClientService = {
     statelessLogout: statelessLogout,
     logout: logout,
     register: register,
+    unregister: unregister,
+    unregisterConfirm: unregisterConfirm,
     verifyEmail: verifyEmail,
     updateUser: updateUser,
     writeRecoverycode: writeRecoverycode,

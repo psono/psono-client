@@ -2,8 +2,10 @@ import React from "react";
 import { differenceInSeconds } from "date-fns";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+
+import { alpha } from '@mui/system';
 import Drawer from "@mui/material/Drawer";
-import Hidden from "@mui/material/Hidden";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import HomeIcon from "@mui/icons-material/Home";
 import ShareIcon from "@mui/icons-material/Share";
 import PersonIcon from "@mui/icons-material/Person";
@@ -35,43 +37,42 @@ const useStyles = makeStyles((theme) => ({
             width: drawerWidth,
             flexShrink: 0,
         },
-        backgroundColor: "#151f2b",
+        backgroundColor: theme.palette.blueBackground.main,
     },
-    // necessary for content to be below app bar
     toolbar: {
         minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
     },
     drawerPaper: {
         width: drawerWidth,
-        backgroundColor: "#151f2b",
-        color: "#b1b6c1",
+        backgroundColor: theme.palette.blueBackground.main,
+        color: theme.palette.lightGreyText.main,
     },
     listItemRootActive: {
         "&:hover": {
-            backgroundColor: "#fff",
-            color: "#151f2b",
+            backgroundColor: theme.palette.lightBackground.main,
+            color: theme.palette.blueBackground.main,
         },
         "&.Mui-selected": {
             backgroundColor: theme.palette.primary.main,
-            color: "#fff",
+            color: theme.palette.lightBackground.main,
             "& .MuiListItemIcon-root": {
-                color: "#fff",
+                color: theme.palette.lightBackground.main,
             },
         },
     },
     listItemRoot: {
         "&:hover": {
-            backgroundColor: "#fff",
-            color: "#151f2b",
+            backgroundColor: theme.palette.lightBackground.main,
+            color: theme.palette.blueBackground.main,
             "& .MuiListItemIcon-root": {
-                color: "#151f2b",
+                color: theme.palette.blueBackground.main,
             },
         },
         "&.Mui-selected": {
             backgroundColor: theme.palette.primary.main,
-            color: "#fff",
+            color: theme.palette.lightBackground.main,
             "& .MuiListItemIcon-root": {
-                color: "#fff",
+                color: theme.palette.lightBackground.main,
             },
         },
     },
@@ -81,28 +82,28 @@ const useStyles = makeStyles((theme) => ({
             fontSize: "0.75rem",
             height: "15px",
             minWidth: "15px",
-            color: "#fff",
-            backgroundColor: "#777",
+            color: theme.palette.lightBackground.main,
+            backgroundColor: theme.palette.badgeBackground.main,
             right: "-8px",
         },
     },
     listItemIcon: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
         minWidth: theme.spacing(4),
     },
     listItemIconSelected: {
-        color: "#fff",
+        color: theme.palette.lightBackground.main,
         minWidth: theme.spacing(4),
     },
     icon: {
         fontSize: "18px",
     },
     subHeader: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
         backgroundColor: 'transparent',
     },
     version: {
-        color: "#444851",
+        color: alpha(theme.palette.greyText.main, 0.5),
         margin: "10px",
         position: "absolute",
         bottom: "0",
@@ -119,6 +120,7 @@ const Sidebar = (props) => {
     const disableCentralSecurityReports = useSelector((state) => state.server.disableCentralSecurityReports);
     const classes = useStyles();
     const theme = useTheme();
+    const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
     const [moreLinks, setMoreLinks] = React.useState([]);
     const [version, setVersion] = React.useState("");
     let location = useLocation();
@@ -164,9 +166,7 @@ const Sidebar = (props) => {
 
     const drawer = (
         <div>
-            <Hidden smDown>
-                <div className={classes.toolbar} />
-            </Hidden>
+            {isSmUp && <div className={classes.toolbar} />}
             <List>
                 <ListSubheader className={classes.subHeader}>{t("NAVIGATION")}</ListSubheader>
                 <ListItem
@@ -338,23 +338,7 @@ const Sidebar = (props) => {
 
     return (
         <nav className={classes.drawer} aria-label="mailbox folders">
-            <Hidden smUp>
-                <Drawer
-                    variant="temporary"
-                    anchor={theme.direction === "rtl" ? "right" : "left"}
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    classes={{
-                        paper: classes.drawerPaper,
-                    }}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-            </Hidden>
-            <Hidden smDown>
+            {isSmUp ? (
                 <Drawer
                     classes={{
                         paper: classes.drawerPaper,
@@ -364,7 +348,22 @@ const Sidebar = (props) => {
                 >
                     {drawer}
                 </Drawer>
-            </Hidden>
+            ) : (
+                <Drawer
+                    variant="temporary"
+                    anchor={theme.direction === "rtl" ? "right" : "left"}
+                    open={mobileOpen}
+                    onClose={handleDrawerToggle}
+                    classes={{
+                        paper: classes.drawerPaper,
+                    }}
+                    ModalProps={{
+                        keepMounted: true,
+                    }}
+                >
+                    {drawer}
+                </Drawer>
+            )}
         </nav>
     );
 };

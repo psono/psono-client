@@ -33,7 +33,7 @@ const languages = {
     he: { code: "he", lng_code: "LANG_HE", lng_title_native: "" }, // deactivated
     hi: { code: "hi", lng_code: "LANG_HI", lng_title_native: "हिंदी", active: true  },
     vi: { code: "vi", lng_code: "LANG_VI", lng_title_native: "" }, // deactivated
-    zh: { code: "zh", lng_code: "LANG_ZH", lng_title_native: "简体中文", active: true },
+    "zh-Hans": { code: "zh-Hans", lng_code: "LANG_ZH_HANS", lng_title_native: "简体中文", active: true },
     "zh-Hant": { code: "zh-Hant", lng_code: "LANG_ZH_HANT", lng_title_native: "繁體中文", active: true },
 };
 

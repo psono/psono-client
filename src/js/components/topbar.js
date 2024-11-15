@@ -13,6 +13,10 @@ import Badge from '@mui/material/Badge';
 import StorageIcon from '@mui/icons-material/Storage';
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -40,6 +44,9 @@ import DialogChangeAccount from "./dialogs/change-account";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 import ConfigLogo from "./config-logo";
 import avatarService from "../services/avatar";
+import action from "../actions/bound-action-creators";
+import { useSelector } from "react-redux";
+import Tooltip from "@mui/material/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -48,9 +55,22 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "#fff",
-        color: "#777",
-        borderColor: "rgb(231, 231, 231)",
+        backgroundColor: theme.palette.appBarBackground.main,
+        color: theme.palette.appBarText.main,
+        borderColor: theme.palette.appBarBackground.main,
+        borderStyle: "solid",
+        borderWidth: "1px",
+        boxShadow: "none",
+    },
+    appBarReadOnly: {
+        zIndex: theme.zIndex.drawer + 1,
+        [theme.breakpoints.up("sm")]: {
+            width: `calc(100% - 0px)`,
+            marginLeft: 0,
+        },
+        backgroundColor: theme.palette.appBarReadOnlyBackground.main,
+        color: theme.palette.appBarReadOnlyText.main,
+        borderColor: theme.palette.appBarReadOnlyBackground.main,
         borderStyle: "solid",
         borderWidth: "1px",
         boxShadow: "none",
@@ -88,7 +108,6 @@ const useStyles = makeStyles((theme) => ({
     avatarPlaceholder: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         paddingTop: '6px',
         marginLeft: '6px',
@@ -112,7 +131,6 @@ const useStyles = makeStyles((theme) => ({
     overlayedIcon: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         marginLeft: '0px',
         marginRight: '0px',
@@ -141,8 +159,17 @@ const Topbar = (props) => {
     const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
     const [datastores, setDatastores] = React.useState([]);
     const [profilePic, setProfilePic] = useState("");
+    const settingsDatastore = useSelector((state) => state.settingsDatastore);
+
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
 
 
+    const setClientOptions = (nosavemode) => {
+        action().setClientOptionsConfig(
+            nosavemode,
+            settingsDatastore.showNoSaveToggle,
+            settingsDatastore.confirmOnUnsavedChanges)
+    }
     let isSubscribed = true;
     React.useEffect(() => {
         reloadDatastoreOverview();
@@ -198,6 +225,10 @@ const Topbar = (props) => {
         closeDatastoreMenu();
     };
 
+    const toggleNoSaveMode = (checked) => {
+        setClientOptions(checked)
+    }
+
     const onDatastoreSwitchClick = (datastore) => {
         closeDatastoreMenu();
         datastoreService.saveDatastoreMeta(datastore.id, datastore.description, true).then(function (result) {
@@ -217,7 +248,7 @@ const Topbar = (props) => {
     };
 
     return (
-        <AppBar position="fixed" className={classes.appBar}>
+        <AppBar position="fixed" className={settingsDatastore.noSaveMode ? classes.appBarReadOnly : classes.appBar}>
             <FrameControls />
             <Container maxWidth="lg">
                 <Toolbar
@@ -259,7 +290,7 @@ const Topbar = (props) => {
                                     className={classes.topMenuButton}
                                     endIcon={<ExpandMoreIcon/>}
                                 >
-                                    {t("DATASTORE")}
+                                    {passwordDatastore ? passwordDatastore.description : t("DATASTORE")}
                                 </Button>
                             </Hidden>
                             <Menu
@@ -304,6 +335,16 @@ const Topbar = (props) => {
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
                                 <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
+                                    {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                        <Tooltip title={t("NO_SAVE_MODE")}>
+                                            <Switch
+                                                checked={settingsDatastore.noSaveMode}
+                                                onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                                //inputProps={{ 'aria-label': 'controlled' }}
+                                                disabled={!settingsDatastore.showNoSaveToggle}
+                                            />
+                                        </Tooltip>
+                                    )}
                                     <IconButton
                                         variant="contained"
                                         onClick={openTopMenu}
@@ -345,6 +386,21 @@ const Topbar = (props) => {
                             </Hidden>
                             <Hidden mdDown>
                                 <div className={classes.signInTextContainer}>
+                                    {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                        <Tooltip title={t("NO_SAVE_MODE")}>
+                                            <FormControl component="fieldset">
+                                                <FormControlLabel
+                                                    value="end"
+                                                    control={<Switch
+                                                        checked={settingsDatastore.noSaveMode}
+                                                        onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                                        //inputProps={{ 'aria-label': 'controlled' }}
+                                                        disabled={!settingsDatastore.showNoSaveToggle}
+                                                    />}
+                                                    labelPlacement="end"/>
+                                            </FormControl>
+                                        </Tooltip>
+                                    )}
                                     {t("SIGNED_IN_AS")}&nbsp;
                                     <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
                                         <Button

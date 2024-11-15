@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 import { makeStyles } from '@mui/styles';
 import { Grid, useMediaQuery, Typography, ListItemIcon, Link } from "@mui/material";
@@ -9,12 +10,13 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RegisterViewForm from "./register-form";
 import FrameControls from "../../components/frame-controls";
 import ConfigLogo from "../../components/config-logo";
-import {useTranslation} from "react-i18next";
+import DarkBox from "../../components/dark-box";
+import {alpha} from "@mui/material/styles";
 
 
 const useStyles = makeStyles((theme) => ({
     leftSection: {
-        backgroundColor: '#151f2b',
+        backgroundColor: theme.palette.blueBackground.main,
         paddingLeft: "30%",
         paddingRight: "10%",
         position: 'relative',
@@ -38,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     title: {
-        color: '#ffffff',
+        color: theme.palette.lightBackground.main,
         textAlign: 'left',
     },
     rightContent: {
@@ -53,14 +55,14 @@ const useStyles = makeStyles((theme) => ({
         "& li": {
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#1f2d3a',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
             padding: theme.spacing(1),
             "@media(min-width:2000px)": {
                 padding: theme.spacing(2),
             },
             borderRadius: theme.shape.borderRadius,
             marginBottom: theme.spacing(1),
-            color: '#ffffff',
+            color: theme.palette.lightBackground.main,
             boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
             "&:hover": {
                 backgroundColor: '#243447',
@@ -110,6 +112,18 @@ const useStyles = makeStyles((theme) => ({
             },
         },
     },
+    box: {
+        width: '340px',
+        padding: theme.spacing(2.5),
+        position: 'absolute',
+        top: '40%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        borderRadius: '4px',
+        [theme.breakpoints.up('sm')]: {
+            width: '540px',
+        },
+    },
 }));
 
 const RegisterView = (props) => {
@@ -119,13 +133,13 @@ const RegisterView = (props) => {
     const classes = useStyles();
 
     const registerForm =
-        <div className={"registerbox dark"}>
+        <DarkBox className={classes.box}>
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>
             <RegisterViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId}/>
-        </div>
+        </DarkBox>
 
     if (!isLargeScreen) {
         return registerForm;

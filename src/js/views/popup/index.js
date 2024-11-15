@@ -26,10 +26,19 @@ import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
 import VpnKeyRoundedIcon from '@mui/icons-material/VpnKeyRounded';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MuiAlert from '@mui/material/Alert'
+import Badge from "@mui/material/Badge";
+import SettingsIcon from "@mui/icons-material/Settings";
+import Avatar from "@mui/material/Avatar";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import AddIcon from "@mui/icons-material/Add";
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import ContentCopy from "../../components/icons/ContentCopy";
+import DarkBox from "../../components/dark-box";
+import DialogChangeAccount from "../../components/dialogs/change-account";
 import browserClient from "../../services/browser-client";
 import datastorePassword from "../../services/datastore-password";
 import helper from "../../services/helper";
@@ -39,59 +48,53 @@ import user from "../../services/user";
 import widgetService from "../../services/widget";
 import { getStore } from "../../services/store";
 import datastoreService from "../../services/datastore";
-import Badge from "@mui/material/Badge";
-import SettingsIcon from "@mui/icons-material/Settings";
-import Avatar from "@mui/material/Avatar";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import DialogChangeAccount from "../../components/dialogs/change-account";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import offlineCache from "../../services/offline-cache";
-import AddIcon from "@mui/icons-material/Add";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
+import accountService from "../../services/account";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
     },
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
     divider: {
-        background: "#666",
+        background: theme.palette.greyText.main,
         marginTop: "20px",
         marginBottom: "20px",
     },
     button: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
         width: "100%",
         transition: "none",
         "& span": {
             justifyContent: "left",
         },
         "&:hover": {
-            backgroundColor: "#fff",
-            color: "#151f2b",
+            backgroundColor: theme.palette.lightBackground.main,
+            color: theme.palette.blueBackground.main,
         },
     },
     navigation: {
@@ -107,23 +110,23 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "1px",
         borderRadius: "4px",
         "& p": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "&:hover": {
-            backgroundColor: "#fff",
-            color: "#151f2b",
+            backgroundColor: theme.palette.lightBackground.main,
+            color: theme.palette.blueBackground.main,
         },
         "&:hover a": {
-            color: "#151f2b",
+            color: theme.palette.blueBackground.main,
         },
         "&:hover p": {
-            color: "#151f2b",
+            color: theme.palette.blueBackground.main,
         },
         "& button span": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "&:hover button span": {
-            color: "#151f2b",
+            color: theme.palette.blueBackground.main,
         },
     },
     navigationItemA: {
@@ -144,19 +147,19 @@ const useStyles = makeStyles((theme) => ({
         fontSize: "18px",
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     widePopper: {
@@ -187,7 +190,6 @@ const useStyles = makeStyles((theme) => ({
     overlayedIcon: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         marginLeft: '0px',
         marginRight: '0px',
@@ -195,6 +197,9 @@ const useStyles = makeStyles((theme) => ({
     },
     description: {
         fontSize: '12px',
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -304,12 +309,12 @@ const PopupItem = (props) => {
                             onItemClick(item.content);
                         }}
                     >
-                        <OpenInNewIcon fontSize="small" sx={{  color: "#b1b6c1" }} />
+                        <OpenInNewIcon fontSize="small" className={classes.regularButtonText} />
                     </Button>
                 )}
                 {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
                     <Button aria-label="settings" onClick={openMenu}>
-                        <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
+                        <ContentCopy fontSize="small" className={classes.regularButtonText} />
                     </Button>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
@@ -319,7 +324,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyTotpToken}>
-                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
+                            <ContentCopy fontSize="small" className={classes.regularButtonText} />
                         </Button>
                     </Tooltip>
                 )}
@@ -330,7 +335,7 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyNoteContent}>
-                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
+                            <ContentCopy fontSize="small" className={classes.regularButtonText} />
                         </Button>
                     </Tooltip>
                 )}
@@ -341,85 +346,84 @@ const PopupItem = (props) => {
                         tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyURL}>
-                            <ContentCopy fontSize="small" sx={{  color: "#b1b6c1" }} />
+                            <ContentCopy fontSize="small" className={classes.regularButtonText} />
                         </Button>
                     </Tooltip>
                 )}
             </ButtonGroup>
             {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
                 <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                    {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
-                        <>
-                            <MenuItem onClick={onCopyUsername}>
+                    {["application_password", "website_password"].indexOf(item.content.type) !== -1 && ([
+                        <MenuItem key="copy-username" onClick={onCopyUsername}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_USERNAME")}
+                            </Typography>
+                        </MenuItem>,
+                        <MenuItem key="copy-password" onClick={onCopyPassword}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_PASSWORD")}
+                            </Typography>
+                        </MenuItem>,
+                        item.content.type === "website_password" && (
+                            <MenuItem key="copy-totp-token" onClick={onCopyTotpToken}>
                                 <ListItemIcon className={classes.listItemIcon}>
                                     <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_USERNAME")}
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem onClick={onCopyPassword}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_PASSWORD")}
-                                </Typography>
-                            </MenuItem>
-                            {item.content.type === "website_password" && <MenuItem onClick={onCopyTotpToken}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small"/>
                                 </ListItemIcon>
                                 <Typography variant="body2" noWrap>
                                     {t("COPY_TOTP_TOKEN")}
                                 </Typography>
-                            </MenuItem>}
-                        </>
-                    )}
-                    {["credit_card"].indexOf(item.content.type) !== -1 && (
-                        <>
-                            <MenuItem onClick={onCopyCreditCardNumber}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_CREDIT_CARD_NUMBER")}
-                                </Typography>
                             </MenuItem>
-                            <MenuItem onClick={onCopyCreditCardName}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_CREDIT_CARD_NAME")}
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem onClick={onCopyCreditCardExpiryDate}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_CREDIT_CARD_EXPIRATION_DATE")}
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem onClick={onCopyCreditCardCvc}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_CREDIT_CARD_CVC")}
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem onClick={onCopyCreditCardPin}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_CREDIT_CARD_PIN")}
-                                </Typography>
-                            </MenuItem>
-                        </>
-                    )}
+                        )
+                    ])}
+
+                    {["credit_card"].indexOf(item.content.type) !== -1 && ([
+                        <MenuItem key="copy-cc-number" onClick={onCopyCreditCardNumber}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_CREDIT_CARD_NUMBER")}
+                            </Typography>
+                        </MenuItem>,
+                        <MenuItem key="copy-cc-name" onClick={onCopyCreditCardName}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_CREDIT_CARD_NAME")}
+                            </Typography>
+                        </MenuItem>,
+                        <MenuItem key="copy-cc-expiry" onClick={onCopyCreditCardExpiryDate}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_CREDIT_CARD_EXPIRATION_DATE")}
+                            </Typography>
+                        </MenuItem>,
+                        <MenuItem key="copy-cc-cvc" onClick={onCopyCreditCardCvc}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_CREDIT_CARD_CVC")}
+                            </Typography>
+                        </MenuItem>,
+                        <MenuItem key="copy-cc-pin" onClick={onCopyCreditCardPin}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <ContentCopy className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("COPY_CREDIT_CARD_PIN")}
+                            </Typography>
+                        </MenuItem>
+                    ])}
                 </Menu>
             )}
         </li>
@@ -565,6 +569,7 @@ const PopupView = (props) => {
         });
 
         reloadDatastoreOverview();
+        accountService.broadcastReinitializeBackgroundEvent();
         return () => (isSubscribed = false);
     }, []);
 
@@ -660,220 +665,226 @@ const PopupView = (props) => {
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
         return (
-            <Grid container className={"dark"}>
-                <Grid item xs={12} sm={12} md={12}>
-                    <MuiAlert
-                        severity="info"
-                        style={{
-                            marginBottom: "5px",
-                            marginTop: "5px",
-                        }}
-                    >
-                        {t("ADMINISTRATOR_REQUIRES_SECOND_FACTOR")}
-                    </MuiAlert>
+            <DarkBox>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="info"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {t("ADMINISTRATOR_REQUIRES_SECOND_FACTOR")}
+                        </MuiAlert>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button
+                            onClick={() => {
+                                browserClient.openTab("enforce-two-fa.html");
+                            }}
+                            variant="contained"
+                            color="primary"
+                        >
+                            {t("SETUP_SECOND_FACTOR")}
+                        </Button>
+                        <Button onClick={logout} variant="contained">
+                            {t("LOGOUT")}
+                        </Button>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        onClick={() => {
-                            browserClient.openTab("enforce-two-fa.html");
-                        }}
-                        variant="contained"
-                        color="primary"
-                    >
-                        {t("SETUP_SECOND_FACTOR")}
-                    </Button>
-                    <Button onClick={logout} variant="contained">
-                        {t("LOGOUT")}
-                    </Button>
-                </Grid>
-            </Grid>
+            </DarkBox>
         );
     } else if (isLoggedIn && user.requireServerSecretModification()) {
 
         return (
-            <Grid container className={"dark"}>
-                <Grid item xs={12} sm={12} md={12}>
-                    <MuiAlert
-                        severity="info"
-                        style={{
-                            marginBottom: "5px",
-                            marginTop: "5px",
-                        }}
-                    >
-                        {getStore().getState().user.serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
-                    </MuiAlert>
+            <DarkBox>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="info"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {getStore().getState().user.serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
+                        </MuiAlert>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button
+                            onClick={() => {
+                                browserClient.openTab("key-transfer.html");
+                            }}
+                            variant="contained"
+                            color="primary"
+                        >
+                            {t("CONFIGURE")}
+                        </Button>
+                        <Button onClick={logout} variant="contained">
+                            {t("LOGOUT")}
+                        </Button>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        onClick={() => {
-                            browserClient.openTab("key-transfer.html");
-                        }}
-                        variant="contained"
-                        color="primary"
-                    >
-                        {t("CONFIGURE")}
-                    </Button>
-                    <Button onClick={logout} variant="contained">
-                        {t("LOGOUT")}
-                    </Button>
-                </Grid>
-            </Grid>
+            </DarkBox>
         );
     }
 
     if (view === 'generate_password') {
         return (
-            <Grid container className={"dark"}>
-                <Grid item xs={12} sm={12} md={12}>
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="password"
-                        label={t("PASSWORD")}
-                        name="password"
-                        autoComplete="off"
-                        value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value);
-                        }}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="generate"
-                                        onClick={() => generatePassword(
-                                            passwordLength,
-                                            includeLettersUppercase ? passwordLettersUppercase : '',
-                                            includeLettersLowercase ? passwordLettersLowercase : '',
-                                            includeNumbers ? passwordNumbers : '',
-                                            includeSpecialChars ? passwordSpecialChars : '',
-                                        )}
-                                        edge="end"
-                                        style={{ color: "#b1b6c1" }}
-                                        size="large">
-                                        <ReplayRoundedIcon fontSize="small" />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
+            <DarkBox>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense" size="small"
+                            id="password"
+                            label={t("PASSWORD")}
+                            name="password"
+                            autoComplete="off"
+                            value={password}
+                            onChange={(event) => {
+                                setPassword(event.target.value);
+                            }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="generate"
+                                            onClick={() => generatePassword(
+                                                passwordLength,
+                                                includeLettersUppercase ? passwordLettersUppercase : '',
+                                                includeLettersLowercase ? passwordLettersLowercase : '',
+                                                includeNumbers ? passwordNumbers : '',
+                                                includeSpecialChars ? passwordSpecialChars : '',
+                                            )}
+                                            edge="end"
+                                            className={classes.regularButtonText}
+                                            size="large">
+                                            <ReplayRoundedIcon fontSize="small" />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Divider classes={{ root: classes.divider }} />
+                        <TextField
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense" size="small"
+                            id="passwordLength"
+                            label={t("PASSWORD_LENGTH")}
+                            name="passwordLength"
+                            autoComplete="off"
+                            value={passwordLength}
+                            onChange={(event) => {
+                                generatePassword(
+                                    event.target.value,
+                                    includeLettersUppercase ? passwordLettersUppercase : '',
+                                    includeLettersLowercase ? passwordLettersLowercase : '',
+                                    includeNumbers ? passwordNumbers : '',
+                                    includeSpecialChars ? passwordSpecialChars : '',
+                                )
+                                setPasswordLength(event.target.value);
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Checkbox
+                            checked={includeLettersUppercase}
+                            onChange={(event) => {
+                                generatePassword(
+                                    passwordLength,
+                                    event.target.checked ? passwordLettersUppercase : '',
+                                    includeLettersLowercase ? passwordLettersLowercase : '',
+                                    includeNumbers ? passwordNumbers : '',
+                                    includeSpecialChars ? passwordSpecialChars : '',
+                                )
+                                setIncludeLettersUppercase(event.target.checked);
+                            }}
+                            checkedIcon={<Check className={classes.checkedIcon} />}
+                            icon={<Check className={classes.uncheckedIcon} />}
+                            classes={{
+                                checked: classes.checked,
+                            }}
+                        />{" "}
+                        {t("LETTERS_UPPERCASE")}
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Checkbox
+                            checked={includeLettersLowercase}
+                            onChange={(event) => {
+                                generatePassword(
+                                    passwordLength,
+                                    includeLettersUppercase ? passwordLettersUppercase : '',
+                                    event.target.checked ? passwordLettersLowercase : '',
+                                    includeNumbers ? passwordNumbers : '',
+                                    includeSpecialChars ? passwordSpecialChars : '',
+                                )
+                                setIncludeLettersLowercase(event.target.checked);
+                            }}
+                            checkedIcon={<Check className={classes.checkedIcon} />}
+                            icon={<Check className={classes.uncheckedIcon} />}
+                            classes={{
+                                checked: classes.checked,
+                            }}
+                        />{" "}
+                        {t("LETTERS_LOWERCASE")}
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Checkbox
+                            checked={includeNumbers}
+                            onChange={(event) => {
+                                generatePassword(
+                                    passwordLength,
+                                    includeLettersUppercase ? passwordLettersUppercase : '',
+                                    includeLettersLowercase ? passwordLettersLowercase : '',
+                                    event.target.checked ? passwordNumbers : '',
+                                    includeSpecialChars ? passwordSpecialChars : '',
+                                )
+                                setIncludeNumbers(event.target.checked);
+                            }}
+                            checkedIcon={<Check className={classes.checkedIcon} />}
+                            icon={<Check className={classes.uncheckedIcon} />}
+                            classes={{
+                                checked: classes.checked,
+                            }}
+                        />{" "}
+                        {t("NUMBERS")}
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Checkbox
+                            checked={includeSpecialChars}
+                            onChange={(event) => {
+                                generatePassword(
+                                    passwordLength,
+                                    includeLettersUppercase ? passwordLettersUppercase : '',
+                                    includeLettersLowercase ? passwordLettersLowercase : '',
+                                    includeNumbers ? passwordNumbers : '',
+                                    event.target.checked ? passwordSpecialChars : '',
+                                )
+                                setIncludeSpecialChars(event.target.checked);
+                            }}
+                            checkedIcon={<Check className={classes.checkedIcon} />}
+                            icon={<Check className={classes.uncheckedIcon} />}
+                            classes={{
+                                checked: classes.checked,
+                            }}
+                        />{" "}
+                        {t("SPECIAL_CHARS")}
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Divider classes={{ root: classes.divider }} />
+                        <Button variant="contained" color="primary" onClick={saveGeneratePassword}>
+                            {t("SAVE")}
+                        </Button>
+                        <Button className={classes.regularButtonText} onClick={back}>{t("BACK")}</Button>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Divider classes={{ root: classes.divider }} />
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="passwordLength"
-                        label={t("PASSWORD_LENGTH")}
-                        name="passwordLength"
-                        autoComplete="off"
-                        value={passwordLength}
-                        onChange={(event) => {
-                            generatePassword(
-                                event.target.value,
-                                includeLettersUppercase ? passwordLettersUppercase : '',
-                                includeLettersLowercase ? passwordLettersLowercase : '',
-                                includeNumbers ? passwordNumbers : '',
-                                includeSpecialChars ? passwordSpecialChars : '',
-                            )
-                            setPasswordLength(event.target.value);
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Checkbox
-                        checked={includeLettersUppercase}
-                        onChange={(event) => {
-                            generatePassword(
-                                passwordLength,
-                                event.target.checked ? passwordLettersUppercase : '',
-                                includeLettersLowercase ? passwordLettersLowercase : '',
-                                includeNumbers ? passwordNumbers : '',
-                                includeSpecialChars ? passwordSpecialChars : '',
-                            )
-                            setIncludeLettersUppercase(event.target.checked);
-                        }}
-                        checkedIcon={<Check className={classes.checkedIcon} />}
-                        icon={<Check className={classes.uncheckedIcon} />}
-                        classes={{
-                            checked: classes.checked,
-                        }}
-                    />{" "}
-                    {t("LETTERS_UPPERCASE")}
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Checkbox
-                        checked={includeLettersLowercase}
-                        onChange={(event) => {
-                            generatePassword(
-                                passwordLength,
-                                includeLettersUppercase ? passwordLettersUppercase : '',
-                                event.target.checked ? passwordLettersLowercase : '',
-                                includeNumbers ? passwordNumbers : '',
-                                includeSpecialChars ? passwordSpecialChars : '',
-                            )
-                            setIncludeLettersLowercase(event.target.checked);
-                        }}
-                        checkedIcon={<Check className={classes.checkedIcon} />}
-                        icon={<Check className={classes.uncheckedIcon} />}
-                        classes={{
-                            checked: classes.checked,
-                        }}
-                    />{" "}
-                    {t("LETTERS_LOWERCASE")}
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Checkbox
-                        checked={includeNumbers}
-                        onChange={(event) => {
-                            generatePassword(
-                                passwordLength,
-                                includeLettersUppercase ? passwordLettersUppercase : '',
-                                includeLettersLowercase ? passwordLettersLowercase : '',
-                                event.target.checked ? passwordNumbers : '',
-                                includeSpecialChars ? passwordSpecialChars : '',
-                            )
-                            setIncludeNumbers(event.target.checked);
-                        }}
-                        checkedIcon={<Check className={classes.checkedIcon} />}
-                        icon={<Check className={classes.uncheckedIcon} />}
-                        classes={{
-                            checked: classes.checked,
-                        }}
-                    />{" "}
-                    {t("NUMBERS")}
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Checkbox
-                        checked={includeSpecialChars}
-                        onChange={(event) => {
-                            generatePassword(
-                                passwordLength,
-                                includeLettersUppercase ? passwordLettersUppercase : '',
-                                includeLettersLowercase ? passwordLettersLowercase : '',
-                                includeNumbers ? passwordNumbers : '',
-                                event.target.checked ? passwordSpecialChars : '',
-                            )
-                            setIncludeSpecialChars(event.target.checked);
-                        }}
-                        checkedIcon={<Check className={classes.checkedIcon} />}
-                        icon={<Check className={classes.uncheckedIcon} />}
-                        classes={{
-                            checked: classes.checked,
-                        }}
-                    />{" "}
-                    {t("SPECIAL_CHARS")}
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Divider classes={{ root: classes.divider }} />
-                    <Button variant="contained" color="primary" onClick={saveGeneratePassword}>
-                        {t("SAVE")}
-                    </Button>
-                    <Button style={{ color: "#b1b6c1" }} onClick={back}>{t("BACK")}</Button>
-                </Grid>
-            </Grid>
+            </DarkBox>
         );
     }
 
@@ -898,168 +909,170 @@ const PopupView = (props) => {
     }
 
     return (
-        <Grid container className={"dark"}>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense" size="small"
-                    id="search"
-                    label={t("SEARCH_DATASTORE")}
-                    name="search"
-                    autoComplete="off"
-                    autoFocus
-                    onFocus={event => {
-                        event.target.select();
-                    }}
-                    value={search}
-                    onChange={(event) => {
-                        action().setLastPopupSearch(event.target.value);
-                    }}
-                    InputProps={{
-                        endAdornment: search && (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="clear search"
-                                    onClick={clear}
-                                    edge="end"
-                                    style={{ color: "#b1b6c1" }}
-                                    size="large">
-                                    <ClearIcon fontSize="small" />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <Divider classes={{ root: classes.divider }} />
-            </Grid>
-            {itemsToDisplay.length > 0 && (
+        <DarkBox>
+            <Grid container>
                 <Grid item xs={12} sm={12} md={12}>
-                    <ul className={classes.navigation}>
-                        {itemsToDisplay.map((item, i) => (
-                            <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
-                        ))}
-                    </ul>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="search"
+                        label={t("SEARCH_DATASTORE")}
+                        name="search"
+                        autoComplete="off"
+                        autoFocus
+                        onFocus={event => {
+                            event.target.select();
+                        }}
+                        value={search}
+                        onChange={(event) => {
+                            action().setLastPopupSearch(event.target.value);
+                        }}
+                        InputProps={{
+                            endAdornment: search && (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="clear search"
+                                        onClick={clear}
+                                        edge="end"
+                                        className={classes.regularButtonText}
+                                        size="large">
+                                        <ClearIcon fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Divider classes={{ root: classes.divider }} />
                 </Grid>
-            )}
-            {itemsToDisplay.length === 0 && (
-                <Grid item xs={12} sm={12} md={12} style={{ color: "#b1b6c1" }}>
-                    {t("NO_ENTRY_FOUND")}
-                </Grid>
-            )}
-            <Grid item xs={12} sm={12} md={12}>
-                <Divider classes={{ root: classes.divider }} />
-                <Grid container spacing={1}>
-                    <Grid item>
-                        <ButtonGroup variant="contained" color="primary" disableElevation aria-label="datastore menu">
-                            <Tooltip title={t("OPEN_DATASTORE")} placement="top">
-                                <Button onClick={openDatastore} className={classes.menuButton}>
-                                    <StorageRoundedIcon />
-                                </Button>
-                            </Tooltip>
-                            {datastores && datastores.length > 1 && <Tooltip title={t("CHANGE_DATASTORE")} placement="top">
-                                <Button
-                                    onClick={openDatastoreMenu}
-                                    className={`${classes.menuButton} ${classes.menuButtonSlim}`}
-                                >
-                                    <KeyboardArrowUpIcon />
-                                </Button>
-                            </Tooltip>}
-                        </ButtonGroup>
-                        <Menu
-                            id="datastore-menu"
-                            anchorEl={anchorDatastoreMenuEl}
-                            keepMounted
-                            open={Boolean(anchorDatastoreMenuEl)}
-                            onClose={closeDatastoreMenu}
-                            anchorOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}
-                            transformOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                            }}
-                        >
-                            {datastores.map((datastore, index) => {
-                                return (
-                                    <MenuItem onClick={() => {onDatastoreSwitchClick(datastore)}} key={index}>
-                                        <ListItemIcon className={classes.listItemIcon}>
-                                            {datastore.is_default ? (<CheckBoxIcon className={classes.icon}/>) : (
-                                                <CheckBoxOutlineBlankIcon className={classes.icon}/>)}
-
-                                        </ListItemIcon>
-                                        <Typography variant="body2">{datastore.description}</Typography>
-                                    </MenuItem>
-                                );
-                            })}
-                            {!offlineCache.isActive() && (
-                                [
-                                    <Divider key={'divider'}/>,
-                                    <MenuItem onClick={onCreateDatastore} key={'create-datastore'}>
-                                        <ListItemIcon className={classes.listItemIcon}>
-                                            <AddIcon className={classes.icon}/>
-                                        </ListItemIcon>
-                                        <Typography variant="body2">{t("CREATE_NEW_DATASTORE")}</Typography>
-                                    </MenuItem>]
-                            )}
-                        </Menu>
+                {itemsToDisplay.length > 0 && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <ul className={classes.navigation}>
+                            {itemsToDisplay.map((item, i) => (
+                                <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
+                            ))}
+                        </ul>
                     </Grid>
-                    <Grid item>
-                        <Tooltip title={t("BOOKMARK")} placement="top">
-                            <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
-                                <BookmarkBorderRoundedIcon color="primary" />
-                            </Button>
-                        </Tooltip>
+                )}
+                {itemsToDisplay.length === 0 && (
+                    <Grid item xs={12} sm={12} md={12} className={classes.regularButtonText}>
+                        {t("NO_ENTRY_FOUND")}
                     </Grid>
-                    <Grid item>
-                        <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
-                            <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
-                                <VpnKeyRoundedIcon color="primary" />
-                            </Button>
-                        </Tooltip>
-                    </Grid>
-                    <Grid item style={{ marginLeft: "auto" }}>
-                        <ButtonGroup variant="outlined" color="primary" disableElevation aria-label="main menu">
-                            <Tooltip title={t("CHANGE_ACCOUNT")} placement="top">
-                                <Button
-                                    onClick={openChangeAccount}
-                                    className={classes.menuButton}
-                                >
-                                    <Badge
-                                        overlap="circular"
-                                        anchorOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right',
-                                        }}
-                                        badgeContent={
-                                            <SettingsIcon className={classes.overlayIcon} />
-                                        }
+                )}
+                <Grid item xs={12} sm={12} md={12}>
+                    <Divider classes={{ root: classes.divider }} />
+                    <Grid container spacing={1}>
+                        <Grid item>
+                            <ButtonGroup variant="contained" color="primary" disableElevation aria-label="datastore menu">
+                                <Tooltip title={t("OPEN_DATASTORE")} placement="top">
+                                    <Button onClick={openDatastore} className={classes.menuButton}>
+                                        <StorageRoundedIcon />
+                                    </Button>
+                                </Tooltip>
+                                {datastores && datastores.length > 1 && <Tooltip title={t("CHANGE_DATASTORE")} placement="top">
+                                    <Button
+                                        onClick={openDatastoreMenu}
+                                        className={`${classes.menuButton} ${classes.menuButtonSlim}`}
                                     >
-                                        <Avatar className={classes.overlayedIcon}>
-                                            <SupervisorAccountIcon />
-                                        </Avatar>
-                                    </Badge>
+                                        <KeyboardArrowUpIcon />
+                                    </Button>
+                                </Tooltip>}
+                            </ButtonGroup>
+                            <Menu
+                                id="datastore-menu"
+                                anchorEl={anchorDatastoreMenuEl}
+                                keepMounted
+                                open={Boolean(anchorDatastoreMenuEl)}
+                                onClose={closeDatastoreMenu}
+                                anchorOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
+                                }}
+                                transformOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "right",
+                                }}
+                            >
+                                {datastores.map((datastore, index) => {
+                                    return (
+                                        <MenuItem onClick={() => {onDatastoreSwitchClick(datastore)}} key={index}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                {datastore.is_default ? (<CheckBoxIcon className={classes.icon}/>) : (
+                                                    <CheckBoxOutlineBlankIcon className={classes.icon}/>)}
+
+                                            </ListItemIcon>
+                                            <Typography variant="body2">{datastore.description}</Typography>
+                                        </MenuItem>
+                                    );
+                                })}
+                                {!offlineCache.isActive() && (
+                                    [
+                                        <Divider key={'divider'}/>,
+                                        <MenuItem onClick={onCreateDatastore} key={'create-datastore'}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <AddIcon className={classes.icon}/>
+                                            </ListItemIcon>
+                                            <Typography variant="body2">{t("CREATE_NEW_DATASTORE")}</Typography>
+                                        </MenuItem>]
+                                )}
+                            </Menu>
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title={t("BOOKMARK")} placement="top">
+                                <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
+                                    <BookmarkBorderRoundedIcon color="primary" />
                                 </Button>
                             </Tooltip>
-                            <Tooltip title={t("LOGOUT")} placement="top">
-                                <Button onClick={logout} className={classes.menuButton}>
-                                    <ExitToAppRoundedIcon color="primary" />
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
+                                <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
+                                    <VpnKeyRoundedIcon color="primary" />
                                 </Button>
                             </Tooltip>
-                        </ButtonGroup>
+                        </Grid>
+                        <Grid item style={{ marginLeft: "auto" }}>
+                            <ButtonGroup variant="outlined" color="primary" disableElevation aria-label="main menu">
+                                <Tooltip title={t("CHANGE_ACCOUNT")} placement="top">
+                                    <Button
+                                        onClick={openChangeAccount}
+                                        className={classes.menuButton}
+                                    >
+                                        <Badge
+                                            overlap="circular"
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                            }}
+                                            badgeContent={
+                                                <SettingsIcon className={classes.overlayIcon} />
+                                            }
+                                        >
+                                            <Avatar className={classes.overlayedIcon}>
+                                                <SupervisorAccountIcon />
+                                            </Avatar>
+                                        </Badge>
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip title={t("LOGOUT")} placement="top">
+                                    <Button onClick={logout} className={classes.menuButton}>
+                                        <ExitToAppRoundedIcon color="primary" />
+                                    </Button>
+                                </Tooltip>
+                            </ButtonGroup>
+                        </Grid>
                     </Grid>
                 </Grid>
+                {changeAccountOpen && <DialogChangeAccount open={changeAccountOpen} onClose={() => setChangeAccountOpen(false)} />}
+                {unlockOfflineCache && (
+                    <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+                )}
+                {createDatastoreOpen && <CreateDatastoresDialog {...props} open={createDatastoreOpen} onClose={() => {
+                    setCreateDatastoreOpen(false);
+                    reloadDatastoreOverview();
+                }} />}
             </Grid>
-            {changeAccountOpen && <DialogChangeAccount open={changeAccountOpen} onClose={() => setChangeAccountOpen(false)} />}
-            {unlockOfflineCache && (
-                <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
-            )}
-            {createDatastoreOpen && <CreateDatastoresDialog {...props} open={createDatastoreOpen} onClose={() => {
-                setCreateDatastoreOpen(false);
-                reloadDatastoreOverview();
-            }} />}
-        </Grid>
+        </DarkBox>
     );
 };
 

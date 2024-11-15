@@ -24,34 +24,34 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
-    },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
     },
     button: {
         color: "white !important",
     },
     inputAdornment: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -270,7 +270,6 @@ const EmergencyCodeViewForm = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            classes={{ disabled: classes.disabledButton }}
                             onClick={armEmergencyCode}
                             type="submit"
                             disabled={(!words && (!code1 || !code2)) || !username}
@@ -416,7 +415,7 @@ const EmergencyCodeViewForm = (props) => {
                             {t("APPROVE")}
                         </Button>
                         <Button onClick={cancel}>
-                            <span style={{color: "#b1b6c1"}}>{t("CANCEL")}</span>
+                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -496,7 +495,7 @@ const EmergencyCodeViewForm = (props) => {
                         </Button>
 
                         <Button onClick={approveNewServer}>
-                            <span style={{color: "#b1b6c1"}}>{t("IGNORE_AND_CONTINUE")}</span>
+                            <span className={classes.regularButtonText}>{t("IGNORE_AND_CONTINUE")}</span>
                         </Button>
                     </Grid>
                 </Grid>
@@ -545,24 +544,22 @@ const EmergencyCodeViewForm = (props) => {
 
     if (view === "success") {
         formContent = (
-            <>
-                <Grid container>
-                    <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                        <ThumbUpIcon style={{ fontSize: 160 }} />
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            href={"index.html"}
-                            className={classes.button}
-                        >
-                            {t("BACK_TO_HOME")}
-                        </Button>
-                    </Grid>
+            <Grid container>
+                <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
+                    <ThumbUpIcon style={{ fontSize: 160 }} />
                 </Grid>
-            </>
+                <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        href={"index.html"}
+                        className={classes.button}
+                    >
+                        {t("BACK_TO_HOME")}
+                    </Button>
+                </Grid>
+            </Grid>
         );
     }
 

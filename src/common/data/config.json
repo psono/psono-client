@@ -5,6 +5,7 @@
   "allow_custom_server": true,
   "allow_registration": true,
   "allow_lost_password": true,
+  "allow_delete_account": true,
   "authentication_methods": ["AUTHKEY", "LDAP"],
   "more_links": [{
     "href": "https://doc.psono.com/",

@@ -45,6 +45,7 @@ function set(messages) {
 function push(notificationType, notificationContent) {
     const knownNotificationTypes = [
         "pin_copy",
+        "value_copy",
         "password_copy",
         "username_copy",
         "totp_token_copy",
