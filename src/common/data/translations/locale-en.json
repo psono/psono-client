@@ -1,4 +1,5 @@
 {
+  "URL_EMPTY_CANNOT_REDIRECT": "The URL parameter is missing, so we’re unable to redirect you. Please modify the entry and provide a valid URL.",
   "CHOOSE_USER": "Choose user",
   "CHOOSE_PERMISSIONS": "Choose permissions",
   "WARNING_USER_DETAILS_CHANGED": "The cryptographic details for this user have changed. Verify their identity to ensure security.",
