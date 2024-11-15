@@ -161,6 +161,8 @@ const Topbar = (props) => {
     const [profilePic, setProfilePic] = useState("");
     const settingsDatastore = useSelector((state) => state.settingsDatastore);
 
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
+
 
     const setClientOptions = (nosavemode) => {
         action().setClientOptionsConfig(
@@ -288,7 +290,7 @@ const Topbar = (props) => {
                                     className={classes.topMenuButton}
                                     endIcon={<ExpandMoreIcon/>}
                                 >
-                                    {t("DATASTORE")}
+                                    {passwordDatastore ? passwordDatastore.description : t("DATASTORE")}
                                 </Button>
                             </Hidden>
                             <Menu
