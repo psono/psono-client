@@ -854,11 +854,11 @@ function disableBrowserPasswordSaving(value) {
 }
 
 /**
- * Copies some content to the clipboard
+ * Writes some content to the clipboard
  *
  * @param {function} fetchContent The content to copy
  */
-function copyToClipboard(fetchContent) {
+function writeToClipboard(fetchContent) {
 
     if (deviceService.isSafari()) {
         // Safari
@@ -871,41 +871,32 @@ function copyToClipboard(fetchContent) {
         // Firefox & Chrome and everything else
         return fetchContent().then((content) => navigator.clipboard.writeText(content))
     }
-    // let copy;
-    // if (TARGET === "firefox") {
-    //     copy = function (e) {
-    //         e.preventDefault();
-    //         if (e.clipboardData) {
-    //             e.clipboardData.setData("text/plain", content);
-    //         } else if (window.clipboardData) {
-    //             window.clipboardData.setData("Text", content);
-    //         }
-    //     };
-    //     document.addEventListener("copy", copy);
-    //     document.execCommand("copy");
-    //     document.removeEventListener("copy", copy);
-    // } else if (TARGET === "chrome") {
-    //     copy = function (e) {
-    //         e.preventDefault();
-    //         if (e.clipboardData) {
-    //             e.clipboardData.setData("text/plain", content);
-    //         } else if (window.clipboardData) {
-    //             window.clipboardData.setData("Text", content);
-    //         }
-    //     };
-    //     document.addEventListener("copy", copy);
-    //     document.execCommand("copy");
-    //     document.removeEventListener("copy", copy);
-    // } else {
-    //     navigator.clipboard.writeText(content);
-    //     // let input = document.createElement("input");
-    //     // input.type = 'text';
-    //     // input.value = content;
-    //     // document.body.appendChild(input);
-    //     // input.select();
-    //     // document.execCommand("Copy");
-    //     // document.body.removeChild(input);
-    // }
+}
+
+/**
+ * Copies some content to the clipboard and clears it after a certain time
+ *
+ * @param {function} fetchContent The content to copy
+ */
+function copyToClipboard(fetchContent) {
+    const clipboardClearDelay = getStore().getState().settingsDatastore.clipboardClearDelay;
+    if (clipboardClearDelay) {
+        if (TARGET === "chrome" || TARGET === "firefox") {
+            emitSec("clear-clipboard", {
+                delay: clipboardClearDelay,
+            });
+        } else {
+            writeToClipboard(function () {
+                return new Promise(function(resolve, reject) {
+                    setTimeout(function () {
+                        console.log("clearClipboard")
+                        resolve("")
+                    }, clipboardClearDelay*1000);
+                });
+            })
+        }
+    }
+    return writeToClipboard(fetchContent)
 }
 
 /**
@@ -1039,6 +1030,7 @@ const browserClientService = {
     passwordSavingControlledByThisExtension: passwordSavingControlledByThisExtension,
     disableBrowserPasswordSaving: disableBrowserPasswordSaving,
     copyToClipboard: copyToClipboard,
+    writeToClipboard: writeToClipboard,
     notify: notify,
     setIcon: setIcon,
     setBadgeText: setBadgeText,

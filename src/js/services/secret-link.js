@@ -140,23 +140,11 @@ function onSecretMoved(linkId, parent) {
     return moveSecretLink(linkId, new_parent_share_id, new_parent_datastore_id);
 }
 
-/**
- * triggered once a secret is deleted.
- *
- * @param {uuid} linkId The id of the link to delete
- *
- * @returns {Promise} Returns a promise with the status of the delete operation
- */
-function onSecretDeleted(linkId) {
-    return deleteSecretLink(linkId);
-}
-
 const secretLinkService = {
     moveSecretLinks: moveSecretLinks,
     resetSecretLinkTimeout: resetSecretLinkTimeout,
     moveSecretLink: moveSecretLink,
     deleteSecretLink: deleteSecretLink,
     onSecretMoved: onSecretMoved,
-    onSecretDeleted: onSecretDeleted,
 };
 export default secretLinkService;

@@ -13,6 +13,7 @@ import passkeyService from "./passkey";
 import user from "./user";
 import secretService from "./secret";
 import cryptoLibrary from "./crypto-library";
+import offscreenDocument from "./offscreen-document";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
@@ -401,6 +402,7 @@ function onMessage(request, sender, sendResponse) {
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
         "language-changed": languageChanged,
+        "clear-clipboard": clearClipboard,
         "navigator-credentials-get": passkeyService.onNavigatorCredentialsGet,
         "navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
         "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
@@ -670,6 +672,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
     return filter;
 };
 
+
 /**
  * Returns all website passwords where the specified url matches the url filter
  *
@@ -678,7 +681,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
  *
  * @returns {Promise} The database objects where the url filter match the url
  */
-function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
+async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
     const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
     return storage.where("datastore-password-leafs", (value, key) => filter(value));
@@ -1120,6 +1123,19 @@ function languageChanged(request, sender, sendResponse) {
     i18n.changeLanguage(request.data).then(() => {
         updateContextMenu();
     });
+}
+
+/**
+ * Triggered in when someone wants to clear the clipboard delayed
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function clearClipboard(request, sender, sendResponse) {
+    setTimeout(function () {
+        browserClient.emitTab(activeTabId, "clear-clipboard-content-script", request.data);
+    }, request.data.delay*1000)
 }
 
 /**

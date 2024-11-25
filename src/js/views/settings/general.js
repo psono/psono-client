@@ -1,20 +1,24 @@
 import React, {useState} from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+
 import Divider from "@mui/material/Divider";
 import { Checkbox, Grid } from "@mui/material";
-
+import TextField from "@mui/material/TextField";
 import { Check } from "@mui/icons-material";
 import { makeStyles } from '@mui/styles';
 import Button from "@mui/material/Button";
-import GridContainerErrors from "../../components/grid-container-errors";
+import InputAdornment from "@mui/material/InputAdornment";
 
+import GridContainerErrors from "../../components/grid-container-errors";
 import action from "../../actions/bound-action-creators";
 import browserClientService from "../../services/browser-client";
 import SelectFieldLanguage from "../../components/select-field/language";
-import { languages } from "../../i18n";
 import userService from "../../services/user";
 import optionsBlueprintService from "../../services/options-blueprint";
+import { languages } from "../../i18n";
+import IconButton from "@mui/material/IconButton";
+import ContentCopy from "../../components/icons/ContentCopy";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -49,6 +53,8 @@ const SettingsGeneralView = (props) => {
     const [noSaveMode, setNoSaveMode] = useState(settingsDatastore.noSaveMode);
     const [showNoSaveToggle, setShowNoSaveToggle] = useState(settingsDatastore.showNoSaveToggle);
     const [confirmOnUnsavedChanges, setConfirmOnUnsavedChanges] = useState(settingsDatastore.confirmOnUnsavedChanges);
+
+    const [clipboardClearDelay, setClipboardClearDelay] = useState(settingsDatastore.clipboardClearDelay);
     const [msgs, setMsgs] = React.useState([]);
 
 
@@ -74,9 +80,11 @@ const SettingsGeneralView = (props) => {
 
     const save = (event) => {
         action().setClientOptionsConfig(
+            parseInt(clipboardClearDelay) || 0,
             stateLookupDict['nosave'].value,
             stateLookupDict['nosavetoggle'].value,
-            stateLookupDict['confirm_unsaved'].value);
+            stateLookupDict['confirm_unsaved'].value,
+        );
         setMsgs(["SAVE_SUCCESS"])
     };
     const entryTypes = optionsBlueprintService.getEntryTypes();
@@ -113,6 +121,29 @@ const SettingsGeneralView = (props) => {
                             browserClientService.emitSec("language-changed", value, function () {});
                             userService.saveNewLanguage(value);
                         });
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+                <TextField
+                    className={classes.textField}
+                    variant="outlined"
+                    margin="dense" size="small"
+                    id="clipboardClearDelay"
+                    label={t("CLIPBOARD_CLEAR_DELAY")}
+                    helperText={t("CLIPBOARD_CLEAR_DELAY_EXPLAINED")}
+                    name="clipboardClearDelay"
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                {t("SEC")}
+                            </InputAdornment>
+                        ),
+                    }}
+                    autoComplete="off"
+                    value={clipboardClearDelay}
+                    onChange={(event) => {
+                        setClipboardClearDelay(event.target.value);
                     }}
                 />
             </Grid>

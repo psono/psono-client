@@ -270,6 +270,10 @@ function setPasswordConfig(
         { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
         { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
         { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
+        { key: "setting_clipboard_clear_delay", value: getStore().getState().settingsDatastore.clipboardClearDelay },
+        { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
+        { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
+        { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
     ]);
     return (dispatch) => {
         dispatch({
@@ -285,24 +289,47 @@ function setPasswordConfig(
 
 
 function setClientOptionsConfig(
+    clipboardClearDelay,
     noSaveMode,
     showNoSaveToggle,
     confirmOnUnsavedChanges,
 ) {
     datastoreSettingService.saveSettingsDatastore([
-        { key: "setting_no_save_mode", value: noSaveMode },
-        { key: "setting_show_no_save_toggle", value: showNoSaveToggle },
-        { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges },
- ]);
+        { key: "setting_show_website_password", value: getStore().getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: getStore().getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: getStore().getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_passkey", value: getStore().getState().settingsDatastore.showPasskey },
+        { key: "setting_show_note", value: getStore().getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: getStore().getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: getStore().getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
+        { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
+        { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
+        { key: "setting_password_letters_uppercase", value: getStore().getState().settingsDatastore.passwordLettersUppercase },
+        { key: "setting_password_letters_lowercase", value: getStore().getState().settingsDatastore.passwordLettersLowercase },
+        { key: "setting_password_numbers", value: getStore().getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: getStore().getState().settingsDatastore.passwordSpecialChars },
+        { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
+        { key: "setting_clipboard_clear_delay", value: clipboardClearDelay },
+        { key: "setting_no_save_mode", value: noSaveMode},
+        { key: "setting_show_no_save_toggle", value: showNoSaveToggle},
+        { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges},
+    ]);
 
- return (dispatch) => {
-    dispatch({
-        type: SET_CLIENT_CONFIG,
-        noSaveMode,
-        showNoSaveToggle,
-        confirmOnUnsavedChanges,
-    });
-};
+    return (dispatch) => {
+        dispatch({
+            type: SET_CLIENT_CONFIG,
+            clipboardClearDelay,
+            noSaveMode,
+            showNoSaveToggle,
+            confirmOnUnsavedChanges,
+        });
+    };
 }
 
 
@@ -347,6 +374,10 @@ function setShownEntriesConfig(
         { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
         { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
         { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
+        { key: "setting_clipboard_clear_delay", value: getStore().getState().settingsDatastore.clipboardClearDelay },
+        { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
+        { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
+        { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
     ]);
     return (dispatch) => {
         dispatch({
@@ -394,6 +425,10 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
         { key: "gpg_default_key", value: gpgDefaultKey },
         { key: "gpg_hkp_key_server", value: gpgHkpKeyServer },
         { key: "gpg_hkp_search", value: gpgHkpSearch },
+        { key: "setting_clipboard_clear_delay", value: getStore().getState().settingsDatastore.clipboardClearDelay },
+        { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
+        { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
+        { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
     ]);
     return (dispatch) => {
         dispatch({

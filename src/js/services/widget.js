@@ -1157,7 +1157,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
                     (function (secret_link) {
                         timeout = timeout + 50;
                         setTimeout(function () {
-                            secretLinkService.onSecretDeleted(secret_link.id);
+                            secretLinkService.deleteSecretLink(secret_link.id);
                         }, timeout);
                     })(secret_links[i]);
                 }
@@ -1236,7 +1236,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
                     (function (secret_link) {
                         timeout = timeout + 50;
                         setTimeout(function () {
-                            secretLinkService.onSecretDeleted(secret_link.id);
+                            secretLinkService.deleteSecretLink(secret_link.id);
                         }, timeout);
                     })(secret_links[i]);
                 }
