@@ -993,6 +993,7 @@ function getAllElementsWithProperty(element, property) {
         if (element.hasOwnProperty(property)) {
             links.push({
                 id: element.id,
+                name: element.name || '',
                 path: new_path,
             });
         }

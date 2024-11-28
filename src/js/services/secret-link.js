@@ -97,10 +97,11 @@ function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRe
  * Deletes a link to a secret
  *
  * @param {uuid} linkId The id of the link that should be deleted
+ * @param {string} logAuditTitle The title for the audit log
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-function deleteSecretLink(linkId) {
+function deleteSecretLink(linkId, logAuditTitle) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -112,7 +113,7 @@ function deleteSecretLink(linkId) {
         // pass
     };
 
-    return apiClientService.deleteSecretLink(token, sessionSecretKey, linkId).then(onSuccess, onError);
+    return apiClientService.deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle).then(onSuccess, onError);
 }
 
 /**

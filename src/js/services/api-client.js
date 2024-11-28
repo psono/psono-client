@@ -1215,14 +1215,16 @@ function moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newPa
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {uuid} linkId The link id
+ * @param {string} logAuditTitle The title for the audit log
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-function deleteSecretLink(token, sessionSecretKey, linkId) {
+function deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle) {
     const endpoint = "/secret/link/";
     const method = "DELETE";
     const data = {
         link_id: linkId,
+        log_audit_title: getStore().getState().server.logAudit ? logAuditTitle : '',
     };
     const headers = {
         "Content-Type": "application/json",
