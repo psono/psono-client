@@ -26,6 +26,8 @@ import FooterLinks from "../../components/footer-links";
 import datastoreSettingService from "../../services/datastore-setting";
 import TextWithLineBreaks from "../../components/text-with-linebreaks";
 import {useTheme} from "@mui/material/styles";
+import PropTypes from "prop-types";
+import LoginView from "./index";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -1721,7 +1723,7 @@ const LoginViewForm = (props) => {
             autoComplete="off"
         >
             {formContent}
-            <div className="box-footer">
+            <div className={`${props.fullWidth ? 'full-width-' : ''}box-footer`}>
                 {!hideRemoteConfig && (
                     <>
                         <a onClick={remoteConfig} href="#">
@@ -1784,5 +1786,13 @@ const LoginViewForm = (props) => {
         </form>
     );
 };
+
+LoginViewForm.defaultProps = {
+    fullWidth: false,
+};
+LoginViewForm.propTypes = {
+    fullWidth: PropTypes.bool,
+};
+
 
 export default LoginViewForm;
