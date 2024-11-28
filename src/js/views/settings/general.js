@@ -17,8 +17,7 @@ import SelectFieldLanguage from "../../components/select-field/language";
 import userService from "../../services/user";
 import optionsBlueprintService from "../../services/options-blueprint";
 import { languages } from "../../i18n";
-import IconButton from "@mui/material/IconButton";
-import ContentCopy from "../../components/icons/ContentCopy";
+import {getStore} from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -79,8 +78,22 @@ const SettingsGeneralView = (props) => {
     }, [settingsDatastore]);
 
     const save = (event) => {
+        let newClipboardClearDelay = parseInt(clipboardClearDelay) || 0;
+        const newClipboardClearDelayBackup = newClipboardClearDelay;
+
+        if (typeof getStore().getState().server.complianceMinClipboardClearDelay !== "undefined" && getStore().getState().server.complianceMinClipboardClearDelay > newClipboardClearDelay) {
+            newClipboardClearDelay = getStore().getState().server.complianceMinClipboardClearDelay;
+        }
+        if (typeof getStore().getState().server.complianceMaxClipboardClearDelay !== "undefined" && getStore().getState().server.complianceMaxClipboardClearDelay < newClipboardClearDelay) {
+            newClipboardClearDelay = getStore().getState().server.complianceMaxClipboardClearDelay;
+        }
+
+        if (newClipboardClearDelay !== newClipboardClearDelayBackup) {
+            setClipboardClearDelay(newClipboardClearDelay);
+        }
+
         action().setClientOptionsConfig(
-            parseInt(clipboardClearDelay) || 0,
+            newClipboardClearDelay,
             stateLookupDict['nosave'].value,
             stateLookupDict['nosavetoggle'].value,
             stateLookupDict['confirm_unsaved'].value,
@@ -133,7 +146,13 @@ const SettingsGeneralView = (props) => {
                     label={t("CLIPBOARD_CLEAR_DELAY")}
                     helperText={t("CLIPBOARD_CLEAR_DELAY_EXPLAINED")}
                     name="clipboardClearDelay"
+                    type="number"
+                    disabled={(getStore().getState().server.complianceMinClipboardClearDelay || 0) === (getStore().getState().server.complianceMaxClipboardClearDelay || 600)}
                     InputProps={{
+                        inputProps: {
+                            min: getStore().getState().server.complianceMinClipboardClearDelay || 0,
+                            max: getStore().getState().server.complianceMaxClipboardClearDelay || 600,
+                        },
                         endAdornment: (
                             <InputAdornment position="end">
                                 {t("SEC")}

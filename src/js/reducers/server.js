@@ -28,6 +28,9 @@ const defaultComplianceEnforce2fa = false;
 const defaultComplianceEnforceCentralSecurityReports = false;
 const defaultComplianceMinMasterPasswordComplexity = 2;
 const defaultComplianceMinMasterPasswordLength = 14;
+const defaultComplianceClipboardClearDelay = 30;
+const defaultComplianceMinClipboardClearDelay = 0;
+const defaultComplianceMaxClipboardClearDelay = 600;
 const defaultCompliancePasswordGeneratorDefaultPasswordLength = 20;
 const defaultCompliancePasswordGeneratorDefaultLettersUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const defaultCompliancePasswordGeneratorDefaultLettersLowercase = "abcdefghijklmnopqrstuvwxyz";
@@ -91,6 +94,9 @@ function server(
         complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
         complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
         complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
+        complianceClipboardClearDelay: defaultComplianceClipboardClearDelay,
+        complianceMinClipboardClearDelay: defaultComplianceMinClipboardClearDelay,
+        complianceMaxClipboardClearDelay: defaultComplianceMaxClipboardClearDelay,
         compliancePasswordGeneratorDefaultPasswordLength: defaultCompliancePasswordGeneratorDefaultPasswordLength,
         compliancePasswordGeneratorDefaultLettersUppercase: defaultCompliancePasswordGeneratorDefaultLettersUppercase,
         compliancePasswordGeneratorDefaultLettersLowercase: defaultCompliancePasswordGeneratorDefaultLettersLowercase,
@@ -152,6 +158,9 @@ function server(
                 complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
                 complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
                 complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
+                complianceClipboardClearDelay: defaultComplianceClipboardClearDelay,
+                complianceMinClipboardClearDelay: defaultComplianceMinClipboardClearDelay,
+                complianceMaxClipboardClearDelay: defaultComplianceMaxClipboardClearDelay,
                 compliancePasswordGeneratorDefaultPasswordLength:
                     defaultCompliancePasswordGeneratorDefaultPasswordLength,
                 compliancePasswordGeneratorDefaultLettersUppercase:
@@ -212,6 +221,9 @@ function server(
                 complianceEnforceCentralSecurityReports: action.info.compliance_enforce_central_security_reports,
                 complianceMinMasterPasswordComplexity: action.info.compliance_min_master_password_complexity,
                 complianceMinMasterPasswordLength: action.info.compliance_min_master_password_length,
+                complianceClipboardClearDelay: typeof(action.info.compliance_clipboard_clear_delay) === "undefined" ? defaultComplianceClipboardClearDelay : action.info.compliance_clipboard_clear_delay,
+                complianceMinClipboardClearDelay: typeof(action.info.compliance_min_clipboard_clear_delay) === "undefined" ? defaultComplianceMinClipboardClearDelay : action.info.compliance_min_clipboard_clear_delay,
+                complianceMaxClipboardClearDelay: typeof(action.info.compliance_max_clipboard_clear_delay) === "undefined" ? defaultComplianceMaxClipboardClearDelay : action.info.compliance_max_clipboard_clear_delay,
                 compliancePasswordGeneratorDefaultPasswordLength:
                     action.info.compliance_password_generator_default_password_length,
                 compliancePasswordGeneratorDefaultLettersUppercase:
@@ -295,6 +307,15 @@ function server(
             }
             if (action.policy.hasOwnProperty('compliance_disable_shares')) {
                 data['complianceDisableShares'] = action.policy.compliance_disable_shares;
+            }
+            if (action.policy.hasOwnProperty('compliance_clipboard_clear_delay')) {
+                data['complianceClipboardClearDelay'] = action.policy.compliance_clipboard_clear_delay;
+            }
+            if (action.policy.hasOwnProperty('compliance_min_clipboard_clear_delay')) {
+                data['complianceMinClipboardClearDelay'] = action.policy.compliance_min_clipboard_clear_delay;
+            }
+            if (action.policy.hasOwnProperty('compliance_max_clipboard_clear_delay')) {
+                data['complianceMaxClipboardClearDelay'] = action.policy.compliance_max_clipboard_clear_delay;
             }
             if (action.policy.hasOwnProperty('compliance_password_generator_default_password_length')) {
                 data['compliancePasswordGeneratorDefaultPasswordLength'] = action.policy.compliance_password_generator_default_password_length;

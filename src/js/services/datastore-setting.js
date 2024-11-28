@@ -27,6 +27,14 @@ function getSettingsDatastore() {
         if (typeof getStore().getState().server.complianceClipboardClearDelay !== "undefined") {
             data["setting_clipboard_clear_delay"] = getStore().getState().server.complianceClipboardClearDelay;
         }
+
+        if (typeof getStore().getState().server.complianceMinClipboardClearDelay !== "undefined" && getStore().getState().server.complianceMinClipboardClearDelay > data["setting_clipboard_clear_delay"]) {
+            data["setting_clipboard_clear_delay"] = getStore().getState().server.complianceMinClipboardClearDelay;
+        }
+
+        if (typeof getStore().getState().server.complianceMaxClipboardClearDelay !== "undefined" && getStore().getState().server.complianceMaxClipboardClearDelay < data["setting_clipboard_clear_delay"]) {
+            data["setting_clipboard_clear_delay"] = getStore().getState().server.complianceMaxClipboardClearDelay;
+        }
         if (typeof getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength !== "undefined") {
             data["setting_password_length"] = getStore().getState().server.compliancePasswordGeneratorDefaultPasswordLength;
         }
