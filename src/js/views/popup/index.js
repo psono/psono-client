@@ -569,7 +569,6 @@ const PopupView = (props) => {
         });
 
         reloadDatastoreOverview();
-        accountService.broadcastReinitializeBackgroundEvent();
         return () => (isSubscribed = false);
     }, []);
 
@@ -612,6 +611,7 @@ const PopupView = (props) => {
         deepSearchAllItems(data, "/");
 
         setItems(entries);
+        accountService.broadcastReinitializeBackgroundEvent();
     };
 
     const logout = (event) => {
