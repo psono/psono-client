@@ -895,8 +895,10 @@ const PopupView = (props) => {
         const matching = [];
         const notMatching = [];
         items.map((item, _) => {
-            if (!(item.content.hasOwnProperty("deleted") && item.content["deleted"]) &&
-                item.content.urlfilter &&
+            if (item.content.hasOwnProperty("deleted") && item.content["deleted"]){
+                return;
+            }
+            if (item.content.urlfilter &&
                 item.content.urlfilter.split(/\s+|,|;/).some((filter) => helper.isUrlFilterMatch(url.authority, filter))) {
                 matching.push(item);
             } else {
