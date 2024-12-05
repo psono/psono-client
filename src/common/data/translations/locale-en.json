@@ -1,4 +1,5 @@
 {
+  "INVALID": "Invalid",
   "SEC": "sec",
   "CLIPBOARD_CLEAR_DELAY": "Clipboard clear delay",
   "CLIPBOARD_CLEAR_DELAY_EXPLAINED": "The duration before the clipboard is automatically cleared after being used for copying. A value of '0' disables the feature.",

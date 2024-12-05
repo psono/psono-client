@@ -37,14 +37,18 @@ const TotpCircle = (props) => {
     codeRef.current = code;
 
     const updateToken = () => {
-        setToken(
-            cryptoLibraryService.getTotpToken(
+        let newToken;
+        try {
+            newToken = cryptoLibraryService.getTotpToken(
                 codeRef.current,
                 periodRef.current,
                 algorithmRef.current,
                 digitsRef.current
-            )
-        );
+            );
+            setToken(newToken);
+        }  catch (e) {
+            setToken(t("INVALID"));
+        }
         const percentage =
             100 -
             (((periodRef.current || 30) - (Math.round(new Date().getTime() / 1000.0) % (periodRef.current || 30))) /
