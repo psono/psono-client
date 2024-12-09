@@ -1,16 +1,31 @@
 import React, {useState} from "react";
+import {useTranslation} from "react-i18next";
+
 import {Grid} from "@mui/material";
+import Button from "@mui/material/Button";
+import {makeStyles} from "@mui/styles";
+
 import GridContainerErrors from "../../components/grid-container-errors";
 import user from "../../services/user";
 import browserClientService from "../../services/browser-client";
 import ConfigLogo from "../../components/config-logo";
-import Button from "@mui/material/Button";
-import {useTranslation} from "react-i18next";
-import {makeStyles} from "@mui/styles";
+import DarkBox from "../../components/dark-box";
 
 const useStyles = makeStyles((theme) => ({
     button: {
         color: "white !important",
+    },
+    box: {
+        width: '340px',
+        padding: theme.spacing(2.5),
+        position: 'absolute',
+        top: '60%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        borderRadius: '4px',
+        [theme.breakpoints.up('sm')]: {
+            width: '540px',
+        },
     },
 }));
 
@@ -24,7 +39,7 @@ const LogoutSuccessView = (props) => {
     }, []);
 
     return (
-        <div className={"logoutsuccessbox dark"}>
+        <DarkBox className={classes.box}>
             <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
@@ -43,7 +58,7 @@ const LogoutSuccessView = (props) => {
                     {t("BACK_TO_HOME")}
                 </Button>
             </Grid>)}
-        </div>
+        </DarkBox>
     );
 };
 

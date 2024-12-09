@@ -2,6 +2,9 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Switch, Route } from "react-router-dom";
 
+import {GlobalStyles} from "@mui/material";
+import {useTheme} from "@mui/material/styles";
+
 import LoginView from "./login";
 import DatastoreView from "./datastore";
 import AccountView from "./account/index";
@@ -29,17 +32,21 @@ import statusService from "../services/status";
 import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
+import DeleteUserView from "./delete-user";
 import RegisterView from "./register";
 import InstallSuccessfulView from "./install-successful";
 import ActivateSuccessfulView from "./activate-successful";
 import user from "../services/user";
+import DeleteUserConfirmView from "./delete-user-confirm";
 
 const IndexView = (props) => {
+    const theme = useTheme();
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const pathname = window.location.pathname;
 
     React.useEffect(() => {
+        document.body.classList.remove('loading');
         statusService.getStatus();
         if (pathname.endsWith("/background.html")) {
             backgroundService.activateAfterStore();
@@ -81,7 +88,12 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
-                        <LoginView {...props} />
+                        <GlobalStyles
+                            styles={{
+                                body: { backgroundColor: theme.palette.blueBackground.main },
+                            }}
+                        />
+                        <LoginView {...props} fullWidth />
                     </Route>
                 </Switch>
             );
@@ -89,6 +101,11 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
+                        <GlobalStyles
+                            styles={{
+                                body: { backgroundColor: theme.palette.blueBackground.main },
+                            }}
+                        />
                         <PopupView {...props} />
                     </Route>
                 </Switch>
@@ -136,7 +153,7 @@ const IndexView = (props) => {
             return (
                 <Switch>
                     <Route path="/">
-                        <LoginView {...props} />
+                        <LoginView {...props} fullWidth />
                     </Route>
                 </Switch>
             );
@@ -157,6 +174,19 @@ const IndexView = (props) => {
         return <PrivacyPolicyView {...props} />;
     } else if (pathname.endsWith("/register.html")) {
         return <RegisterView {...props} />;
+    } else if (pathname.endsWith("/delete-user.html")) {
+        return <DeleteUserView {...props} />;
+    } else if (pathname.endsWith("/delete-user-confirm.html")) {
+        return (
+            <Switch>
+                <Route path="/unregistration-code/:unregisterCode">
+                    <DeleteUserConfirmView {...props} />
+                </Route>
+                <Route path="/">
+                    <DeleteUserConfirmView {...props} />
+                </Route>
+            </Switch>
+        )
     } else if (pathname.endsWith("/install-successful.html")) {
         return <InstallSuccessfulView {...props} />;
     } else if (pathname.endsWith("/activate-successful.html")) {

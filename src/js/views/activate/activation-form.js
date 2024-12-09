@@ -17,31 +17,28 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: "#666",
+            color: theme.palette.greyText.main,
         },
         "& MuiFormControl-root": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& label": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "green",
         },
         "& .MuiOutlinedInput-root": {
             "& fieldset": {
-                borderColor: "#666",
+                borderColor: theme.palette.greyText.main,
             },
         },
     },
     passwordField: {
         fontFamily: "'Fira Code', monospace",
-    },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
     },
 }));
 
@@ -125,7 +122,6 @@ const ActivationForm = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            classes={{ disabled: classes.disabledButton }}
                             onClick={logout}
                             type="submit"
                         >
@@ -166,7 +162,6 @@ const ActivationForm = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            classes={{ disabled: classes.disabledButton }}
                             onClick={activateCode}
                             type="submit"
                             disabled={!activationCode || activateInProgress}
@@ -208,7 +203,6 @@ const ActivationForm = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            classes={{ disabled: classes.disabledButton }}
                             onClick={() => {window.location.href = "index.html";}}
                             type="submit"
                         >

@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
         margin: "auto",
     },
     toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
         display: "flex",
     },
     toolbarTitle: {
@@ -51,9 +52,9 @@ const useStyles = makeStyles((theme) => ({
     },
     search: {
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
+        backgroundColor: alpha(theme.palette.lightBackground.main, 0.25),
         "&:hover": {
-            backgroundColor: alpha(theme.palette.common.white, 0.45),
+            backgroundColor: alpha(theme.palette.lightBackground.main, 0.45),
         },
         marginLeft: "auto",
         [theme.breakpoints.up("sm")]: {

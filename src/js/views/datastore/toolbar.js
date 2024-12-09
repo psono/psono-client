@@ -26,6 +26,9 @@ import DialogTrashBin from "../../components/dialogs/trash-bin";
 import DialogVerify from "../../components/dialogs/verify";
 
 const useStyles = makeStyles((theme) => ({
+    toolbarRoot: {
+        backgroundColor: theme.palette.baseTitleBackground.main,
+    },
     toolbarTitle: {
         display: "none",
         [theme.breakpoints.up("sm")]: {
@@ -34,9 +37,9 @@ const useStyles = makeStyles((theme) => ({
     },
     search: {
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
+        backgroundColor: alpha(theme.palette.lightBackground.main, 0.25),
         "&:hover": {
-            backgroundColor: alpha(theme.palette.common.white, 0.45),
+            backgroundColor: alpha(theme.palette.lightBackground.main, 0.45),
         },
         marginLeft: "auto",
         position: "absolute",

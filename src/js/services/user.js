@@ -521,6 +521,7 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
         await logoutLocal();
 
         accountService.broadcastReinitializeAppEvent();
+        accountService.broadcastReinitializeBackgroundEvent();
 
         const response = {
             "response": "success",
@@ -1095,6 +1096,78 @@ function register(email, username, password, server) {
 
 }
 
+/**
+ * Responsible for the un-registration / deletion of a user via email link
+ *
+ * @param {string} username The username to unregister with
+ * @param {email} email The email to unregister with
+ *
+ * @returns {Promise} promise
+ */
+function unregister(username, email) {
+
+    const onSuccess = function(base_url){
+
+        const onSuccess = function () {
+            return {
+                response:"success"
+            };
+        };
+
+        const onError = function(response){
+            return Promise.reject(response)
+        };
+
+        return apiClient.unregister(username, email, base_url)
+            .then(onSuccess, onError);
+
+    };
+
+    const onError = function(response){
+        return Promise.reject(response)
+    };
+
+    return browserClient.getBaseUrl().then(onSuccess, onError)
+
+}
+
+/**
+ Confirms the deletion of a user account with the provided unregistration code
+
+ @param {string} unregisterCode The unregistration code sent via mail
+ @param {string} server The server to send the activation code to
+
+ @returns {Promise} Returns a promise with the unregistration status
+ */
+function unregisterConfirm(unregisterCode, server) {
+
+    action().setServerUrl(server);
+
+    const onSuccess = function(base_url){
+
+        const onSuccess = function () {
+            return {
+                response:"success"
+            };
+        };
+
+        const onError = function(response){
+            return Promise.reject(response)
+        };
+
+        return apiClient.unregisterConfirm(unregisterCode)
+            .then(onSuccess, onError);
+
+    };
+
+    const onError = function(response){
+        return Promise.reject(response)
+    };
+
+    return browserClient.getBaseUrl().then(onSuccess, onError)
+
+}
+
 const userService = {
     activateCode,
     initiateLogin,
@@ -1124,6 +1197,8 @@ const userService = {
     getSessions,
     deleteSession,
     register,
+    unregister,
+    unregisterConfirm,
 };
 
 export default userService;

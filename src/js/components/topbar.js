@@ -46,6 +46,7 @@ import ConfigLogo from "./config-logo";
 import avatarService from "../services/avatar";
 import action from "../actions/bound-action-creators";
 import { useSelector } from "react-redux";
+import Tooltip from "@mui/material/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -54,9 +55,9 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "#fff",
-        color: "#777",
-        borderColor: "rgb(231, 231, 231)",
+        backgroundColor: theme.palette.appBarBackground.main,
+        color: theme.palette.appBarText.main,
+        borderColor: theme.palette.appBarBackground.main,
         borderStyle: "solid",
         borderWidth: "1px",
         boxShadow: "none",
@@ -67,9 +68,9 @@ const useStyles = makeStyles((theme) => ({
             width: `calc(100% - 0px)`,
             marginLeft: 0,
         },
-        backgroundColor: "#ffb84d",
-        color: "#777",
-        borderColor: "rgb(231, 231, 231)",
+        backgroundColor: theme.palette.appBarReadOnlyBackground.main,
+        color: theme.palette.appBarReadOnlyText.main,
+        borderColor: theme.palette.appBarReadOnlyBackground.main,
         borderStyle: "solid",
         borderWidth: "1px",
         boxShadow: "none",
@@ -107,7 +108,6 @@ const useStyles = makeStyles((theme) => ({
     avatarPlaceholder: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         paddingTop: '6px',
         marginLeft: '6px',
@@ -131,7 +131,6 @@ const useStyles = makeStyles((theme) => ({
     overlayedIcon: {
         width: 25,
         height: 25,
-        //backgroundColor: '#2dbb93',
         backgroundColor: '#999',
         marginLeft: '0px',
         marginRight: '0px',
@@ -161,6 +160,8 @@ const Topbar = (props) => {
     const [datastores, setDatastores] = React.useState([]);
     const [profilePic, setProfilePic] = useState("");
     const settingsDatastore = useSelector((state) => state.settingsDatastore);
+
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
 
 
     const setClientOptions = (nosavemode) => {
@@ -225,7 +226,6 @@ const Topbar = (props) => {
     };
 
     const toggleNoSaveMode = (checked) => {
-        console.log(checked)
         setClientOptions(checked)
     }
 
@@ -290,7 +290,7 @@ const Topbar = (props) => {
                                     className={classes.topMenuButton}
                                     endIcon={<ExpandMoreIcon/>}
                                 >
-                                    {t("DATASTORE")}
+                                    {passwordDatastore ? passwordDatastore.description : t("DATASTORE")}
                                 </Button>
                             </Hidden>
                             <Menu
@@ -334,15 +334,17 @@ const Topbar = (props) => {
                         </div>)}
                         <div style={{ float: "right" }}>
                             <Hidden mdUp>
-                            {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
-                                    <Switch
-                                            checked={settingsDatastore.noSaveMode}
-                                            onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
-                                            //inputProps={{ 'aria-label': 'controlled' }}
-                                            disabled={!settingsDatastore.showNoSaveToggle}
-                                            />
-                                    )}
                                 <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">
+                                    {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                        <Tooltip title={t("NO_SAVE_MODE")}>
+                                            <Switch
+                                                checked={settingsDatastore.noSaveMode}
+                                                onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                                //inputProps={{ 'aria-label': 'controlled' }}
+                                                disabled={!settingsDatastore.showNoSaveToggle}
+                                            />
+                                        </Tooltip>
+                                    )}
                                     <IconButton
                                         variant="contained"
                                         onClick={openTopMenu}
@@ -383,20 +385,21 @@ const Topbar = (props) => {
                                 </ButtonGroup>
                             </Hidden>
                             <Hidden mdDown>
-                            <div className={classes.signInTextContainer}>
-                                {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
-                                    <FormControl component="fieldset">
-                                        <FormControlLabel
-                                        value="end"
-                                        control={<Switch
-                                            checked={settingsDatastore.noSaveMode}
-                                            onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
-                                            //inputProps={{ 'aria-label': 'controlled' }}
-                                            disabled={!settingsDatastore.showNoSaveToggle}
-                                            />}
-                                        label={t("NO_SAVE_MODE")}
-                                        labelPlacement="end"/>
-                                    </FormControl>
+                                <div className={classes.signInTextContainer}>
+                                    {(settingsDatastore.showNoSaveToggle || settingsDatastore.noSaveMode) && (
+                                        <Tooltip title={t("NO_SAVE_MODE")}>
+                                            <FormControl component="fieldset">
+                                                <FormControlLabel
+                                                    value="end"
+                                                    control={<Switch
+                                                        checked={settingsDatastore.noSaveMode}
+                                                        onChange={(event) => {toggleNoSaveMode(event.target.checked)}}
+                                                        //inputProps={{ 'aria-label': 'controlled' }}
+                                                        disabled={!settingsDatastore.showNoSaveToggle}
+                                                    />}
+                                                    labelPlacement="end"/>
+                                            </FormControl>
+                                        </Tooltip>
                                     )}
                                     {t("SIGNED_IN_AS")}&nbsp;
                                     <ButtonGroup variant="contained" color="primary" disableElevation aria-label="main menu">

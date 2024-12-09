@@ -1,5 +1,5 @@
-import React, { Suspense } from "react";
-
+import { createTheme } from "@mui/material/styles";
+import React, { Suspense, useEffect, useState } from "react";
 import { render } from "react-dom";
 import { HashLoader } from "react-spinners";
 import { I18nextProvider } from "react-i18next";
@@ -8,32 +8,55 @@ import { createBrowserHistory } from "history";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
-import { LocalizationProvider } from '@mui/x-date-pickers'
+import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import { initStore } from "./services/store";
 import datastoreSettingService from "./services/datastore-setting";
 import i18n from "./i18n";
-import theme from "./theme";
-import { initSentry } from './var/sentry'
+import { initSentry } from "./var/sentry";
 
-initSentry()
+initSentry();
 
 import IndexView from "./views/index";
 import DownloadBanner from "./components/download-banner";
+import browserClientService from "./services/browser-client";
 import backgroundService from "./services/background";
 
+const LazyThemeProvider = ({ children }) => {
+    const [theme, setTheme] = useState(null);
 
+    useEffect(() => {
+        // Fetch theme configuration from theme.json
+        browserClientService.getConfig('theme')
+            .then((theme) => {
+                const muiTheme = createTheme(theme);
+                setTheme(muiTheme);
+            })
+            .catch((error) => {
+                console.error("Failed to load theme:", error);
+            });
+    }, []);
+
+    if (!theme) {
+        return <div>Loading theme...</div>; // Display a loading state until the theme is ready
+    }
+
+    return (
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                {children}
+            </ThemeProvider>
+        </StyledEngineProvider>
+    );
+};
 
 const channel = new BroadcastChannel("account");
-// Add an event listener to handle incoming messages
 channel.onmessage = function (event) {
-    if (!event.data.hasOwnProperty("event")) {
-        return;
-    }
-    if (event.data.event === 'reinitialize-app') {
-        initAndRenderApp()
+    if (event.data?.event === "reinitialize-app") {
+        initAndRenderApp();
     }
 };
 
@@ -43,54 +66,49 @@ channel.onmessage = function (event) {
  * @param getState
  */
 function loadSettingsDatastore(dispatch, getState) {
-    const state = getState();
-    if (state.user.isLoggedIn) {
+    if (getState().user.isLoggedIn) {
         datastoreSettingService.getSettingsDatastore();
     }
 }
 const customHistory = createBrowserHistory();
 
 async function initAndRenderApp() {
-
     const pathname = window.location.pathname;
     if (pathname.endsWith("/background.html")) {
         backgroundService.activate();
     }
 
     const store = await initStore();
-    let persistor = persistStore(store, null, () => {
+    const persistor = persistStore(store, null, () => {
         store.dispatch(loadSettingsDatastore);
     });
 
-    const App = () => {
-        return (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Provider store={store}>
-                    <Suspense fallback="loading...">
-                        <PersistGate loading={<HashLoader />} persistor={persistor}>
-                            <I18nextProvider i18n={i18n}>
-                                <StyledEngineProvider injectFirst>
-                                    <ThemeProvider theme={theme}>
-                                        <CssBaseline />
-                                        <HashRouter history={customHistory} hashType={"hashbang"}>
-                                            <DownloadBanner />
-                                            <IndexView />
-                                        </HashRouter>
-                                    </ThemeProvider>
-                                </StyledEngineProvider>
-                            </I18nextProvider>
-                        </PersistGate>
-                    </Suspense>
-                </Provider>
-            </LocalizationProvider>
-        );
-    };
+    const App = () => (
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Provider store={store}>
+                <Suspense fallback={<HashLoader />}>
+                    <PersistGate loading={<HashLoader />} persistor={persistor}>
+                        <I18nextProvider i18n={i18n}>
+                            <LazyThemeProvider>
+                                <HashRouter history={customHistory} hashType="hashbang">
+                                    <DownloadBanner />
+                                    <IndexView />
+                                </HashRouter>
+                            </LazyThemeProvider>
+                        </I18nextProvider>
+                    </PersistGate>
+                </Suspense>
+            </Provider>
+        </LocalizationProvider>
+    );
 
     const container = document.getElementById("app");
     render(<App />, container);
 }
 
 initAndRenderApp();
+
+
 
 console.log("%cDanger:", "color:red;font-size:40px;");
 console.log(

@@ -23,23 +23,26 @@ const useStyles = makeStyles((theme) => ({
         width: "100%",
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     passwordField: {
         fontFamily: "'Fira Code', monospace",
+    },
+    regularButtonText: {
+        color: theme.palette.lightGreyText.main,
     },
 }));
 
@@ -114,7 +117,7 @@ const DialogGeneratePassword = (props) => {
                                                 includeSpecialChars ? passwordSpecialChars : '',
                                             )}
                                             edge="end"
-                                            style={{ color: "#b1b6c1" }}
+                                            className={classes.regularButtonText}
                                             size="large">
                                             <ReplayRoundedIcon fontSize="small" />
                                         </IconButton>

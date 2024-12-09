@@ -6,6 +6,7 @@ import {
     SET_OFFLINE_CACHE_ENCRYPTION_INFO,
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
+    SET_SHOW_FILTERS,
     SET_HIDE_DOWNLOAD_BANNER,
     SET_LAST_POPUP_SEARCH,
 } from "../actions/action-types";
@@ -20,6 +21,7 @@ function client(
         offlineCacheEncryptionSalt: null,
         notificationOnCopy: true,
         disableBrowserPm: true,
+        showFilters: true,
         hideDownloadBanner: false,
         lastPopupSearch: "",
     },
@@ -54,6 +56,10 @@ function client(
         case SET_DISABLE_BROWSER_PM:
             return Object.assign({}, state, {
                 disableBrowserPm: action.disableBrowserPm,
+            });
+        case SET_SHOW_FILTERS:
+            return Object.assign({}, state, {
+                showFilters: action.showFilters,
             });
         case SET_HIDE_DOWNLOAD_BANNER:
             return Object.assign({}, state, {

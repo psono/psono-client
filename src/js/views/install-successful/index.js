@@ -8,8 +8,8 @@ import deviceService from "../../services/device";
 const useStyles = makeStyles((theme) => ({
     root: {
         textAlign: 'center',
-        backgroundColor: '#0f1118',
-        color: '#ffffff',
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.lightBackground.main,
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     },
     stepsSection: {
         padding: theme.spacing(4),
-        backgroundColor: '#0f1118',
+        backgroundColor: theme.palette.background.default,
     },
     helpSection: {
         padding: theme.spacing(8),
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     },
     successIcon: {
         fontSize: 80,
-        color: '#2dbb93',
+        color: theme.palette.primary.main,
     },
     subtitle: {
         color: '#b0b3b8',
@@ -52,8 +52,8 @@ const useStyles = makeStyles((theme) => ({
     },
     helpButton: {
         marginTop: theme.spacing(2),
-        color: '#ffffff',
-        borderColor: '#ffffff',
+        color: theme.palette.lightBackground.main,
+        borderColor: theme.palette.lightBackground.main,
     },
 }));
 

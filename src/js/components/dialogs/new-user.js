@@ -26,12 +26,12 @@ const useStyles = makeStyles((theme) => ({
         width: "100%",
     },
     checked: {
-        color: "#9c27b0",
+        color: theme.palette.checked.main,
     },
     checkedIcon: {
         width: "20px",
         height: "20px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     avatar: {
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         width: 150,
         height: 150,
         fontSize: '11rem',
-        backgroundColor: '#2dbb93',
+        backgroundColor: theme.palette.primary.main,
         paddingTop: '20px',
         marginTop: '8px',
         color: 'white',
@@ -51,18 +51,18 @@ const useStyles = makeStyles((theme) => ({
     avatarPlaceholderText: {
         position: "absolute",
         bottom: "30px",
-        color: '#666',
+        color: theme.palette.greyText.main,
         fontSize: '0.8rem',
     },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
         padding: "9px",
-        border: "1px solid #666",
+        border: `1px solid ${theme.palette.greyText.main}`,
         borderRadius: "3px",
     },
     inputAdornment: {
-        color: "#b1b6c1",
+        color: theme.palette.lightGreyText.main,
     },
 }));
 

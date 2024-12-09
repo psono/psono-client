@@ -95,7 +95,6 @@ function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems)
         "is_folder",
         "parent_datastore_id",
         "parent_share_id",
-        "secret_id",
         "secret_key",
         "share_id",
         "path",

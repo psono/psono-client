@@ -84,9 +84,15 @@ function activateAfterStore() {
     if (typeof chrome.omnibox !== "undefined") {
         chrome.omnibox.onInputChanged.addListener(onInputChanged);
         chrome.omnibox.onInputEntered.addListener(onInputEntered);
-        chrome.omnibox.setDefaultSuggestion({
-            description: "Search datastore: <match>%s</match>",
-        });
+        if (TARGET === "firefox") {
+            chrome.omnibox.setDefaultSuggestion({
+                description: i18n.t("SEARCH_DATASTORE"),
+            });
+        } else {
+            chrome.omnibox.setDefaultSuggestion({
+                description: i18n.t("SEARCH_DATASTORE_IDENTIFIER", {'identifier': '<match>%s</match>'}),
+            });
+        }
     }
     if (typeof browser.runtime.onMessage !== "undefined") {
         browser.runtime.onMessage.addListener(onMessage);
@@ -1189,9 +1195,18 @@ function searchDatastore(text) {
         let datastore_entry;
         for (let i = 0; i < leafs.length; i++) {
             datastore_entry = leafs[i];
+
+            let description = datastore_entry.name;
+            if (TARGET === "chrome") {
+                description = description.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;')
+            }
             entries.push({
                 content: datastore_entry.name + " [Secret: " + datastore_entry.key + "]",
-                description: datastore_entry.name,
+                description: description,
             });
 
             entryExtraInfo[datastore_entry.key] = { type: datastore_entry.type };

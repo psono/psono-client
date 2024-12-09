@@ -9,10 +9,10 @@ import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     dark: {
-        backgroundColor: "#151f2b",
-        color: "#b1b6c1",
+        backgroundColor: theme.palette.blueBackground.main,
+        color: theme.palette.lightGreyText.main,
         "& a": {
-            color: "#b1b6c1",
+            color: theme.palette.lightGreyText.main,
         },
     },
     privacyPolicyBox: {
