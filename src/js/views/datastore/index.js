@@ -352,6 +352,7 @@ const DatastoreView = (props) => {
 
     const onEditEntrySave = (node) => {
         setEditEntryOpen(false);
+        setEditEntryDirty(false)
         widget.editItemSave(datastore, node, editEntryData.path, datastorePasswordService);
     };
 
