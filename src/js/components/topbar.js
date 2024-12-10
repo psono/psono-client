@@ -166,6 +166,7 @@ const Topbar = (props) => {
 
     const setClientOptions = (nosavemode) => {
         action().setClientOptionsConfig(
+            settingsDatastore.clipboardClearDelay,
             nosavemode,
             settingsDatastore.showNoSaveToggle,
             settingsDatastore.confirmOnUnsavedChanges)

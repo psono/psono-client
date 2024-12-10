@@ -31,7 +31,7 @@ function isStrongEnough(password,characters, length) {
     const hasUppercaseCharacters = /[A-Z]/.test(characters); // check if characters contain uppercase characters
     const hasLowercaseCharacters = /[a-z]/.test(characters); // check if characters contain lowercase characters
     const hasNumbers = /[0-9]/.test(characters); // check if characters contain numbers
-    const hasSpecialCharacters = /[!§@#$%^&*()_+\-=\[\]{};:'",<>.?\/\\|`~]/.test(password); // check if characters contain special chars
+    const hasSpecialCharacters = /[!§@#$%^&*()_+\-=\[\]{};:'",<>.?\/\\|`~]/.test(characters); // check if characters contain special chars
 
     let minLength = 0;
 
@@ -993,6 +993,7 @@ function getAllElementsWithProperty(element, property) {
         if (element.hasOwnProperty(property)) {
             links.push({
                 id: element.id,
+                name: element.name || '',
                 path: new_path,
             });
         }

@@ -33,27 +33,6 @@ describe('Service: passkey test suite', function() {
         expect(passkeyService).toBeDefined();
     });
 
-    it('getPublicSuffix test.gov.uk -> gov.uk', async function () {
-        window.fetch = mockFetch();
-        expect(
-            await passkeyService.getPublicSuffix('test.gov.uk')
-        ).toEqual('gov.uk');
-    });
-
-    it('getPublicSuffix test.uk -> uk', async function () {
-        window.fetch = mockFetch();
-        expect(
-            await passkeyService.getPublicSuffix('test.uk')
-        ).toEqual('uk');
-    });
-
-    it('getPublicSuffix test.compute.amazonaws.com -> compute.amazonaws.com', async function () {
-        window.fetch = mockFetch();
-        expect(
-            await passkeyService.getPublicSuffix('test.compute.amazonaws.com')
-        ).toEqual('compute.amazonaws.com');
-    });
-
     it('isRegistrableDomainSuffix 0.0.0.0 <-> 0.0.0.0 = True', async function () {
         window.fetch = mockFetch();
         expect(

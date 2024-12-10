@@ -20,6 +20,7 @@ import { getStore } from "../../services/store";
 import browserClient from "../../services/browser-client";
 import datastoreUserService from "../../services/datastore-user";
 import cryptoLibrary from "../../services/crypto-library";
+import MuiAlert from "@mui/material/Alert";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -275,10 +276,10 @@ const DialogNewUser = (props) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{t("SEARCH_USER")}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{foundUserId ? t("VERIFY_IDENTITY") : t("SEARCH_USER")}</DialogTitle>
                 <DialogContent>
                     <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
+                        {!foundUserId && (<Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
@@ -288,7 +289,8 @@ const DialogNewUser = (props) => {
                                 InputProps={{
                                     endAdornment:
                                         domain && !allowUserSearchByUsernamePartial && !username.includes("@") ? (
-                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
+                                            <InputAdornment position="end"><span
+                                                className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
                                         ) : null,
                                 }}
                                 name="username"
@@ -298,8 +300,8 @@ const DialogNewUser = (props) => {
                                     setUsername(event.target.value);
                                 }}
                             />
-                        </Grid>
-                        {allowUserSearchByEmail && (
+                        </Grid>)}
+                        {!foundUserId && allowUserSearchByEmail && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
                                     className={classes.textField}
@@ -317,18 +319,17 @@ const DialogNewUser = (props) => {
                                 />
                             </Grid>
                         )}
-                        <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px" }}>
-                            <Button
-                                onClick={onSearch}
-                                variant="contained"
-                                color="primary"
-                                disabled={
-                                    (!username && !email) || (Boolean(email) && !helperService.isValidEmail(email))
-                                }
+                        {!foundUserId && (<Grid item xs={12} sm={12} md={12}>
+                            <MuiAlert
+                                severity="info"
+                                style={{
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                }}
                             >
-                                {t("SEARCH")}
-                            </Button>
-                        </Grid>
+                                {t("SEARCH_USER_EXPLAINED")}
+                            </MuiAlert>
+                        </Grid>)}
 
                         {Boolean(foundUserId) && (
                             <Grid item xs={12} sm={12} md={12}>
@@ -396,6 +397,17 @@ const DialogNewUser = (props) => {
 
                             </Grid>
                         )}
+                        {!!foundUserId && (<Grid item xs={12} sm={12} md={12}>
+                            <MuiAlert
+                                severity="info"
+                                style={{
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                }}
+                            >
+                                {t("VERIFY_USER_IDENTITY_EXPLAINED")}
+                            </MuiAlert>
+                        </Grid>)}
 
                     </Grid>
                     <GridContainerErrors errors={errors} setErrors={setErrors} />
@@ -408,16 +420,26 @@ const DialogNewUser = (props) => {
                     >
                         {t("CLOSE")}
                     </Button>
-                    <Button
+                    {users.length == 0 && !foundUserId && (
+                        <Button
+                            onClick={onSearch}
+                            variant="contained"
+                            color="primary"
+                            disabled={
+                                (!username && !email) || (Boolean(email) && !helperService.isValidEmail(email))
+                            }
+                        >
+                            {t("SEARCH")}
+                        </Button>)}
+                    {Boolean(foundUserId && foundUsername && foundPublicKey) && (<Button
                         onClick={() => {
                             onCreate(visualUsername, foundUserId, foundUsername, foundPublicKey);
                         }}
                         variant="contained"
                         color="primary"
-                        disabled={!foundUserId || !foundUsername || !foundPublicKey}
                     >
-                        {t("CREATE")}
-                    </Button>
+                        {t("ADD")}
+                    </Button>)}
                 </DialogActions>
             </Dialog>
         );

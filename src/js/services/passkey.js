@@ -4,13 +4,11 @@ import cryptoLibrary from "./crypto-library";
 import datastorePasswordService from "./datastore-password";
 import i18n from "../i18n";
 import storage from "./storage";
-import helper from "./helper";
 import secretService from "./secret";
 import notificationBarService from "./notification-bar";
+import publicSuffixService from "./public-suffix";
 import user from "./user";
 import { getStore } from "./store";
-
-let publicSuffixList;
 
 class PasskeyException extends Error {
     constructor(errorType, message, metadata) {
@@ -22,61 +20,6 @@ class PasskeyException extends Error {
 }
 
 
-/**
- * Loads the public suffix list and returns it
- *
- * @returns {Promise} promise
- */
-async function loadPublicSuffixList() {
-    const response = await fetch("/data/public-suffix-list.json");
-    return response.json()
-}
-
-/**
- * Returns the public suffix list eather from cache or triggers the load
- *
- * @returns {Promise} promise
- */
-async function getPublicSuffixList() {
-    if (publicSuffixList) {
-        return publicSuffixList;
-    }
-    publicSuffixList = await loadPublicSuffixList()
-    return publicSuffixList;
-}
-
-
-/**
- * Returns public suffix for a given domain e.g. "com" for example.com or "gov.uk" for test.gov.uk or "uk" for "test.uk"
- *
- * @returns {Promise} Returns the public suffix
- */
-async function getPublicSuffix(domain, privateOnly) {
-
-    const publicSuffixList = await getPublicSuffixList()
-    const searchList = privateOnly ? publicSuffixList.private : {...publicSuffixList.private, ...publicSuffixList.icann};
-
-    // Split the domain into parts (e.g., ['uk', 'gov', 'test'] for 'test.gov.uk')
-    const domainParts = domain.split('.').reverse();
-
-    let longestPublicSuffix = '';
-
-    // Function to search for the longest matching suffix in the provided list
-    const searchForLongestSuffix = (parts) => {
-        let testSuffix = '';
-        for (let i = 0; i < parts.length; i++) {
-            testSuffix = parts[i] + (testSuffix ? '.' + testSuffix : '');
-            if (searchList[testSuffix] && testSuffix.length > longestPublicSuffix.length) {
-                longestPublicSuffix = testSuffix; // Update if longer match found
-            }
-        }
-    };
-
-    // Search lists
-    searchForLongestSuffix(domainParts);
-
-    return longestPublicSuffix || null; // Return the longestPublicSuffix without reversing
-}
 
 /**
  * Checks whether a provided hostSuffixString is an allowed host suffix string for the originalHost
@@ -109,7 +52,7 @@ async function isRegistrableDomainSuffix(hostSuffixString, originalHost) {
         return false
     }
 
-    const publicSuffixList = await getPublicSuffixList();
+    const publicSuffixList = await publicSuffixService.getPublicSuffixList();
 
     if (publicSuffixList.icann.hasOwnProperty(hostSuffixString)) {
         return false
@@ -123,7 +66,7 @@ async function isRegistrableDomainSuffix(hostSuffixString, originalHost) {
         return false
     }
 
-    const originalHostPublicSuffix = await getPublicSuffix(originalHost, true);
+    const originalHostPublicSuffix = await publicSuffixService.getPublicSuffix(originalHost, true);
     if (originalHostPublicSuffix && originalHostPublicSuffix.endsWith('.' + hostSuffixString)) {
         // hostSuffixString for amazonaws.com on an origin of www.example.compute.amazonaws.com should not be possible,
         // because the compute.amazonaws.com is a public suffix
@@ -857,7 +800,6 @@ function onNavigatorCredentialsCreate(request, sender, sendResponse) {
 
 
 const passkeyService = {
-    getPublicSuffix,
     isRegistrableDomainSuffix,
     onNavigatorCredentialsGet,
     onNavigatorCredentialsCreate,

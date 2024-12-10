@@ -45,6 +45,18 @@ async function createOffscreenDocument() {
 }
 
 /**
+ * Sends a message to the offscreen document
+ *
+ * @param {string} event The event code
+ * @param {object} data The data to send along
+ * @param {function} fnc The callback function
+ */
+async function sendMessage(event, data, fnc) {
+    await createOffscreenDocument()
+    chrome.runtime.sendMessage({ event: event, data: data }, fnc);
+}
+
+/**
  * Asks the offscreen page for the offline cache encryption key
  *
  * @param {function} fnc The callback function
@@ -58,8 +70,11 @@ async function getOfflineCacheEncryptionKey(fnc) {
             fnc(bg.psono_offline_cache_encryption_key);
         });
     } else if (TARGET === "chrome") {
-        await createOffscreenDocument()
-        chrome.runtime.sendMessage({ event: 'get-offline-cache-encryption-key-offscreen', data: null }, fnc);
+        sendMessage(
+            'get-offline-cache-encryption-key-offscreen',
+            null,
+            fnc
+        )
         // chrome.runtime.getBackgroundPage(function (bg) {
         //     fnc(bg.psono_offline_cache_encryption_key);
         // });
@@ -75,8 +90,11 @@ async function getOfflineCacheEncryptionKey(fnc) {
  */
 async function setOfflineCacheEncryptionKey(offlineCacheEncryptionKey) {
     if (TARGET === "chrome") {
-        await createOffscreenDocument()
-        chrome.runtime.sendMessage({ event: 'set-offline-cache-encryption-key-offscreen', data: offlineCacheEncryptionKey });
+        sendMessage(
+            'set-offline-cache-encryption-key-offscreen',
+            offlineCacheEncryptionKey,
+            undefined
+        )
     } else {
         //pass, no background page on the website
     }
@@ -85,6 +103,7 @@ async function setOfflineCacheEncryptionKey(offlineCacheEncryptionKey) {
 const browserClientService = {
     getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey,
     setOfflineCacheEncryptionKey: setOfflineCacheEncryptionKey,
+    sendMessage: sendMessage,
 };
 
 export default browserClientService;

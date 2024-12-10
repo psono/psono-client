@@ -1098,7 +1098,7 @@ function deleteItemPermanent(datastore, path, datastoreType) {
     }
 
     // lets populate our child shares that we need to handle, e.g a we deleted a folder that contains some shares
-    const child_shares = [];
+    const childShares = [];
 
     // and save everything (before we update the links and might lose some necessary rights)
     if (datastoreType === "password") {
@@ -1113,23 +1113,23 @@ function deleteItemPermanent(datastore, path, datastoreType) {
 
                 if (element.hasOwnProperty("share_id")) {
                     //we deleted a share
-                    child_shares.push({
+                    childShares.push({
                         share: element,
                         path: [],
                     });
                 } else {
-                    datastorePasswordService.getAllChildSharesByPath([], datastore, child_shares, element);
+                    datastorePasswordService.getAllChildSharesByPath([], datastore, childShares, element);
                 }
 
-                const secret_links = datastorePasswordService.getAllSecretLinks(element);
-                const file_links = datastorePasswordService.getAllFileLinks(element);
+                const secretLinks = datastorePasswordService.getAllSecretLinks(element);
+                const fileLinks = datastorePasswordService.getAllFileLinks(element);
 
                 // lets update for every child_share the share_index
-                for (i = child_shares.length - 1; i >= 0; i--) {
+                for (i = childShares.length - 1; i >= 0; i--) {
                     datastorePasswordService.deleteFromShareIndex(
                         content.data,
-                        child_shares[i].share.share_id,
-                        closest_share_info["relative_path"].concat(child_shares[i].path)
+                        childShares[i].share.share_id,
+                        closest_share_info["relative_path"].concat(childShares[i].path)
                     );
                 }
 
@@ -1144,32 +1144,32 @@ function deleteItemPermanent(datastore, path, datastoreType) {
 
                 // Update all the "links" so the server has the updated link structure
                 // adjust the links for every child_share (and therefore update the rights)
-                for (i = child_shares.length - 1; i >= 0; i--) {
+                for (i = childShares.length - 1; i >= 0; i--) {
                     (function (child_share) {
                         timeout = timeout + 50;
                         setTimeout(function () {
                             shareLinkService.onShareDeleted(child_share.share.id);
                         }, timeout);
-                    })(child_shares[i]);
+                    })(childShares[i]);
                 }
                 // adjust the links for every secret link (and therefore update the rights)
-                for (i = secret_links.length - 1; i >= 0; i--) {
-                    (function (secret_link) {
+                for (i = secretLinks.length - 1; i >= 0; i--) {
+                    (function (secretLink) {
                         timeout = timeout + 50;
                         setTimeout(function () {
-                            secretLinkService.onSecretDeleted(secret_link.id);
+                            secretLinkService.deleteSecretLink(secretLink.id, secretLink.name);
                         }, timeout);
-                    })(secret_links[i]);
+                    })(secretLinks[i]);
                 }
 
                 // adjust the links for every file link (and therefore update the rights)
-                for (i = file_links.length - 1; i >= 0; i--) {
+                for (i = fileLinks.length - 1; i >= 0; i--) {
                     (function (file_link) {
                         timeout = timeout + 50;
                         setTimeout(function () {
                             fileLinkService.onFileDeleted(file_link.id);
                         }, timeout);
-                    })(file_links[i]);
+                    })(fileLinks[i]);
                 }
                 datastorePasswordService.handleDatastoreContentChanged(datastore);
             };
@@ -1192,23 +1192,23 @@ function deleteItemPermanent(datastore, path, datastoreType) {
 
                 if (element.hasOwnProperty("share_id")) {
                     //we deleted a share
-                    child_shares.push({
+                    childShares.push({
                         share: element,
                         path: [],
                     });
                 } else {
-                    datastorePasswordService.getAllChildSharesByPath([], datastore, child_shares, element);
+                    datastorePasswordService.getAllChildSharesByPath([], datastore, childShares, element);
                 }
 
-                const secret_links = datastorePasswordService.getAllSecretLinks(element);
-                const file_links = datastorePasswordService.getAllFileLinks(element);
+                const secretLinks = datastorePasswordService.getAllSecretLinks(element);
+                const fileLinks = datastorePasswordService.getAllFileLinks(element);
 
                 // lets update for every child_share the share_index
-                for (i = child_shares.length - 1; i >= 0; i--) {
+                for (i = childShares.length - 1; i >= 0; i--) {
                     datastorePasswordService.deleteFromShareIndex(
                         datastore,
-                        child_shares[i].share.share_id,
-                        closest_share_info["relative_path"].concat(child_shares[i].path)
+                        childShares[i].share.share_id,
+                        closest_share_info["relative_path"].concat(childShares[i].path)
                     );
                 }
 
@@ -1223,32 +1223,32 @@ function deleteItemPermanent(datastore, path, datastoreType) {
 
                 // Update all the "links" so the server has the updated link structure
                 // adjust the links for every child_share (and therefore update the rights)
-                for (i = child_shares.length - 1; i >= 0; i--) {
+                for (i = childShares.length - 1; i >= 0; i--) {
                     (function (child_share) {
                         timeout = timeout + 50;
                         setTimeout(function () {
                             shareLinkService.onShareDeleted(child_share.share.id);
                         }, timeout);
-                    })(child_shares[i]);
+                    })(childShares[i]);
                 }
                 // adjust the links for every secret link (and therefore update the rights)
-                for (i = secret_links.length - 1; i >= 0; i--) {
-                    (function (secret_link) {
+                for (i = secretLinks.length - 1; i >= 0; i--) {
+                    (function (secretLink) {
                         timeout = timeout + 50;
                         setTimeout(function () {
-                            secretLinkService.onSecretDeleted(secret_link.id);
+                            secretLinkService.deleteSecretLink(secretLink.id, secretLink.name);
                         }, timeout);
-                    })(secret_links[i]);
+                    })(secretLinks[i]);
                 }
 
                 // adjust the links for every file link (and therefore update the rights)
-                for (i = file_links.length - 1; i >= 0; i--) {
+                for (i = fileLinks.length - 1; i >= 0; i--) {
                     (function (file_link) {
                         timeout = timeout + 50;
                         setTimeout(function () {
                             fileLinkService.onFileDeleted(file_link.id);
                         }, timeout);
-                    })(file_links[i]);
+                    })(fileLinks[i]);
                 }
 
                 datastorePasswordService.handleDatastoreContentChanged(datastore);

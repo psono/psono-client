@@ -183,6 +183,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         base.on("fillcreditcard", onFillCreditCard);
         base.on("return-secret", onReturnSecret);
         base.on("get-username", onGetUsername);
+        base.on("clear-clipboard-content-script", clearClipboard);
 
         base.ready(function() {
             let i;
@@ -1026,5 +1027,16 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         sendResponse({
             'username': find_username(),
         });
+    }
+
+    /**
+     * handles the request from the background script, when it asks to clear the clipboard
+     *
+     * @param data
+     * @param sender
+     * @param sendResponse
+     */
+    function clearClipboard(data, sender, sendResponse) {
+        navigator.clipboard.writeText("");
     }
 };
