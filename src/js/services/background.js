@@ -184,6 +184,7 @@ function updateContextMenu() {
         const contextMenu = chrome.contextMenus.create({
             id: CM_PSONO_ID,
             title: "Psono",
+            contexts: ["all"],
         });
         chrome.contextMenus.create({
             id: CM_DATASTORE_ID,
