@@ -484,6 +484,9 @@ const DatastoreView = (props) => {
             return false;
         }
         //
+        if (node.hasOwnProperty("share_id") && !node.hasOwnProperty("share_rights")) {
+            return false;
+        }
         if (!node.hasOwnProperty("share_rights")) {
             return true;
         }
@@ -528,6 +531,9 @@ const DatastoreView = (props) => {
             return false;
         }
         //
+        if (node.hasOwnProperty("share_id") && !node.hasOwnProperty("share_rights")) {
+            return false;
+        }
         if (!node.hasOwnProperty("share_rights")) {
             return true;
         }
