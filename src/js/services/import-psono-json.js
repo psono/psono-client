@@ -3,6 +3,7 @@
  */
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
+import itemBlueprintService from "./item-blueprint";
 
 /**
  * Searches a given folder recursive inclusive all sub-folders and puts them all into the provided secrets array
@@ -22,9 +23,15 @@ function gather_secrets(folder, secrets) {
         }
     }
 
+    const entryTypes = new Set(itemBlueprintService.getEntryTypes().map(t => t.value));
+
     if (folder.hasOwnProperty("items")) {
         for (i = 0; i < folder["items"].length; i++) {
             subitem = folder["items"][i];
+            if (!subitem.hasOwnProperty('type') || !entryTypes.has(subitem['type'])) {
+                continue;
+            }
+
             subitem["id"] = cryptoLibrary.generateUuid();
 
             secrets.push(subitem);

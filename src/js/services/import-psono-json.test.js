@@ -1,6 +1,7 @@
 import React from 'react';
 import importPsonoJson from './import-psono-json';
 import cryptoLibrary from "../services/crypto-library";
+import {initStore} from "./store";
 
 
 describe('Service: importPsonoJson test suite', function () {
@@ -9,8 +10,9 @@ describe('Service: importPsonoJson test suite', function () {
         expect(importPsonoJson).toBeDefined();
     });
     
-    it('parse', function () {
+    it('parse', async function () {
 
+        await initStore()
         const generic_uuid = '1fce01f4-6411-47a9-885c-a80bf4c654aa'
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
@@ -39,7 +41,7 @@ describe('Service: importPsonoJson test suite', function () {
                             "website_password_url": "https://de-de.facebook.com/",
                             "website_password_title": "Facebook",
                             "id": generic_uuid
-                        },{
+                        }, {
                             "type": "website_password",
                             "urlfilter": "de-de.instagram.com",
                             "name": "Instagram",
