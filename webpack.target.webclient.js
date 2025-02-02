@@ -9,8 +9,14 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'webclient/js/bundle.min.js': './src/js/index.js',
-    'webclient/js/crypto-worker.js': './src/js/crypto-worker.js',
+    'js/bundle.min.js': './src/js/index.js',
+    'js/crypto-worker.js': './src/js/crypto-worker.js',
+  },
+  output: {
+    filename: '[name]',
+    path: path.resolve(__dirname, 'build', 'webclient'),
+    chunkFilename: 'js/[name].js',
+    publicPath: '/',
   },
   devServer: {
     static: {

@@ -1,7 +1,6 @@
 /**
  * Service which handles the actual parsing of the exported JSON
  */
-import * as XLSX from "xlsx";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 
@@ -278,13 +277,15 @@ function gatherSecrets(datastore, secrets, csv) {
  * @param {ArrayBuffer} data The raw data to parse
  * @returns {Array} The array of arrays representing the CSV
  */
-function parseXls(data) {
-    const workbook = XLSX.read(data, { type: "array" });
+async function parseXls(data) {
+    const XLSX = await import('xlsx');
+
+    const workbook = XLSX.read(data, {type: "array"});
 
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
 
-    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
 
     if (jsonData.length > 0) {
         return jsonData
@@ -308,7 +309,7 @@ function parseXls(data) {
  *
  * @returns {{datastore, secrets: Array} | null}
  */
-function parser(data, binary) {
+async function parser(data, binary) {
     const d = new Date();
     const n = d.toISOString();
 
@@ -321,7 +322,7 @@ function parser(data, binary) {
 
     let jsonData;
     try {
-        jsonData = parseXls(binary);
+        jsonData = await parseXls(binary);
     } catch (err) {
         return null;
     }

@@ -185,15 +185,15 @@ function getParser(type) {
  *
  * @returns {*} Returns a tree structure with folders and items
  */
-function parseExport(data) {
+async function parseExport(data) {
     const parse = getParser(data["type"]);
     if (parse === null) {
-        return Promise.reject({ errors: ["PARSER_NOT_FOUND"] });
+        return Promise.reject({errors: ["PARSER_NOT_FOUND"]});
     }
 
-    const parsed_data = parse(data["data"], data["binary"]);
+    const parsed_data = await parse(data["data"], data["binary"]);
     if (parsed_data === null) {
-        return Promise.reject({ errors: ["FILE_FORMAT_WRONG"] });
+        return Promise.reject({errors: ["FILE_FORMAT_WRONG"]});
     }
 
     data["data"] = parsed_data;
