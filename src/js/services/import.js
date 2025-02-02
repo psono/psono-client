@@ -17,6 +17,7 @@ import importKeepassxOrgCsv from "./import-keepassx-org-csv";
 import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
 import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
+import importPasswordManagerProXls from "./import-password-pamanager-pro-xls";
 import importTeampassNetCsv from "./import-teampass-net-csv";
 import importNextcloudCsvService from "./import-nextcloud-csv";
 import import1passwordV7CsvService from "./import-1password-v7-csv";
@@ -107,6 +108,11 @@ const _importer = {
         value: "lastpass_com_csv",
         parser: importLastpassComCsv.parser,
     },
+    password_manager_pro_xls: {
+        name: "Password Manager Pro (XLS)",
+        value: "password_manager_pro_xls",
+        parser: importPasswordManagerProXls.parser,
+    },
     pwsafe_org_csv: {
         name: "Password Safe (CSV)",
         value: "pwsafe_org_csv",
@@ -185,7 +191,7 @@ function parseExport(data) {
         return Promise.reject({ errors: ["PARSER_NOT_FOUND"] });
     }
 
-    const parsed_data = parse(data["data"]);
+    const parsed_data = parse(data["data"], data["binary"]);
     if (parsed_data === null) {
         return Promise.reject({ errors: ["FILE_FORMAT_WRONG"] });
     }
@@ -312,12 +318,13 @@ function getImporterHelp(type) {
  * Imports a datastore
  *
  * @param {string} type The type of the import
- * @param {string} data The data of the import
+ * @param {string} data The data as text of the import
+ * @param {string} binary The data as binary of the import
  * @param {string} [password] The password to decrypt the datastore
  *
  * @returns {Promise} Returns a promise with the result of the import
  */
-function importDatastore(type, data, password) {
+function importDatastore(type, data, binary, password) {
     emit("import-started", {});
 
     if (password) {
@@ -336,7 +343,7 @@ function importDatastore(type, data, password) {
         }
     }
 
-    return Promise.resolve({ type: type, data: data })
+    return Promise.resolve({ type: type, data: data, binary: binary})
         .then(parseExport)
         .then(createSecrets)
         .then(updateDatastore)

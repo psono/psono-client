@@ -32,6 +32,7 @@ const OtherImportView = (props) => {
     const [exportFormat, setExportFormat] = React.useState("psono_pw_json");
     const [encoding, setEncoding] = React.useState("utf-8");
     const [fileContent, setFileContent] = React.useState("");
+    const [fileBinary, setFileBinary] = React.useState("");
     const [fileName, setFileName] = React.useState("");
     const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [processing, setProcessing] = React.useState(false);
@@ -87,7 +88,7 @@ const OtherImportView = (props) => {
             setProcessing(false);
         };
 
-        importService.importDatastore(exportFormat, fileContent, password).then(onSuccess, onError);
+        importService.importDatastore(exportFormat, fileContent, fileBinary, password).then(onSuccess, onError);
     };
 
     const onFileChange = (event) => {
@@ -96,9 +97,14 @@ const OtherImportView = (props) => {
         setFileName(event.target.files[0].name);
         const reader = new FileReader();
         reader.onload = function (e) {
-            setFileContent(e.target.result);
+            const arrayBuffer = e.target.result;
+            const decoder = new TextDecoder(encoding);
+            const textContent = decoder.decode(new Uint8Array(arrayBuffer));
+
+            setFileContent(textContent);
+            setFileBinary(arrayBuffer);
         };
-        reader.readAsText(event.target.files[0], encoding);
+        reader.readAsArrayBuffer(event.target.files[0]);
     };
 
     const getHelpText = importService.getImporterHelp(exportFormat);
