@@ -105,10 +105,10 @@ const OtherExportView = (props) => {
 
         const calculatedIncludeSharedItems = !getStore().getState().server.complianceDisableExportOfSharedItems && includeSharedItems;
 
-        exportService.exportDatastore(exportFormat, includeTrashBinItems, calculatedIncludeSharedItems, exportFormat === 'json' ? password : '').then(onSuccess, onError);
+        exportService.exportDatastore(exportFormat, includeTrashBinItems, calculatedIncludeSharedItems, (exportFormat === 'json' || exportFormat === 'kdbxv4') ? password : '').then(onSuccess, onError);
     };
 
-    const formHasError = exportFormat === 'json' && Boolean(password) && password !== passwordRepeat;
+    const formHasError = (exportFormat === 'json' || exportFormat === 'kdbxv4') && Boolean(password) && password !== passwordRepeat;
 
     return (
         <Grid container>
@@ -130,11 +130,12 @@ const OtherExportView = (props) => {
                         label={t("TYPE")}
                     >
                         <MenuItem value={"json"}>{t("JSON_IMPORT_COMPATIBLE")}</MenuItem>
+                        <MenuItem value={"kdbxv4"}>{t("KDBXV4")}</MenuItem>
                         <MenuItem value={"csv"}>{t("CSV")}</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
-            {exportFormat === 'json' && (<Grid item xs={12} sm={12} md={12}>
+            {(exportFormat === 'json' || exportFormat === 'kdbxv4') && (<Grid item xs={12} sm={12} md={12}>
                 <TextFieldPassword
                     className={classes.textField}
                     variant="outlined"
@@ -150,7 +151,7 @@ const OtherExportView = (props) => {
                     }}
                 />
             </Grid>)}
-            {exportFormat === 'json' && Boolean(password) && (
+            {(exportFormat === 'json' || exportFormat === 'kdbxv4') && Boolean(password) && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextFieldPassword
                         className={classes.textField}
