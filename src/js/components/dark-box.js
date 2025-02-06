@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
             height: '40px',
             overflowY: 'hidden',
             '& a': {
-                color: '#333333',
+                color: '#666666',
             },
         },
         '& .full-width-box-footer': {
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
             right: 0,
             overflowY: 'hidden',
             '& a': {
-                color: '#333333',
+                color: '#666666',
             },
         },
         '& .form-control:focus': {

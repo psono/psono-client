@@ -433,7 +433,7 @@ async function composeExport(data, type, password) {
     } else if (type === "kdbxv4") {
         return await exportToKdbxv4(data, password);
     } else if (type === "csv") {
-        var helper_data = [
+        const helperData = [
             {
                 path: "path",
                 type: "type",
@@ -534,13 +534,13 @@ async function composeExport(data, type, password) {
                             data.items[i]["environment_variables_variables"]
                         );
                     }
-                    helper_data.push(data.items[i]);
+                    helperData.push(data.items[i]);
                 }
             }
         }
 
         csv_helper(data, "\\");
-        return Papa.unparse(helper_data, {
+        return Papa.unparse(helperData, {
             header: false,
         });
     } else {
