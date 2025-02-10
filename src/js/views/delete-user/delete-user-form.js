@@ -100,11 +100,9 @@ const DeleteUserViewForm = (props) => {
         let parsedUrl = helperService.parseUrl(server);
 
         // Validate now the username
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
-        const testResult = helperService.isValidUsername(fullUsername);
-        if (testResult) {
-            setErrors([testResult]);
-            return;
+        let fullUsername = '';
+        if (username) {
+            fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
         }
 
         function onError(data) {
@@ -130,7 +128,7 @@ const DeleteUserViewForm = (props) => {
             }
         }
 
-        user.unregister(username, email).then(onSuccess, onError);
+        user.unregister(fullUsername, email).then(onSuccess, onError);
     };
 
     let formContent;
