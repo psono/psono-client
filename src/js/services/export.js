@@ -4,6 +4,8 @@
 import datastorePasswordService from "./datastore-password";
 import secretService from "./secret";
 import cryptoLibraryService from "./crypto-library";
+import helperService from "./helper";
+import converterService from "./converter";
 const Papa = require("papaparse");
 
 const _exporter = [];
@@ -49,15 +51,31 @@ function emit(event, data) {
 function downloadExport(data, type, isEncrypted) {
     let file_name = "export.json";
     let data_type = "data:attachment/json,";
+    let href = '';
+    if (type === "json") {
+        file_name = "export.json";
+        data_type = "data:attachment/json,";
+        if (isEncrypted) {
+            file_name = file_name + '.encrypted'
+        }
+        href = data_type + encodeURI(data).replace(/#/g, "%23");
+    }
     if (type === "csv") {
         file_name = "export.csv";
         data_type = "data:attachment/csv,";
+        href = data_type + encodeURI(data).replace(/#/g, "%23");
     }
-    if (isEncrypted) {
-        file_name = file_name + '.encrypted'
+    if (type === "kdbxv4") {
+        file_name = "export.kdbx";
+        data_type = "application/octet-stream";
+        const blob = new Blob([data], { type: data_type });
+        href = URL.createObjectURL(blob);
     }
+
     const a = document.createElement("a");
-    a.href = data_type + encodeURI(data).replace(/#/g, "%23");
+
+    a.href = href
+
     a.target = "_blank";
     a.download = file_name;
     a.click();
@@ -180,19 +198,242 @@ function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems)
     return folder;
 }
 
+
+/**
+ * Converts Psono data structure to kdbx
+ *
+ * @param {object} passwordData The datastore data to compose
+ * @param {string} [password] An optional password
+ *
+ * @returns {*} filtered folder
+ */
+async function exportToKdbxv4(passwordData, password) {
+    const kdbxweb = await import('kdbxweb');
+    const { argon2d, argon2id } = await import('@noble/hashes/argon2');
+
+    kdbxweb.CryptoEngine.setArgon2Impl((password, salt,
+                                         memory, iterations, length, parallelism, type, version) => new Promise((resolve, reject) => {
+        const fnc = type === 0 ? argon2d : argon2id;
+        try {
+            const bytes = fnc(
+                new Uint8Array(password),
+                new Uint8Array(salt),
+                {
+                    t: iterations,
+                    m: memory,
+                    p: parallelism,
+                    dkLen: length,
+                    version,
+                },
+            );
+            resolve(bytes.buffer);
+        } catch (error) {
+            reject(error);
+        }
+    }));
+
+    const credentials = new kdbxweb.Credentials(kdbxweb.ProtectedValue.fromString(password));
+
+    const db = kdbxweb.Kdbx.create(credentials);
+    //db.setVersion(3);
+
+    const rootGroup = db.getDefaultGroup();
+    rootGroup.name = "Exported Passwords";
+
+    function addWebsitePasswordEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.website_password_title || "Unnamed Entry");
+        entry.fields.set("URL", item.website_password_url || "");
+        entry.fields.set("UserName", item.website_password_username || "");
+        entry.fields.set("Password", kdbxweb.ProtectedValue.fromString(item.website_password_password || ""));
+        entry.fields.set("Notes", item.website_password_notes || "");
+
+        if (item.website_password_totp_code) {
+            const parsedUrl = helperService.parseUrl(item.website_password_url);
+            const otp = "otpauth://totp/" +
+                parsedUrl["full_domain_without_www"] +
+                ":" +
+                (item.website_password_username || "") +
+                "?secret=" +
+                item.website_password_totp_code +
+                "&period=" +
+                item.website_password_totp_period +
+                "&digits=" +
+                item.website_password_totp_digits +
+                "&algorithm=" +
+                item.website_password_totp_algorithm;
+            entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+        }
+    }
+
+    function addTotpEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.totp_title || "Unnamed Entry");
+        entry.fields.set("Notes", item.totp_notes || "");
+
+        if (item.totp_code) {
+            const otp = "otpauth://totp/" +
+                //item.totp_title +
+                "?secret=" +
+                item.totp_code +
+                "&period=" +
+                item.totp_period +
+                "&digits=" +
+                item.totp_digits +
+                "&algorithm=" +
+                item.totp_algorithm;
+            entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+        }
+    }
+
+    function addApplicationPasswordEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.application_password_title || "Unnamed Entry");
+        entry.fields.set("UserName", item.application_password_username || "");
+        entry.fields.set("Password", kdbxweb.ProtectedValue.fromString(item.application_password_password || ""));
+        entry.fields.set("Notes", item.application_password_notes || "");
+    }
+
+    function addBookmarkEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.bookmark_title || "Unnamed Entry");
+        entry.fields.set("URL", item.bookmark_url || "");
+        entry.fields.set("Notes", item.bookmark_notes || "");
+    }
+
+    function addNoteEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.note_title || "Unnamed Entry");
+        entry.fields.set("Notes", item.note_notes || "");
+    }
+
+    function addCreditCardEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.credit_card_title || "Unnamed Entry");
+        entry.fields.set("Number", item.credit_card_number || "");
+        entry.fields.set("CVC", item.credit_card_cvc || "");
+        entry.fields.set("PIN", item.credit_card_pin || "");
+        entry.fields.set("Name", item.credit_card_name || "");
+        entry.fields.set("Valid Through", item.credit_card_valid_through || "");
+        entry.fields.set("Notes", item.credit_card_notes || "");
+    }
+
+    function addMailGPGOwnKeyEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.mail_gpg_own_key_title || "Unnamed Entry");
+        entry.fields.set("Name", item.mail_gpg_own_key_name || "");
+        entry.fields.set("Email", item.mail_gpg_own_key_email || "");
+        entry.fields.set("Public Key", item.mail_gpg_own_key_public || "");
+        entry.fields.set("Private Key", item.mail_gpg_own_key_private || "");
+    }
+
+    function addSshOwnKeyEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.ssh_own_key_title || "Unnamed Entry");
+        entry.fields.set("Public Key", item.ssh_own_key_public || "");
+        entry.fields.set("Private Key", item.ssh_own_key_private || "");
+        entry.fields.set("Notes", item.ssh_own_key_notes || "");
+    }
+
+    function addElsterCertificateEntry(group, item) {
+        const entry = db.createEntry(group);
+        entry.fields.set("Title", item.elster_certificate_title || "Unnamed Entry");
+        entry.fields.set("Password", item.elster_certificate_password || "");
+        entry.fields.set("Retrieval Code", item.elster_certificate_retrieval_code || "");
+        entry.fields.set("Notes", item.elster_certificate_notes || "");
+
+        entry.binaries.set("elster.pfx", converterService.fromHex(item.elster_certificate_file_content));
+    }
+
+    function addEnvironmentvariablesEntry(group, item) {
+        const entry = db.createEntry(group);
+        if (item.hasOwnProperty('environment_variables_title')) {
+            entry.fields.set("Title", item.environment_variables_title || "Unnamed Entry");
+        }
+        if (item.hasOwnProperty('environment_variables_notes')) {
+            entry.fields.set("Notes", item.environment_variables_notes || "");
+        }
+        if (item.hasOwnProperty('environment_variables_variables')) {
+            item.environment_variables_variables.forEach((ev) => {
+                entry.fields.set('EV:' + ev.key, ev.value);
+            })
+        }
+    }
+
+    function processItem(group, item) {
+        if (item.type === "application_password") {
+            addApplicationPasswordEntry(group, item);
+        }
+        if (item.type === "bookmark") {
+            addBookmarkEntry(group, item);
+        }
+        if (item.type === "credit_card") {
+            addCreditCardEntry(group, item);
+        }
+        if (item.type === "mail_gpg_own_key") {
+            addMailGPGOwnKeyEntry(group, item);
+        }
+        if (item.type === "ssh_own_key") {
+            addSshOwnKeyEntry(group, item);
+        }
+        if (item.type === "elster_certificate") {
+            addElsterCertificateEntry(group, item);
+        }
+        if (item.type === "environment_variables") {
+            addEnvironmentvariablesEntry(group, item);
+        }
+        if (item.type === "totp") {
+            addTotpEntry(group, item);
+        }
+        if (item.type === "website_password") {
+            addWebsitePasswordEntry(group, item);
+        }
+        if (item.type === "note") {
+            addNoteEntry(group, item);
+        }
+    }
+
+    passwordData.items.forEach(item => {
+        processItem(rootGroup, item)
+    });
+
+    function processFolders(parentGroup, folders) {
+        folders.forEach(folder => {
+            const newGroup = db.createGroup(parentGroup, folder.name || "Unnamed Folder");
+            if (folder.items) {
+                folder.items.forEach(item => {
+                    processItem(newGroup, item)
+                });
+            }
+            if (folder.folders) {
+                processFolders(newGroup, folder.folders);
+            }
+        });
+    }
+
+    if (passwordData.folders) {
+        processFolders(rootGroup, passwordData.folders);
+    }
+
+    return await db.save();
+}
+
 /**
  * compose the export structure
  *
  * @param {object} data The datastore data to compose
  * @param {string} type The selected type of the export
+ * @param {string} [password] An optional password
  *
  * @returns {*} filtered folder
  */
-function composeExport(data, type) {
+async function composeExport(data, type, password) {
     if (type === "json") {
         return JSON.stringify(data);
+    } else if (type === "kdbxv4") {
+        return await exportToKdbxv4(data, password);
     } else if (type === "csv") {
-        var helper_data = [
+        const helperData = [
             {
                 path: "path",
                 type: "type",
@@ -293,12 +534,13 @@ function composeExport(data, type) {
                             data.items[i]["environment_variables_variables"]
                         );
                     }
-                    helper_data.push(data.items[i]);
+                    helperData.push(data.items[i]);
                 }
             }
         }
+
         csv_helper(data, "\\");
-        return Papa.unparse(helper_data, {
+        return Papa.unparse(helperData, {
             header: false,
         });
     } else {
@@ -387,10 +629,11 @@ function getExporter() {
  * @param {uuid} id The id of the datastore one wants to download
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
+ * @param {string} [password] An optional password
  *
  * @returns {Promise} Returns a promise with the exportable datastore content
  */
-function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems) {
+function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, password) {
     emit("export-started", {});
 
     return datastorePasswordService
@@ -403,7 +646,7 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems) {
         })
         .then(function (data) {
             emit("export-complete", {});
-            return composeExport(data, type);
+            return composeExport(data, type, password);
         });
 }
 
@@ -418,9 +661,9 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems) {
  * @returns {Promise} Returns a promise once the export is successful
  */
 function exportDatastore(type, includeTrashBinItems, includeSharedItems, password) {
-    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems)
+    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems, password)
         .then(function (data) {
-            if (password) {
+            if (password && type === 'json') {
                 data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))
             }
             return downloadExport(data, type, !!password);

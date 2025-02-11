@@ -184,6 +184,7 @@ function updateContextMenu() {
         const contextMenu = chrome.contextMenus.create({
             id: CM_PSONO_ID,
             title: "Psono",
+            contexts: ["all"],
         });
         chrome.contextMenus.create({
             id: CM_DATASTORE_ID,
@@ -770,6 +771,7 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
             update.push({
                 secret_id: leafs[ii].secret_id,
                 name: leafs[ii].name,
+                description: leafs[ii].description ? leafs[ii].description : '',
             });
         }
 

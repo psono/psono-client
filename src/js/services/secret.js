@@ -230,10 +230,12 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
 function redirectSecret(type, secretId) {
     return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
         if (leaf === null) {
+            console.log("redirectSecret: leaf not found")
             return;
         }
         const onError = function (result) {
             // pass
+            console.log(result)
         };
 
         const onSuccess = function (content) {
@@ -254,6 +256,7 @@ function redirectSecret(type, secretId) {
                 let url = content.website_password_url;
 
                 if (!url) {
+                    console.log("redirectSecret: URL_EMPTY_CANNOT_REDIRECT")
                     return Promise.reject({
                         'non_field_errors': ["URL_EMPTY_CANNOT_REDIRECT"]
                     })
@@ -268,6 +271,7 @@ function redirectSecret(type, secretId) {
                 let url = content.bookmark_url;
 
                 if (!url) {
+                    console.log("redirectSecret: URL_EMPTY")
                     return Promise.reject({
                         'non_field_errors': ["URL_EMPTY"]
                     })

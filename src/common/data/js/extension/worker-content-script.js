@@ -650,7 +650,14 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                     dropcontent += '<li><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
                 }
                 for (let i = 0; i < response.data.length; i++) {
-                    let sanitizedText = sanitizeText(response.data[i].name)
+                    let sanitizedName = sanitizeText(response.data[i].name)
+                    let sanitizedDescription = '';
+                    if (response.data[i].description && !response.data[i].name.toLowerCase().includes(response.data[i].description.toLowerCase())) {
+                        sanitizedDescription = sanitizeText(' (' + response.data[i].description + ')')
+                    }
+                    if (sanitizedDescription) {
+                        sanitizedDescription = '<span style="font-size: 11px !important; cursor: pointer !important;">' + sanitizedDescription + '</span>';
+                    }
                     let requestSecretClass = "psono_request-secret-" + uuid.v4();
                     let style = '';
                     if (i >= 5) {
@@ -660,7 +667,8 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                         '<li class="psono_request-secret" style="'+style+'"><div class="' +
                         requestSecretClass +
                         '" style="cursor: pointer !important;"">' +
-                        sanitizedText +
+                        sanitizedName +
+                        sanitizedDescription +
                         "</div></li>";
                     requestSecretClasses.push({
                         'class': requestSecretClass,

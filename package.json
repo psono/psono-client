@@ -29,6 +29,7 @@
     "@mui/material": "^5.15.19",
     "@mui/styles": "^5.15.19",
     "@mui/x-date-pickers": "^7.6.2",
+    "@noble/hashes": "^1.7.1",
     "@openpgp/hkp-client": "^0.0.2",
     "@sentry/react": "^6.19.6",
     "@sentry/tracing": "^6.19.6",
@@ -48,6 +49,7 @@
     "js-sha1": "^0.6.0",
     "js-sha256": "^0.9.0",
     "js-sha512": "^0.8.0",
+    "kdbxweb": "^2.1.1",
     "localforage": "^1.10.0",
     "mui-datatables": "^4.3.0",
     "openpgp": "^5.11.0",
@@ -72,7 +74,8 @@
     "redux-state-sync": "^3.1.2",
     "redux-thunk": "^2.4.0",
     "ua-parser-js": "^1.0.37",
-    "uuid-js": "^0.7.5"
+    "uuid-js": "^0.7.5",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",

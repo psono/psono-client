@@ -181,6 +181,7 @@
   "PRIMARY_KEY_IS_REQUIRED": "Primary key is required",
   "CONTAINER_NAME_IS_REQUIRED": "Container name is required",
   "CSV": "CSV",
+  "KDBXV4": "KeePass (KDBXv4)",
   "JSON_IMPORT_COMPATIBLE": "JSON (import compatible)",
   "ENCODING": "Encoding",
   "ADD_ENTRY": "Add entry",

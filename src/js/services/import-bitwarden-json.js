@@ -431,8 +431,8 @@ function parser(data) {
     };
 }
 
-const importEnpassJsonService = {
+const importBitwardenJsonService = {
     parser,
 };
 
-export default importEnpassJsonService;
+export default importBitwardenJsonService;
