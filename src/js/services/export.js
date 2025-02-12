@@ -263,6 +263,18 @@ async function exportToKdbxv4(passwordData, password) {
                 "&algorithm=" +
                 item.website_password_totp_algorithm;
             entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+            if (item.website_password_totp_algorithm === 'SHA1') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-1');
+            }
+            if (item.website_password_totp_algorithm === 'SHA256') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-256');
+            }
+            if (item.website_password_totp_algorithm === 'SHA512') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-512');
+            }
+            entry.fields.set("TimeOtp-Length", item.website_password_totp_digits);
+            entry.fields.set("TimeOtp-Period", item.website_password_totp_period);
+            entry.fields.set("TimeOtp-Secret-Base32", kdbxweb.ProtectedValue.fromString(item.website_password_totp_code));
         }
     }
 
@@ -283,6 +295,18 @@ async function exportToKdbxv4(passwordData, password) {
                 "&algorithm=" +
                 item.totp_algorithm;
             entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+            if (item.totp_algorithm === 'SHA1') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-1');
+            }
+            if (item.totp_algorithm === 'SHA256') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-256');
+            }
+            if (item.totp_algorithm === 'SHA512') {
+                entry.fields.set("TimeOtp-Algorithm", 'HMAC-SHA-512');
+            }
+            entry.fields.set("TimeOtp-Length", item.totp_digits);
+            entry.fields.set("TimeOtp-Period", item.totp_period);
+            entry.fields.set("TimeOtp-Secret-Base32", kdbxweb.ProtectedValue.fromString(item.totp_code));
         }
     }
 
