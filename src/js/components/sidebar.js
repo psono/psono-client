@@ -28,6 +28,7 @@ import PropTypes from "prop-types";
 import RuleIcon from "./icons/Rule";
 import browserClient from "../services/browser-client";
 import deviceService from "../services/device";
+import {getStore} from "../services/store";
 
 const drawerWidth = 240;
 
@@ -286,7 +287,7 @@ const Sidebar = (props) => {
                         />
                     </ListItem>
                 )}
-                {!offlineMode && (
+                {!offlineMode && !getStore().getState().server.complianceDisableLinkShares && (
                     <ListItem
                         button
                         component={Link}
