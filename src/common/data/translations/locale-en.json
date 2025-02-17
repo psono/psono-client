@@ -293,7 +293,6 @@
   "INFO_PUBLIC_TITLE_WILL_BE_VISIBLE": "The public title will be shown, e.g., before the user enters the passphrase.",
   "PUBLIC_TITLE": "Public Title",
   "ACTIVE_LINK_SHARES": "Active Link Shares",
-  "CREATED_LINK_SHARE": "Created link share",
   "PASSPHRASE_MISSMATCH": "Passphrase and repetition do not match.",
   "SHARE_LINK_PASSPHRASE_INFO": "Enter a passphrase to protect the link secret. Leave empty for no protection.",
   "VALID_TILL": "Valid till",
