@@ -485,6 +485,7 @@ const LinkShareAccessView = (props) => {
                     hideAddTOTP={true}
                     hideMoreMenu={true}
                     linkDirectly={true}
+                    setDirty={() => {}}
                 />
             )}
         </div>

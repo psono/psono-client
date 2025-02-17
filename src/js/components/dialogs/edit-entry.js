@@ -2928,6 +2928,7 @@ DialogEditEntry.defaultProps = {
 
 DialogEditEntry.propTypes = {
     onClose: PropTypes.func.isRequired,
+    setDirty: PropTypes.func.isRequired,
     onEdit: PropTypes.func,
     onDeleteItem: PropTypes.func,
     open: PropTypes.bool.isRequired,

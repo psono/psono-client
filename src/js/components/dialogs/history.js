@@ -135,6 +135,7 @@ const DialogHistory = (props) => {
                     hideLinkToEntry={true}
                     hideShowHistory={true}
                     hideMoreMenu={true}
+                    setDirty={() => {}}
                 />
             )}
         </Dialog>
