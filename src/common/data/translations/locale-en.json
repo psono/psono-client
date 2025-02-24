@@ -925,7 +925,7 @@
   "WEBSTORE_MAIN_DESCRIPTION": "It's used to securely create, store, and share passwords with others across multiple devices. Never use a password twice again.\nNo password will ever leave your computer unencrypted.\nAn overview of Psono's security approach can be found here:\nhttps://psono.com/security/\nAn overview of Psono's features can be found here:\nhttps://psono.com/features-for-users",
   "CHOOSE_COUNTRY": "Choose a Country",
   "IVALT_AUTH_FAILED": "Authentication failed. Please try again",
-  "IVALT_AUTH_REQUEST_SENT": "Ivalt Authenticated Request sent Successfully",
+  "IVALT_AUTH_REQUEST_SENT": "iVALT Authenticated Request sent Successfully",
   "IVALT_INVALID_TIMEZONE": "Invalid timezone. Please try again",
   "IVALT_INVALID_GEOFENCE": "Invalid geofence. Please try again",
   "IVALT_REQUEST_SENT_TO_APP": "Request has been sent to your iVALT app",
