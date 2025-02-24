@@ -1,4 +1,9 @@
 {
+  "EDIT_CUSTOM_FIELD": "Edit custom field",
+  "REMOVE_CUSTOM_FIELD": "Remove custom field",
+  "COPY_TO_CLIPBOARD": "Copy to clipboard",
+  "TEXT": "Text",
+  "ADD_CUSTOM_FIELD": "Add custom field",
   "INVALID": "Invalid",
   "SEC": "sec",
   "CLIPBOARD_CLEAR_DELAY": "Clipboard clear delay",
@@ -778,6 +783,7 @@
   "DISABLE_BROWSER_PM": "Automatic disabling of the browser's built-in password manager",
   "PRIVATE_KEY_COPY_NOTIFICATION": "Private key copied to clipboard",
   "PASSWORD_COPY_NOTIFICATION": "Password copied to clipboard",
+  "CONTENT_COPY_NOTIFICATION": "Content copied to clipboard",
   "PASSPHRASE_COPY_NOTIFICATION": "Passphrase copied to clipboard",
   "URL_COPY_NOTIFICATION": "URL copied to clipboard",
   "PIN_COPY_NOTIFICATION": "PIN copied to clipboard",

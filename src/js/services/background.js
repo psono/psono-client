@@ -13,7 +13,6 @@ import passkeyService from "./passkey";
 import user from "./user";
 import secretService from "./secret";
 import cryptoLibrary from "./crypto-library";
-import offscreenDocument from "./offscreen-document";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
@@ -344,6 +343,7 @@ function fillSecretTab(secretId, tab) {
                         ): "",
                         url_filter: content.website_password_url_filter,
                         auto_submit: content.website_password_auto_submit,
+                        custom_fields: content.custom_fields || [],
                     }
                 )
             }
@@ -353,6 +353,7 @@ function fillSecretTab(secretId, tab) {
                         credit_card_cvc: content.credit_card_cvc,
                         credit_card_name: content.credit_card_name,
                         credit_card_valid_through: content.credit_card_valid_through,
+                        custom_fields: content.custom_fields || [],
                     }
                 )
             }

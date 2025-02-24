@@ -483,6 +483,7 @@ const LinkShareAccessView = (props) => {
                     hideLinkToEntry={true}
                     hideShowHistory={true}
                     hideAddTOTP={true}
+                    hideAddCustomField={true}
                     hideMoreMenu={true}
                     linkDirectly={true}
                     setDirty={() => {}}

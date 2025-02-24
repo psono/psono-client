@@ -25,13 +25,14 @@ import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import Box from "@mui/material/Box";
+import EditIcon from "@mui/icons-material/Edit";
 import LinearProgress from "@mui/material/LinearProgress";
+import Divider from "@mui/material/Divider";
 
 import helperService from "../../services/helper";
 import cryptoLibrary from "../../services/crypto-library";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
-import datastorePasswordService from "../../services/datastore-password";
 import browserClientService from "../../services/browser-client";
 import notification from "../../services/notification";
 import fileTransferService from "../../services/file-transfer";
@@ -52,9 +53,10 @@ import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import {useHotkeys} from "react-hotkeys-hook";
-import cryptoLibraryService from "../../services/crypto-library";
 import converterService from "../../services/converter";
 import DialogGeneratePassword from "./generate-password";
+import DialogAddCustomField from "./add-custom-field";
+import DialogEditCustomField from "./edit-custom-field";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -114,6 +116,8 @@ const DialogNewEntry = (props) => {
     const classes = useStyles();
     const offline = offlineCache.isActive();
 
+    const [addCustomFieldOpen, setAddCustomFieldOpen] = useState(false);
+    const [editCustomFieldOpenIndex, setEditCustomFieldOpenIndex] = useState(null);
     const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
     const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
@@ -192,10 +196,12 @@ const DialogNewEntry = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorElsCustomFields, setAnchorElsCustomFields] = React.useState({});
 
     const [callbackUrl, setCallbackUrl] = useState("");
     const [callbackPass, setCallbackPass] = useState("");
     const [callbackUser, setCallbackUser] = useState("");
+    const [customFields, setCustomFields] = useState([]);
 
     const [showPassword, setShowPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -678,6 +684,11 @@ const DialogNewEntry = (props) => {
             }
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
+
+        if (customFields) {
+            secretObject["custom_fields"] = customFields;
+        }
+
         if (item.type === "file") {
             fileUpload(item["id"]).then((data) => {
                 item["file_chunks"] = data.file_chunks;
@@ -823,6 +834,104 @@ const DialogNewEntry = (props) => {
         setAnchorEl(null);
         setAnchorEl2(null);
     };
+
+    const renderedCustomFields = (
+        <React.Fragment>
+            {customFields.map((customField, index) => (
+                <Grid item xs={12} sm={12} md={12} key={`customField-${index}`}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id={`customField${index}`}
+                        label={customField.name}
+                        name={`customField${index}`}
+                        autoComplete="off"
+                        value={customField.value}
+                        onChange={(event) => {
+                            setCustomFields(customFields.map((field, i) => i === index ? { ...field, value: event.target.value } : field));
+                        }}
+                        InputProps={{
+                            type: customField.type === "text" || showPassword ? "text" : "password",
+                            classes: {
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={(event) => {
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: event.currentTarget });
+                                        }}
+                                        size="large">
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorElsCustomFields[index]}
+                                        keepMounted
+                                        open={Boolean(anchorElsCustomFields[index])}
+                                        onClose={() => setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null })}
+                                    >
+                                        {customField.type === "password" && (
+                                            <MenuItem onClick={(event) => {
+                                                onShowHidePassword(event);
+                                                setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                            }}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                    {t("SHOW_OR_HIDE_VALUE")}
+                                                </Typography>
+                                            </MenuItem>
+                                        )}
+
+                                        <MenuItem onClick={(event) => {
+                                            browserClientService.copyToClipboard(() => Promise.resolve(customField.value));
+                                            notification.push("content_copy", t("CONTENT_COPY_NOTIFICATION"));
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_TO_CLIPBOARD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <Divider className={classes.divider} />
+                                        <MenuItem onClick={(event) => {
+                                            setEditCustomFieldOpenIndex(index);
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <EditIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("EDIT_CUSTOM_FIELD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={(event) => {
+                                            setCustomFields(customFields.filter((field, i) => i !== index));
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <DeleteIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("REMOVE_CUSTOM_FIELD")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            ))}
+        </React.Fragment>
+    );
 
     return (
         <Dialog
@@ -991,6 +1100,22 @@ const DialogNewEntry = (props) => {
                                 {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                             </Grid>
                         )}
+
+
+                        {type === "website_password" && renderedCustomFields}
+                        {type === "website_password" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <Button
+                                    startIcon={<PlaylistAddIcon />}
+                                    onClick={() => {
+                                        setAddCustomFieldOpen(true);
+                                    }}
+                                >
+                                    {t("ADD_CUSTOM_FIELD")}
+                                </Button>
+                            </Grid>
+                        )}
+
                         {type === "website_password" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1116,6 +1241,21 @@ const DialogNewEntry = (props) => {
                                 {!!applicationPasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(applicationPasswordPassword)} />)}
                             </Grid>
                         )}
+
+                        {type === "application_password" && renderedCustomFields}
+                        {type === "application_password" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <Button
+                                    startIcon={<PlaylistAddIcon />}
+                                    onClick={() => {
+                                        setAddCustomFieldOpen(true);
+                                    }}
+                                >
+                                    {t("ADD_CUSTOM_FIELD")}
+                                </Button>
+                            </Grid>
+                        )}
+
                         {type === "application_password" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1162,7 +1302,7 @@ const DialogNewEntry = (props) => {
                                     variant="outlined"
                                     margin="dense" size="small"
                                     id="bookmarkUrl"
-                                    error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
+                                    error={!!bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                     label={t("URL")}
                                     name="bookmarkUrl"
                                     autoComplete="off"
@@ -1182,6 +1322,21 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "bookmark" && renderedCustomFields}
+                        {type === "bookmark" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <Button
+                                    startIcon={<PlaylistAddIcon />}
+                                    onClick={() => {
+                                        setAddCustomFieldOpen(true);
+                                    }}
+                                >
+                                    {t("ADD_CUSTOM_FIELD")}
+                                </Button>
+                            </Grid>
+                        )}
+
                         {type === "bookmark" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1221,6 +1376,21 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "note" && renderedCustomFields}
+                        {type === "note" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <Button
+                                    startIcon={<PlaylistAddIcon />}
+                                    onClick={() => {
+                                        setAddCustomFieldOpen(true);
+                                    }}
+                                >
+                                    {t("ADD_CUSTOM_FIELD")}
+                                </Button>
+                            </Grid>
+                        )}
+
                         {type === "note" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1730,7 +1900,7 @@ const DialogNewEntry = (props) => {
                                         margin="dense" size="small"
                                         id="fileDestination"
                                         label={t("TARGET_STORAGE")}
-                                        error={!Boolean(fileDestination)}
+                                        error={!fileDestination}
                                         value={fileDestination}
                                         required
                                         onChange={(value) => {
@@ -2333,6 +2503,32 @@ const DialogNewEntry = (props) => {
                         onNewGpgKeysGenerated={onNewGpgKeysGenerated}
                     />
                 )}
+
+                {addCustomFieldOpen && (
+                    <DialogAddCustomField
+                        open={addCustomFieldOpen}
+                        onClose={(customField) => {
+                            setAddCustomFieldOpen(false);
+                            setCustomFields([...customFields, customField]);
+                        }}
+                    />
+                )}
+
+                {editCustomFieldOpenIndex !== null && (
+                    <DialogEditCustomField
+                        open={editCustomFieldOpenIndex !== null}
+                        onClose={(customField) => {
+                            if (customField) {
+                                setEditCustomFieldOpenIndex(null);
+                                setCustomFields(customFields.map((field, i) => i === editCustomFieldOpenIndex ? customField : field));
+                            } else {
+                                setEditCustomFieldOpenIndex(null);
+                            }
+                        }}
+                        customField={customFields[editCustomFieldOpenIndex]}
+                    />
+                )}
+
                 {generatePasswordDialogOpen && (
                     <DialogGeneratePassword
                         open={generatePasswordDialogOpen}
