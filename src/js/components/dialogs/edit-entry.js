@@ -34,6 +34,7 @@ import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useHotkeys } from 'react-hotkeys-hook'
 import Divider from "@mui/material/Divider";
+import Chip from "@mui/material/Chip";
 
 import itemBlueprintService from "../../services/item-blueprint";
 import secretService from "../../services/secret";
@@ -56,6 +57,7 @@ import converterService from "../../services/converter";
 import DialogCreateLinkShare from "./create-link-share";
 import DialogAddTotp from "./add-totp";
 import DialogAddCustomField from "./add-custom-field";
+import DialogAddTag from "./add-tag";
 import DialogEditCustomField from "./edit-custom-field";
 import DialogGeneratePassword from "./generate-password";
 
@@ -126,16 +128,24 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "8px",
         marginBottom: "8px",
     },
+    chipContainer: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: theme.spacing(1),
+        marginTop: theme.spacing(1),
+    },
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, hideAddCustomField, inline, setDirty } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, hideAddCustomField, hideAddTag, inline, setDirty } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
+    const [tags, setTags] = useState([]);
     const [addTotpOpen, setAddTotpOpen] = useState(false);
+    const [addTagOpen, setAddTagOpen] = useState(false);
     const [addCustomFieldOpen, setAddCustomFieldOpen] = useState(false);
     const [editCustomFieldOpenIndex, setEditCustomFieldOpenIndex] = useState(null);
     const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
@@ -222,6 +232,7 @@ const DialogEditEntry = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorEl3, setAnchorEl3] = React.useState(null);
     const [anchorElMoreMenu, setAnchorElMoreMenu] = React.useState(null);
     const [anchorEls, setAnchorEls] = React.useState({});
     const [anchorElsCustomFields, setAnchorElsCustomFields] = React.useState({});
@@ -244,6 +255,7 @@ const DialogEditEntry = (props) => {
     const hasCallback = ["file"].indexOf(item.type) === -1 &&  // files have no callbacks
         !getStore().getState().server.disableCallbacks;
     const showGeneratePassword = item.share_rights && item.share_rights.write;
+    const readOnly = getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidPasskey = Boolean(passkeyTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
@@ -340,6 +352,11 @@ const DialogEditEntry = (props) => {
                 setCustomFields(data["custom_fields"]);
             } else {
                 setCustomFields([]);
+            }
+            if (data.hasOwnProperty("tags")) {
+                setTags(data["tags"]);
+            } else {
+                setTags([]);
             }
 
             // website passwords
@@ -910,6 +927,10 @@ const DialogEditEntry = (props) => {
         if (customFields) {
             secretObject["custom_fields"] = customFields;
         }
+        if (tags) {
+            item["tags"] = tags;
+            secretObject["tags"] = tags;
+        }
 
         if (props.onCustomSave) {
             props.onCustomSave(item, secretObject, callbackUrl, callbackUser, callbackPass);
@@ -1046,6 +1067,7 @@ const DialogEditEntry = (props) => {
     const handleClose = () => {
         setAnchorEl(null);
         setAnchorEl2(null);
+        setAnchorEl3(null);
         setAnchorElMoreMenu(null);
     };
 
@@ -1071,6 +1093,78 @@ const DialogEditEntry = (props) => {
         title = t('ACCESS_DENIED')
     }
 
+    const renderAddButton = (
+        <React.Fragment>
+            <Grid item xs={12} sm={12} md={12}>
+                <Button
+                    startIcon={<PlaylistAddIcon />}
+                    disabled={getStore().getState().settingsDatastore.noSaveMode}
+                    onClick={(event) => {
+                        setAnchorEl3(event.currentTarget);
+                    }}
+                >
+                    {t("ADD_DOT_DOT_DOT")}
+                </Button>
+                <Menu
+                    id="add-menu"
+                    anchorEl={anchorEl3}
+                    keepMounted
+                    open={Boolean(anchorEl3)}
+                    onClose={handleClose}
+                >
+                    {!hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note") && (
+                        <MenuItem
+                            disabled={readOnly}
+                            onClick={() => {
+                                handleClose();
+                                setAddCustomFieldOpen(true);
+                            }}
+                        >
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("ADD_CUSTOM_FIELD")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                    {!hideAddTag && (
+                        <MenuItem
+                            disabled={readOnly}
+                            onClick={() => {
+                                handleClose();
+                                setAddTagOpen(true);
+                            }}
+                        >
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("ADD_TAG")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                    {!hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && (
+                        <MenuItem
+                            disabled={readOnly}
+                            onClick={() => {
+                                handleClose();
+                                setAddTotpOpen(true);
+                            }}
+                        >
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("ADD_TOTP")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                </Menu>
+            </Grid>
+        </React.Fragment>
+    )
+
     const renderedCustomFields = (
         <React.Fragment>
             {customFields.map((customField, index) => (
@@ -1089,7 +1183,7 @@ const DialogEditEntry = (props) => {
                             setCustomFields(customFields.map((field, i) => i === index ? { ...field, value: event.target.value } : field));
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: customField.type === "text" || showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1255,7 +1349,7 @@ const DialogEditEntry = (props) => {
                         name="passkeyTitle"
                         autoComplete="off"
                         value={passkeyTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1275,7 +1369,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordTitle"
                         autoComplete="off"
                         value={websitePasswordTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1296,7 +1390,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={websitePasswordUrl}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
@@ -1342,7 +1436,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUsername"
                         autoComplete="off"
                         value={websitePasswordUsername}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setWebsitePasswordUsername(event.target.value);
@@ -1366,7 +1460,7 @@ const DialogEditEntry = (props) => {
                             setWebsitePasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1427,35 +1521,6 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
-            {item.type === "website_password" && renderedCustomFields}
-            {!hideAddCustomField && item.type === "website_password" && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        startIcon={<PlaylistAddIcon />}
-                        disabled={getStore().getState().settingsDatastore.noSaveMode}
-                        onClick={() => {
-                            setAddCustomFieldOpen(true);
-                        }}
-                    >
-                        {t("ADD_CUSTOM_FIELD")}
-                    </Button>
-                </Grid>
-            )}
-
-            {!hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        startIcon={<PlaylistAddIcon />}
-                        disabled={getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write}
-                        onClick={() => {
-                            setAddTotpOpen(true);
-                        }}
-                    >
-                        {t("ADD_TOTP")}
-                    </Button>
-                </Grid>
-            )}
-
             {item.type === "website_password" && websitePasswordTotpCode && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextFieldTotp
@@ -1480,6 +1545,9 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {item.type === "website_password" && renderedCustomFields}
+            {item.type === "website_password" && renderAddButton}
+
             {item.type === "website_password" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1491,7 +1559,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordNotes"
                         autoComplete="off"
                         value={websitePasswordNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setWebsitePasswordNotes(event.target.value);
@@ -1514,7 +1582,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordTitle"
                         autoComplete="off"
                         value={applicationPasswordTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                        onChange={(event) => {
                             setDirty(true);
@@ -1534,7 +1602,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordUsername"
                         autoComplete="off"
                         value={applicationPasswordUsername}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setApplicationPasswordUsername(event.target.value);
@@ -1558,7 +1626,7 @@ const DialogEditEntry = (props) => {
                             setApplicationPasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -1620,19 +1688,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "application_password" && renderedCustomFields}
-            {!hideAddCustomField && item.type === "application_password" && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        startIcon={<PlaylistAddIcon />}
-                        disabled={getStore().getState().settingsDatastore.noSaveMode}
-                        onClick={() => {
-                            setAddCustomFieldOpen(true);
-                        }}
-                    >
-                        {t("ADD_CUSTOM_FIELD")}
-                    </Button>
-                </Grid>
-            )}
+            {item.type === "application_password" && renderAddButton}
 
             {item.type === "application_password" && (
                 <Grid item xs={12} sm={12} md={12}>
@@ -1645,7 +1701,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordNotes"
                         autoComplete="off"
                         value={applicationPasswordNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setApplicationPasswordNotes(event.target.value);
@@ -1668,7 +1724,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkTitle"
                         autoComplete="off"
                         value={bookmarkTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1690,7 +1746,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={bookmarkUrl}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
@@ -1727,19 +1783,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "bookmark" && renderedCustomFields}
-            {!hideAddCustomField && item.type === "bookmark" && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        startIcon={<PlaylistAddIcon />}
-                        disabled={getStore().getState().settingsDatastore.noSaveMode}
-                        onClick={() => {
-                            setAddCustomFieldOpen(true);
-                        }}
-                    >
-                        {t("ADD_CUSTOM_FIELD")}
-                    </Button>
-                </Grid>
-            )}
+            {item.type === "bookmark" && renderAddButton}
 
             {item.type === "bookmark" && (
                 <Grid item xs={12} sm={12} md={12}>
@@ -1752,7 +1796,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkNotes"
                         autoComplete="off"
                         value={bookmarkNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setBookmarkNotes(event.target.value);
@@ -1775,7 +1819,7 @@ const DialogEditEntry = (props) => {
                         name="noteTitle"
                         autoComplete="off"
                         value={noteTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1786,19 +1830,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "note" && renderedCustomFields}
-            {!hideAddCustomField && item.type === "note" && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button
-                        startIcon={<PlaylistAddIcon />}
-                        disabled={getStore().getState().settingsDatastore.noSaveMode}
-                        onClick={() => {
-                            setAddCustomFieldOpen(true);
-                        }}
-                    >
-                        {t("ADD_CUSTOM_FIELD")}
-                    </Button>
-                </Grid>
-            )}
+            {item.type === "note" && renderAddButton}
 
             {item.type === "note" && (
                 <Grid item xs={12} sm={12} md={12}>
@@ -1811,7 +1843,7 @@ const DialogEditEntry = (props) => {
                         name="noteNotes"
                         autoComplete="off"
                         value={noteNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setNoteNotes(event.target.value);
@@ -1834,7 +1866,7 @@ const DialogEditEntry = (props) => {
                         name="totpTitle"
                         autoComplete="off"
                         value={totpTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1855,6 +1887,9 @@ const DialogEditEntry = (props) => {
                     />
                 </Grid>
             )}
+
+            {item.type === "totp" && renderAddButton}
+
             {item.type === "totp" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1866,7 +1901,7 @@ const DialogEditEntry = (props) => {
                         name="totpNotes"
                         autoComplete="off"
                         value={totpNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setTotpNotes(event.target.value);
@@ -1889,7 +1924,7 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesTitle"
                         autoComplete="off"
                         value={environmentVariablesTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -1914,7 +1949,7 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-key-" + index}
                                         autoComplete={"environmentVariablesVariables-key-" + index}
                                         value={variable.key}
-                                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                                        InputProps={{ readOnly: readOnly }}
                                         required
                                         onChange={(event) => {
                                             setDirty(true);
@@ -2035,6 +2070,9 @@ const DialogEditEntry = (props) => {
                     </Button>
                 </Grid>
             )}
+
+            {item.type === "environment_variables" && renderAddButton}
+
             {item.type === "environment_variables" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -2046,7 +2084,7 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesNotes"
                         autoComplete="off"
                         value={environmentVariablesNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setEnvironmentVariablesNotes(event.target.value);
@@ -2069,7 +2107,7 @@ const DialogEditEntry = (props) => {
                         name="elsterCertificateTitle"
                         autoComplete="off"
                         value={elsterCertificateTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2107,7 +2145,7 @@ const DialogEditEntry = (props) => {
                             setElsterCertificatePassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2179,7 +2217,7 @@ const DialogEditEntry = (props) => {
                             setElsterCertificateRetrievalCode(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2226,6 +2264,8 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {item.type === "elster_certificate" && renderAddButton}
+
             {item.type === "elster_certificate" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -2260,7 +2300,7 @@ const DialogEditEntry = (props) => {
                         name="fileTitle"
                         autoComplete="off"
                         value={fileTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2281,7 +2321,7 @@ const DialogEditEntry = (props) => {
                         name="creditCardTitle"
                         autoComplete="off"
                         value={creditCardTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2304,7 +2344,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardNumber}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2373,7 +2413,7 @@ const DialogEditEntry = (props) => {
                         autoComplete="off"
                         value={creditCardName}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                         }}
                         required
                         onChange={(event) => {
@@ -2396,7 +2436,7 @@ const DialogEditEntry = (props) => {
                         name="creditCardValidThrough"
                         autoComplete="off"
                         value={creditCardValidThrough}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2418,7 +2458,7 @@ const DialogEditEntry = (props) => {
                         name="creditCardCVC"
                         autoComplete="off"
                         value={creditCardCVC}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2450,7 +2490,7 @@ const DialogEditEntry = (props) => {
                             setCreditCardPIN(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPin ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2500,6 +2540,8 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {item.type === "credit_card" && renderAddButton}
+
             {item.type === "credit_card" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -2511,7 +2553,7 @@ const DialogEditEntry = (props) => {
                         name="creditCardNotes"
                         autoComplete="off"
                         value={creditCardNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setCreditCardNotes(event.target.value);
@@ -2536,7 +2578,7 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyTitle"
                         autoComplete="off"
                         value={sshOwnKeyTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2556,7 +2598,7 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyPublic"
                         autoComplete="off"
                         value={sshOwnKeyPublic}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2589,7 +2631,7 @@ const DialogEditEntry = (props) => {
                         minRows={3}
                         maxRows={10}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2636,6 +2678,8 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {item.type === "ssh_own_key" && renderAddButton}
+
             {item.type === "ssh_own_key" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -2647,7 +2691,7 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyNotes"
                         autoComplete="off"
                         value={sshOwnKeyNotes}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setSshOwnKeyNotes(event.target.value);
@@ -2674,7 +2718,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyTitle"
                         autoComplete="off"
                         value={mailGpgOwnKeyTitle}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2694,7 +2738,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyEmail"
                         autoComplete="off"
                         value={mailGpgOwnKeyEmail}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2715,7 +2759,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyName"
                         autoComplete="off"
                         value={mailGpgOwnKeyName}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2736,7 +2780,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyPublic"
                         autoComplete="off"
                         value={mailGpgOwnKeyPublic}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2770,7 +2814,7 @@ const DialogEditEntry = (props) => {
                         minRows={3}
                         maxRows={10}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -2840,6 +2884,23 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {tags.length > 0 && (
+                <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                    <div className={classes.chipContainer}>
+                        {tags.map((tag, index) => (
+                            <Chip
+                                key={index}
+                                label={tag}
+                                onDelete={readOnly ? undefined : () => {
+                                    setTags(tags.filter((t) => t !== tag));
+                                }}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+            )}
+
+
             {item.share_rights && item.share_rights.read  && (
                 <Grid item xs={12} sm={12} md={12} className={classes.right}>
                     <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
@@ -2900,7 +2961,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUrlFilter"
                         autoComplete="off"
                         value={websitePasswordUrlFilter}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setWebsitePasswordUrlFilter(event.target.value);
@@ -2920,7 +2981,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkUrlFilter"
                         autoComplete="off"
                         value={bookmarkUrlFilter}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setBookmarkUrlFilter(event.target.value);
@@ -2940,7 +3001,7 @@ const DialogEditEntry = (props) => {
                         name="callbackUrl"
                         autoComplete="off"
                         value={callbackUrl}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setCallbackUrl(event.target.value);
@@ -2959,7 +3020,7 @@ const DialogEditEntry = (props) => {
                         name="callbackUser"
                         autoComplete="off"
                         value={callbackUser}
-                        InputProps={{ readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write }}
+                        InputProps={{ readOnly: readOnly }}
                         onChange={(event) => {
                             setDirty(true);
                             setCallbackUser(event.target.value);
@@ -2983,7 +3044,7 @@ const DialogEditEntry = (props) => {
                             setCallbackPass(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: getStore().getState().settingsDatastore.noSaveMode || !item.share_rights || !item.share_rights.write,
+                            readOnly: readOnly,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
@@ -3038,13 +3099,32 @@ const DialogEditEntry = (props) => {
                 />
             )}
 
+            {addTagOpen && (
+                <DialogAddTag
+                    open={addTagOpen}
+                    onClose={(
+                        newTag,
+                    ) => {
+                        if (newTag) {
+                            setDirty(true);
+                            setTags([...tags, newTag]);
+                        }
+                        setAddTagOpen(false)
+                    }}
+                />
+            )}
+
             {addCustomFieldOpen && (
                 <DialogAddCustomField
                     open={addCustomFieldOpen}
                     onClose={(customField) => {
-                        setDirty(true);
-                        setAddCustomFieldOpen(false);
-                        setCustomFields([...customFields, customField]);
+                        if (customField) {
+                            setDirty(true);
+                            setAddCustomFieldOpen(false);
+                            setCustomFields([...customFields, customField]);
+                        } else {
+                            setAddCustomFieldOpen(false);
+                        }
                     }}
                 />
             )}
@@ -3131,6 +3211,7 @@ DialogEditEntry.defaultProps = {
     hideShowHistory: false,
     hideAddTOTP: false, 
     hideAddCustomField: false,
+    hideAddTag: false,
     hideMoreMenu: false,
     linkDirectly: false,
     inline: false,
@@ -3147,6 +3228,7 @@ DialogEditEntry.propTypes = {
     hideShowHistory: PropTypes.bool,
     hideAddTOTP: PropTypes.bool,
     hideAddCustomField: PropTypes.bool,
+    hideAddTag: PropTypes.bool,
     hideMoreMenu: PropTypes.bool,
     linkDirectly: PropTypes.bool,
     inline: PropTypes.bool,

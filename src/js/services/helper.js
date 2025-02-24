@@ -575,6 +575,12 @@ function getPasswordFilter(test) {
                 datastore_entry["description"].toLowerCase().indexOf(searchStrings[ii]) > -1
             ) {
                 containCounter++;
+            } else if (
+                datastore_entry.hasOwnProperty("tags") &&
+                datastore_entry["tags"] &&
+                datastore_entry["tags"].some(tag => tag.toLowerCase().includes(searchStrings[ii]))
+            ) {
+                containCounter++;
             } else  if (
                 datastore_entry.hasOwnProperty("urlfilter") &&
                 datastore_entry["urlfilter"] &&

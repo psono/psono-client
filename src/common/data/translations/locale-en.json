@@ -1,4 +1,7 @@
 {
+  "TAG": "Tag",
+  "ADD_DOT_DOT_DOT": "Add...",
+  "ADD_TAG": "Add tag",
   "EDIT_CUSTOM_FIELD": "Edit custom field",
   "REMOVE_CUSTOM_FIELD": "Remove custom field",
   "COPY_TO_CLIPBOARD": "Copy to clipboard",
