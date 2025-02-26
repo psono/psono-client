@@ -222,16 +222,24 @@ const LoginViewForm = (props) => {
 	};
     React.useEffect(() => {
         if (props.samlTokenId) {
+            setLoginLoading(true);
             user.samlLogin(props.samlTokenId).then(
-                handleLogin,
+                (loginDetails) => {
+                    setLoginLoading(false);
+                    handleLogin(loginDetails)
+                },
                 (errors) => {
                     setErrors(errors);
                 }
             );
         }
         if (props.oidcTokenId) {
+            setLoginLoading(true);
             user.oidcLogin(props.oidcTokenId).then(
-                handleLogin,
+                (loginDetails) => {
+                    setLoginLoading(false);
+                    handleLogin(loginDetails);
+                },
                 (errors) => {
                     setErrors(errors);
                 }

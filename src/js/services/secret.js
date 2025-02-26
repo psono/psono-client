@@ -251,6 +251,7 @@ function redirectSecret(type, secretId) {
                     ): "",
                     url_filter: content.website_password_url_filter,
                     auto_submit: content.website_password_auto_submit,
+                    custom_fields: content.custom_fields || [],
                 });
 
                 let url = content.website_password_url;

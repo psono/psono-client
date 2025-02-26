@@ -25,13 +25,14 @@ import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import Box from "@mui/material/Box";
+import EditIcon from "@mui/icons-material/Edit";
 import LinearProgress from "@mui/material/LinearProgress";
+import Divider from "@mui/material/Divider";
 
 import helperService from "../../services/helper";
 import cryptoLibrary from "../../services/crypto-library";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
-import datastorePasswordService from "../../services/datastore-password";
 import browserClientService from "../../services/browser-client";
 import notification from "../../services/notification";
 import fileTransferService from "../../services/file-transfer";
@@ -52,9 +53,14 @@ import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import {useHotkeys} from "react-hotkeys-hook";
-import cryptoLibraryService from "../../services/crypto-library";
 import converterService from "../../services/converter";
 import DialogGeneratePassword from "./generate-password";
+import DialogAddCustomField from "./add-custom-field";
+import DialogAddTag from "./add-tag";
+import DialogEditCustomField from "./edit-custom-field";
+import TextFieldTotp from "../text-field/totp";
+import DialogAddTotp from "./add-totp";
+import Chip from "@mui/material/Chip";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -106,6 +112,12 @@ const useStyles = makeStyles((theme) => ({
     iconButton2: {
         padding: 14,
     },
+    chipContainer: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: theme.spacing(1),
+        marginTop: theme.spacing(1),
+    },
 }));
 
 const DialogNewEntry = (props) => {
@@ -114,6 +126,10 @@ const DialogNewEntry = (props) => {
     const classes = useStyles();
     const offline = offlineCache.isActive();
 
+    const [addCustomFieldOpen, setAddCustomFieldOpen] = useState(false);
+    const [editCustomFieldOpenIndex, setEditCustomFieldOpenIndex] = useState(null);
+    const [addTotpOpen, setAddTotpOpen] = useState(false);
+    const [addTagOpen, setAddTagOpen] = useState(false);
     const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
     const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
@@ -133,6 +149,10 @@ const DialogNewEntry = (props) => {
     const [websitePasswordNotes, setWebsitePasswordNotes] = useState("");
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
+    const [websitePasswordTotpPeriod, setWebsitePasswordTotpPeriod] = useState(30);
+    const [websitePasswordTotpAlgorithm, setWebsitePasswordTotpAlgorithm] = useState("SHA1");
+    const [websitePasswordTotpDigits, setWebsitePasswordTotpDigits] = useState(6);
+    const [websitePasswordTotpCode, setWebsitePasswordTotpCode] = useState("");
 
     const [applicationPasswordTitle, setApplicationPasswordTitle] = useState("");
     const [applicationPasswordUsername, setApplicationPasswordUsername] = useState("");
@@ -192,10 +212,14 @@ const DialogNewEntry = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorEl3, setAnchorEl3] = React.useState(null);
+    const [anchorElsCustomFields, setAnchorElsCustomFields] = React.useState({});
 
     const [callbackUrl, setCallbackUrl] = useState("");
     const [callbackPass, setCallbackPass] = useState("");
     const [callbackUser, setCallbackUser] = useState("");
+    const [customFields, setCustomFields] = useState([]);
+    const [tags, setTags] = useState([]);
 
     const [showPassword, setShowPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -526,6 +550,18 @@ const DialogNewEntry = (props) => {
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
             }
+            if (websitePasswordTotpPeriod) {
+                secretObject["website_password_totp_period"] = websitePasswordTotpPeriod;
+            }
+            if (websitePasswordTotpAlgorithm) {
+                secretObject["website_password_totp_algorithm"] = websitePasswordTotpAlgorithm;
+            }
+            if (websitePasswordTotpDigits) {
+                secretObject["website_password_totp_digits"] = websitePasswordTotpDigits;
+            }
+            if (websitePasswordTotpCode) {
+                secretObject["website_password_totp_code"] = websitePasswordTotpCode;
+            }
             if (websitePasswordNotes) {
                 secretObject["website_password_notes"] = websitePasswordNotes;
             }
@@ -678,6 +714,16 @@ const DialogNewEntry = (props) => {
             }
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
+
+        if (customFields) {
+            secretObject["custom_fields"] = customFields;
+        }
+
+        if (tags) {
+            item["tags"] = tags;
+            secretObject["tags"] = tags;
+        }
+
         if (item.type === "file") {
             fileUpload(item["id"]).then((data) => {
                 item["file_chunks"] = data.file_chunks;
@@ -822,7 +868,175 @@ const DialogNewEntry = (props) => {
     const handleClose = () => {
         setAnchorEl(null);
         setAnchorEl2(null);
+        setAnchorEl3(null);
     };
+
+
+
+    const renderAddButton = (
+        <React.Fragment>
+            <Grid item xs={12} sm={12} md={12}>
+                <Button
+                    startIcon={<PlaylistAddIcon />}
+                    disabled={getStore().getState().settingsDatastore.noSaveMode}
+                    onClick={(event) => {
+                        setAnchorEl3(event.currentTarget);
+                    }}
+                >
+                    {t("ADD_DOT_DOT_DOT")}
+                </Button>
+                <Menu
+                    id="add-menu"
+                    anchorEl={anchorEl3}
+                    keepMounted
+                    open={Boolean(anchorEl3)}
+                    onClose={handleClose}
+                >
+                    {(type === "website_password" || type === "application_password" || type === "bookmark" || type === "note") && (
+                        <MenuItem
+                            onClick={() => {
+                                handleClose();
+                                setAddCustomFieldOpen(true);
+                            }}
+                        >
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("ADD_CUSTOM_FIELD")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                    <MenuItem
+                        onClick={() => {
+                            handleClose();
+                            setAddTagOpen(true);
+                        }}
+                    >
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("ADD_TAG")}
+                        </Typography>
+                    </MenuItem>
+                    {type === "website_password" && !websitePasswordTotpCode && (
+                        <MenuItem
+                            onClick={() => {
+                                handleClose();
+                                setAddTotpOpen(true);
+                            }}
+                        >
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("ADD_TOTP")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                </Menu>
+            </Grid>
+        </React.Fragment>
+    )
+
+    const renderedCustomFields = (
+        <React.Fragment>
+            {customFields.map((customField, index) => (
+                <Grid item xs={12} sm={12} md={12} key={`customField-${index}`}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id={`customField${index}`}
+                        label={customField.name}
+                        name={`customField${index}`}
+                        autoComplete="off"
+                        value={customField.value}
+                        onChange={(event) => {
+                            setCustomFields(customFields.map((field, i) => i === index ? { ...field, value: event.target.value } : field));
+                        }}
+                        InputProps={{
+                            type: customField.type === "text" || showPassword ? "text" : "password",
+                            classes: {
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={(event) => {
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: event.currentTarget });
+                                        }}
+                                        size="large">
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorElsCustomFields[index]}
+                                        keepMounted
+                                        open={Boolean(anchorElsCustomFields[index])}
+                                        onClose={() => setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null })}
+                                    >
+                                        {customField.type === "password" && (
+                                            <MenuItem onClick={(event) => {
+                                                onShowHidePassword(event);
+                                                setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                            }}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                    {t("SHOW_OR_HIDE_VALUE")}
+                                                </Typography>
+                                            </MenuItem>
+                                        )}
+
+                                        <MenuItem onClick={(event) => {
+                                            browserClientService.copyToClipboard(() => Promise.resolve(customField.value));
+                                            notification.push("content_copy", t("CONTENT_COPY_NOTIFICATION"));
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_TO_CLIPBOARD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <Divider className={classes.divider} />
+                                        <MenuItem onClick={(event) => {
+                                            setEditCustomFieldOpenIndex(index);
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <EditIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("EDIT_CUSTOM_FIELD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={(event) => {
+                                            setCustomFields(customFields.filter((field, i) => i !== index));
+                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                        }}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <DeleteIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("REMOVE_CUSTOM_FIELD")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            ))}
+        </React.Fragment>
+    );
 
     return (
         <Dialog
@@ -991,6 +1205,35 @@ const DialogNewEntry = (props) => {
                                 {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                             </Grid>
                         )}
+
+
+                        {type === "website_password" && websitePasswordTotpCode && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextFieldTotp
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="websitePasswordTotpCode"
+                                    label={t("TOTP_CODE")}
+                                    name="websitePasswordTotpCode"
+                                    autoComplete="off"
+                                    period={websitePasswordTotpPeriod}
+                                    algorithm={websitePasswordTotpAlgorithm}
+                                    digits={websitePasswordTotpDigits}
+                                    code={websitePasswordTotpCode}
+                                    onDelete={() => {
+                                        setWebsitePasswordTotpCode("");
+                                        setWebsitePasswordTotpPeriod(30);
+                                        setWebsitePasswordTotpAlgorithm("SHA1");
+                                        setWebsitePasswordTotpDigits(6);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+
+                        {type === "website_password" && renderedCustomFields}
+                        {type === "website_password" && renderAddButton}
+
                         {type === "website_password" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1116,6 +1359,10 @@ const DialogNewEntry = (props) => {
                                 {!!applicationPasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(applicationPasswordPassword)} />)}
                             </Grid>
                         )}
+
+                        {type === "application_password" && renderedCustomFields}
+                        {type === "application_password" && renderAddButton}
+
                         {type === "application_password" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1162,7 +1409,7 @@ const DialogNewEntry = (props) => {
                                     variant="outlined"
                                     margin="dense" size="small"
                                     id="bookmarkUrl"
-                                    error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
+                                    error={!!bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                     label={t("URL")}
                                     name="bookmarkUrl"
                                     autoComplete="off"
@@ -1182,6 +1429,10 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "bookmark" && renderedCustomFields}
+                        {type === "bookmark" && renderAddButton}
+
                         {type === "bookmark" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1221,6 +1472,10 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "note" && renderedCustomFields}
+                        {type === "note" && renderAddButton}
+
                         {type === "note" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1378,6 +1633,9 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "totp" && renderAddButton}
+
                         {type === "totp" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1497,6 +1755,9 @@ const DialogNewEntry = (props) => {
                                 </Button>
                             </Grid>
                         )}
+
+                        {type === "environment_variables" && renderAddButton}
+
                         {type === "environment_variables" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1680,6 +1941,8 @@ const DialogNewEntry = (props) => {
                             </Grid>
                         )}
 
+                        {type === "elster_certificate" && renderAddButton}
+
                         {type === "elster_certificate" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1730,7 +1993,7 @@ const DialogNewEntry = (props) => {
                                         margin="dense" size="small"
                                         id="fileDestination"
                                         label={t("TARGET_STORAGE")}
-                                        error={!Boolean(fileDestination)}
+                                        error={!fileDestination}
                                         value={fileDestination}
                                         required
                                         onChange={(value) => {
@@ -1930,6 +2193,8 @@ const DialogNewEntry = (props) => {
                             </Grid>
                         )}
 
+                        {type === "credit_card" && renderAddButton}
+
                         {type === "credit_card" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -2008,6 +2273,9 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+                        {type === "ssh_own_key" && renderAddButton}
+
                         {type === "ssh_own_key" && (sshOwnKeyTitle || sshOwnKeyPublic || sshOwnKeyPrivate || sshOwnKeyNotes) && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -2156,6 +2424,22 @@ const DialogNewEntry = (props) => {
                         {/*        <Button onClick={() => setDecryptMessageDialogOpen(true)}>{t("DECRYPT_MESSAGE")}</Button>*/}
                         {/*    </Grid>*/}
                         {/*)}*/}
+
+                        {tags.length > 0 && (
+                            <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                                <div className={classes.chipContainer}>
+                                    {tags.map((tag, index) => (
+                                        <Chip
+                                            key={index}
+                                            label={tag}
+                                            onDelete={() => {
+                                                setTags(tags.filter((t) => t !== tag));
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </Grid>
+                        )}
 
                         {hasAdvanced && (
                             <Grid item xs={12} sm={12} md={12} className={classes.right}>
@@ -2333,6 +2617,68 @@ const DialogNewEntry = (props) => {
                         onNewGpgKeysGenerated={onNewGpgKeysGenerated}
                     />
                 )}
+
+                {addTotpOpen && (
+                    <DialogAddTotp
+                        open={addTotpOpen}
+                        onClose={(
+                            totpPeriod,
+                            totpAlgorithm,
+                            totpDigits,
+                            totpCode,
+                        ) => {
+                            setWebsitePasswordTotpPeriod(totpPeriod);
+                            setWebsitePasswordTotpAlgorithm(totpAlgorithm);
+                            setWebsitePasswordTotpDigits(totpDigits);
+                            setWebsitePasswordTotpCode(totpCode);
+                            setAddTotpOpen(false)
+                        }}
+                    />
+                )}
+
+                {addTagOpen && (
+                    <DialogAddTag
+                        open={addTagOpen}
+                        onClose={(
+                            newTag,
+                        ) => {
+                            if (newTag) {
+                                setTags([...tags, newTag]);
+                            }
+                            setAddTagOpen(false)
+                        }}
+                    />
+                )}
+
+                {addCustomFieldOpen && (
+                    <DialogAddCustomField
+                        open={addCustomFieldOpen}
+                        onClose={(customField) => {
+                            if (customField) {
+                                setAddCustomFieldOpen(false);
+                                setCustomFields([...customFields, customField]);
+                            } else {
+                                setAddCustomFieldOpen(false);
+                            }
+                        }}
+                    />
+                )}
+
+                {editCustomFieldOpenIndex !== null && (
+                    <DialogEditCustomField
+                        open={editCustomFieldOpenIndex !== null}
+                        onClose={(customField) => {
+                            if (customField) {
+                                setEditCustomFieldOpenIndex(null);
+                                setCustomFields(customFields.map((field, i) => i === editCustomFieldOpenIndex ? customField : field));
+                            } else {
+                                setEditCustomFieldOpenIndex(null);
+                            }
+                        }}
+                        customField={customFields[editCustomFieldOpenIndex]}
+                    />
+                )}
+
                 {generatePasswordDialogOpen && (
                     <DialogGeneratePassword
                         open={generatePasswordDialogOpen}

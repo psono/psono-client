@@ -23,7 +23,6 @@ import {
     SET_PASSWORD_CONFIG,
     SET_SHOWN_ENTRIES_CONFIG,
     SET_GPG_CONFIG,
-    SET_ADMIN_CLIENT_CONFIG,
     NOTIFICATION_SEND,
     NOTIFICATION_SET,
     SET_REMOTE_CONFIG_JSON,
@@ -440,15 +439,6 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
     };
 }
 
-function setAdminClientConfig(config) {
-    return (dispatch) => {
-        dispatch({
-            type: SET_ADMIN_CLIENT_CONFIG,
-            config: config,
-        });
-    };
-}
-
 function setKnownHosts(knownHosts) {
     return (dispatch) => {
         dispatch({
@@ -542,7 +532,6 @@ const actionCreators = {
     setShownEntriesConfig,
     setGpgConfig,
     settingsDatastoreLoaded,
-    setAdminClientConfig,
     setKnownHosts,
     setAutoApproveLdap,
     setFingerprint,

@@ -114,6 +114,11 @@ const DatastoreTree = (props) => {
                                 return false
                             }
                         }
+                        if (filter.startsWith('tag:')) {
+                            if (!item.hasOwnProperty("tags") || !item.tags || !item.tags.includes(filter.substring(4))) {
+                                return false
+                            }
+                        }
                     }
                     return true
                 })

@@ -838,6 +838,46 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
 
     /**
+     * Searches for input/textarea fields matching the given name across various attributes
+     * 
+     * @param {string} fieldName - The name to search for
+     * @returns {Element|null} - The matching input element or null if not found
+     */
+    function findFieldByName(fieldName) {
+        if (!fieldName) return null;
+        
+        const searchName = fieldName.toLowerCase();
+        const selector = 'input:not([type="submit"]):not([type="button"]):not([type="reset"]), textarea';
+        const elements = querySelectorAllIncShadowRoots(document, selector);
+        
+        return Array.from(elements).find(element => {
+            if ((element.id && element.id.toLowerCase() === searchName) ||
+                (element.name && element.name.toLowerCase() === searchName) ||
+                (element.getAttribute('aria-label') && element.getAttribute('aria-label').toLowerCase() === searchName) ||
+                (element.placeholder && element.placeholder.toLowerCase() === searchName)) {
+                return true;
+            }
+
+            if (element.id) {
+                const labelFor = document.querySelector(`label[for="${element.id}"]`);
+                if (labelFor && labelFor.textContent.toLowerCase().trim() === searchName) {
+                    return true;
+                }
+            }
+
+            let parent = element.parentElement;
+            while (parent) {
+                if (parent.tagName === 'LABEL' && parent.textContent.toLowerCase().trim() === searchName) {
+                    return true;
+                }
+                parent = parent.parentElement;
+            }
+
+            return false;
+        });
+    }
+
+    /**
      * Small helper function to fill the values of a field and mimic user behavior events for compatibility reasons
      * with modern javascript frameworks.
      *
@@ -956,6 +996,15 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             }
         }
 
+        if (data.hasOwnProperty('custom_fields') && data.custom_fields) {
+            for (let i = 0; i < data.custom_fields.length; i++) {
+                const field = findFieldByName(data.custom_fields[i].name);
+                if (field) {
+                    fillFieldHelper(field, data.custom_fields[i].value);
+                }
+            }
+        }
+
     }
 
     /**
@@ -1021,6 +1070,16 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 }
             }
         }
+
+        if (data.hasOwnProperty('custom_fields') && data.custom_fields) {
+            for (let i = 0; i < data.custom_fields.length; i++) {
+                const field = findFieldByName(data.custom_fields[i].name);
+                if (field) {
+                    fillFieldHelper(field, data.custom_fields[i].value);
+                }
+            }
+        }
+
         fillAll=false;
     }
 

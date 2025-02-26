@@ -160,6 +160,7 @@ const DatastoreView = (props) => {
     const [createLinkShareData, setCreateLinkShareData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
+    const [tags, setTags] = useState([]);
 
     const [preselectItem, setPreselectItem] = useState(null);
     const [preselectPath, setPreselectPath] = useState(null);
@@ -237,6 +238,7 @@ const DatastoreView = (props) => {
             return;
         }
         setDatastore(data);
+        setTags(datastorePasswordService.getTags(data));
 
         if (typeof secretType === "undefined") {
             return;
@@ -591,6 +593,17 @@ const DatastoreView = (props) => {
             }
         }),
     }];
+    if (tags.length > 0) {
+        filters.push({
+            label: t("TAGS"),
+            options: tags.map((tag) => {
+                return {
+                    key: `tag:${tag}`,
+                    label: tag
+                }
+            }),
+        })
+    }
 
     return (
         <Base {...props}>
