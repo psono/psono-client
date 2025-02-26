@@ -859,14 +859,14 @@ function bookmarkActiveTab() {
  *
  * @param {*} toSearch The thing to search
  * @param {TreeObject} datastore The datastore object tree
- * @param {TreeObject} cmpFct The compare function
+ * @param {function} cmpFct The compare function
  *
  * @returns {Array} a list of the paths
  */
 function searchInDatastore(toSearch, datastore, cmpFct) {
     let i, n, l;
     const paths = [];
-    let tmp_paths;
+    let tmpPaths;
 
     if (datastore.hasOwnProperty("items")) {
         for (n = 0, l = datastore.items.length; n < l; n++) {
@@ -879,10 +879,10 @@ function searchInDatastore(toSearch, datastore, cmpFct) {
 
     if (datastore.hasOwnProperty("folders")) {
         for (n = 0, l = datastore.folders.length; n < l; n++) {
-            tmp_paths = searchInDatastore(toSearch, datastore.folders[n], cmpFct);
-            for (i = 0; i < tmp_paths.length; i++) {
-                tmp_paths[i].unshift(datastore.folders[n].id);
-                paths.push(tmp_paths[i]);
+            tmpPaths = searchInDatastore(toSearch, datastore.folders[n], cmpFct);
+            for (i = 0; i < tmpPaths.length; i++) {
+                tmpPaths[i].unshift(datastore.folders[n].id);
+                paths.push(tmpPaths[i]);
             }
             if (!cmpFct(toSearch, datastore.folders[n])) {
                 continue;
@@ -891,6 +891,35 @@ function searchInDatastore(toSearch, datastore, cmpFct) {
         }
     }
     return paths;
+}
+
+/**
+ * Searches a datastore and returns all tags
+ *
+ * @param {TreeObject} datastore The datastore object tree
+ *
+ * @returns {Array} a list of the paths
+ */
+function getTags(datastore) {
+    let n;
+    const tags = [];
+    let tmpTags;
+    if (datastore.hasOwnProperty("items")) {
+        for (n = 0; n < datastore.items.length; n++) {
+            if (!datastore.items[n].hasOwnProperty('tags') || !datastore.items[n].tags) {
+                continue
+            }
+            tags.push(...datastore.items[n].tags)
+        }
+    }
+
+    if (datastore.hasOwnProperty("folders")) {
+        for (n = 0; n < datastore.folders.length; n++) {
+            tmpTags = getTags(datastore.folders[n]);
+            tags.push(...tmpTags)
+        }
+    }
+    return [...new Set(tags)];
 }
 
 /**
@@ -1641,6 +1670,7 @@ const datastorePasswordService = {
     savePasskey: savePasskey,
     bookmarkActiveTab: bookmarkActiveTab,
     searchInDatastore: searchInDatastore,
+    getTags: getTags,
     getAllChildSharesByPath: getAllChildSharesByPath,
     getAllChildShares: getAllChildShares,
     getAllSecretLinks: getAllSecretLinks,
