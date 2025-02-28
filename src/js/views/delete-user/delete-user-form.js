@@ -15,6 +15,7 @@ import user from "../../services/user";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -97,6 +98,7 @@ const DeleteUserViewForm = (props) => {
 
     const deleteAccount = () => {
         setErrors([]);
+        action().setServerUrl(server);
         let parsedUrl = helperService.parseUrl(server);
 
         // Validate now the username

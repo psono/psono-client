@@ -14,6 +14,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import user from "../../services/user";
 import MuiAlert from "@mui/material/Alert";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -71,6 +72,7 @@ const DeleteUserConfirmForm = (props) => {
 
 
     const unregisterConfirm = () => {
+        action().setServerUrl(server);
         setDeleteInProgress(true)
 
         function onError(response) {
