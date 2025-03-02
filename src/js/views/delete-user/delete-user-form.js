@@ -15,6 +15,7 @@ import user from "../../services/user";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -62,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
 const DeleteUserViewForm = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
+    const [msgs, setMsgs] = useState(['REQUEST_TO_DELETE_USER_ACCOUNT_SUCCESSFUL']);
 
     const [view, setView] = useState("default");
     const [username, setUsername] = useState(getStore().getState().user.username);
@@ -97,6 +99,7 @@ const DeleteUserViewForm = (props) => {
 
     const deleteAccount = () => {
         setErrors([]);
+        action().setServerUrl(server);
         let parsedUrl = helperService.parseUrl(server);
 
         // Validate now the username
@@ -267,9 +270,7 @@ const DeleteUserViewForm = (props) => {
         formContent = (
             <>
                 <Grid container>
-                    <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                        <ThumbUpIcon style={{ fontSize: 160 }} />
-                    </Grid>
+                    <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"}/>
                     <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button
                             variant="contained"

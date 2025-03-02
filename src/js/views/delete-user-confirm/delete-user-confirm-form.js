@@ -14,6 +14,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import user from "../../services/user";
 import MuiAlert from "@mui/material/Alert";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -53,7 +54,7 @@ const DeleteUserConfirmForm = (props) => {
     const [server, setServer] = useState(getStore().getState().server.url);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
     const [errors, setErrors] = useState([]);
-    const [msgs, setMsgs] = useState([]);
+    const [msgs, setMsgs] = useState(['ACCOUNT_DELETED_SUCCESSFULLY']);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
 
     React.useEffect(() => {
@@ -71,6 +72,7 @@ const DeleteUserConfirmForm = (props) => {
 
 
     const unregisterConfirm = () => {
+        action().setServerUrl(server);
         setDeleteInProgress(true)
 
         function onError(response) {
@@ -86,7 +88,6 @@ const DeleteUserConfirmForm = (props) => {
         function onSuccess(data) {
             setDeleteInProgress(false)
             setErrors([])
-            setMsgs([])
             setView('success')
         }
         user.unregisterConfirm(props.unregisterCode, server)
@@ -154,7 +155,6 @@ const DeleteUserConfirmForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
                 {allowCustomServer && (
                     <Grid container>
@@ -180,9 +180,6 @@ const DeleteUserConfirmForm = (props) => {
     } else if (view === "success") {
         formContent = (
             <Grid container>
-                <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                    <ThumbUpIcon style={{ fontSize: 160 }} />
-                </Grid>
                 <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
                 <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <Button
