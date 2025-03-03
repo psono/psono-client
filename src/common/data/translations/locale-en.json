@@ -19,7 +19,7 @@
   "CHOOSE_PERMISSIONS": "Choose permissions",
   "WARNING_USER_DETAILS_CHANGED": "The cryptographic details for this user have changed. Verify their identity to ensure security.",
   "USE_FORM_TO_SEARCH_USER": "Use the form to search for a user.",
-  "UNREGISTRATION_CODE_INCORRECT": "The link is incorrect or was already been used or has expired.",
+  "UNREGISTRATION_CODE_INCORRECT": "The link is incorrect, has already been used or has expired.",
   "DELETE_USER_ACCOUNT": "Delete user account",
   "REQUEST_ACCOUNT_DELETION": "Request account deletion",
   "DELETE_ACCOUNT_INFO": "You can request the deletion of your user account here. Please provide either your username or email address, and you'll receive an email with a link to complete the account deletion.",
