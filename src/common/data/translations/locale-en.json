@@ -55,7 +55,7 @@
   "FEATURE_ACCESS_ACROSS_ALL_DEVICES": "Access across all devices",
   "FEATURE_SECURE_SHARING": "Share entries securely",
   "FEATURE_PASSWORD_GENERATOR": "Password generator",
-  "FEATURE_AUTOFILL_OF_FORMS": "Autifill of forms",
+  "FEATURE_AUTOFILL_OF_FORMS": "Autofill of forms",
   "FEATURE_MULTIFACTOR_AUTHENTICATION": "Multifactor authentication",
   "ONLY_ONE_IVALT_MOBILE_ALLOWED": "You already have an iVALT mobile number registered with your account. Please remove that iVALT mobile number from your account first.",
   "WAITING_FOR_AUTHENTICATION": "Waiting for Authentication",
