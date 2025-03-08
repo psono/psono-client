@@ -1,7 +1,4 @@
-
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
-
 
 export function initSentry () {
     let report_url = "";
@@ -18,8 +15,6 @@ export function initSentry () {
         console.log("Sentry enabled.");
         Sentry.init({
             dsn: report_url,
-            integrations: [new BrowserTracing()],
-
             // Set tracesSampleRate to 1.0 to capture 100%
             // of transactions for performance monitoring.
             // We recommend adjusting this value in production
