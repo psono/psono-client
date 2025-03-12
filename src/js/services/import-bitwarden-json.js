@@ -338,15 +338,38 @@ function transformToTotpCode(item) {
  */
 function gatherSecrets(datastore, secrets, parsedData) {
     let i;
-    const folder_index = {};
+    const folderIndex = {};
+    const folderNameIndex = {};
 
     if (parsedData.hasOwnProperty("folders")) {
         for (i = 0; i < parsedData["folders"].length; i++) {
-            folder_index[parsedData["folders"][i]["id"]] = {
+            const originalName = parsedData["folders"][i]["name"];
+            const newFolder = {
                 id: cryptoLibrary.generateUuid(),
-                name: parsedData["folders"][i]["name"],
+                name: originalName,
                 items: [],
             };
+
+            folderIndex[parsedData["folders"][i]["id"]] = newFolder;
+            folderNameIndex[originalName] = newFolder;
+
+            if (originalName.includes("/")) {
+                const actualFolderName = originalName.substr(originalName.lastIndexOf("/") + 1);
+                const parentFolderName = originalName.substr(0, originalName.lastIndexOf("/"));
+                if (folderNameIndex.hasOwnProperty(parentFolderName)) {
+                    newFolder['name'] = actualFolderName
+                    if (!folderNameIndex[parentFolderName].hasOwnProperty('folders')) {
+                        folderNameIndex[parentFolderName]['folders'] = [];
+                    }
+                    folderNameIndex[parentFolderName]['folders'].push(newFolder)
+                } else {
+                    // not sure where to put it, so lets treat it like a toplevel folder
+                    datastore["folders"].push(newFolder);
+                }
+            } else {
+                // toplevel folder
+                datastore["folders"].push(newFolder);
+            }
         }
     }
 
@@ -370,8 +393,8 @@ function gatherSecrets(datastore, secrets, parsedData) {
             }
 
             let parent_folder = null;
-            if (parsedData["items"][i].hasOwnProperty("folderId") && parsedData["items"][i]["folderId"] !== null && folder_index.hasOwnProperty(parsedData["items"][i]["folderId"])) {
-                parent_folder = folder_index[parsedData["items"][i]["folderId"]];
+            if (parsedData["items"][i].hasOwnProperty("folderId") && parsedData["items"][i]["folderId"] !== null && folderIndex.hasOwnProperty(parsedData["items"][i]["folderId"])) {
+                parent_folder = folderIndex[parsedData["items"][i]["folderId"]];
             }
 
             for (let iii = 0; iii < crafted_secrets.length; iii++) {
@@ -383,10 +406,6 @@ function gatherSecrets(datastore, secrets, parsedData) {
                 secrets.push(crafted_secrets[iii]);
             }
         }
-    }
-
-    for (let uuid in folder_index) {
-        datastore["folders"].push(folder_index[uuid]);
     }
 }
 

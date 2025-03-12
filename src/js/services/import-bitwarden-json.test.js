@@ -15,15 +15,28 @@ describe('Service: importBitwardenJson test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        const input = '{"folders":[{"id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","name":"My Folder"}],"items":[{"id":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":2,"name":"My Secure Note","notes":"1st line of secure note\\n2nd line of secure note\\n3rd line of secure note","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"false","type":2}],"secureNote":{"type":0},"collectionIds":[null]},{"id":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":3,"name":"Card Name","notes":"1st line of note text\\n2nd line of note text","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"false","type":2}],"card":{"cardholderName":"Jane Doe","brand":"Visa","number":"1234567891011121","expMonth":"10","expYear":"2021","code":"123"},"collectionIds":[null]},{"id":"cccccccc-cccc-cccc-cccc-cccccccccccc","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":4,"name":"My Identity","notes":"1st line of a note\\n2nd line of a note","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"true","type":2}],"identity":{"title":"Mrs","firstName":"Jane","middleName":"A","lastName":"Doe","address1":" 1 North Calle Cesar Chavez ","address2":null,"address3":null,"city":"Santa Barbara","state":"CA","postalCode":"93103","country":"United States ","company":"My Employer","email":"myemail@gmail.com","phone":"123-123-1234","ssn":"123-12-1234","username":"myusername","passportNumber":"123456789","licenseNumber":"123456789"},"collectionIds":[null]},{"id":"dddddddd-dddd-dddd-dddd-dddddddddddd","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":1,"name":"Login Name","notes":"1st line of note text\\n2nd Line of note text","favorite":false,"fields":[{"name":"Text Field","value":"text-field-valie","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"true","type":2}],"login":{"uris":[{"match":null,"uri":"https://mail.google.com"}],"username":"myusername@gmail.com","password":"mypassword","totp":"otpauth://totp/ACME:AzureDiamond?issuer=ACME&secret=NB2W45DFOIZA&algorithm=SHA1&digits=6&period=30"},"collectionIds":[null]}]}';
+        const input = '{"folders":[{"id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","name":"My Folder"}, {"id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxb","name":"My Folder/Subfolder"}],"items":[{"id":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaab","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxb","type":2,"name":"My Secure Subfolder Note","notes":"1st line of secure note\\n2nd line of secure note\\n3rd line of secure note","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"false","type":2}],"secureNote":{"type":0},"collectionIds":[null]},{"id":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":2,"name":"My Secure Note","notes":"1st line of secure note\\n2nd line of secure note\\n3rd line of secure note","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"false","type":2}],"secureNote":{"type":0},"collectionIds":[null]},{"id":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":3,"name":"Card Name","notes":"1st line of note text\\n2nd line of note text","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"false","type":2}],"card":{"cardholderName":"Jane Doe","brand":"Visa","number":"1234567891011121","expMonth":"10","expYear":"2021","code":"123"},"collectionIds":[null]},{"id":"cccccccc-cccc-cccc-cccc-cccccccccccc","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":4,"name":"My Identity","notes":"1st line of a note\\n2nd line of a note","favorite":false,"fields":[{"name":"Text Field","value":"text-field-value","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"true","type":2}],"identity":{"title":"Mrs","firstName":"Jane","middleName":"A","lastName":"Doe","address1":" 1 North Calle Cesar Chavez ","address2":null,"address3":null,"city":"Santa Barbara","state":"CA","postalCode":"93103","country":"United States ","company":"My Employer","email":"myemail@gmail.com","phone":"123-123-1234","ssn":"123-12-1234","username":"myusername","passportNumber":"123456789","licenseNumber":"123456789"},"collectionIds":[null]},{"id":"dddddddd-dddd-dddd-dddd-dddddddddddd","organizationId":null,"folderId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","type":1,"name":"Login Name","notes":"1st line of note text\\n2nd Line of note text","favorite":false,"fields":[{"name":"Text Field","value":"text-field-valie","type":0},{"name":"Hidden Field","value":"hidden-field-value","type":1},{"name":"Boolean Field","value":"true","type":2}],"login":{"uris":[{"match":null,"uri":"https://mail.google.com"}],"username":"myusername@gmail.com","password":"mypassword","totp":"otpauth://totp/ACME:AzureDiamond?issuer=ACME&secret=NB2W45DFOIZA&algorithm=SHA1&digits=6&period=30"},"collectionIds":[null]}]}';
 
         const output = importBitwardenJson.parser(input);
 
         const expected_output = {
             "datastore": {
-                "id": generic_uuid, "name": output.datastore.name, "folders": [{
+                "id": generic_uuid,
+                "name": output.datastore.name,
+                "folders": [{
                     "id": generic_uuid,
                     "name": "My Folder",
+                    "folders": [{
+                        "id": generic_uuid,
+                        "name": "Subfolder",
+                        "items": [{
+                            "id": generic_uuid,
+                            "type": "note",
+                            "name": "My Secure Subfolder Note",
+                            "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                            "note_title": "My Secure Subfolder Note"
+                        }]
+                    }],
                     "items": [{
                         "id": generic_uuid,
                         "type": "note",
@@ -74,6 +87,12 @@ describe('Service: importBitwardenJson test suite', function () {
                 }], "items": []
             },
             "secrets": [{
+                "id": generic_uuid,
+                "type": "note",
+                "name": "My Secure Subfolder Note",
+                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
+                "note_title": "My Secure Subfolder Note"
+            }, {
                 "id": generic_uuid,
                 "type": "note",
                 "name": "My Secure Note",
