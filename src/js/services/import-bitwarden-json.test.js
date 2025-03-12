@@ -33,16 +33,42 @@ describe('Service: importBitwardenJson test suite', function () {
                             "id": generic_uuid,
                             "type": "note",
                             "name": "My Secure Subfolder Note",
-                            "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                            "note_title": "My Secure Subfolder Note"
+                            "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\n",
+                            "note_title": "My Secure Subfolder Note",
+                            "custom_fields": [{
+                                "name": "Text Field",
+                                "type": "text",
+                                "value": "text-field-value",
+                            }, {
+                                "name": "Hidden Field",
+                                "type": "password",
+                                "value": "hidden-field-value",
+                            }, {
+                                "name": "Boolean Field",
+                                "type": "password",
+                                "value": "false",
+                            }]
                         }]
                     }],
                     "items": [{
                         "id": generic_uuid,
                         "type": "note",
                         "name": "My Secure Note",
-                        "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                        "note_title": "My Secure Note"
+                        "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\n",
+                        "note_title": "My Secure Note",
+                        "custom_fields": [{
+                            "name": "Text Field",
+                            "type": "text",
+                            "value": "text-field-value",
+                        }, {
+                            "name": "Hidden Field",
+                            "type": "password",
+                            "value": "hidden-field-value",
+                        }, {
+                            "name": "Boolean Field",
+                            "type": "password",
+                            "value": "false",
+                        }]
                     }, {
                         "id": generic_uuid,
                         "type": "credit_card",
@@ -59,8 +85,21 @@ describe('Service: importBitwardenJson test suite', function () {
                         "id": generic_uuid,
                         "type": "note",
                         "name": "My Identity",
-                        "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
-                        "note_title": "My Identity"
+                        "note_notes": "1st line of a note\n2nd line of a note\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
+                        "note_title": "My Identity",
+                        "custom_fields": [{
+                            "name": "Text Field",
+                            "type": "text",
+                            "value": "text-field-value",
+                        }, {
+                            "name": "Hidden Field",
+                            "type": "password",
+                            "value": "hidden-field-value",
+                        }, {
+                            "name": "Boolean Field",
+                            "type": "password",
+                            "value": "true",
+                        }]
                     }, {
                         "id": generic_uuid,
                         "type": "website_password",
@@ -70,9 +109,22 @@ describe('Service: importBitwardenJson test suite', function () {
                         "website_password_url_filter": "mail.google.com",
                         "website_password_password": "mypassword",
                         "website_password_username": "myusername@gmail.com",
-                        "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
+                        "website_password_notes": "1st line of note text\n2nd Line of note text",
                         "website_password_url": "https://mail.google.com",
-                        "website_password_title": "Login Name"
+                        "website_password_title": "Login Name",
+                        "custom_fields": [{
+                            "name": "Text Field",
+                            "type": "text",
+                            "value": "text-field-valie",
+                        }, {
+                            "name": "Hidden Field",
+                            "type": "password",
+                            "value": "hidden-field-value",
+                        }, {
+                            "name": "Boolean Field",
+                            "type": "password",
+                            "value": "true",
+                        }]
                     }, {
                         "id": generic_uuid,
                         "type": "totp",
@@ -90,14 +142,40 @@ describe('Service: importBitwardenJson test suite', function () {
                 "id": generic_uuid,
                 "type": "note",
                 "name": "My Secure Subfolder Note",
-                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                "note_title": "My Secure Subfolder Note"
+                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\n",
+                "note_title": "My Secure Subfolder Note",
+                "custom_fields": [{
+                    "name": "Text Field",
+                    "type": "text",
+                    "value": "text-field-value",
+                }, {
+                    "name": "Hidden Field",
+                    "type": "password",
+                    "value": "hidden-field-value",
+                }, {
+                    "name": "Boolean Field",
+                    "type": "password",
+                    "value": "false",
+                }]
             }, {
                 "id": generic_uuid,
                 "type": "note",
                 "name": "My Secure Note",
-                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: false\n",
-                "note_title": "My Secure Note"
+                "note_notes": "1st line of secure note\n2nd line of secure note\n3rd line of secure note\n",
+                "note_title": "My Secure Note",
+                "custom_fields": [{
+                    "name": "Text Field",
+                    "type": "text",
+                    "value": "text-field-value",
+                }, {
+                    "name": "Hidden Field",
+                    "type": "password",
+                    "value": "hidden-field-value",
+                }, {
+                    "name": "Boolean Field",
+                    "type": "password",
+                    "value": "false",
+                }]
             }, {
                 "id": generic_uuid,
                 "type": "credit_card",
@@ -114,8 +192,21 @@ describe('Service: importBitwardenJson test suite', function () {
                 "id": generic_uuid,
                 "type": "note",
                 "name": "My Identity",
-                "note_notes": "1st line of a note\n2nd line of a note\nText Field: text-field-value\nHidden Field: hidden-field-value\nBoolean Field: true\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
-                "note_title": "My Identity"
+                "note_notes": "1st line of a note\n2nd line of a note\nTitle: Mrs\nFirstname: Jane\nMiddlename: A\nLastname: Doe\nAddress1:  1 North Calle Cesar Chavez \nCity: Santa Barbara\nState: CA\nPostal Code: 93103\nCountry: United States \nCompany: My Employer\nEmail: myemail@gmail.com\nPhone: 123-123-1234\nSSN: 123-12-1234\nUsername: myusername\nPassport Number: 123456789\nLicense Number: 123456789\n",
+                "note_title": "My Identity",
+                "custom_fields": [{
+                    "name": "Text Field",
+                    "type": "text",
+                    "value": "text-field-value",
+                }, {
+                    "name": "Hidden Field",
+                    "type": "password",
+                    "value": "hidden-field-value",
+                }, {
+                    "name": "Boolean Field",
+                    "type": "password",
+                    "value": "true",
+                }]
             }, {
                 "id": generic_uuid,
                 "type": "website_password",
@@ -125,9 +216,22 @@ describe('Service: importBitwardenJson test suite', function () {
                 "website_password_url_filter": "mail.google.com",
                 "website_password_password": "mypassword",
                 "website_password_username": "myusername@gmail.com",
-                "website_password_notes": "1st line of note text\n2nd Line of note textText Field: text-field-valie\nHidden Field: hidden-field-value\nBoolean Field: true\n",
+                "website_password_notes": "1st line of note text\n2nd Line of note text",
                 "website_password_url": "https://mail.google.com",
-                "website_password_title": "Login Name"
+                "website_password_title": "Login Name",
+                "custom_fields": [{
+                    "name": "Text Field",
+                    "type": "text",
+                    "value": "text-field-valie",
+                }, {
+                    "name": "Hidden Field",
+                    "type": "password",
+                    "value": "hidden-field-value",
+                }, {
+                    "name": "Boolean Field",
+                    "type": "password",
+                    "value": "true",
+                }]
             }, {
                 "id": generic_uuid,
                 "type": "totp",

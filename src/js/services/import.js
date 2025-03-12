@@ -244,6 +244,11 @@ function createSecrets(parsedData) {
             if (poppedSecret.hasOwnProperty('tags') && poppedSecret['tags'] && poppedSecret['tags'].length > 0) {
                 tags = poppedSecret['tags'];
             }
+            let customFields = undefined;
+            if (poppedSecret.hasOwnProperty('custom_fields') && poppedSecret['custom_fields'] && poppedSecret['custom_fields'].length > 0) {
+                customFields = poppedSecret['custom_fields'];
+                delete poppedSecret['custom_fields'];
+            }
             for (let property in poppedSecret) {
                 if (!poppedSecret.hasOwnProperty(property)) {
                     continue;
@@ -256,6 +261,9 @@ function createSecrets(parsedData) {
             }
             if (tags) {
                 content['tags'] = tags;
+            }
+            if (customFields) {
+                content['custom_fields'] = customFields;
             }
             const myObject = {
                 'linkId': linkId,

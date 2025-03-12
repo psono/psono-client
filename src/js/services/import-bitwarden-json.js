@@ -61,6 +61,7 @@ function transformToWebsitePassword(item) {
     let website_password_notes = "";
     let website_password_url = "";
     let website_password_title = "";
+    let custom_fields = [];
 
     if (item.hasOwnProperty("name") && item["name"] !== null) {
         name = item["name"];
@@ -89,8 +90,11 @@ function transformToWebsitePassword(item) {
 
     if (item.hasOwnProperty("fields") && item["fields"] !== null) {
         for (let i = 0; i < item["fields"].length; i++) {
-            website_password_notes =
-                    website_password_notes + item["fields"][i]["name"] + ": " + item["fields"][i]["value"] + "\n";
+            custom_fields.push({
+                name: item["fields"][i]["name"],
+                type: item["fields"][i]["type"] === 0 ? "text" : "password",
+                value: item["fields"][i]["value"],
+            })
         }
     }
 
@@ -106,6 +110,7 @@ function transformToWebsitePassword(item) {
         website_password_notes: website_password_notes,
         website_password_url: website_password_url,
         website_password_title: website_password_title,
+        custom_fields: custom_fields,
     };
 }
 
@@ -121,6 +126,7 @@ function transformToNote(item) {
     let name = "";
     let note_notes = "";
     let note_title = "";
+    let custom_fields = [];
 
     if (item.hasOwnProperty("name") && item["name"] !== null) {
         name = item["name"];
@@ -131,10 +137,13 @@ function transformToNote(item) {
         note_notes = item["notes"] + "\n";
     }
 
-
     if (item.hasOwnProperty("fields") && item["fields"] !== null) {
         for (let i = 0; i < item["fields"].length; i++) {
-            note_notes = note_notes + item["fields"][i]["name"] + ": " + item["fields"][i]["value"] + "\n";
+            custom_fields.push({
+                name: item["fields"][i]["name"],
+                type: item["fields"][i]["type"] === 0 ? "text" : "password",
+                value: item["fields"][i]["value"],
+            })
         }
     }
 
@@ -210,6 +219,7 @@ function transformToNote(item) {
         name: name,
         note_notes: note_notes,
         note_title: note_title,
+        custom_fields: custom_fields,
     };
 }
 
