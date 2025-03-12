@@ -240,6 +240,10 @@ function createSecrets(parsedData) {
         const objects = parsedData["data"]["secrets"].map(function(poppedSecret) {
             const content = {};
             const linkId = poppedSecret['id'];
+            let tags = undefined;
+            if (poppedSecret.hasOwnProperty('tags') && poppedSecret['tags'] && poppedSecret['tags'].length > 0) {
+                tags = poppedSecret['tags'];
+            }
             for (let property in poppedSecret) {
                 if (!poppedSecret.hasOwnProperty(property)) {
                     continue;
@@ -250,14 +254,20 @@ function createSecrets(parsedData) {
                 content[property] = poppedSecret[property];
                 delete poppedSecret[property];
             }
-
-            return {
+            if (tags) {
+                content['tags'] = tags;
+            }
+            const myObject = {
                 'linkId': linkId,
                 'content': content,
                 'callbackUrl': undefined,
                 'callbackUser': undefined,
                 'callbackPass': undefined,
             };
+            if (tags) {
+                myObject['tags'] = tags;
+            }
+            return myObject;
         })
 
         return secretService.createSecretBulk(objects, datastore["datastore_id"], undefined).then(function (dbSecrets) {

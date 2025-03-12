@@ -13,7 +13,8 @@ let INDEX_NOTES = 3;
 let INDEX_URL = 4;
 let INDEX_CUSTOM_FIELDS = 5;
 let INDEX_FOLDER = 6;
-let INDEX_FOLDER_ID = 7;
+let INDEX_TAGS = 7;
+let INDEX_FOLDER_ID = 8;
 
 /**
  * Takes the first line of the csv and checks the columns and sets the indexes correctly for later field extraction.
@@ -40,6 +41,8 @@ function identifyRows(line) {
             INDEX_CUSTOM_FIELDS = i;
         } else if(column_description === "folder") {
             INDEX_FOLDER = i;
+        } else if(column_description === "tags") {
+            INDEX_FOLDER_ID = i;
         } else if(column_description === "folder id") {
             INDEX_FOLDER_ID = i;
         }
@@ -78,6 +81,11 @@ function getType(line) {
  */
 function transferIntoNote(line) {
 
+    let tags = []
+    if (line[INDEX_TAGS]) {
+        tags = line[INDEX_TAGS].split(",");
+    }
+
     let note_notes = '';
     if (line[INDEX_USERNAME]) {
         note_notes = note_notes + line[INDEX_USERNAME] + "\n";
@@ -104,7 +112,8 @@ function transferIntoNote(line) {
         type : "note",
         name : line[INDEX_LABEL],
         note_title: line[INDEX_LABEL],
-        note_notes: note_notes
+        note_notes: note_notes,
+        tags: tags
     }
 }
 
@@ -116,6 +125,11 @@ function transferIntoNote(line) {
  * @returns {*} The website_password secret object
  */
 function transferIntoWebsitePassword(line) {
+
+    let tags = []
+    if (line[INDEX_TAGS]) {
+        tags = line[INDEX_TAGS].split(",");
+    }
 
     const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
@@ -135,7 +149,8 @@ function transferIntoWebsitePassword(line) {
         "website_password_username" : line[INDEX_USERNAME],
         "website_password_notes" : notes,
         "website_password_url" : line[INDEX_URL],
-        "website_password_title" : line[INDEX_LABEL]
+        "website_password_title" : line[INDEX_LABEL],
+        "tags" : tags
     }
 }
 
