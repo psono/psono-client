@@ -39,6 +39,10 @@ function transformToSecret(line) {
         website_password_url: "",
         website_password_title: "",
     };
+    
+    if (line.hasOwnProperty("Tags") && line.Tags) {
+        secret["tags"] = line.Tags.split(',');
+    }
 
     for (let i = 0; i < line.String.length; i++) {
         const value = line.String[i];
