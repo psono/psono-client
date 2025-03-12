@@ -73,6 +73,39 @@ function getType(line) {
 }
 
 /**
+ * Returns the custom fields of a line
+ *
+ * @param line
+ * @returns {*[]}
+ */
+function extractCustomFields(line) {
+
+    let customFields = [];
+    if (line[INDEX_CUSTOM_FIELDS]) {
+        const splitCustomFieldLines = line[INDEX_CUSTOM_FIELDS].split(/\r?\n/)
+        for (let i = 0; i < splitCustomFieldLines.length; i++) {
+            const colonPosition = splitCustomFieldLines[i].indexOf(':');
+            if (colonPosition === -1) {
+                continue;
+            }
+            const splitKey = splitCustomFieldLines[i].substring(0, colonPosition)
+            const value = splitCustomFieldLines[i].substring(colonPosition + 1).trim();
+            const splitKeyCommaPosition = splitKey.indexOf(',');
+            const key = splitKey.substring(0, splitKeyCommaPosition);
+            const keyType = splitKey.substring(splitKeyCommaPosition+1).trim();
+
+            customFields.push({
+                name: key,
+                type: keyType === "secret" ? "password" : "text",
+                value: value,
+            });
+        }
+    }
+
+    return customFields;
+}
+
+/**
  * Takes a line that should represent a note and transforms it into a proper secret object
  *
  * @param {[]} line One line of the CSV that represents a note
@@ -85,6 +118,8 @@ function transferIntoNote(line) {
     if (line[INDEX_TAGS]) {
         tags = line[INDEX_TAGS].split(",");
     }
+
+    let customFields = extractCustomFields(line);
 
     let note_notes = '';
     if (line[INDEX_USERNAME]) {
@@ -99,9 +134,6 @@ function transferIntoNote(line) {
     if (line[INDEX_NOTES]) {
         note_notes = note_notes + line[INDEX_NOTES] + "\n";
     }
-    if (line[INDEX_CUSTOM_FIELDS]) {
-        note_notes = note_notes + line[INDEX_CUSTOM_FIELDS] + "\n";
-    }
 
     if (! line[INDEX_LABEL] && ! note_notes) {
         return null
@@ -113,7 +145,8 @@ function transferIntoNote(line) {
         name : line[INDEX_LABEL],
         note_title: line[INDEX_LABEL],
         note_notes: note_notes,
-        tags: tags
+        tags: tags,
+        custom_fields: customFields
     }
 }
 
@@ -134,9 +167,8 @@ function transferIntoWebsitePassword(line) {
     const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     let notes = line[INDEX_NOTES]
-    if (line[INDEX_CUSTOM_FIELDS]) {
-        notes = notes + line[INDEX_CUSTOM_FIELDS] + "\n";
-    }
+
+    let customFields = extractCustomFields(line);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -150,7 +182,8 @@ function transferIntoWebsitePassword(line) {
         "website_password_notes" : notes,
         "website_password_url" : line[INDEX_URL],
         "website_password_title" : line[INDEX_LABEL],
-        "tags" : tags
+        "tags" : tags,
+        custom_fields: customFields
     }
 }
 
