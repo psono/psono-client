@@ -39,7 +39,7 @@ function transformToSecret(line) {
         website_password_url: "",
         website_password_title: "",
     };
-    
+
     if (line.hasOwnProperty("Tags") && line.Tags) {
         secret["tags"] = line.Tags.split(',');
     }
@@ -57,27 +57,28 @@ function transformToSecret(line) {
 
         if (key === "Notes") {
             secret["website_password_notes"] = val;
-        }
-
-        if (key === "Password") {
+        } else if (key === "Password") {
             secret["website_password_password"] = val;
-        }
-
-        if (key === "Title") {
+        } else if (key === "Title") {
             secret["name"] = val;
             secret["website_password_title"] = val;
-        }
-
-        if (key === "URL") {
+        } else if (key === "URL") {
             const parsed_url = helperService.parseUrl(val);
             secret["urlfilter"] = parsed_url.authority || "";
             secret["website_password_url_filter"] = parsed_url.authority || "";
             secret["website_password_url"] = val;
-        }
-
-        if (key === "UserName") {
+        } else if (key === "UserName") {
             secret["website_password_username"] = val;
             secret["description"] = val;
+        } else {
+            if (!secret.hasOwnProperty("custom_fields")) {
+                secret["custom_fields"] = [];
+            }
+            secret["custom_fields"].push({
+                name: key,
+                type: "password",
+                value: val,
+            });
         }
     }
 
