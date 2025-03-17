@@ -430,7 +430,7 @@ function onMessage(request, sender, sendResponse) {
  */
 function onReady(request, sender, sendResponse) {
     if (sender.tab) {
-        const url = sender.tab.url;
+        const url = sender.url;
         const parsedUrl = helper.parseUrl(url);
         let sentResponse = false;
         let found = false;
@@ -716,7 +716,7 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
 
     let senderUrl;
     try {
-        senderUrl = new URL(sender.tab.url);
+        senderUrl = new URL(sender.url);
     } catch (err) {
         return;
     }
@@ -765,7 +765,8 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
         sendResponse({ event: "status", data: "ok" });
         return;
     }
-    searchWebsitePasswordsByUrlfilter(sender.tab.url, false).then(function (leafs) {
+
+    searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (leafs) {
         const update = [];
 
         for (let ii = 0; ii < leafs.length; ii++) {
