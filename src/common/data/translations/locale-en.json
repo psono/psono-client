@@ -637,6 +637,7 @@
   "GENERATE_PASSWORD": "Generate password",
   "GENERATE_PASSPHRASE": "Generate passphrase",
   "TITLE": "Title",
+  "ALLOW_HTTP": "Allow http://",
   "AUTOMATIC_SUBMIT": "Automatic submit",
   "SHOW_HISTORY": "Show history",
   "HISTORY": "History",

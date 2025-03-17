@@ -148,6 +148,7 @@ const DialogNewEntry = (props) => {
     const [websitePasswordPassword, setWebsitePasswordPassword] = useState("");
     const [websitePasswordNotes, setWebsitePasswordNotes] = useState("");
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
+    const [websitePasswordAllowHttp, setWebsitePasswordAllowHttp] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
     const [websitePasswordTotpPeriod, setWebsitePasswordTotpPeriod] = useState(30);
     const [websitePasswordTotpAlgorithm, setWebsitePasswordTotpAlgorithm] = useState("SHA1");
@@ -567,6 +568,8 @@ const DialogNewEntry = (props) => {
             }
             secretObject["website_password_auto_submit"] = websitePasswordAutoSubmit;
             item["autosubmit"] = websitePasswordAutoSubmit;
+            secretObject["website_password_allow_http"] = websitePasswordAllowHttp;
+            item["allow_http"] = websitePasswordAllowHttp;
             if (websitePasswordUrlFilter) {
                 item["urlfilter"] = websitePasswordUrlFilter;
                 secretObject["website_password_url_filter"] = websitePasswordUrlFilter;
@@ -2463,6 +2466,23 @@ const DialogNewEntry = (props) => {
                                     }}
                                 />{" "}
                                 {t("AUTOMATIC_SUBMIT")}
+                            </Grid>
+                        )}
+
+                        {type === "website_password" && showAdvanced && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <Checkbox
+                                    checked={websitePasswordAllowHttp}
+                                    onChange={(event) => {
+                                        setWebsitePasswordAllowHttp(event.target.checked);
+                                    }}
+                                    checkedIcon={<Check className={classes.checkedIcon} />}
+                                    icon={<Check className={classes.uncheckedIcon} />}
+                                    classes={{
+                                        checked: classes.checked,
+                                    }}
+                                />{" "}
+                                {t("ALLOW_HTTP")}
                             </Grid>
                         )}
                         {type === "website_password" && showAdvanced && (

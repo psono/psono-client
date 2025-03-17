@@ -557,6 +557,7 @@ function fillStorage(datastore) {
             ["description", "description"],
             ["urlfilter", "urlfilter"],
             ["autosubmit", "autosubmit"],
+            ["allow_http", "allow_http"],
             ["search", "urlfilter"],
         ],
         function (item) {

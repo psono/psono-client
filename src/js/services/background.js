@@ -664,7 +664,11 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
                 if (!helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
                     continue;
                 }
-                return !onlyAutoSubmit || (leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"] && parsedUrl.scheme === 'https');
+                if (onlyAutoSubmit) {
+                    return leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"] && parsedUrl.scheme === 'https';
+                } else {
+                    return parsedUrl.scheme === 'https' || (leaf.hasOwnProperty("allow_http") && leaf["allow_http"]);
+                }
             }
         }
 

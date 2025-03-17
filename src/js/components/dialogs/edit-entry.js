@@ -162,6 +162,7 @@ const DialogEditEntry = (props) => {
     const [websitePasswordPassword, setWebsitePasswordPassword] = useState("");
     const [websitePasswordNotes, setWebsitePasswordNotes] = useState("");
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
+    const [websitePasswordAllowHttp, setWebsitePasswordAllowHttp] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
     const [websitePasswordTotpPeriod, setWebsitePasswordTotpPeriod] = useState(30);
     const [websitePasswordTotpAlgorithm, setWebsitePasswordTotpAlgorithm] = useState("SHA1");
@@ -410,6 +411,11 @@ const DialogEditEntry = (props) => {
                 setWebsitePasswordAutoSubmit(data["website_password_auto_submit"]);
             } else {
                 setWebsitePasswordAutoSubmit(false);
+            }
+            if (data.hasOwnProperty("website_password_allow_http")) {
+                setWebsitePasswordAllowHttp(data["website_password_allow_http"]);
+            } else {
+                setWebsitePasswordAllowHttp(false);
             }
             if (data.hasOwnProperty("website_password_url_filter")) {
                 setWebsitePasswordUrlFilter(data["website_password_url_filter"]);
@@ -743,6 +749,8 @@ const DialogEditEntry = (props) => {
             }
             secretObject["website_password_auto_submit"] = websitePasswordAutoSubmit;
             item["autosubmit"] = websitePasswordAutoSubmit;
+            secretObject["website_password_allow_http"] = websitePasswordAllowHttp;
+            item["allow_http"] = websitePasswordAllowHttp;
             if (websitePasswordUrlFilter) {
                 item["urlfilter"] = websitePasswordUrlFilter;
                 secretObject["website_password_url_filter"] = websitePasswordUrlFilter;
@@ -2933,7 +2941,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "website_password" && showAdvanced && (
-                <Grid item xs={12} sm={12} md={12}>
+                <Grid item xs={6} sm={6} md={6}>
                     <Checkbox
                         checked={websitePasswordAutoSubmit}
                         onChange={(event) => {
@@ -2947,6 +2955,24 @@ const DialogEditEntry = (props) => {
                         }}
                     />{" "}
                     {t("AUTOMATIC_SUBMIT")}
+                </Grid>
+            )}
+
+            {item.type === "website_password" && showAdvanced && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <Checkbox
+                        checked={websitePasswordAllowHttp}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setWebsitePasswordAllowHttp(event.target.checked);
+                        }}
+                        checkedIcon={<Check className={classes.checkedIcon} />}
+                        icon={<Check className={classes.uncheckedIcon} />}
+                        classes={{
+                            checked: classes.checked,
+                        }}
+                    />{" "}
+                    {t("ALLOW_HTTP")}
                 </Grid>
             )}
             {item.type === "website_password" && showAdvanced && (
