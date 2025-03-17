@@ -664,7 +664,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
                 if (!helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
                     continue;
                 }
-                return !onlyAutoSubmit || (leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"]);
+                return !onlyAutoSubmit || (leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"] && parsedUrl.scheme === 'https');
             }
         }
 
