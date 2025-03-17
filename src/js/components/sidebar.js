@@ -29,6 +29,7 @@ import RuleIcon from "./icons/Rule";
 import browserClient from "../services/browser-client";
 import deviceService from "../services/device";
 import {getStore} from "../services/store";
+import DOMPurify from "dompurify";
 
 const drawerWidth = 240;
 
@@ -316,7 +317,7 @@ const Sidebar = (props) => {
                 <>
                     <ListSubheader className={classes.subHeader}>{t("MORE")}</ListSubheader>
                     <List>
-                        {moreLinks.map((link, index) => (
+                        {moreLinks.filter((link) => DOMPurify.isValidAttribute('a', 'href', link.href)).map((link, index) => (
                             <ListItem
                                 button
                                 key={index}
