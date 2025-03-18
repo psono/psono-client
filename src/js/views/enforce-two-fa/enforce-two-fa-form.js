@@ -1,17 +1,21 @@
 import React, { useState } from "react";
-import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+
+import { Grid } from "@mui/material";
+import { makeStyles } from '@mui/styles';
 import Button from "@mui/material/Button";
-import GridContainerErrors from "../../components/grid-container-errors";
 import MuiAlert from '@mui/material/Alert'
-import userService from "../../services/user";
+
+import GridContainerErrors from "../../components/grid-container-errors";
 import { getStore } from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "../account/multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "../account/multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
+import MultifactorAuthenticatorWebauthn from "../account/multifactor-authentication-webauthn";
 import FooterLinks from "../../components/footer-links";
-import { makeStyles } from '@mui/styles';
+import browserClient from "../../services/browser-client";
+import deviceService from "../../services/device";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -53,12 +57,14 @@ const EnforceTwoFaViewForm = (props) => {
     const [googleAuthenticatorOpen, setGoogleAuthenticatorOpen] = React.useState(false);
     const [yubikeyOtpOpen, setYubikeyOtpOpen] = React.useState(false);
     const [duoOpen, setDuoOpen] = React.useState(false);
+    const [webauthnOpen, setWebauthnOpen] = React.useState(false);
     const [errors, setErrors] = useState([]);
 
     const closeModal = () => {
         setGoogleAuthenticatorOpen(false);
         setYubikeyOtpOpen(false);
         setDuoOpen(false);
+        setWebauthnOpen(false);
     };
 
     const onConfigureGoogleAuthenticator = (event) => {
@@ -71,6 +77,10 @@ const EnforceTwoFaViewForm = (props) => {
 
     const onConfigureDuo = (event) => {
         setDuoOpen(true);
+    };
+
+    const onConfigureWebauthn = (event) => {
+        setWebauthnOpen(true);
     };
 
     const logout = () => {
@@ -140,6 +150,20 @@ const EnforceTwoFaViewForm = (props) => {
                             </Button>
                         </Grid>
                         {duoOpen && <MultifactorAuthenticatorDuo {...props} open={duoOpen} onClose={closeModal} />}
+                    </Grid>
+                )}
+
+                {browserClient.getClientType() !== "firefox_extension" && !deviceService.isElectron() && getStore().getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
+                    <Grid container style={{ marginBottom: "8px" }}>
+                        <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
+                            {t("FIDO2_WEBAUTHN")}
+                        </Grid>
+                        <Grid item xs={6} sm={6} md={8}>
+                            <Button variant="contained" color="primary" onClick={onConfigureWebauthn}>
+                                {t("CONFIGURE")}
+                            </Button>
+                        </Grid>
+                        {webauthnOpen && <MultifactorAuthenticatorWebauthn {...props} open={webauthnOpen} onClose={closeModal} />}
                     </Grid>
                 )}
                 <Grid item xs={12} sm={12} md={12}>
