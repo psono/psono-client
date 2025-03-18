@@ -874,7 +874,13 @@ function writeToClipboard(fetchContent) {
         ]);
     } else {
         // Firefox & Chrome and everything else
-        return fetchContent().then((content) => navigator.clipboard.writeText(content))
+        return fetchContent().then((content) => {
+            try {
+                return navigator.clipboard.writeText(content);
+            } catch (error) {
+                console.log(error);
+            }
+        })
     }
 }
 
