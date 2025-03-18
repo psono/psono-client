@@ -240,6 +240,15 @@ function createSecrets(parsedData) {
         const objects = parsedData["data"]["secrets"].map(function(poppedSecret) {
             const content = {};
             const linkId = poppedSecret['id'];
+            let tags = undefined;
+            if (poppedSecret.hasOwnProperty('tags') && poppedSecret['tags'] && poppedSecret['tags'].length > 0) {
+                tags = poppedSecret['tags'];
+            }
+            let customFields = undefined;
+            if (poppedSecret.hasOwnProperty('custom_fields') && poppedSecret['custom_fields'] && poppedSecret['custom_fields'].length > 0) {
+                customFields = poppedSecret['custom_fields'];
+                delete poppedSecret['custom_fields'];
+            }
             for (let property in poppedSecret) {
                 if (!poppedSecret.hasOwnProperty(property)) {
                     continue;
@@ -250,14 +259,23 @@ function createSecrets(parsedData) {
                 content[property] = poppedSecret[property];
                 delete poppedSecret[property];
             }
-
-            return {
+            if (tags) {
+                content['tags'] = tags;
+            }
+            if (customFields) {
+                content['custom_fields'] = customFields;
+            }
+            const myObject = {
                 'linkId': linkId,
                 'content': content,
                 'callbackUrl': undefined,
                 'callbackUser': undefined,
                 'callbackPass': undefined,
             };
+            if (tags) {
+                myObject['tags'] = tags;
+            }
+            return myObject;
         })
 
         return secretService.createSecretBulk(objects, datastore["datastore_id"], undefined).then(function (dbSecrets) {

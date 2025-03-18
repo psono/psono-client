@@ -2,6 +2,8 @@
  * Service to handle all secret related tasks
  */
 
+
+import DOMPurify from "dompurify";
 import i18n from "../i18n";
 import apiClient from "../services/api-client";
 import browserClient from "../services/browser-client";
@@ -266,6 +268,10 @@ function redirectSecret(type, secretId) {
                 if (!url.includes("://")) {
                     url = 'https://' + url;
                 }
+                if (!DOMPurify.isValidAttribute('a', 'href', url)) {
+                    // sanitizes URL to avoid javascript: XSS
+                    url = 'about:blank'
+                }
                 window.location.href = url;
             } else if (type === "bookmark") {
 
@@ -280,6 +286,10 @@ function redirectSecret(type, secretId) {
 
                 if (!url.includes("://")) {
                     url = 'https://' + url;
+                }
+                if (!DOMPurify.isValidAttribute('a', 'href', url)) {
+                    // sanitizes URL to avoid javascript: XSS
+                    url = 'about:blank'
                 }
                 window.location.href = url;
             } else if (type === "elster_certificate") {

@@ -1,6 +1,7 @@
 /**
  * The browser interface, responsible for the cross browser / platform compatibility.
  */
+import DOMPurify from "dompurify";
 
 const _ = require('lodash');
 
@@ -267,6 +268,10 @@ function launchWebAuthFlow(url) {
         //     );
         // });
     } else {
+        if (!DOMPurify.isValidAttribute('a', 'href', url)) {
+            // sanitizes URL to avoid javascript: XSS
+            url = 'about:blank'
+        }
         window.location.href = url;
         return Promise.resolve();
     }
@@ -869,7 +874,13 @@ function writeToClipboard(fetchContent) {
         ]);
     } else {
         // Firefox & Chrome and everything else
-        return fetchContent().then((content) => navigator.clipboard.writeText(content))
+        return fetchContent().then((content) => {
+            try {
+                return navigator.clipboard.writeText(content);
+            } catch (error) {
+                console.log(error);
+            }
+        })
     }
 }
 

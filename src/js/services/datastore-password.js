@@ -557,6 +557,7 @@ function fillStorage(datastore) {
             ["description", "description"],
             ["urlfilter", "urlfilter"],
             ["autosubmit", "autosubmit"],
+            ["allow_http", "allow_http"],
             ["search", "urlfilter"],
         ],
         function (item) {
@@ -904,6 +905,11 @@ function getTags(datastore) {
     let n;
     const tags = [];
     let tmpTags;
+
+    if (!datastore) {
+        return tags;
+    }
+
     if (datastore.hasOwnProperty("items")) {
         for (n = 0; n < datastore.items.length; n++) {
             if (!datastore.items[n].hasOwnProperty('tags') || !datastore.items[n].tags) {

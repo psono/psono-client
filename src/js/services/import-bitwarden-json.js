@@ -61,6 +61,7 @@ function transformToWebsitePassword(item) {
     let website_password_notes = "";
     let website_password_url = "";
     let website_password_title = "";
+    let custom_fields = [];
 
     if (item.hasOwnProperty("name") && item["name"] !== null) {
         name = item["name"];
@@ -89,8 +90,11 @@ function transformToWebsitePassword(item) {
 
     if (item.hasOwnProperty("fields") && item["fields"] !== null) {
         for (let i = 0; i < item["fields"].length; i++) {
-            website_password_notes =
-                    website_password_notes + item["fields"][i]["name"] + ": " + item["fields"][i]["value"] + "\n";
+            custom_fields.push({
+                name: item["fields"][i]["name"],
+                type: item["fields"][i]["type"] === 0 ? "text" : "password",
+                value: item["fields"][i]["value"],
+            })
         }
     }
 
@@ -106,6 +110,7 @@ function transformToWebsitePassword(item) {
         website_password_notes: website_password_notes,
         website_password_url: website_password_url,
         website_password_title: website_password_title,
+        custom_fields: custom_fields,
     };
 }
 
@@ -121,6 +126,7 @@ function transformToNote(item) {
     let name = "";
     let note_notes = "";
     let note_title = "";
+    let custom_fields = [];
 
     if (item.hasOwnProperty("name") && item["name"] !== null) {
         name = item["name"];
@@ -131,10 +137,13 @@ function transformToNote(item) {
         note_notes = item["notes"] + "\n";
     }
 
-
     if (item.hasOwnProperty("fields") && item["fields"] !== null) {
         for (let i = 0; i < item["fields"].length; i++) {
-            note_notes = note_notes + item["fields"][i]["name"] + ": " + item["fields"][i]["value"] + "\n";
+            custom_fields.push({
+                name: item["fields"][i]["name"],
+                type: item["fields"][i]["type"] === 0 ? "text" : "password",
+                value: item["fields"][i]["value"],
+            })
         }
     }
 
@@ -210,6 +219,7 @@ function transformToNote(item) {
         name: name,
         note_notes: note_notes,
         note_title: note_title,
+        custom_fields: custom_fields,
     };
 }
 
@@ -338,15 +348,38 @@ function transformToTotpCode(item) {
  */
 function gatherSecrets(datastore, secrets, parsedData) {
     let i;
-    const folder_index = {};
+    const folderIndex = {};
+    const folderNameIndex = {};
 
     if (parsedData.hasOwnProperty("folders")) {
         for (i = 0; i < parsedData["folders"].length; i++) {
-            folder_index[parsedData["folders"][i]["id"]] = {
+            const originalName = parsedData["folders"][i]["name"];
+            const newFolder = {
                 id: cryptoLibrary.generateUuid(),
-                name: parsedData["folders"][i]["name"],
+                name: originalName,
                 items: [],
             };
+
+            folderIndex[parsedData["folders"][i]["id"]] = newFolder;
+            folderNameIndex[originalName] = newFolder;
+
+            if (originalName.includes("/")) {
+                const actualFolderName = originalName.substr(originalName.lastIndexOf("/") + 1);
+                const parentFolderName = originalName.substr(0, originalName.lastIndexOf("/"));
+                if (folderNameIndex.hasOwnProperty(parentFolderName)) {
+                    newFolder['name'] = actualFolderName
+                    if (!folderNameIndex[parentFolderName].hasOwnProperty('folders')) {
+                        folderNameIndex[parentFolderName]['folders'] = [];
+                    }
+                    folderNameIndex[parentFolderName]['folders'].push(newFolder)
+                } else {
+                    // not sure where to put it, so lets treat it like a toplevel folder
+                    datastore["folders"].push(newFolder);
+                }
+            } else {
+                // toplevel folder
+                datastore["folders"].push(newFolder);
+            }
         }
     }
 
@@ -370,8 +403,8 @@ function gatherSecrets(datastore, secrets, parsedData) {
             }
 
             let parent_folder = null;
-            if (parsedData["items"][i].hasOwnProperty("folderId") && parsedData["items"][i]["folderId"] !== null && folder_index.hasOwnProperty(parsedData["items"][i]["folderId"])) {
-                parent_folder = folder_index[parsedData["items"][i]["folderId"]];
+            if (parsedData["items"][i].hasOwnProperty("folderId") && parsedData["items"][i]["folderId"] !== null && folderIndex.hasOwnProperty(parsedData["items"][i]["folderId"])) {
+                parent_folder = folderIndex[parsedData["items"][i]["folderId"]];
             }
 
             for (let iii = 0; iii < crafted_secrets.length; iii++) {
@@ -383,10 +416,6 @@ function gatherSecrets(datastore, secrets, parsedData) {
                 secrets.push(crafted_secrets[iii]);
             }
         }
-    }
-
-    for (let uuid in folder_index) {
-        datastore["folders"].push(folder_index[uuid]);
     }
 }
 
