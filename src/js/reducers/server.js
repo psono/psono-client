@@ -26,6 +26,7 @@ const defaultComplianceDisableShares = false;
 const defaultComplianceDisableRecoveryCodes = false;
 const defaultComplianceEnforce2fa = false;
 const defaultComplianceEnforceCentralSecurityReports = false;
+const defaultComplianceEnforceBreachDetection = false;
 const defaultComplianceMinMasterPasswordComplexity = 2;
 const defaultComplianceMinMasterPasswordLength = 14;
 const defaultComplianceClipboardClearDelay = 30;
@@ -92,6 +93,7 @@ function server(
         complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
         complianceEnforce2fa: defaultComplianceEnforce2fa,
         complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
+        complianceEnforceBreachDetection: defaultComplianceEnforceBreachDetection,
         complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
         complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
         complianceClipboardClearDelay: defaultComplianceClipboardClearDelay,
@@ -156,6 +158,7 @@ function server(
                 complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
                 complianceEnforce2fa: defaultComplianceEnforce2fa,
                 complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
+                complianceEnforceBreachDetection: defaultComplianceEnforceBreachDetection,
                 complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
                 complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
                 complianceClipboardClearDelay: defaultComplianceClipboardClearDelay,
@@ -219,6 +222,7 @@ function server(
                 complianceDisableRecoveryCodes: action.info.compliance_disable_recovery_codes,
                 complianceEnforce2fa: action.info.compliance_enforce_2fa,
                 complianceEnforceCentralSecurityReports: action.info.compliance_enforce_central_security_reports,
+                complianceEnforceBreachDetection: typeof(action.info.compliance_enforce_breach_detection) === "undefined" ? defaultComplianceEnforceBreachDetection : action.info.compliance_enforce_breach_detection,
                 complianceMinMasterPasswordComplexity: action.info.compliance_min_master_password_complexity,
                 complianceMinMasterPasswordLength: action.info.compliance_min_master_password_length,
                 complianceClipboardClearDelay: typeof(action.info.compliance_clipboard_clear_delay) === "undefined" ? defaultComplianceClipboardClearDelay : action.info.compliance_clipboard_clear_delay,
@@ -265,6 +269,9 @@ function server(
             }
             if (action.policy.hasOwnProperty('compliance_enforce_central_security_reports')) {
                 data['complianceEnforceCentralSecurityReports'] = action.policy.compliance_enforce_central_security_reports;
+            }
+            if (action.policy.hasOwnProperty('compliance_enforce_breach_detection')) {
+                data['complianceEnforceBreachDetection'] = action.policy.compliance_enforce_breach_detection;
             }
             if (action.policy.hasOwnProperty('compliance_central_security_reports_recurrence_interval')) {
                 data['complianceCentralSecurityReportsRecurrenceInterval'] = action.policy.compliance_central_security_reports_recurrence_interval;

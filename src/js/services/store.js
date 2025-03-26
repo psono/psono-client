@@ -92,12 +92,21 @@ export const initStore = async () => {
                 },
             }
         },
+        4: (state) => {
+            return {
+                ...state,
+                server: {
+                    ...state.server,
+                    complianceEnforceBreachDetection: false,
+                },
+            }
+        },
     }
 
     const persistConfig = {
         key: await accountService.getCurrentId(),
         blacklist: ['transient'],
-        version: 3,
+        version: 4,
         storage: storageService.get('state'),
         debug: false,
         migrate: createMigrate(migrations, { debug: false }),
