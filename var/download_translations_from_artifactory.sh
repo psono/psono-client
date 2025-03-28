@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 curl -o src/common/data/translations/locale-da.json https://psono.jfrog.io/psono/psono/client/languages/locale-da.json && \
 curl -o src/common/data/translations/locale-ca.json https://psono.jfrog.io/psono/psono/client/languages/locale-ca.json && \
 curl -o src/common/data/translations/locale-sv.json https://psono.jfrog.io/psono/psono/client/languages/locale-sv.json && \
