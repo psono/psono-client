@@ -47,6 +47,7 @@ const TotpCircle = (props) => {
             );
             setToken(newToken);
         }  catch (e) {
+            console.log(e);
             setToken(t("INVALID"));
         }
         const percentage =

@@ -1,4 +1,5 @@
 {
+  "INVALID_TOTP_PARAMETERS": "Invalid TOTP parameters.",
   "ACCOUNT_DELETED_SUCCESSFULLY": "Your user account with all its data has been deleted successfully.",
   "REQUEST_TO_DELETE_USER_ACCOUNT_SUCCESSFUL": "The request to delete your user account was successful. Please check your inbox for an email with the verification link.",
   "TAGS": "Tags",
