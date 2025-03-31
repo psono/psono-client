@@ -19,7 +19,7 @@ wget "https://psono.jfrog.io/psono/psono/client/languages/locale-nl.json" -outfi
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-no.json" -outfile "src/common/data/translations/locale-no.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-pl.json" -outfile "src/common/data/translations/locale-pl.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-pt.json" -outfile "src/common/data/translations/locale-pt.json"
-wget "https://psono.jfrog.io/psono/psono/client/languages/locale-pt-br.json" -outfile "src/common/data/translations/locale-pt-br.json"
+wget "https://psono.jfrog.io/psono/psono/client/languages/locale-pt-br.json" -outfile "src/common/data/translations/locale-pt-BR.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-ru.json" -outfile "src/common/data/translations/locale-ru.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-sv.json" -outfile "src/common/data/translations/locale-sv.json"
 wget "https://psono.jfrog.io/psono/psono/client/languages/locale-sk.json" -outfile "src/common/data/translations/locale-sk.json"
