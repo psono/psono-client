@@ -21,6 +21,7 @@ gsutil cp psono.amd64.deb gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.amd6
 gsutil cp psono.x86_64.exe gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.exe && \
 gsutil cp psono.x86_64.msi gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.msi && \
 gsutil cp psono.dmg gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.dmg && \
+gsutil cp sbom.json gs://get.psono.com/$CI_PROJECT_PATH/nightly/sbom.json && \
 gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/firefox-extension.zip && \
 gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/chrome-extension.zip && \
 gsutil cp webclient.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/webclient.zip
