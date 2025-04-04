@@ -8,6 +8,7 @@ const _ = require('lodash');
 import helperService from "./helper";
 import { getStore } from "./store";
 import deviceService from "./device";
+import notification from "./notification";
 
 const theme = {
     "palette": {
@@ -481,6 +482,13 @@ function _loadConfig() {
         const standardizeConfig = function (newConfig, url) {
             const parsed_url = helperService.parseUrl(url);
 
+            if (!newConfig.hasOwnProperty("backend_servers")) {
+                newConfig["backend_servers"] = [];
+            }
+            if (newConfig["backend_servers"].length === 0) {
+                newConfig["backend_servers"].push({});
+            }
+
             if (!newConfig.hasOwnProperty("theme")) {
                 newConfig["theme"] = theme;
             } else {
@@ -614,7 +622,18 @@ function _loadConfig() {
 
         if (remoteConfigJson === null) {
             fetch("config.json").then(async (response) => {
-                return onSuccess({ data: await response.json() });
+
+                let configJson;
+
+                try {
+                    configJson = await response.json();
+                    console.log(configJson);
+                } catch (e) {
+                    notification.errorSend("CONFIG_JSON_MALFORMED")
+                    return onSuccess({ data: {}});
+                }
+
+                return onSuccess({ data: configJson });
             })
         } else {
             return onSuccess({ data: remoteConfigJson });

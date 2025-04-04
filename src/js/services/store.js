@@ -105,7 +105,7 @@ export const initStore = async () => {
 
     const persistConfig = {
         key: await accountService.getCurrentId(),
-        blacklist: ['transient'],
+        blacklist: ['transient', 'notification'],
         version: 4,
         storage: storageService.get('state'),
         debug: false,

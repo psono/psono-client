@@ -17,7 +17,7 @@ function infoSend(message) {
  * @param {array} message The message to send
  */
 function errorSend(message) {
-    action().sendNotification(message, "danger");
+    action().sendNotification(message, "error");
 }
 
 /**
