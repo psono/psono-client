@@ -299,7 +299,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 let buttonContent = otherButtons[i].tagName.toLowerCase() === "input" ? otherButtons[i].value : otherButtons[i].innerText;
 
                 if (passwordSubmitButtonLabels.has(buttonContent.toLowerCase().trim())) {
-                    submitButtons.append(otherButtons[i]);
+                    submitButtons.push(otherButtons[i]);
                 }
             }
 
@@ -1045,42 +1045,169 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     }
 
     /**
+     * parses an URL and returns an object with all details separated
+     *
+     * @param {String} url The url to be parsed
+     * @returns {object} Returns the split up url
+     */
+    function parseUrl(url) {
+        const empty = {
+            scheme: null,
+            authority: null,
+            authority_without_www: null,
+            base_url: null,
+            full_domain: null,
+            full_domain_without_www: null,
+            port: null,
+            path: null,
+            query: null,
+            fragment: null
+        };
+        if (!url) {
+            return empty;
+        }
+
+        if (!url.includes("://")) {
+            // Its supposed to be an url but doesn't include a schema so let's prefix it with http://
+            url = 'http://' + url;
+        }
+
+        let parsedUrl;
+        try {
+            parsedUrl = new URL(url);
+        } catch (e) {
+            return empty;
+        }
+
+        return {
+            scheme: parsedUrl.protocol.slice(0,-1),
+            base_url: parsedUrl.protocol + '//' + parsedUrl.host,
+            authority: parsedUrl.host,
+            authority_without_www: parsedUrl.host ? parsedUrl.host.replace(/^(www\.)/, ""): parsedUrl.host, //remove leading www.
+            full_domain: parsedUrl.hostname,
+            full_domain_without_www: parsedUrl.hostname ? parsedUrl.hostname.replace(/^(www\.)/, "") : parsedUrl.hostname,
+            port: parsedUrl.port || null,
+            path: parsedUrl.pathname,
+            query: parsedUrl.search || null,
+            fragment: parsedUrl.hash ? parsedUrl.hash.substring(1) : null,
+        };
+    }
+
+    /**
+     * Checks if a provided urlfilter and authority fit together
+     *
+     * @param {string} authority The "authority" of the current website, e.g. www.example.com:80
+     * @param {string} urlFilter The url filter, e.g. *.example.com or www.example.com
+     *
+     * @returns {boolean} Whether the string ends with the suffix or not
+     */
+    function isUrlFilterMatch(authority, urlFilter) {
+        if (!authority || !urlFilter) {
+            return false
+        }
+        authority = authority.toLowerCase();
+        urlFilter = urlFilter.toLowerCase();
+        let directMatch = authority === urlFilter;
+        let wildcardMatch = urlFilter.startsWith('*.') && authority.endsWith(urlFilter.substring(1));
+
+        return directMatch || wildcardMatch
+    }
+
+    /**
+     * Returns the function that returns whether a certain leaf entry should be considered a possible condidate
+     * for a provided url
+     *
+     * @param {string} url The url to match
+     *
+     * @returns {(function(*): (boolean|*))|*}
+     */
+    const getSearchWebsitePasswordsByUrlfilter = function (url) {
+        const parsedUrl = parseUrl(url);
+
+        const filter = function (leaf) {
+
+            if (typeof leaf.website_password_url_filter === "undefined") {
+                return false;
+            }
+
+            if (leaf.website_password_url_filter) {
+                const urlFilters = leaf.website_password_url_filter.split(/\s+|,|;/);
+                for (let i = 0; i < urlFilters.length; i++) {
+                    if (!isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
+                        continue;
+                    }
+                    return parsedUrl.scheme === 'https' || (leaf.hasOwnProperty("allow_http") && leaf["allow_http"]);
+                }
+            }
+
+            return false;
+        };
+
+        return filter;
+    };
+
+    /**
      * handles password request answer
      *
      * @param data
      * @param sender
      * @param sendResponse
      */
-    function onReturnSecret(data, sender, sendResponse) {
-        for (let i = 0; i < myForms.length; i++) {
-            if (
-                (myForms[i].username && myForms[i].username.isEqualNode(lastRequestElement)) ||
-                (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement)) ||
-                fillAll
-            ) {
-                fillFieldHelper(myForms[i].username, data.website_password_username);
-                fillFieldHelper(myForms[i].password, data.website_password_password);
+    async function onReturnSecret(data, sender, sendResponse) {
 
-                for (let ii = 0; ii < dropInstances.length; ii++) {
-                    dropInstances[ii].close();
-                }
-                dropInstances = [];
-                if (!fillAll) {
-                    break;
-                }
-            }
-        }
+        const isIframe = window !== window.top;
 
-        if (data.hasOwnProperty('custom_fields') && data.custom_fields) {
-            for (let i = 0; i < data.custom_fields.length; i++) {
-                const field = findFieldByName(data.custom_fields[i].name);
-                if (field) {
-                    fillFieldHelper(field, data.custom_fields[i].value);
+        function autofill() {
+            for (let i = 0; i < myForms.length; i++) {
+                if (
+                    (myForms[i].username && myForms[i].username.isEqualNode(lastRequestElement)) ||
+                    (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement)) ||
+                    fillAll
+                ) {
+                    fillFieldHelper(myForms[i].username, data.website_password_username);
+                    fillFieldHelper(myForms[i].password, data.website_password_password);
+
+                    for (let ii = 0; ii < dropInstances.length; ii++) {
+                        dropInstances[ii].close();
+                    }
+                    dropInstances = [];
+                    if (!fillAll) {
+                        break;
+                    }
                 }
             }
+
+            if (data.hasOwnProperty('custom_fields') && data.custom_fields) {
+                for (let i = 0; i < data.custom_fields.length; i++) {
+                    const field = findFieldByName(data.custom_fields[i].name);
+                    if (field) {
+                        fillFieldHelper(field, data.custom_fields[i].value);
+                    }
+                }
+            }
+
+            fillAll = false;
         }
 
-        fillAll=false;
+        if (isIframe) {
+            const filter = getSearchWebsitePasswordsByUrlfilter(window.location.origin);
+            if (!filter(data)) {
+                const parsedUrl = parseUrl(window.location.origin);
+                const autofillId = uuid.v4();
+                await base.emit("approve-iframe-login", {
+                    'authority': parsedUrl.authority,
+                    'autofill_id': autofillId
+                }, (response) => {
+                    if (response.data) {
+                        autofill()
+                    }
+                });
+            } else {
+                autofill()
+            }
+        } else {
+            autofill()
+        }
     }
 
     /**

@@ -332,6 +332,7 @@ function fillSecretTab(secretId, tab) {
 
         const onSuccess = function (content) {
             if (leaf.type === 'website_password') {
+
                 browserClient.emitTab(tab.id, "fillpassword", {
                         username: content.website_password_username,
                         password: content.website_password_password,
@@ -394,6 +395,7 @@ function onMessage(request, sender, sendResponse) {
         "request-secret": onRequestSecret,
         "open-tab": onOpenTab,
         "generate-password": onGeneratePassword,
+        "approve-iframe-login": approveIframeLogin,
         "login-form-submit": loginFormSubmit,
         "oidc-saml-redirect-detected": oidcSamlRedirectDetected,
         "decrypt-gpg": decryptPgp,
@@ -770,7 +772,7 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
         return;
     }
 
-    searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (leafs) {
+    searchWebsitePasswordsByUrlfilter(sender.tab.url, false).then(function (leafs) {
         const update = [];
 
         for (let ii = 0; ii < leafs.length; ii++) {
@@ -1396,6 +1398,35 @@ function onAuthRequired(details, callbackFn) {
             }
         );
     });
+}
+
+/**
+ * Being fired once a content script wants to ask a user to approve iframe login
+ *
+ * @returns {Promise}
+ */
+function approveIframeLogin(request, sender, sendResponse) {
+    notificationBarService.create(
+        i18n.t("APPROVE_IFRAME_LOGIN"),
+        i18n.t("APPROVE_IFRAME_LOGIN_DESCRIPTION", {'origin': request.data.origin}),
+        [
+            {
+                title: i18n.t("ALLOW"),
+                onClick: () => {
+                    sendResponse({ event: "approve-iframe-login-response", data: true });
+                },
+                color: "primary",
+            },
+            {
+                title: i18n.t("CANCEL"),
+                onClick: () => {
+                    sendResponse({ event: "approve-iframe-login-response", data: false });
+                },
+            },
+        ],
+    )
+
+    return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
