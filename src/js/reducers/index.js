@@ -6,7 +6,7 @@ import user from "./user";
 import settingsDatastore from "./settings-datastore";
 import server from "./server";
 import client from "./client";
-// import notification from './notification';
+import notification from './notification';
 
 const rootReducer = combineReducers({
     persistent,
@@ -16,7 +16,7 @@ const rootReducer = combineReducers({
     settingsDatastore,
     server,
     client,
-    // notification
+    notification
 });
 
 export default rootReducer;

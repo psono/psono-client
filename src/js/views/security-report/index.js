@@ -110,7 +110,8 @@ const SecurityReportView = (props) => {
     const [errors, setErrors] = useState([]);
     const [msgs, setMsgs] = useState([]);
     const [reportComplete, setReportComplete] = useState(false);
-    const [checkHaveibeenpwned, setCheckHaveibeenpwned] = useState(false);
+    
+    const [checkHaveibeenpwned, setCheckHaveibeenpwned] = useState(getStore().getState().server.complianceEnforceBreachDetection);
     const [analysis, setAnalysis] = useState({
         'passwords': []
     });
@@ -600,8 +601,13 @@ const SecurityReportView = (props) => {
                                     <Checkbox
                                         checked={checkHaveibeenpwned}
                                         onChange={(event) => {
-                                            setCheckHaveibeenpwned(event.target.checked);
+                                            if (getStore().getState().server.complianceEnforceBreachDetection) {
+                                                setCheckHaveibeenpwned(true);
+                                            } else {
+                                                setCheckHaveibeenpwned(event.target.checked);
+                                            }
                                         }}
+                                        disabled={getStore().getState().server.complianceEnforceBreachDetection}
                                         checkedIcon={<Check className={classes.checkedIcon} />}
                                         icon={<Check className={classes.uncheckedIcon} />}
                                         classes={{

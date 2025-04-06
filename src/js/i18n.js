@@ -25,7 +25,7 @@ const languages = {
     no: { code: "no", lng_code: "LANG_NO", lng_title_native: "Norsk", active: true },
     pl: { code: "pl", lng_code: "LANG_PL", lng_title_native: "Polskie", active: true },
     pt: { code: "pt", lng_code: "LANG_PT_PT", lng_title_native: "Portuguese", active: true },
-    "pt-br": { code: "pt-br", lng_code: "LANG_PT_BR", lng_title_native: "Portuguese (BR)", active: true },
+    "pt-BR": { code: "pt-BR", lng_code: "LANG_PT_BR", lng_title_native: "Portuguese (BR)", active: true },
     ru: { code: "ru", lng_code: "LANG_RU", lng_title_native: "Русский", active: true },
     sv: { code: "sv", lng_code: "LANG_SV", lng_title_native: "Svenska", active: true },
     sk: { code: "sk", lng_code: "LANG_SK", lng_title_native: "Slovák" },

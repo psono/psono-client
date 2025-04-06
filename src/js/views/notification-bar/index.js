@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import { useTheme } from "@mui/material/styles";
 import { makeStyles } from '@mui/styles';
@@ -31,6 +31,11 @@ const useStyles = makeStyles((theme) => ({
     textContainerCell: {
         display: "table-cell",
         verticalAlign: "middle",
+        maxHeight: "40px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        fontSize: "clamp(10px, 1rem, 16px)", // Responsive font size between 10px and 16px
+        lineHeight: "1.2", // Tighter line height to fit in the box
     },
     textContainerTitle: {
         fontWeight: "bold",
@@ -70,13 +75,48 @@ const NotificationBarView = (props) => {
     const [state, setState] = useState({
         buttons: []
     });
+    const textContainerRef = useRef(null);
+    const [textStyle, setTextStyle] = useState({});
+    
+    // Scale text to fit container
+    const adjustTextSize = () => {
+        if (!textContainerRef.current) return;
+        
+        const container = textContainerRef.current;
+        const containerHeight = 44; // Maximum height
+        
+        // Reset font size for accurate measurement
+        container.style.fontSize = '';
+        
+        // Check if content overflows
+        if (container.scrollHeight > containerHeight) {
+            // Calculate ratio to scale down
+            const ratio = containerHeight / container.scrollHeight;
+            const newSize = Math.max(10, Math.floor(parseFloat(getComputedStyle(container).fontSize) * ratio));
+            
+            setTextStyle({
+                fontSize: `${newSize}px`,
+                lineHeight: '1.2',
+            });
+        } else {
+            setTextStyle({});
+        }
+    };
 
-
+    // Initial load
     React.useEffect(() => {
         browserClient.emitSec("notification-bar-loaded", {}, function(result) {
-            setState(result)
-        })
+            setState(result);
+        });
     }, []);
+    
+    // Adjust text size when content changes
+    React.useEffect(() => {
+        if (state.id) {
+            // Allow DOM to update before measuring
+            setTimeout(adjustTextSize, 0);
+        }
+    }, [state.title, state.description]);
 
     const buttonClick = (index) => {
         browserClient.emitSec("notification-bar-button-click", {
@@ -107,7 +147,11 @@ const NotificationBarView = (props) => {
                     </div>
                 </Hidden>
                 <div className={classes.textContainer}>
-                    <div className={classes.textContainerCell}>
+                    <div 
+                        ref={textContainerRef}
+                        className={classes.textContainerCell}
+                        style={textStyle}
+                    >
                         <span className={classes.textContainerTitle}>{state.title}:</span>&nbsp;
                         {state.description}
                     </div>

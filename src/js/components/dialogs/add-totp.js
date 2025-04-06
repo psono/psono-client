@@ -13,6 +13,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
+import cryptoLibraryService from "../../services/crypto-library";
+import GridContainerErrors from "../grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -24,6 +26,7 @@ const DialogAddTotp = (props) => {
     const { open, onClose } = props;
     const { t } = useTranslation();
     const classes = useStyles();
+    const [errors, setErrors] = useState([]);
     const [totpPeriod, setTotpPeriod] = useState(30);
     const [totpAlgorithm, setTotpAlgorithm] = useState("SHA1");
     const [totpDigits, setTotpDigits] = useState(6);
@@ -34,12 +37,23 @@ const DialogAddTotp = (props) => {
         setShowPassword(!showPassword);
     };
     const onSave = (event) => {
-        onClose(
-            totpPeriod,
-            totpAlgorithm,
-            totpDigits,
-            totpCode,
-        )
+        try {
+            cryptoLibraryService.getTotpToken(
+                totpCode,
+                totpPeriod,
+                totpAlgorithm,
+                totpDigits
+            );
+            onClose(
+                totpPeriod,
+                totpAlgorithm,
+                totpDigits,
+                totpCode,
+            )
+        }  catch (e) {
+            console.log(e);
+            setErrors(["INVALID_TOTP_PARAMETERS"]);
+        }
     };
 
     return (
@@ -156,6 +170,7 @@ const DialogAddTotp = (props) => {
                         />
                     </Grid>
                 </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </DialogContent>
             <DialogActions>
                 <Button

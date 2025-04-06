@@ -21,6 +21,7 @@ initSentry();
 
 import IndexView from "./views/index";
 import DownloadBanner from "./components/download-banner";
+import NotificationSnackbar from "./components/notification-snackbar";
 import browserClientService from "./services/browser-client";
 import backgroundService from "./services/background";
 
@@ -92,6 +93,7 @@ async function initAndRenderApp() {
                             <LazyThemeProvider>
                                 <HashRouter history={customHistory} hashType="hashbang">
                                     <DownloadBanner />
+                                    <NotificationSnackbar />
                                     <IndexView />
                                 </HashRouter>
                             </LazyThemeProvider>
