@@ -51,7 +51,7 @@ import datastoreService from "../../services/datastore";
 import offlineCache from "../../services/offline-cache";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
 import accountService from "../../services/account";
-import CssBaseline from "@mui/material/CssBaseline";
+import TextFieldColored from "../../components/text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -735,7 +735,7 @@ const PopupView = (props) => {
             <DarkBox>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <TextField
+                        <TextFieldColored
                             className={classes.textField}
                             variant="outlined"
                             margin="dense" size="small"

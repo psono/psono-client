@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import { Checkbox, Grid } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";
+import CustomField from "../text-field/custom-field";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
@@ -61,6 +62,7 @@ import DialogEditCustomField from "./edit-custom-field";
 import TextFieldTotp from "../text-field/totp";
 import DialogAddTotp from "./add-totp";
 import Chip from "@mui/material/Chip";
+import TextFieldColored from "../text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -947,7 +949,7 @@ const DialogNewEntry = (props) => {
         <React.Fragment>
             {customFields.map((customField, index) => (
                 <Grid item xs={12} sm={12} md={12} key={`customField-${index}`}>
-                    <TextField
+                    <CustomField
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -956,6 +958,7 @@ const DialogNewEntry = (props) => {
                         name={`customField${index}`}
                         autoComplete="off"
                         value={customField.value}
+                        fieldType={customField.type}
                         onChange={(event) => {
                             setCustomFields(customFields.map((field, i) => i === index ? { ...field, value: event.target.value } : field));
                         }}
@@ -1141,7 +1144,7 @@ const DialogNewEntry = (props) => {
                         )}
                         {type === "website_password" && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"
@@ -1295,7 +1298,7 @@ const DialogNewEntry = (props) => {
                         )}
                         {type === "application_password" && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"
@@ -1704,7 +1707,7 @@ const DialogNewEntry = (props) => {
                                                 />
                                             </Grid>
                                             <Grid item xs={5} sm={5} md={5}>
-                                                <TextField
+                                                <TextFieldColored
                                                     className={classes.textField5}
                                                     variant="outlined"
                                                     margin="dense" size="small"
@@ -1713,6 +1716,11 @@ const DialogNewEntry = (props) => {
                                                     name={"environmentVariablesVariables-value-" + index}
                                                     autoComplete={"environmentVariablesVariables-value-" + index}
                                                     value={variable.value}
+                                                    InputProps={{
+                                                        classes: {
+                                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                                        },
+                                                    }}
                                                     required
                                                     onChange={(event) => {
                                                         const newEnvs =
@@ -1814,7 +1822,7 @@ const DialogNewEntry = (props) => {
 
                         {type === "elster_certificate" && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"
@@ -1885,7 +1893,7 @@ const DialogNewEntry = (props) => {
 
                         {type === "elster_certificate" && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"
@@ -2249,6 +2257,11 @@ const DialogNewEntry = (props) => {
                                     name="sshOwnKeyPublic"
                                     autoComplete="off"
                                     value={sshOwnKeyPublic}
+                                    InputProps={{
+                                        classes: {
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                        },
+                                    }}
                                     required
                                     disabled
                                     multiline
@@ -2273,6 +2286,11 @@ const DialogNewEntry = (props) => {
                                     multiline
                                     minRows={3}
                                     maxRows={10}
+                                    InputProps={{
+                                        classes: {
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                        },
+                                    }}
                                 />
                             </Grid>
                         )}
@@ -2379,6 +2397,11 @@ const DialogNewEntry = (props) => {
                                     multiline
                                     minRows={3}
                                     maxRows={10}
+                                    InputProps={{
+                                        classes: {
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                        },
+                                    }}
                                 />
                             </Grid>
                         )}
@@ -2398,6 +2421,11 @@ const DialogNewEntry = (props) => {
                                     multiline
                                     minRows={3}
                                     maxRows={10}
+                                    InputProps={{
+                                        classes: {
+                                            input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                                        },
+                                    }}
                                 />
                             </Grid>
                         )}
@@ -2559,7 +2587,7 @@ const DialogNewEntry = (props) => {
                         )}
                         {hasCallback && showAdvanced && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"
