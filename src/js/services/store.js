@@ -101,12 +101,21 @@ export const initStore = async () => {
                 },
             }
         },
+        5: (state) => {
+            return {
+                ...state,
+                server: {
+                    ...state.server,
+                    faviconServiceUrl: '',
+                },
+            }
+        },
     }
 
     const persistConfig = {
         key: await accountService.getCurrentId(),
         blacklist: ['transient', 'notification'],
-        version: 4,
+        version: 5,
         storage: storageService.get('state'),
         debug: false,
         migrate: createMigrate(migrations, { debug: false }),

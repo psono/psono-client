@@ -60,6 +60,7 @@ const defaultAllowedFileRepositoryTypes = [
     'do_spaces',
     'backblaze',
 ];
+const defaultFaviconServiceUrl = '';
 const defaultMultifactorEnabled = false;
 const defaultSystemWideDuoExists = false;
 const defaultVerifyKey = "";
@@ -257,6 +258,7 @@ function server(
                 allowedFileRepositoryTypes: typeof(action.info.allowed_file_repository_types) === "undefined" ? defaultAllowedFileRepositoryTypes : action.info.allowed_file_repository_types,
                 disableCentralSecurityReports: action.info.disable_central_security_reports,
                 multifactorEnabled: action.info.multifactor_enabled,
+                faviconServiceUrl: action.info.favicon_service_url || defaultFaviconServiceUrl,
                 systemWideDuoExists: action.info.system_wide_duo_exists,
                 verifyKey: action.verifyKey,
             });
