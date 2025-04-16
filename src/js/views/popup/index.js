@@ -36,6 +36,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import EntryIcon from "../../components/entry-icon";
 import ContentCopy from "../../components/icons/ContentCopy";
 import DarkBox from "../../components/dark-box";
 import DialogChangeAccount from "../../components/dialogs/change-account";
@@ -286,7 +287,7 @@ const PopupItem = (props) => {
     return (
         <li className={classes.navigationItemLi}>
             <a href="#" className={classes.navigationItemA} onClick={onEditItem}>
-                <i className={"fa-fw " + widgetService.itemIcon(item.content)} /> {title}
+                <EntryIcon key={item.content.secret_id || item.content.file_id} entry={item.content} /> {title}
                 {!!description && (<span className={classes.description}>&nbsp;({description})</span>)}
                 <br />
                 <Tooltip title={item.path} placement="top" PopperProps={{
