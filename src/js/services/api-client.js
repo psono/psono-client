@@ -381,15 +381,17 @@ function yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey) {
  * @param {string} verification hex of first decrypted user_validator (from login) the re-encrypted with session key
  * @param {string} verification_nonce hex of the nonce of the verification
  * @param {string} sessionSecretKey The session secret key
+ * @param {string} zoneinfo The timezone of the user
  *
  * @returns {Promise} promise
  */
-function activateToken(token, verification, verification_nonce, sessionSecretKey) {
+function activateToken(token, verification, verification_nonce, sessionSecretKey, zoneinfo) {
     const endpoint = "/authentication/activate-token/";
     const method = "POST";
     const data = {
         verification: verification,
         verification_nonce: verification_nonce,
+        zoneinfo: zoneinfo,
     };
     const headers = {
         Authorization: "Token " + token,

@@ -337,8 +337,10 @@ function activateToken() {
         };
     };
 
+    const zoneinfo = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     return apiClient
-        .activateToken(token, verification.text, verification.nonce, sessionSecretKey)
+        .activateToken(token, verification.text, verification.nonce, sessionSecretKey, zoneinfo)
         .then(onSuccess);
 }
 
