@@ -308,7 +308,7 @@ const DatastoreTreeItem = (props) => {
                 onContextMenu={onContextMenu}
             >
                 <span className={`fa-stack ${classes.faStack}`}>
-                    <i className={widgetService.itemIcon(content)}/>
+                    <i className={"fa-fw " + widgetService.itemIcon(content)}/>
                     {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`}/>}
                     {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`}/>}
                 </span>
