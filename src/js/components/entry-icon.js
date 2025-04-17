@@ -11,12 +11,14 @@ const faviconCache = new Map();
 const EntryIcon = (props) => {
     const { entry, ...rest } = props;
     const [faviconUrl, setFaviconUrl] = useState(null);
+    const [imageLoadError, setImageLoadError] = useState(false);
     const faviconServiceUrl = getStore().getState().server.faviconServiceUrl;
 
     const entryKey = useMemo(() => entry.secret_id || entry.file_id, [entry]);
 
     useEffect(() => {
-        // Check if we already have this icon in our cache
+        setImageLoadError(false);
+
         if (faviconCache.has(entryKey)) {
             setFaviconUrl(faviconCache.get(entryKey));
             return;
@@ -51,16 +53,27 @@ const EntryIcon = (props) => {
         setFaviconUrl(newFaviconUrl);
     }
 
+    const handleImageError = () => {
+        setImageLoadError(true);
+    };
+
     if (faviconUrl === null) {
         return null;
-    } else if (faviconUrl === 'default') {
+    } else if (faviconUrl === 'default' || imageLoadError) {
         return (
             <i className={"fa-fw " + widgetService.itemIcon(entry)} {...rest} />
         )
     } else {
         return (
             <span style={{display: "inline-block", verticalAlign: "middle"}}>
-                <img alt="Psono" src={faviconUrl} {...rest} className={"fa-fw"} style={{display: "block"}}/>
+                <img 
+                    alt={"Psono"}
+                    src={faviconUrl} 
+                    {...rest} 
+                    className={"fa-fw"} 
+                    style={{display: "block"}}
+                    onError={handleImageError}
+                />
             </span>
         );
     }
