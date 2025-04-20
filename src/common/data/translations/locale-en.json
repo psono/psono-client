@@ -1,4 +1,5 @@
 {
+  "SESSION_EXPIRED": "Session expired",
   "APPROVE_IFRAME_LOGIN": "Different origin detected",
   "APPROVE_IFRAME_LOGIN_DESCRIPTION": "The form is hosted on an origin that is not in your url filter. Choose approve to autofill anyway or cancel to stop. To avoid this message from popping up again, open advanced and add {{origin}} to your url filters.",
   "CONFIG_JSON_MALFORMED": "The json format of your the config.json seems to be malformed. Once fixed make sure to test in an private / incognito browser tab.",

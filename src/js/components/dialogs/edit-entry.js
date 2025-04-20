@@ -14,6 +14,7 @@ import Toolbar from "@mui/material/Toolbar";
 import { Checkbox, Grid } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";
+import CustomField from "../text-field/custom-field";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
@@ -60,6 +61,7 @@ import DialogAddCustomField from "./add-custom-field";
 import DialogAddTag from "./add-tag";
 import DialogEditCustomField from "./edit-custom-field";
 import DialogGeneratePassword from "./generate-password";
+import TextFieldColored from "../text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -1177,7 +1179,7 @@ const DialogEditEntry = (props) => {
         <React.Fragment>
             {customFields.map((customField, index) => (
                 <Grid item xs={12} sm={12} md={12} key={`customField-${index}`}>
-                    <TextField
+                    <CustomField
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -1186,6 +1188,7 @@ const DialogEditEntry = (props) => {
                         name={`customField${index}`}
                         autoComplete="off"
                         value={customField.value}
+                        fieldType={customField.type}
                         onChange={(event) => {
                             setDirty(true);
                             setCustomFields(customFields.map((field, i) => i === index ? { ...field, value: event.target.value } : field));
@@ -1454,7 +1457,7 @@ const DialogEditEntry = (props) => {
             )}
             {item.type === "website_password" && (
                 <Grid item xs={12} sm={12} md={12}>
-                    <TextField
+                    <TextFieldColored
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -1620,7 +1623,7 @@ const DialogEditEntry = (props) => {
             )}
             {item.type === "application_password" && (
                 <Grid item xs={12} sm={12} md={12}>
-                    <TextField
+                    <TextFieldColored
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -1968,7 +1971,7 @@ const DialogEditEntry = (props) => {
                                     />
                                 </Grid>
                                 <Grid item xs={5} sm={5} md={5}>
-                                    <TextField
+                                    <TextFieldColored
                                         className={classes.textField5}
                                         variant="outlined"
                                         margin="dense" size="small"
@@ -2138,7 +2141,7 @@ const DialogEditEntry = (props) => {
 
             {item.type === "elster_certificate" && (
                 <Grid item xs={12} sm={12} md={12}>
-                    <TextField
+                    <TextFieldColored
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -2211,7 +2214,7 @@ const DialogEditEntry = (props) => {
 
             {item.type === "elster_certificate" && (
                 <Grid item xs={12} sm={12} md={12}>
-                    <TextField
+                    <TextFieldColored
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"
@@ -2606,7 +2609,12 @@ const DialogEditEntry = (props) => {
                         name="sshOwnKeyPublic"
                         autoComplete="off"
                         value={sshOwnKeyPublic}
-                        InputProps={{ readOnly: readOnly }}
+                        InputProps={{
+                            readOnly: readOnly,
+                            classes: {
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                            },
+                        }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -2788,7 +2796,12 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyPublic"
                         autoComplete="off"
                         value={mailGpgOwnKeyPublic}
-                        InputProps={{ readOnly: readOnly }}
+                        InputProps={{
+                            readOnly: readOnly,
+                            classes: {
+                                input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+                            },
+                        }}
                         required
                         onChange={(event) => {
                             setDirty(true);
@@ -3056,7 +3069,7 @@ const DialogEditEntry = (props) => {
             )}
             {hasCallback && showAdvanced && (
                 <Grid item xs={12} sm={12} md={12}>
-                    <TextField
+                    <TextFieldColored
                         className={classes.textField}
                         variant="outlined"
                         margin="dense" size="small"

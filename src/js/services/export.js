@@ -417,9 +417,11 @@ async function exportToKdbxv4(passwordData, password) {
         }
     }
 
-    passwordData.items.forEach(item => {
-        processItem(rootGroup, item)
-    });
+    if (passwordData.hasOwnProperty("items")) {
+        passwordData.items.forEach(item => {
+            processItem(rootGroup, item)
+        });
+    }
 
     function processFolders(parentGroup, folders) {
         folders.forEach(folder => {

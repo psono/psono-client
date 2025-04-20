@@ -627,7 +627,6 @@ function _loadConfig() {
 
                 try {
                     configJson = await response.json();
-                    console.log(configJson);
                 } catch (e) {
                     notification.errorSend("CONFIG_JSON_MALFORMED")
                     return onSuccess({ data: {}});

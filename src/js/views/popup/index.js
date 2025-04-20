@@ -36,6 +36,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import EntryIcon from "../../components/entry-icon";
 import ContentCopy from "../../components/icons/ContentCopy";
 import DarkBox from "../../components/dark-box";
 import DialogChangeAccount from "../../components/dialogs/change-account";
@@ -51,7 +52,7 @@ import datastoreService from "../../services/datastore";
 import offlineCache from "../../services/offline-cache";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
 import accountService from "../../services/account";
-import CssBaseline from "@mui/material/CssBaseline";
+import TextFieldColored from "../../components/text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -286,7 +287,7 @@ const PopupItem = (props) => {
     return (
         <li className={classes.navigationItemLi}>
             <a href="#" className={classes.navigationItemA} onClick={onEditItem}>
-                <i className={"fa-fw " + widgetService.itemIcon(item.content)} /> {title}
+                <EntryIcon key={item.content.secret_id || item.content.file_id} entry={item.content} /> {title}
                 {!!description && (<span className={classes.description}>&nbsp;({description})</span>)}
                 <br />
                 <Tooltip title={item.path} placement="top" PopperProps={{
@@ -735,7 +736,7 @@ const PopupView = (props) => {
             <DarkBox>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <TextField
+                        <TextFieldColored
                             className={classes.textField}
                             variant="outlined"
                             margin="dense" size="small"

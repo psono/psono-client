@@ -162,7 +162,7 @@ const DialogGoOffline = (props) => {
                 {!processing && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
-                            <TextField
+                            <TextFieldColored
                                 className={classes.textField}
                                 variant="outlined"
                                 margin="dense" size="small"
@@ -196,7 +196,7 @@ const DialogGoOffline = (props) => {
                         </Grid>
                         {Boolean(passphrase) && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
+                                <TextFieldColored
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense" size="small"

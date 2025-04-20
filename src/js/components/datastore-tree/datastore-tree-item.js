@@ -25,6 +25,7 @@ import ContentCopy from "../icons/ContentCopy";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import widgetService from "../../services/widget";
+import EntryIcon from "../entry-icon";
 
 const useStyles = makeStyles((theme) => ({
     treeItem: {
@@ -308,7 +309,7 @@ const DatastoreTreeItem = (props) => {
                 onContextMenu={onContextMenu}
             >
                 <span className={`fa-stack ${classes.faStack}`}>
-                    <i className={widgetService.itemIcon(content)}/>
+                    <EntryIcon key={content.secret_id || content.file_id} entry={content} />
                     {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`}/>}
                     {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`}/>}
                 </span>

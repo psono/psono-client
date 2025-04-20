@@ -245,8 +245,8 @@ const DatastoreTreeFolder = (props) => {
                         onContextMenu={onContextMenu}
                     >
                         <span className={`fa-stack ${classes.faStack}`}>
-                            {isExpanded && <i className="fa fa-folder-open" />}
-                            {!isExpanded && <i className="fa fa-folder" />}
+                            {isExpanded && <i className="fa-fw fa fa-folder-open" />}
+                            {!isExpanded && <i className="fa-fw fa fa-folder" />}
                             {content.share_id && <i className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`} />}
                             {content.share_id && <i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`} />}
                         </span>

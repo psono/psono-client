@@ -109,6 +109,8 @@ function parseUrl(url) {
     };
 }
 
+
+
 /**
  * Returns weather we have a valid url or not
  *
@@ -116,12 +118,137 @@ function parseUrl(url) {
  * @returns {boolean}
  */
 function isValidUrl(url) {
+    let parsedUrl
     try {
-        new URL(url);
+        parsedUrl = new URL(url);
     } catch (_) {
         return false;
     }
-    return true;
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+}
+
+/**
+ * Returns weather a provided string is a valid hostname (domain or IP).
+ *
+ * @param hostname
+ * @returns {boolean}
+ */
+function isValidHostname(hostname) {
+    try {
+        const url = new URL("https://" + hostname);
+        return url.hostname.toLocaleString() === hostname.toLocaleString();
+    } catch (e) {
+        return false;
+    }
+}
+
+
+/**
+ * Check if `hostname` is *probably* a valid ip addr (either ipv6 or ipv4).
+ * This *will not* work on any string. We need `hostname` to be a valid
+ * hostname.
+ *
+ * Source: https://github.com/remusao/tldts/blob/master/packages/tldts-core/src/is-ip.ts
+ * License: MIT
+ *
+ * @param hostname
+ * @returns {boolean}
+ */
+function _isIP(hostname) {
+
+    function isProbablyIpv4(hostname) {
+        // Cannot be shorted than 1.1.1.1
+        if (hostname.length < 7) {
+            return false;
+        }
+
+        // Cannot be longer than: 255.255.255.255
+        if (hostname.length > 15) {
+            return false;
+        }
+
+        let numberOfDots = 0;
+
+        for (let i = 0; i < hostname.length; i += 1) {
+            const code = hostname.charCodeAt(i);
+
+            if (code === 46 /* '.' */) {
+                numberOfDots += 1;
+            } else if (code < 48 /* '0' */ || code > 57 /* '9' */) {
+                return false;
+            }
+        }
+
+        return (
+            numberOfDots === 3 &&
+            hostname.charCodeAt(0) !== 46 /* '.' */ &&
+            hostname.charCodeAt(hostname.length - 1) !== 46 /* '.' */
+        );
+    }
+
+    function isProbablyIpv6(hostname) {
+        if (hostname.length < 3) {
+            return false;
+        }
+
+        let start = hostname.startsWith('[') ? 1 : 0;
+        let end = hostname.length;
+
+        if (hostname[end - 1] === ']') {
+            end -= 1;
+        }
+
+        // We only consider the maximum size of a normal IPV6. Note that this will
+        // fail on so-called "IPv4 mapped IPv6 addresses" but this is a corner-case
+        // and a proper validation library should be used for these.
+        if (end - start > 39) {
+            return false;
+        }
+
+        let hasColon = false;
+
+        for (; start < end; start += 1) {
+            const code = hostname.charCodeAt(start);
+
+            if (code === 58 /* ':' */) {
+                hasColon = true;
+            } else if (
+                !(
+                    (
+                        (code >= 48 && code <= 57) || // 0-9
+                        (code >= 97 && code <= 102) || // a-f
+                        (code >= 65 && code <= 90)
+                    ) // A-F
+                )
+            ) {
+                return false;
+            }
+        }
+
+        return hasColon;
+    }
+
+    return isProbablyIpv6(hostname) || isProbablyIpv4(hostname);
+}
+
+/**
+ * Returns weather a provided string is a valid domain.
+ *
+ * @param hostname
+ * @returns {boolean}
+ */
+function isValidDomain(hostname) {
+    return isValidHostname(hostname) && !_isIP(hostname);
+}
+
+/**
+ * Returns weather a provided string is a valid ip.
+ *
+ * @param hostname
+ * @returns {boolean}
+ */
+function isValidIp(hostname) {
+    return isValidHostname(hostname) && _isIP(hostname);
 }
 
 /**
@@ -628,6 +755,9 @@ const helperService = {
     endsWith: endsWith,
     getPasswordFilter: getPasswordFilter,
     isUrlFilterMatch: isUrlFilterMatch,
+    isValidHostname: isValidHostname,
+    isValidDomain: isValidDomain,
+    isValidIp: isValidIp,
 };
 
 export default helperService;

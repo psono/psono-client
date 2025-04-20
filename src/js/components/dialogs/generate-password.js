@@ -11,12 +11,11 @@ import {Checkbox, Divider, Grid} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {Check} from "@mui/icons-material";
 import {useSelector} from "react-redux";
 import datastorePassword from "../../services/datastore-password";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
+import TextFieldColored from "../text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -87,7 +86,7 @@ const DialogGeneratePassword = (props) => {
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <TextField
+                        <TextFieldColored
                             className={classes.textField}
                             variant="outlined"
                             margin="dense"

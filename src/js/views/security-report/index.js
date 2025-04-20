@@ -15,6 +15,9 @@ import LinearProgress from "@mui/material/LinearProgress";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { Chart, ArcElement, Tooltip } from "chart.js";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import { Doughnut } from "react-chartjs-2";
 
@@ -25,7 +28,7 @@ import { getStore } from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
-import TextFieldPassword from "../../components/text-field/password";
+import TextFieldColored from "../../components/text-field/colored";
 import AlertSecurityReport from "../../components/alert/security-report";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
@@ -87,6 +90,11 @@ const useStyles = makeStyles((theme) => ({
     passwordField: {
         fontFamily: "'Fira Code', monospace",
     },
+    passwordContainer: {
+        '& .MuiInputBase-input': {
+            fontSize: '0.8125rem',
+        },
+    },
 }));
 
 const SecurityReportView = (props) => {
@@ -105,17 +113,16 @@ const SecurityReportView = (props) => {
     const [passwordDuplicateData, setPasswordDuplicateData] = React.useState({});
     const [passwordAverageScoreData, setPasswordAverageScoreData] = React.useState({});
     const [passwordAgeData, setPasswordAgeData] = React.useState({});
-    const [processing, setProcessing] = React.useState(true);
     const [haveibeenpwnedProcessing, setHaveibeenpwnedProcessing] = React.useState(true);
     const [errors, setErrors] = useState([]);
     const [msgs, setMsgs] = useState([]);
     const [reportComplete, setReportComplete] = useState(false);
+    const [visiblePasswordId, setVisiblePasswordId] = useState(null);
     
     const [checkHaveibeenpwned, setCheckHaveibeenpwned] = useState(getStore().getState().server.complianceEnforceBreachDetection);
     const [analysis, setAnalysis] = useState({
         'passwords': []
     });
-    const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [haveibeenpwnedPercentageComplete, setHaveibeenpwnedPercentageComplete] = React.useState(0);
 
     const [sendToServer, setSendToServer] = useState(
@@ -133,21 +140,11 @@ const SecurityReportView = (props) => {
     React.useEffect(() => {
         iniatiateState();
 
-        securityReportService.on("generation-started", function () {
-            if (!isSubscribed) {
-                return;
-            }
-            setProcessing(true);
-        });
-
         securityReportService.on("get-secret-started", function () {
             if (!isSubscribed) {
                 return;
             }
             openSecretRequests = openSecretRequests + 1;
-            setPercentageComplete(openSecretRequests
-                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
-                : 0)
         });
 
         securityReportService.on("get-secret-complete", function () {
@@ -155,9 +152,6 @@ const SecurityReportView = (props) => {
                 return;
             }
             closedSecretRequests = closedSecretRequests + 1;
-            setPercentageComplete(openSecretRequests
-                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
-                : 0)
         });
 
         securityReportService.on("generation-complete", function () {
@@ -166,10 +160,6 @@ const SecurityReportView = (props) => {
             }
             openSecretRequests = 0;
             closedSecretRequests = 0;
-            setProcessing(false);
-            setPercentageComplete(openSecretRequests
-                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
-                : 0)
         });
 
         securityReportService.on("check-haveibeenpwned-started", function () {
@@ -219,7 +209,6 @@ const SecurityReportView = (props) => {
             return;
         }
         setReportComplete(false);
-        setProcessing(false);
         setHaveibeenpwnedProcessing(false);
         openHaveibeenpwnedRequests = 0
         closedHaveibeenpwnedRequests = 0
@@ -351,17 +340,41 @@ const SecurityReportView = (props) => {
                 sort: false,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
+                    const rowId = tableMeta.rowData[0];
+                    const showPassword = visiblePasswordId === rowId;
+                    
                     return (
-                        <TextFieldPassword
-                            key={tableMeta.rowData[0]}
-                            className={classes.textField}
-                            variant="outlined"
-                            margin="dense" size="small"
-                            label={t("PASSWORD")}
-                            name="websitePasswordPassword"
-                            autoComplete="off"
-                            value={tableMeta.rowData[2]}
-                        />
+                        <div className={classes.passwordContainer}>
+                            <TextFieldColored
+                                key={rowId}
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense" 
+                                size="small"
+                                label={t("PASSWORD")}
+                                name="websitePasswordPassword"
+                                autoComplete="off"
+                                value={tableMeta.rowData[2]}
+                                InputProps={{
+                                    readOnly: true,
+                                    type: showPassword ? "text" : "password",
+                                    classes: {
+                                        input: classes.passwordField,
+                                    },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setVisiblePasswordId(showPassword ? null : rowId)}
+                                                edge="end"
+                                                size="large">
+                                                {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </div>
                     );
                 },
             },
@@ -665,29 +678,6 @@ const SecurityReportView = (props) => {
                                     severity="info"
                                     className={classes.muiWarning}
                                 />
-
-                                {processing && (
-                                    <Grid item xs={12} sm={12} md={12}>
-                                        <Typography variant="body2" className={classes.downloadingPasswords}>
-                                            {t("DOWNLOADING_PASSWORDS")}:
-                                        </Typography>
-                                        <Box display="flex" alignItems="center">
-                                            <Box width="100%" mr={1}>
-                                                <LinearProgress variant="determinate" value={percentageComplete} />
-                                            </Box>
-                                            <Box minWidth={35}>
-                                                <span
-                                                    style={{
-                                                        color: "white",
-                                                        whiteSpace: "nowrap",
-                                                    }}
-                                                >
-                                                    {percentageComplete} %
-                                                </span>
-                                            </Box>
-                                        </Box>
-                                    </Grid>
-                                )}
                                 {haveibeenpwnedProcessing && (
                                     <Grid item xs={12} sm={12} md={12}>
                                         <Typography variant="body2" className={classes.downloadingPasswords}>
