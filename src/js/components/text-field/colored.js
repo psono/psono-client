@@ -91,11 +91,17 @@ const TextFieldColored = (props) => {
 
   const getCursorStylePosition = () => {
     if (cursorPosition === null || !hasFocus) return { display: 'none' };
-    const charWidth = 8.9;
+    
+    // Measure the text width dynamically
+    const textToMeasure = value ? value.substring(0, cursorPosition) : '';
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = getComputedStyle(document.body).getPropertyValue('font-size') + " 'Fira Code', monospace";
+    const textWidth = textToMeasure ? context.measureText(textToMeasure).width : 0;
     
     return {
       ...cursorStyle,
-      left: `calc(14px + ${cursorPosition * charWidth}px)`,
+      left: `calc(14px + ${textWidth}px)`,
     };
   };
 
