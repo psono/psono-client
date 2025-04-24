@@ -1,3 +1,5 @@
+import helper from "./helper";
+
 let publicSuffixList;
 
 
@@ -57,10 +59,25 @@ async function getPublicSuffix(domain, privateOnly) {
     return longestPublicSuffix || null; // Return the longestPublicSuffix without reversing
 }
 
+/**
+ * Checks whether a domain is a valid dom
+ * @param domain
+ * @param privateOnly
+ * @returns {Promise<boolean>}
+ */
+async function isValidPublicDomain(domain, privateOnly) {
+    if (!helper.isValidDomain(domain)) {
+        return false;
+    }
+    const publicSuffix = await getPublicSuffix(domain, privateOnly)
+    return publicSuffix !== null && publicSuffix !== domain
+}
+
 
 
 const publicSuffixService = {
     getPublicSuffix,
+    isValidPublicDomain,
     getPublicSuffixList,
 };
 

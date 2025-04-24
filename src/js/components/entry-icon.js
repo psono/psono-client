@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import helper from "../services/helper";
 import widgetService from "../services/widget";
 import {getStore} from "../services/store";
+import publicSuffixService from "../services/public-suffix";
 
 // Cache for favicon URLs to prevent duplicate requests and mismatched icons
 const faviconCache = new Map();
@@ -27,27 +28,26 @@ const EntryIcon = (props) => {
         loadIcon();
     }, [entryKey, entry.urlfilter]);
 
-    function loadIcon() {
+    async function loadIcon() {
         let urlFilters = [];
         if (entry.urlfilter) {
             urlFilters = entry.urlfilter.split(/\s+|,|;/)
         }
-        
+
         let chosenUrlFilter = '';
         if (urlFilters.length > 0 && faviconServiceUrl) {
             if (urlFilters[0].startsWith('*.')) {
                 urlFilters[0] = urlFilters[0].substring(2);
             }
-            if (faviconServiceUrl === 'https://favicon.psono.com/v1/icon/' && helper.isValidDomain(urlFilters[0])) {
+            if (faviconServiceUrl === 'https://favicon.psono.com/v1/icon/' && await publicSuffixService.isValidPublicDomain(urlFilters[0])) {
                 chosenUrlFilter = urlFilters[0];
-            }
-            if (faviconServiceUrl !== 'https://favicon.psono.com/v1/icon/' && helper.isValidHostname(urlFilters[0])) {
+            } else if (faviconServiceUrl !== 'https://favicon.psono.com/v1/icon/' && helper.isValidHostname(urlFilters[0])) {
                 chosenUrlFilter = urlFilters[0];
             }
         }
 
         const newFaviconUrl = chosenUrlFilter ? (faviconServiceUrl + chosenUrlFilter) : 'default';
-        
+
         // Cache the result
         faviconCache.set(entryKey, newFaviconUrl);
         setFaviconUrl(newFaviconUrl);

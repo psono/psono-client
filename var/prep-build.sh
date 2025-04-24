@@ -9,5 +9,4 @@ apt-get install -y nodejs && \
 node --version && \
 npm --version && \
 npm ci && \
-npm install -g node-poeditor &&
-rm src/common/data/public-suffix-list.json
+npm install -g node-poeditor

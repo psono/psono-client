@@ -58,10 +58,6 @@ async function isRegistrableDomainSuffix(hostSuffixString, originalHost) {
         return false
     }
 
-    if (publicSuffixList.icann.hasOwnProperty(hostSuffixString)) {
-        return false
-    }
-
     if (publicSuffixList.private.hasOwnProperty(hostSuffixString)) {
         return false
     }
