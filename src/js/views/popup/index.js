@@ -747,6 +747,7 @@ const PopupView = (props) => {
                             value={password}
                             onChange={(event) => {
                                 setPassword(event.target.value);
+                                copyToClipboard(event.target.value)
                             }}
                             InputProps={{
                                 endAdornment: (
