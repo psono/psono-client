@@ -2970,6 +2970,7 @@ const DialogEditEntry = (props) => {
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
                         icon={<Check className={classes.uncheckedIcon} />}
+                        disabled={readOnly}
                         classes={{
                             checked: classes.checked,
                         }}
@@ -2988,6 +2989,7 @@ const DialogEditEntry = (props) => {
                         }}
                         checkedIcon={<Check className={classes.checkedIcon} />}
                         icon={<Check className={classes.uncheckedIcon} />}
+                        disabled={readOnly}
                         classes={{
                             checked: classes.checked,
                         }}
