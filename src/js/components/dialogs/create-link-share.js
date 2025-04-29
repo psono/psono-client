@@ -55,10 +55,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogCreateLinkShare = (props) => {
-    const { open, onClose } = props;
+    const { open, onClose, item } = props;
     const { t } = useTranslation();
     const classes = useStyles();
-    const [publicTitle, setPublicTitle] = useState(props.item.name);
+    const [publicTitle, setPublicTitle] = useState(item.name);
     const [allowedReads, setAllowedReads] = useState(1);
     const [allowWrite, setAllowWrite] = useState(false);
     const [validTill, setValidTill] = useState(add(new Date(), { days: 1 }));
@@ -95,24 +95,24 @@ const DialogCreateLinkShare = (props) => {
         const linkShareSecret = cryptoLibraryService.generateSecretKey();
 
         const content = {
-            secret_id: props.item.secret_id,
-            secret_key: props.item.secret_key,
-            type: props.item.type,
+            secret_id: item.secret_id,
+            secret_key: item.secret_key,
+            type: item.type,
         };
-        if (props.item.hasOwnProperty("file_chunks")) {
-            content["file_chunks"] = props.item["file_chunks"];
+        if (item.hasOwnProperty("file_chunks")) {
+            content["file_chunks"] = item["file_chunks"];
         }
-        if (props.item.hasOwnProperty("file_id")) {
-            content["file_id"] = props.item["file_id"];
+        if (item.hasOwnProperty("file_id")) {
+            content["file_id"] = item["file_id"];
         }
-        if (props.item.hasOwnProperty("file_secret_key")) {
-            content["file_secret_key"] = props.item["file_secret_key"];
+        if (item.hasOwnProperty("file_secret_key")) {
+            content["file_secret_key"] = item["file_secret_key"];
         }
-        if (props.item.hasOwnProperty("file_shard_id")) {
-            content["file_shard_id"] = props.item["file_shard_id"];
+        if (item.hasOwnProperty("file_shard_id")) {
+            content["file_shard_id"] = item["file_shard_id"];
         }
-        if (props.item.hasOwnProperty("file_title")) {
-            content["file_title"] = props.item["file_title"];
+        if (item.hasOwnProperty("file_title")) {
+            content["file_title"] = item["file_title"];
         }
 
         const itemEncrypted = cryptoLibraryService.encryptData(JSON.stringify(content), linkShareSecret);
@@ -130,10 +130,10 @@ const DialogCreateLinkShare = (props) => {
         let fileId = undefined;
         let secretId = undefined;
 
-        if (props.item.hasOwnProperty("file_id")) {
-            fileId = props.item.file_id;
+        if (item.hasOwnProperty("file_id")) {
+            fileId = item.file_id;
         } else {
-            secretId = props.item.secret_id;
+            secretId = item.secret_id;
         }
 
         const onError = function (result) {
@@ -343,7 +343,7 @@ const DialogCreateLinkShare = (props) => {
                             />
                         </Grid>
 
-                        {!props.item.hasOwnProperty("file_id") && (<Grid item xs={12} sm={12} md={12}>
+                        {!item.hasOwnProperty("file_id") && !(!item.share_rights || !item.share_rights.write) && (<Grid item xs={12} sm={12} md={12}>
                             <Checkbox
                                 tabIndex={1}
                                 checked={allowWrite}
