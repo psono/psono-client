@@ -1103,77 +1103,84 @@ const DialogEditEntry = (props) => {
         title = t('ACCESS_DENIED')
     }
 
-    const renderAddButton = (
-        <React.Fragment>
-            <Grid item xs={12} sm={12} md={12}>
-                <Button
-                    startIcon={<PlaylistAddIcon />}
-                    disabled={getStore().getState().settingsDatastore.noSaveMode}
-                    onClick={(event) => {
-                        setAnchorEl3(event.currentTarget);
-                    }}
-                >
-                    {t("ADD_DOT_DOT_DOT")}
-                </Button>
-                <Menu
-                    id="add-menu"
-                    anchorEl={anchorEl3}
-                    keepMounted
-                    open={Boolean(anchorEl3)}
-                    onClose={handleClose}
-                >
-                    {!hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note") && (
-                        <MenuItem
-                            disabled={readOnly}
-                            onClick={() => {
-                                handleClose();
-                                setAddCustomFieldOpen(true);
-                            }}
-                        >
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("ADD_CUSTOM_FIELD")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideAddTag && (
-                        <MenuItem
-                            disabled={readOnly}
-                            onClick={() => {
-                                handleClose();
-                                setAddTagOpen(true);
-                            }}
-                        >
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("ADD_TAG")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && (
-                        <MenuItem
-                            disabled={readOnly}
-                            onClick={() => {
-                                handleClose();
-                                setAddTotpOpen(true);
-                            }}
-                        >
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <PlaylistAddIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("ADD_TOTP")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                </Menu>
-            </Grid>
-        </React.Fragment>
-    )
+    const hasAddCustomField = !hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note");
+    const hasAddTag = !hideAddTag;
+    const hasAddTOTP = !hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode;
+
+    let renderAddButton = null;
+    if (hasAddCustomField || hasAddTag || hasAddTOTP) {
+        renderAddButton = (
+            <React.Fragment>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        startIcon={<PlaylistAddIcon />}
+                        disabled={getStore().getState().settingsDatastore.noSaveMode}
+                        onClick={(event) => {
+                            setAnchorEl3(event.currentTarget);
+                        }}
+                    >
+                        {t("ADD_DOT_DOT_DOT")}
+                    </Button>
+                    <Menu
+                        id="add-menu"
+                        anchorEl={anchorEl3}
+                        keepMounted
+                        open={Boolean(anchorEl3)}
+                        onClose={handleClose}
+                    >
+                        {hasAddCustomField && (
+                            <MenuItem
+                                disabled={readOnly}
+                                onClick={() => {
+                                    handleClose();
+                                    setAddCustomFieldOpen(true);
+                                }}
+                            >
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("ADD_CUSTOM_FIELD")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {hasAddTag && (
+                            <MenuItem
+                                disabled={readOnly}
+                                onClick={() => {
+                                    handleClose();
+                                    setAddTagOpen(true);
+                                }}
+                            >
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("ADD_TAG")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        {hasAddTOTP && (
+                            <MenuItem
+                                disabled={readOnly}
+                                onClick={() => {
+                                    handleClose();
+                                    setAddTotpOpen(true);
+                                }}
+                            >
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("ADD_TOTP")}
+                                </Typography>
+                            </MenuItem>
+                        )}
+                    </Menu>
+                </Grid>
+            </React.Fragment>
+        )
+    }
 
     const renderedCustomFields = (
         <React.Fragment>
