@@ -1250,30 +1250,35 @@ const DialogEditEntry = (props) => {
                                                 {t("COPY_TO_CLIPBOARD")}
                                             </Typography>
                                         </MenuItem>
-                                        <Divider className={classes.divider} />
-                                        <MenuItem onClick={(event) => {
-                                            setEditCustomFieldOpenIndex(index);
-                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
-                                        }}>
-                                            <ListItemIcon className={classes.listItemIcon}>
-                                                <EditIcon className={classes.icon} fontSize="small" />
-                                            </ListItemIcon>
-                                            <Typography variant="body2" noWrap>
-                                                {t("EDIT_CUSTOM_FIELD")}
-                                            </Typography>
-                                        </MenuItem>
-                                        <MenuItem onClick={(event) => {
-                                            setCustomFields(customFields.filter((field, i) => i !== index));
-                                            setDirty(true);
-                                            setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
-                                        }}>
-                                            <ListItemIcon className={classes.listItemIcon}>
-                                                <DeleteIcon className={classes.icon} fontSize="small" />
-                                            </ListItemIcon>
-                                            <Typography variant="body2" noWrap>
-                                                {t("REMOVE_CUSTOM_FIELD")}
-                                            </Typography>
-                                        </MenuItem>
+                                        {!readOnly && (
+                                            <>
+                                                <Divider className={classes.divider} />
+                                                <MenuItem onClick={(event) => {
+                                                    setEditCustomFieldOpenIndex(index);
+                                                    setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                                }}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <EditIcon className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("EDIT_CUSTOM_FIELD")}
+                                                    </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={(event) => {
+                                                    setCustomFields(customFields.filter((field, i) => i !== index));
+                                                    setDirty(true);
+                                                    setAnchorElsCustomFields({ ...anchorElsCustomFields, [index]: null });
+                                                }}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <DeleteIcon className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("REMOVE_CUSTOM_FIELD")}
+                                                    </Typography>
+                                                </MenuItem>
+                                            </>
+                                        )}
+
                                     </Menu>
                                 </InputAdornment>
                             ),
