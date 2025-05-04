@@ -595,12 +595,18 @@ const PopupView = (props) => {
             }
             if (folder.hasOwnProperty("folders")) {
                 for (i = 0; i < folder["folders"].length; i++) {
+                    if (folder["folders"][i].hasOwnProperty("deleted") && folder["folders"][i]["deleted"]) {
+                        continue
+                    }
                     deepSearchAllItems(folder["folders"][i], path + folder["folders"][i].name + "/");
                 }
             }
 
             if (folder.hasOwnProperty("items")) {
                 for (i = 0; i < folder["items"].length; i++) {
+                    if (folder["items"][i].hasOwnProperty("deleted") && folder["items"][i]["deleted"]) {
+                        continue
+                    }
                     entries.push({
                         content: folder["items"][i],
                         path: path,
@@ -747,6 +753,7 @@ const PopupView = (props) => {
                             value={password}
                             onChange={(event) => {
                                 setPassword(event.target.value);
+                                copyToClipboard(event.target.value)
                             }}
                             InputProps={{
                                 endAdornment: (

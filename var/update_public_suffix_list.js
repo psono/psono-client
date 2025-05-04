@@ -72,6 +72,20 @@ async function run() {
         }
         tlds[section][tld] = level;
     }
-    fs.writeFileSync(path.join('.', 'src', 'common', 'data', 'public-suffix-list.json'), JSON.stringify(tlds, null, 2));
+    const primaryPath = path.join('.', 'src', 'common', 'data', 'public-suffix-list.json');
+    const secondaryPath = path.join('.', 'src', 'common', 'data', 'data', 'public-suffix-list.json');
+    
+    // Remove existing files if they exist
+    if (fs.existsSync(primaryPath)) {
+        fs.unlinkSync(primaryPath);
+    }
+    
+    if (fs.existsSync(secondaryPath)) {
+        fs.unlinkSync(secondaryPath);
+    }
+    
+    // Write to both locations
+    fs.writeFileSync(primaryPath, JSON.stringify(tlds, null, 2));
+    fs.writeFileSync(secondaryPath, JSON.stringify(tlds, null, 2));
 }
 run();
