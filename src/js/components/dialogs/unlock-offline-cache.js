@@ -6,7 +6,6 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import { makeStyles } from '@mui/styles';
 import { Grid } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
@@ -14,9 +13,9 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 
+import TextFieldColored from "../text-field/colored";
 import GridContainerErrors from "../grid-container-errors";
 import offlineCacheService from "../../services/offline-cache";
-import userService from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
