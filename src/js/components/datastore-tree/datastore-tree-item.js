@@ -297,7 +297,7 @@ const DatastoreTreeItem = (props) => {
     };
 
     let description = "";
-    if (content.hasOwnProperty("description") && content.description && !content.name.toLowerCase().includes(content.description.toLowerCase())) {
+    if (content.hasOwnProperty("description") && content.description && (!content.name || !content.name.toLowerCase().includes(content.description.toLowerCase()))) {
         description = content.description;
     }
 
