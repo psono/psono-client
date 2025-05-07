@@ -681,7 +681,7 @@ function isUrlFilterMatch(authority, urlFilter) {
 function getPasswordFilter(test) {
     const searchStrings = test.toLowerCase().split(" ");
 
-    function filter(datastore_entry) {
+    function filter(datastore_entry, additionalInfo) {
         let containCounter = 0;
         for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
             if (typeof datastore_entry.name === "undefined") {
@@ -700,6 +700,11 @@ function getPasswordFilter(test) {
                 datastore_entry.hasOwnProperty("description") &&
                 datastore_entry["description"] &&
                 datastore_entry["description"].toLowerCase().indexOf(searchStrings[ii]) > -1
+            ) {
+                containCounter++;
+            } else  if (
+                additionalInfo &&
+                additionalInfo.toLowerCase().indexOf(searchStrings[ii]) > -1
             ) {
                 containCounter++;
             } else if (
