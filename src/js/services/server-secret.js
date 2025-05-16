@@ -47,10 +47,12 @@ function deleteServerSecret(password) {
     const userSecretKey = getStore().getState().user.userSecretKey;
     const userPrivateKey = getStore().getState().user.userPrivateKey;
     const userSauce = getStore().getState().user.userSauce;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const privateKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
-    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
-    const authkey = cryptoLibrary.generateAuthkey(username, password);
+    const privateKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce, hashingAlgorithm, hashingParameters);
+    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce, hashingAlgorithm, hashingParameters);
+    const authkey = cryptoLibrary.generateAuthkey(username, password, hashingAlgorithm, hashingParameters);
 
     const onSuccess = function (content) {
         action().setServerSecretExists(false);
@@ -63,7 +65,7 @@ function deleteServerSecret(password) {
         return Promise.reject(error);
     };
 
-    return apiClient.deleteServerSecret(token, sessionSecretKey, authkey, privateKeyEnc.text, privateKeyEnc.nonce, secretKeyEnc.text, secretKeyEnc.nonce, userSauce).then(onSuccess, onError);
+    return apiClient.deleteServerSecret(token, sessionSecretKey, authkey, privateKeyEnc.text, privateKeyEnc.nonce, secretKeyEnc.text, secretKeyEnc.nonce, userSauce, hashingAlgorithm, hashingParameters).then(onSuccess, onError);
 }
 
 const serverSecretService = {

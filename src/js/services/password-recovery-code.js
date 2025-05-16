@@ -15,9 +15,20 @@ import cryptoLibrary from "./crypto-library";
 function recoveryGenerateInformation() {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const username = getStore().getState().user.username;
 
     const recoveryPassword = cryptoLibrary.generateRecoveryCode();
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, recoveryPassword["base58"]);
+    const recoveryAuthkey = cryptoLibrary.generateAuthkey(
+        username,
+        recoveryPassword["base58"],
+        'scrypt',
+        {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
+    );
     const recoverySauce = cryptoLibrary.generateUserSauce();
 
     const recovery_data_dec = {
@@ -33,7 +44,7 @@ function recoveryGenerateInformation() {
 
     const onSuccess = function () {
         return {
-            username: getStore().getState().user.username,
+            username: username,
             recovery_password: helperService.splitStringInChunks(recoveryPassword["base58_checksums"], 13).join("-"),
             recovery_words: recoveryPassword["words"].join(" "),
         };

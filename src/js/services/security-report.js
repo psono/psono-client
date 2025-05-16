@@ -626,10 +626,18 @@ function generateSecurityReport(password, checkHaveibeenpwned) {
 function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const username = getStore().getState().user.username;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
 
     const entries = [];
 
-    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, masterPassword);
+    const authkey = cryptoLibrary.generateAuthkey(
+        username,
+        masterPassword,
+        hashingAlgorithm,
+        hashingParameters,
+    );
 
     for (let i = 0; i < analysis["passwords"].length; i++) {
         entries.push({

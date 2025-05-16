@@ -107,6 +107,8 @@ function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
     const encryptionKeyEncrypted = getStore().getState().client.offlineCacheEncryptionKey;
     const encryptionKeySalt = getStore().getState().client.offlineCacheEncryptionSalt;
     if (!encryptionKeyEncrypted || !encryptionKeySalt) {
@@ -118,7 +120,9 @@ function unlock(password) {
             encryptionKeyEncrypted.text,
             encryptionKeyEncrypted.nonce,
             password,
-            encryptionKeySalt
+            encryptionKeySalt,
+            hashingAlgorithm,
+            hashingParameters,
         );
     } catch (e) {
         return false;
@@ -156,13 +160,17 @@ function setEncryptionKey(newEncryptionKey) {
  * @param {string} password The password
  */
 function setEncryptionPassword(password) {
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
     const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
     const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
     const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
         new_encryption_key,
         password,
-        offlineCacheEncryptionSalt
+        offlineCacheEncryptionSalt,
+        hashingAlgorithm,
+        hashingParameters,
     );
     action().setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
     browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });

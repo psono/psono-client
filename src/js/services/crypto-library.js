@@ -107,16 +107,33 @@ function clearScryptLookupTable() {
  *
  * @param {string} password the password one wants to hash
  * @param {string} salt The fix salt one wants to use
+ * @param {object} hashingParameters The hashing parameters
  *
  * @returns {string} The scrypt hash
  */
-function passwordScrypt(password, salt) {
+function passwordScrypt(password, salt, hashingParameters) {
     // Lets first generate our key from our user_sauce and password
-    const u = 14; //2^14 = 16MB
-    const r = 8;
-    const p = 1;
-    const l = 64; // 64 Bytes = 512 Bits
+    let u = 14; //2^14 = 16MB
+    let r = 8;
+    let p = 1;
+    let l = 64; // 64 Bytes = 512 Bits
     let k;
+
+    if (hashingParameters && hashingParameters.hasOwnProperty('u') && hashingParameters['u'] > u) {
+        u = hashingParameters['u']
+    }
+
+    if (hashingParameters && hashingParameters.hasOwnProperty('r') && hashingParameters['r'] > r) {
+        r = hashingParameters['r']
+    }
+
+    if (hashingParameters && hashingParameters.hasOwnProperty('p') && hashingParameters['p'] > p) {
+        p = hashingParameters['p']
+    }
+
+    if (hashingParameters && hashingParameters.hasOwnProperty('l') && hashingParameters['l'] > l) {
+        l = hashingParameters['l']
+    }
 
     const lookup_hash = sha512(password) + sha512(salt);
 
@@ -155,17 +172,22 @@ function passwordScrypt(password, salt) {
  *
  * @param {string} username Username of the user (in email format)
  * @param {string} password Password of the user
+ * @param {string} hashingAlgorithm The hashing algorithm, usually scrypt
+ * @param {object} hashingParameters The hashing parameters
  *
  * @returns {string} auth_key Scrypt hex value of the password with the sha512 of lowercase email as salt
  */
-function generateAuthkey(username, password) {
+function generateAuthkey(username, password, hashingAlgorithm, hashingParameters) {
     if (!username || !username.includes("@")) {
         // security. Do not remove!
         throw new Error("Malformed username.");
     }
+    if (hashingAlgorithm && hashingAlgorithm !== 'scrypt') {
+        throw new Error("Unsupported hashing algorithm");
+    }
 
     const salt = sha512(username.toLowerCase());
-    return passwordScrypt(password, salt);
+    return passwordScrypt(password, salt, hashingParameters);
 }
 
 /**
@@ -201,10 +223,12 @@ function generatePublicPrivateKeypair() {
  * @param {string} secret The secret you want to encrypt
  * @param {string} password The password you want to use to encrypt the secret
  * @param {string} userSauce The user's sauce
+ * @param {string} hashingAlgorithm The hashing algorithm, usually scrypt
+ * @param {object} hashingParameters The hashing parameters
  *
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
-function encryptSecret(secret, password, userSauce) {
+function encryptSecret(secret, password, userSauce, hashingAlgorithm, hashingParameters) {
 
     if (userSauce.includes("@")){
         // security. Do not remove!
@@ -212,7 +236,7 @@ function encryptSecret(secret, password, userSauce) {
     }
 
     const salt = sha512(userSauce);
-    const k = converterService.fromHex(sha256(passwordScrypt(password, salt))); // key
+    const k = converterService.fromHex(sha256(passwordScrypt(password, salt, hashingParameters))); // key
 
     // and now lets encrypt
     const m = converterService.encodeUtf8(secret); // message
@@ -233,10 +257,12 @@ function encryptSecret(secret, password, userSauce) {
  * @param {string} nonce The nonce for the encrypted text
  * @param {string} password The password to decrypt the text
  * @param {string} userSauce The users sauce used during encryption
+ * @param {string} hashingAlgorithm The hashing algorithm, usually scrypt
+ * @param {object} hashingParameters The hashing parameters
  *
  * @returns {string} secret The decrypted secret
  */
-function decryptSecret(text, nonce, password, userSauce) {
+function decryptSecret(text, nonce, password, userSauce, hashingAlgorithm, hashingParameters) {
 
     if (userSauce.includes("@")){
         // security. Do not remove!
@@ -244,7 +270,7 @@ function decryptSecret(text, nonce, password, userSauce) {
     }
 
     const salt = sha512(userSauce);
-    const k = converterService.fromHex(sha256(passwordScrypt(password, salt)));
+    const k = converterService.fromHex(sha256(passwordScrypt(password, salt, hashingParameters)));
 
     // and now lets decrypt
     const n = converterService.fromHex(nonce);

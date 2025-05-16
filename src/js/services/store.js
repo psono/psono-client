@@ -110,12 +110,27 @@ export const initStore = async () => {
                 },
             }
         },
+        6: (state) => {
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    hashingAlgorithm: "scrypt",
+                    hashingParameters: {
+                        "u": 14,
+                        "r": 8,
+                        "p": 1,
+                        "l": 64
+                    },
+                },
+            }
+        },
     }
 
     const persistConfig = {
         key: await accountService.getCurrentId(),
         blacklist: ['transient', 'notification'],
-        version: 5,
+        version: 6,
         storage: storageService.get('state'),
         debug: false,
         migrate: createMigrate(migrations, { debug: false }),

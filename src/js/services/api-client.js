@@ -194,6 +194,24 @@ function info() {
 }
 
 /**
+ * Ajax POST request to the backend with username to get the password hashing algorithm infos of the user
+ *
+ * @param {string} username The username
+ *
+ * @returns {Promise} Returns a promise with the login status
+ */
+const prelogin = function (username) {
+    const endpoint = "/authentication/prelogin/";
+    const method = "POST";
+    const data = {
+        username: username,
+    };
+    const headers = null;
+
+    return call(method, endpoint, data, headers);
+};
+
+/**
  * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
  * and all the different keys of a user in the apidata storage
  *
@@ -571,7 +589,9 @@ function statelessLogout(token, sessionSecretKey, sessionId, postLogoutRedirectU
  * @param {string} secretKey secretKey for symmetric encryption, encrypted with encrypt_secret
  * @param {string} secretKeyNonce the nonce for decrypting the encrypted secretKey
  * @param {string} userSauce the random user sauce used
- * @param {string} base_url the base url for the activation link creation
+ * @param {string} baseUrl the base url for the activation link creation
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
  *
  * @returns {Promise} promise
  */
@@ -585,7 +605,9 @@ function register(
     secretKey,
     secretKeyNonce,
     userSauce,
-    base_url
+    baseUrl,
+    hashingAlgorithm,
+    hashingParameters,
 ) {
     const endpoint = "/authentication/register/";
     const method = "POST";
@@ -599,7 +621,9 @@ function register(
         secret_key: secretKey,
         secret_key_nonce: secretKeyNonce,
         user_sauce: userSauce,
-        base_url: base_url,
+        base_url: baseUrl,
+        hashing_algorithm: hashingAlgorithm,
+        hashing_parameters: hashingParameters,
     };
     const headers = null;
 
@@ -612,21 +636,21 @@ function register(
  *
  * @param {string} username username of the user (in email format)
  * @param {string} email email address of the user
- * @param {string} base_url the base url for the account deletion link
+ * @param {string} baseUrl the base url for the account deletion link
  *
  * @returns {Promise} promise
  */
 function unregister(
     username,
     email,
-    base_url
+    baseUrl
 ) {
     const endpoint = "/authentication/unregister/";
     const method = "POST";
     const data = {
         email: email,
         username: username,
-        base_url: base_url,
+        base_url: baseUrl,
     };
     const headers = null;
 
@@ -684,6 +708,8 @@ function verifyEmail(activation_code) {
  * @param {string} secretKey The (encrypted) secret key
  * @param {string} secretKeyNonce The nonce for the secret key
  * @param {string} language The language
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
  *
  * @returns {Promise} Returns a promise with the update status
  */
@@ -698,6 +724,8 @@ function updateUser(
     secretKey,
     secretKeyNonce,
     language,
+    hashingAlgorithm,
+    hashingParameters,
 ) {
     const endpoint = "/user/update/";
     const method = "PUT";
@@ -710,6 +738,8 @@ function updateUser(
         secret_key: secretKey,
         secret_key_nonce: secretKeyNonce,
         language: language,
+        hashing_algorithm: hashingAlgorithm,
+        hashing_parameters: hashingParameters,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -824,10 +854,12 @@ function activateEmergencyCode(username, emergency_authkey, update_data, update_
  * @param {string} recovery_authkey The recovery_authkey (derivative of the recovery_password)
  * @param {string} update_data The private and secret key object encrypted with the verifier
  * @param {string} update_data_nonce The nonce of the encrypted private and secret key object
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-function setPassword(username, recovery_authkey, update_data, update_data_nonce) {
+function setPassword(username, recovery_authkey, update_data, update_data_nonce, hashingAlgorithm, hashingParameters) {
     const endpoint = "/password/";
     const method = "PUT";
     const data = {
@@ -835,6 +867,9 @@ function setPassword(username, recovery_authkey, update_data, update_data_nonce)
         recovery_authkey: recovery_authkey,
         update_data: update_data,
         update_data_nonce: update_data_nonce,
+        hashing_algorithm: hashingAlgorithm,
+        hashing_parameters: hashingParameters,
+
     };
     const headers = null;
 
@@ -3617,6 +3652,8 @@ const createServerSecret = function (
  * @param {string} privateKey encrypted private key of the group
  * @param {string} privateKeyNonce nonce for private key
  * @param {string} userSauce the random user sauce used
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
@@ -3629,8 +3666,8 @@ const deleteServerSecret = function (
     secretKey,
     secretKeyNonce,
     userSauce,
-    // hashingAlgorithm,
-    // hashingParameters
+    hashingAlgorithm,
+    hashingParameters
 ) {
     const endpoint = "/server-secret/";
     const method = "DELETE";
@@ -3641,8 +3678,8 @@ const deleteServerSecret = function (
         secret_key: secretKey,
         secret_key_nonce: secretKeyNonce,
         user_sauce: userSauce,
-        // hashing_algorithm: hashingAlgorithm,
-        // hashing_parameters: hashingParameters,
+        hashing_algorithm: hashingAlgorithm,
+        hashing_parameters: hashingParameters,
     };
 
     const headers = {
@@ -3732,6 +3769,7 @@ function validateIvalt(token, sessionSecretKey, mobile){
 
 const apiClientService = {
     info: info,
+    prelogin: prelogin,
     login: login,
     samlInitiateLogin: samlInitiateLogin,
     oidcInitiateLogin: oidcInitiateLogin,

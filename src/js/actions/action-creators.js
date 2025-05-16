@@ -5,6 +5,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_HASHING_PARAMETERS,
     SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     LOGOUT,
@@ -78,6 +79,15 @@ function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
             userEmail,
             userSecretKey,
             serverSecretExists,
+        });
+    };
+}
+function sethashingParameters(hashingAlgorithm, hashingParameters) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_HASHING_PARAMETERS,
+            hashingAlgorithm: hashingAlgorithm,
+            hashingParameters: hashingParameters,
         });
     };
 }
@@ -510,6 +520,7 @@ const actionCreators = {
     setUserInfo1,
     setUserInfo2,
     setUserInfo3,
+    sethashingParameters,
     setServerSecretExists,
     setHasTwoFactor,
     setEmail,
