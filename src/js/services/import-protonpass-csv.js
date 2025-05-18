@@ -248,11 +248,11 @@ function transferIntoCreditCard(line) {
 /**
  * Takes an item and transforms it into a note
  *
- * @param {[]} item One item of the json
+ * @param {[]} line One item of the json
  *
  * @returns {*} The secrets object
  */
-function transformToTotpCode(item) {
+function transformToTotpCode(line) {
     let name = line[INDEX_NAME] + ' TOTP';
     let totp_notes = "";
     let totp_period = 30;
