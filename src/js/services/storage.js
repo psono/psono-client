@@ -3,6 +3,7 @@
  */
 
 import localforage from "localforage";
+import {openDB} from 'idb';
 
 const registrations = {};
 
@@ -81,25 +82,24 @@ function upsert(db, items) {
  */
 function where(db, filterFunction) {
     const result = [];
-    return dbConfig[db]
-        .length()
-        .then(function (numberOfKeys) {
-            if (numberOfKeys === 0) {
-                return result;
-            }
-            return dbConfig[db].iterate(function (value, key, iterationNumber) {
-                if (filterFunction(value, key)) {
+    return new Promise(async (resolve, reject) => {
+
+        const conn = await openDB(db);
+
+        if(conn.objectStoreNames && Object.values(conn.objectStoreNames).includes('keyvaluepairs')) {
+            const allValues = await conn.getAll('keyvaluepairs');
+
+            for (const value of allValues) {
+                const filterRes = await filterFunction(value);
+                if (filterRes) {
                     result.push(value);
                 }
-                if (iterationNumber === numberOfKeys) {
-                    return result;
-                }
-            });
-        })
-        .catch(function (err) {
-            // This code runs if there were any errors
-            console.log(err);
-        });
+            }
+        }
+
+
+        resolve(result);
+    })
 }
 
 /**
