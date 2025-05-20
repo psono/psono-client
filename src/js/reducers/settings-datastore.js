@@ -29,6 +29,7 @@ function settingsDatastore(
         showGPGKey: false,
         showCreditCard: true,
         showBookmark: true,
+        showIdentity: true,
         showElsterCertificate: false,
         showFile: true,
     },
@@ -70,6 +71,7 @@ function settingsDatastore(
                 howGPGKey: action.data.hasOwnProperty("setting_show_mail_gpg_own_key") ? action.data.setting_show_mail_gpg_own_key : false,
                 showCreditCard: action.data.hasOwnProperty("setting_show_credit_card") ? action.data.setting_show_credit_card : true,
                 showBookmark: action.data.hasOwnProperty("setting_show_bookmark") ? action.data.setting_show_bookmark : true,
+                showIdentity: action.data.hasOwnProperty("setting_show_identity") ? action.data.setting_show_identity : true,
                 showElsterCertificate: action.data.hasOwnProperty("setting_show_elster_certificate") ? action.data.setting_show_elster_certificate : false,
                 showFile: action.data.hasOwnProperty("setting_show_file") ? action.data.setting_show_file : true,
                 showNoSaveToggle: action.data.hasOwnProperty("setting_show_no_save_toggle") ? action.data.setting_show_no_save_toggle : false,
@@ -97,6 +99,7 @@ function settingsDatastore(
                 showGPGKey: action.showGPGKey,
                 showCreditCard: action.showCreditCard,
                 showBookmark: action.showBookmark,
+                showIdentity: action.showIdentity,
                 showElsterCertificate: action.showElsterCertificate,
                 showFile: action.showFile,
             });

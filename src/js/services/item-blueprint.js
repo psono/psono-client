@@ -72,6 +72,11 @@ const _entryTypes = [
         show: () => getStore().getState().settingsDatastore.showBookmark,
     },
     {
+        value: "identity", title: "IDENTITY", edit_title: "EDIT_IDENTITY", show_title: "SHOW_IDENTITY",
+        hideOnNewEntry: false,
+        show: () => getStore().getState().settingsDatastore.showIdentity,
+    },
+    {
         value: "elster_certificate", title: "ELSTER_CERTIFICATE", edit_title: "EDIT_ELSTER_CERTIFICATE", show_title: "SHOW_ELSTER_CERTIFICATE",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showElsterCertificate,

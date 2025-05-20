@@ -167,6 +167,19 @@ const DialogNewEntry = (props) => {
     const [bookmarkNotes, setBookmarkNotes] = useState("");
     const [bookmarkUrlFilter, setBookmarkUrlFilter] = useState("");
 
+    const [identityTitle, setIdentityTitle] = useState("");
+    const [identityFirstName, setIdentityFirstName] = useState("");
+    const [identityLastName, setIdentityLastName] = useState("");
+    const [identityCompany, setIdentityCompany] = useState("");
+    const [identityAddress, setIdentityAddress] = useState("");
+    const [identityPostalCode, setIdentityPostalCode] = useState("");
+    const [identityCity, setIdentityCity] = useState("");
+    const [identityState, setIdentityState] = useState("");
+    const [identityCountry, setIdentityCountry] = useState("");
+    const [identityPhoneNumber, setIdentityPhoneNumber] = useState("");
+    const [identityEmail, setIdentityEmail] = useState("");
+    const [identityNotes, setIdentityNotes] = useState("");
+
     const [noteTitle, setNoteTitle] = useState("");
     const [noteNotes, setNoteNotes] = useState("");
 
@@ -241,6 +254,7 @@ const DialogNewEntry = (props) => {
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
     const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
+    const isValidIdentity = Boolean(identityTitle);
     const isValidNote = Boolean(noteTitle);
     const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
     const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
@@ -269,6 +283,7 @@ const DialogNewEntry = (props) => {
         (type === "website_password" && isValidWebsitePassword) ||
         (type === "application_password" && isValidApplicationPassword) ||
         (type === "bookmark" && isValidBookmark) ||
+        (type === "identity" && isValidIdentity) ||
         (type === "note" && isValidNote) ||
         (type === "totp" && isValidTotp) ||
         (type === "environment_variables" && isValidEnvironmentVariables) ||
@@ -609,6 +624,53 @@ const DialogNewEntry = (props) => {
                 secretObject["bookmark_url_filter"] = bookmarkUrlFilter;
             } else {
                 delete item["urlfilter"];
+            }
+        }
+
+        if (item.type === "identity") {
+            item["name"] = identityTitle;
+            secretObject["identity_title"] = identityTitle;
+            item["description"] = '';
+
+            if (identityFirstName) {
+                secretObject["identity_first_name"] = identityFirstName;
+            }
+            if (identityLastName) {
+                secretObject["identity_last_name"] = identityLastName;
+            }
+            if (identityCompany) {
+                secretObject["identity_company"] = identityCompany;
+            }
+            if (identityAddress) {
+                secretObject["identity_address"] = identityAddress;
+                item["description"]  = item["description"] + identityAddress + " ";
+            }
+            if (identityCity) {
+                secretObject["identity_city"] = identityCity;
+                item["description"]  = item["description"] + identityCity + " ";
+            }
+            if (identityPostalCode) {
+                secretObject["identity_postal_code"] = identityPostalCode;
+            }
+            if (identityState) {
+                secretObject["identity_state"] = identityState;
+                item["description"]  = item["description"] + identityState + " ";
+            }
+            if (identityCountry) {
+                secretObject["identity_country"] = identityCountry;
+                item["description"]  = item["description"] + identityCountry + " ";
+            }
+            if (identityPhoneNumber) {
+                secretObject["identity_phone_number"] = identityPhoneNumber;
+            }
+            if (identityEmail) {
+                secretObject["identity_email"] = identityEmail;
+            }
+            if (identityNotes) {
+                secretObject["identity_notes"] = identityNotes;
+            }
+            if (item["description"] === '') {
+                delete item["description"];
             }
         }
 
@@ -1459,6 +1521,217 @@ const DialogNewEntry = (props) => {
                                 />
                             </Grid>
                         )}
+
+
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityTitle"
+                                    label={t("TITLE")}
+                                    name="identityTitle"
+                                    autoComplete="off"
+                                    value={identityTitle}
+                                    required
+                                    onChange={(event) => {
+                                        setIdentityTitle(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityFirstName"
+                                    label={t("FIRST_NAME")}
+                                    name="identityFirstName"
+                                    autoComplete="off"
+                                    value={identityFirstName}
+                                    onChange={(event) => {
+                                        setIdentityFirstName(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityLastName"
+                                    label={t("LAST_NAME")}
+                                    name="identityLastName"
+                                    autoComplete="off"
+                                    value={identityLastName}
+                                    onChange={(event) => {
+                                        setIdentityLastName(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityCompany"
+                                    label={t("COMPANY")}
+                                    name="identityCompany"
+                                    autoComplete="off"
+                                    value={identityCompany}
+                                    onChange={(event) => {
+                                        setIdentityCompany(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityAddress"
+                                    label={t("ADDRESS")}
+                                    name="identityAddress"
+                                    autoComplete="off"
+                                    value={identityAddress}
+                                    onChange={(event) => {
+                                        setIdentityAddress(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityPostalCode"
+                                    label={t("POSTAL_CODE")}
+                                    name="identityPostalCode"
+                                    autoComplete="off"
+                                    value={identityPostalCode}
+                                    onChange={(event) => {
+                                        setIdentityPostalCode(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityCity"
+                                    label={t("CITY")}
+                                    name="identityCity"
+                                    autoComplete="off"
+                                    value={identityCity}
+                                    onChange={(event) => {
+                                        setIdentityCity(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityState"
+                                    label={t("STATE")}
+                                    name="identityState"
+                                    autoComplete="off"
+                                    value={identityState}
+                                    onChange={(event) => {
+                                        setIdentityState(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={6} sm={6} md={6}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityCountry"
+                                    label={t("COUNTRY")}
+                                    name="identityCountry"
+                                    autoComplete="off"
+                                    value={identityCountry}
+                                    onChange={(event) => {
+                                        setIdentityCountry(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityPhoneNumber"
+                                    label={t("PHONE_NUMBER")}
+                                    name="identityPhoneNumber"
+                                    autoComplete="off"
+                                    value={identityPhoneNumber}
+                                    onChange={(event) => {
+                                        setIdentityPhoneNumber(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityEmail"
+                                    label={t("EMAIL")}
+                                    name="identityEmail"
+                                    autoComplete="off"
+                                    value={identityEmail}
+                                    onChange={(event) => {
+                                        setIdentityEmail(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {type === "identity" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense" size="small"
+                                    id="identityNotes"
+                                    label={t("NOTES")}
+                                    name="identityNotes"
+                                    autoComplete="off"
+                                    value={identityNotes}
+                                    onChange={(event) => {
+                                        setIdentityNotes(event.target.value);
+                                    }}
+                                    multiline
+                                    minRows={3}
+                                    maxRows={32}
+                                />
+                            </Grid>
+                        )}
+
 
                         {type === "note" && (
                             <Grid item xs={12} sm={12} md={12}>
