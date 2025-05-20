@@ -256,6 +256,7 @@
   "AUTOFILL": "Autofill",
   "AUTOFILL_CREDENTIAL": "Autofill credential",
   "AUTOFILL_CREDIT_CARD": "Autofill credit card",
+  "AUTOFILL_IDENTITY": "Autofill identity",
   "DOWNLOAD_PSONO": "Download Psono",
   "WEBSITE_PASSWORD": "Website Password",
   "APPLICATION_PASSWORD": "Application Password",
