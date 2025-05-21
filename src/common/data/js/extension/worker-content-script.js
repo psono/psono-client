@@ -166,11 +166,48 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     const totpFields = new Set([
         "one-time-code",
     ]);
+    
+    // Identity fields for form autofill
+    const identityNameFields = new Set([
+        "name",
+        "given-name", // First name
+        "additional-name", // Middle name
+        "family-name", // Last name
+        "honorific-prefix", // Mr., Mrs., Dr., etc.
+        "honorific-suffix", // Jr., PhD., etc.
+    ]);
+    const identityAddressFields = new Set([
+        "street-address",
+        "address-line1",
+        "address-line2",
+        "address-line3",
+        "address-level1", // State/province
+        "address-level2", // City
+        "address-level3", // District/suburb
+        "address-level4", // Neighborhood/village
+        "postal-code",
+        "country",
+        "country-name",
+    ]);
+    const identityContactFields = new Set([
+        "tel",
+        "tel-country-code",
+        "tel-national",
+        "tel-area-code",
+        "tel-local",
+        "tel-extension",
+        "organization", // Company
+        "organization-title", // Job title
+    ]);
+    
     const identityAllFields = new Set([
         ...usernameFields,
         ...newPasswordFields,
         ...currentPasswordFields,
         ...totpFields,
+        ...identityNameFields,
+        ...identityAddressFields,
+        ...identityContactFields,
     ]);
 
 
@@ -181,6 +218,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     function activate() {
         base.on("fillpassword", onFillPassword);
         base.on("fillcreditcard", onFillCreditCard);
+        base.on("fillidentity", onFillIdentity);
         base.on("return-secret", onReturnSecret);
         base.on("get-username", onGetUsername);
         base.on("clear-clipboard-content-script", clearClipboard);
@@ -1042,6 +1080,122 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 fillFieldHelper(creditCardInputFields[i], data.credit_card_valid_through.slice(2, 4));
             }
         }
+    }
+    
+    /**
+     * Handler for a fillidentity event
+     *
+     * @param data
+     * @param sender
+     * @param sendResponse
+     */
+    function onFillIdentity(data, sender, sendResponse) {
+        for (let i = 0; i < identityInputFields.length; i++) {
+            const autocompleteValue = identityInputFields[i].autocomplete.trim().toLowerCase();
+
+            if (autocompleteValue === "name" && 
+                ((data.hasOwnProperty("identity_first_name") && data.identity_first_name !== "") || 
+                (data.hasOwnProperty("identity_last_name") && data.identity_last_name !== ""))) {
+                const fullName = [
+                    data.hasOwnProperty("identity_first_name") ? data.identity_first_name : "",
+                    data.hasOwnProperty("identity_last_name") ? data.identity_last_name : ""
+                ].filter(Boolean).join(" ");
+                
+                if (fullName) {
+                    fillFieldHelper(identityInputFields[i], fullName);
+                }
+            }
+            else if (autocompleteValue === "given-name" && 
+                     data.hasOwnProperty("identity_first_name") && data.identity_first_name !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_first_name);
+            }
+            else if (autocompleteValue === "family-name" && 
+                     data.hasOwnProperty("identity_last_name") && data.identity_last_name !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_last_name);
+            }
+
+            else if (autocompleteValue === "street-address" && 
+                     data.hasOwnProperty("identity_address") && data.identity_address !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_address);
+            }
+            else if ((autocompleteValue === "address-line1" || autocompleteValue === "address-line2" || autocompleteValue === "address-line3") && 
+                     data.hasOwnProperty("identity_address") && data.identity_address !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_address);
+            }
+            else if (autocompleteValue === "address-level1" && 
+                     data.hasOwnProperty("identity_state") && data.identity_state !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_state);
+            }
+            else if (autocompleteValue === "address-level2" && 
+                     data.hasOwnProperty("identity_city") && data.identity_city !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_city);
+            }
+            else if (autocompleteValue === "postal-code" && 
+                     data.hasOwnProperty("identity_postal_code") && data.identity_postal_code !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_postal_code);
+            }
+            else if ((autocompleteValue === "country" || autocompleteValue === "country-name") && 
+                     data.hasOwnProperty("identity_country") && data.identity_country !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_country);
+            }
+
+            else if ((autocompleteValue === "tel" || 
+                    autocompleteValue === "tel-national" || 
+                    autocompleteValue === "tel-local") && 
+                    data.hasOwnProperty("identity_phone_number") && data.identity_phone_number !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_phone_number);
+            }
+            else if (autocompleteValue === "email" && 
+                     data.hasOwnProperty("identity_email") && data.identity_email !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_email);
+            }
+            else if (autocompleteValue === "organization" && 
+                     data.hasOwnProperty("identity_company") && data.identity_company !== "") {
+                fillFieldHelper(identityInputFields[i], data.identity_company);
+            }
+        }
+
+        const inputs = Array.from(querySelectorAllIncShadowRoots(document, "input"));
+
+        const fieldNameMappings = {
+            'first-name': 'identity_first_name',
+            'firstname': 'identity_first_name',
+            'fname': 'identity_first_name',
+            'last-name': 'identity_last_name',
+            'lastname': 'identity_last_name',
+            'lname': 'identity_last_name',
+            'address': 'identity_address',
+            'street': 'identity_address',
+            'street-address': 'identity_address',
+            'postal-code': 'identity_postal_code',
+            'postalcode': 'identity_postal_code',
+            'zip': 'identity_postal_code',
+            'zipcode': 'identity_postal_code',
+            'city': 'identity_city',
+            'state': 'identity_state',
+            'province': 'identity_state',
+            'country': 'identity_country',
+            'phone': 'identity_phone_number',
+            'tel': 'identity_phone_number',
+            'telephone': 'identity_phone_number',
+            'mobile': 'identity_phone_number',
+            'company': 'identity_company',
+            'organization': 'identity_company'
+        };
+
+        inputs.forEach(input => {
+            if (input.type === 'password' || input.type === 'hidden') return;
+            
+            const inputName = (input.name || input.id || '').toLowerCase();
+            
+            Object.entries(fieldNameMappings).forEach(([fieldName, dataProperty]) => {
+                if (inputName === fieldName || inputName.includes(fieldName)) {
+                    if (data.hasOwnProperty(dataProperty) && data[dataProperty] !== "") {
+                        fillFieldHelper(input, data[dataProperty]);
+                    }
+                }
+            });
+        });
     }
 
     /**

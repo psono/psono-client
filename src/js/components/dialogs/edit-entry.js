@@ -191,6 +191,19 @@ const DialogEditEntry = (props) => {
     const [bookmarkNotes, setBookmarkNotes] = useState("");
     const [bookmarkUrlFilter, setBookmarkUrlFilter] = useState("");
 
+    const [identityTitle, setIdentityTitle] = useState("");
+    const [identityFirstName, setIdentityFirstName] = useState("");
+    const [identityLastName, setIdentityLastName] = useState("");
+    const [identityCompany, setIdentityCompany] = useState("");
+    const [identityAddress, setIdentityAddress] = useState("");
+    const [identityPostalCode, setIdentityPostalCode] = useState("");
+    const [identityCity, setIdentityCity] = useState("");
+    const [identityState, setIdentityState] = useState("");
+    const [identityCountry, setIdentityCountry] = useState("");
+    const [identityPhoneNumber, setIdentityPhoneNumber] = useState("");
+    const [identityEmail, setIdentityEmail] = useState("");
+    const [identityNotes, setIdentityNotes] = useState("");
+
     const [noteTitle, setNoteTitle] = useState("");
     const [noteNotes, setNoteNotes] = useState("");
 
@@ -263,6 +276,7 @@ const DialogEditEntry = (props) => {
     const isValidPasskey = Boolean(passkeyTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
     const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
+    const isValidIdentity = Boolean(identityTitle);
     const isValidNote = Boolean(noteTitle);
     const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
     const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
@@ -291,6 +305,7 @@ const DialogEditEntry = (props) => {
         (item.type === "passkey" && isValidPasskey) ||
         (item.type === "application_password" && isValidApplicationPassword) ||
         (item.type === "bookmark" && isValidBookmark) ||
+        (item.type === "identity" && isValidIdentity) ||
         (item.type === "note" && isValidNote) ||
         (item.type === "totp" && isValidTotp) ||
         (item.type === "environment_variables" && isValidEnvironmentVariables) ||
@@ -514,6 +529,68 @@ const DialogEditEntry = (props) => {
                 setBookmarkUrlFilter(data["bookmark_url_filter"]);
             } else {
                 setBookmarkUrlFilter("");
+            }
+
+            // identity
+            if (data.hasOwnProperty("identity_title")) {
+                setIdentityTitle(data["identity_title"]);
+            } else {
+                setIdentityTitle("");
+            }
+            if (data.hasOwnProperty("identity_first_name")) {
+                setIdentityFirstName(data["identity_first_name"]);
+            } else {
+                setIdentityFirstName("");
+            }
+            if (data.hasOwnProperty("identity_last_name")) {
+                setIdentityLastName(data["identity_last_name"]);
+            } else {
+                setIdentityLastName("");
+            }
+            if (data.hasOwnProperty("identity_company")) {
+                setIdentityCompany(data["identity_company"]);
+            } else {
+                setIdentityCompany("");
+            }
+            if (data.hasOwnProperty("identity_address")) {
+                setIdentityAddress(data["identity_address"]);
+            } else {
+                setIdentityAddress("");
+            }
+            if (data.hasOwnProperty("identity_postal_code")) {
+                setIdentityPostalCode(data["identity_postal_code"]);
+            } else {
+                setIdentityPostalCode("");
+            }
+            if (data.hasOwnProperty("identity_city")) {
+                setIdentityCity(data["identity_city"]);
+            } else {
+                setIdentityCity("");
+            }
+            if (data.hasOwnProperty("identity_state")) {
+                setIdentityState(data["identity_state"]);
+            } else {
+                setIdentityState("");
+            }
+            if (data.hasOwnProperty("identity_country")) {
+                setIdentityCountry(data["identity_country"]);
+            } else {
+                setIdentityCountry("");
+            }
+            if (data.hasOwnProperty("identity_phone_number")) {
+                setIdentityPhoneNumber(data["identity_phone_number"]);
+            } else {
+                setIdentityPhoneNumber("");
+            }
+            if (data.hasOwnProperty("identity_email")) {
+                setIdentityEmail(data["identity_email"]);
+            } else {
+                setIdentityEmail("");
+            }
+            if (data.hasOwnProperty("identity_notes")) {
+                setIdentityNotes(data["identity_notes"]);
+            } else {
+                setIdentityNotes("");
             }
 
             // notes
@@ -822,6 +899,52 @@ const DialogEditEntry = (props) => {
                 secretObject["bookmark_url_filter"] = bookmarkUrlFilter;
             } else {
                 delete item["urlfilter"];
+            }
+        }
+
+        if (item.type === "identity") {
+            item["name"] = identityTitle;
+            secretObject["identity_title"] = identityTitle;
+            item["description"] = '';
+            if (identityFirstName) {
+                secretObject["identity_first_name"] = identityFirstName;
+            }
+            if (identityLastName) {
+                secretObject["identity_last_name"] = identityLastName;
+            }
+            if (identityCompany) {
+                secretObject["identity_company"] = identityCompany;
+            }
+            if (identityAddress) {
+                secretObject["identity_address"] = identityAddress;
+                item["description"]  = item["description"] + identityAddress + ' ';
+            }
+            if (identityCity) {
+                secretObject["identity_city"] = identityCity;
+                item["description"]  = item["description"] + identityCity + ' ';
+            }
+            if (identityPostalCode) {
+                secretObject["identity_postal_code"] = identityPostalCode;
+            }
+            if (identityState) {
+                secretObject["identity_state"] = identityState;
+                item["description"]  = item["description"] + identityState + ' ';
+            }
+            if (identityCountry) {
+                secretObject["identity_country"] = identityCountry;
+                item["description"]  = item["description"] + identityCountry + ' ';
+            }
+            if (identityPhoneNumber) {
+                secretObject["identity_phone_number"] = identityPhoneNumber;
+            }
+            if (identityEmail) {
+                secretObject["identity_email"] = identityEmail;
+            }
+            if (identityNotes) {
+                secretObject["identity_notes"] = identityNotes;
+            }
+            if (item["description"] === '') {
+                delete item["description"];
             }
         }
 
@@ -1823,6 +1946,241 @@ const DialogEditEntry = (props) => {
                         onChange={(event) => {
                             setDirty(true);
                             setBookmarkNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={32}
+                    />
+                </Grid>
+            )}
+
+
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityTitle"
+                        label={t("TITLE")}
+                        name="identityTitle"
+                        autoComplete="off"
+                        value={identityTitle}
+                        InputProps={{ readOnly: readOnly }}
+                        required
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityFirstName"
+                        label={t("FIRST_NAME")}
+                        name="identityFirstName"
+                        autoComplete="off"
+                        value={identityFirstName}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityFirstName(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityLastName"
+                        label={t("LAST_NAME")}
+                        name="identityLastName"
+                        autoComplete="off"
+                        value={identityLastName}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityLastName(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityCompany"
+                        label={t("COMPANY")}
+                        name="identityCompany"
+                        autoComplete="off"
+                        value={identityCompany}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityCompany(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityAddress"
+                        label={t("ADDRESS")}
+                        name="identityAddress"
+                        autoComplete="off"
+                        value={identityAddress}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityAddress(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityPostalCode"
+                        label={t("POSTAL_CODE")}
+                        name="identityPostalCode"
+                        autoComplete="off"
+                        value={identityPostalCode}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityPostalCode(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityCity"
+                        label={t("CITY")}
+                        name="identityCity"
+                        autoComplete="off"
+                        value={identityCity}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityCity(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityState"
+                        label={t("STATE")}
+                        name="identityState"
+                        autoComplete="off"
+                        value={identityState}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityState(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityCountry"
+                        label={t("COUNTRY")}
+                        name="identityCountry"
+                        autoComplete="off"
+                        value={identityCountry}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityCountry(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityPhoneNumber"
+                        label={t("PHONE_NUMBER")}
+                        name="identityPhoneNumber"
+                        autoComplete="off"
+                        value={identityPhoneNumber}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityPhoneNumber(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityEmail"
+                        label={t("EMAIL")}
+                        name="identityEmail"
+                        autoComplete="off"
+                        value={identityEmail}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityEmail(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "identity" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense" size="small"
+                        id="identityNotes"
+                        label={t("NOTES")}
+                        name="identityNotes"
+                        autoComplete="off"
+                        value={identityNotes}
+                        InputProps={{ readOnly: readOnly }}
+                        onChange={(event) => {
+                            setDirty(true);
+                            setIdentityNotes(event.target.value);
                         }}
                         multiline
                         minRows={3}

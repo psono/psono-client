@@ -3,6 +3,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_HASHING_PARAMETERS,
     SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     SET_EMAIL,
@@ -25,6 +26,13 @@ function user(
         trustDevice: defaultTrustDevice,
         hasTwoFactor: false,
         authentication: "",
+        hashingAlgorithm: "scrypt",
+        hashingParameters: {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
         userSecretKey: "",
         serverSecretExists: false,
         userPrivateKey: "",
@@ -66,6 +74,11 @@ function user(
                 userSecretKey: action.userSecretKey,
                 serverSecretExists: action.serverSecretExists,
             });
+        case SET_HASHING_PARAMETERS:
+            return Object.assign({}, state, {
+                hashingAlgorithm: action.hashingAlgorithm,
+                hashingParameters: action.hashingParameters,
+            });
         case SET_SERVER_SECRET_EXISTS:
             return Object.assign({}, state, {
                 serverSecretExists: action.serverSecretExists,
@@ -90,6 +103,13 @@ function user(
                 trustDevice: state.rememberMe ? state.trustDevice : defaultTrustDevice,
                 hasTwoFactor: false,
                 authentication: "",
+                hashingAlgorithm: "scrypt",
+                hashingParameters: {
+                    "u": 14,
+                    "r": 8,
+                    "p": 1,
+                    "l": 64
+                },
                 userSecretKey: "",
                 serverSecretExists: false,
                 userPrivateKey: "",

@@ -45,6 +45,7 @@ const SettingsEntryTypesView = (props) => {
     const [showGPGKey, setShowGPGKey] = useState(settingsDatastore.showGPGKey);
     const [showCreditCard, setShowCreditCard] = useState(settingsDatastore.showCreditCard);
     const [showBookmark, setShowBookmark] = useState(settingsDatastore.showBookmark);
+    const [showIdentity, setShowIdentity] = useState(settingsDatastore.showIdentity);
     const [showElsterCertificate, setShowElsterCertificate] = useState(settingsDatastore.showElsterCertificate);
     const [showFile, setShowFile] = useState(settingsDatastore.showFile);
     const [msgs, setMsgs] = React.useState([]);
@@ -90,6 +91,10 @@ const SettingsEntryTypesView = (props) => {
             'value': showBookmark,
             'setter': setShowBookmark,
         },
+        "identity": {
+            'value': showIdentity,
+            'setter': setShowIdentity,
+        },
         "elster_certificate": {
             'value': showElsterCertificate,
             'setter': setShowElsterCertificate,
@@ -111,6 +116,7 @@ const SettingsEntryTypesView = (props) => {
         setShowGPGKey(settingsDatastore.showGPGKey);
         setShowCreditCard(settingsDatastore.showCreditCard);
         setShowBookmark(settingsDatastore.showBookmark);
+        setShowIdentity(settingsDatastore.showIdentity);
         setShowElsterCertificate(settingsDatastore.showElsterCertificate);
         setShowFile(settingsDatastore.showFile);
     }, [settingsDatastore]);
@@ -127,6 +133,7 @@ const SettingsEntryTypesView = (props) => {
             showGPGKey,
             showCreditCard,
             showBookmark,
+            showIdentity,
             showElsterCertificate,
             showFile,
         );

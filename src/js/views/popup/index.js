@@ -616,7 +616,6 @@ const PopupView = (props) => {
         }
 
         deepSearchAllItems(data, "/");
-
         setItems(entries);
         accountService.broadcastReinitializeBackgroundEvent();
     };
@@ -667,7 +666,7 @@ const PopupView = (props) => {
             // Hide all entries if we have not typed anything into the "search datastore..." field
             return false;
         }
-        return passwordFilter(item.content);
+        return passwordFilter(item.content, item.path);
     }
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {

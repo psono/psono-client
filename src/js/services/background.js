@@ -35,6 +35,7 @@ const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
 const CM_AUTOFILL_CREDENTIAL_ID = "psono-autofill-credential";
 const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
+const CM_AUTOFILL_IDENTITY_ID = "psono-autofill-identity";
 const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
 
@@ -205,6 +206,13 @@ function updateContextMenu() {
             visible: false,
             parentId: contextMenu,
         });
+        const contextMenuChildAutofillIdentity = chrome.contextMenus.create({
+            id: CM_AUTOFILL_IDENTITY_ID,
+            title: i18n.t("AUTOFILL_IDENTITY"),
+            contexts: ["all"],
+            visible: false,
+            parentId: contextMenu,
+        });
         chrome.contextMenus.create({
             id: CM_RECHECK_PAGE_ID,
             title: i18n.t("RECHECK_PAGE"),
@@ -284,7 +292,42 @@ function updateContextMenu() {
                     visible: true,
                 });
             }
+        }
+        
+        function addAutofillIdentities (leafs) {
+            const entries = [];
 
+            for (let ii = 0; ii < leafs.length; ii++) {
+                entries.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name,
+                });
+            }
+
+            entries.sort(function(a, b){
+                let a_name = a.name ? a.name : '';
+                let b_name = b.name ? b.name : '';
+                if (a_name.toLowerCase() < b_name.toLowerCase())
+                    return -1;
+                if (a_name.toLowerCase() > b_name.toLowerCase())
+                    return 1;
+                return 0;
+            })
+
+            entries.forEach(function(entry) {
+                chrome.contextMenus.create({
+                    id: entry.secret_id,
+                    title: entry.name,
+                    contexts: ["all"],
+                    parentId: contextMenuChildAutofillIdentity,
+                });
+            })
+
+            if (entries.length > 0) {
+                chrome.contextMenus.update(CM_AUTOFILL_IDENTITY_ID, {
+                    visible: true,
+                });
+            }
         }
 
         if (!activeTabUrl) {
@@ -293,6 +336,7 @@ function updateContextMenu() {
             searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofillCredentials);
         }
         searchCreditCard().then(addAutofillCreditCards);
+        searchIdentity().then(addAutofillIdentities);
     })
 }
 
@@ -354,6 +398,22 @@ function fillSecretTab(secretId, tab) {
                         credit_card_cvc: content.credit_card_cvc,
                         credit_card_name: content.credit_card_name,
                         credit_card_valid_through: content.credit_card_valid_through,
+                        custom_fields: content.custom_fields || [],
+                    }
+                )
+            }
+            if (leaf.type === 'identity') {
+                browserClient.emitTab(tab.id, "fillidentity", {
+                        identity_first_name: content.identity_first_name,
+                        identity_last_name: content.identity_last_name,
+                        identity_company: content.identity_company,
+                        identity_address: content.identity_address,
+                        identity_postal_code: content.identity_postal_code,
+                        identity_city: content.identity_city,
+                        identity_state: content.identity_state,
+                        identity_country: content.identity_country,
+                        identity_phone_number: content.identity_phone_number,
+                        identity_email: content.identity_email,
                         custom_fields: content.custom_fields || [],
                     }
                 )
@@ -702,6 +762,17 @@ async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  */
 function searchCreditCard() {
     const filter = (leaf, key) => leaf.type === "credit_card";
+
+    return storage.where("datastore-password-leafs", filter);
+}
+
+/**
+ * Returns all identities
+ *
+ * @returns {Promise} The database objects
+ */
+function searchIdentity() {
+    const filter = (leaf, key) => leaf.type === "identity";
 
     return storage.where("datastore-password-leafs", filter);
 }

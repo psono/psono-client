@@ -196,8 +196,16 @@ function createDatastore(type, description, isDefault) {
 function deleteDatastore(datastoreId, password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const username = getStore().getState().user.username;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
+    const authkey = cryptoLibrary.generateAuthkey(
+        username,
+        password,
+        hashingAlgorithm,
+        hashingParameters,
+    );
 
     const onError = function (result) {
         return Promise.reject(result.data);

@@ -604,6 +604,10 @@ const LoginViewForm = (props) => {
                     const errors = result.non_field_errors;
                     setView("default");
                     setErrors(errors);
+                } else if (result.hasOwnProperty("errors")) {
+                    const errors = result.errors;
+                    setView("default");
+                    setErrors(errors);
                 } else {
                     console.log(result);
                     setView("default");

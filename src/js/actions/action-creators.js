@@ -5,6 +5,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_HASHING_PARAMETERS,
     SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     LOGOUT,
@@ -78,6 +79,15 @@ function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
             userEmail,
             userSecretKey,
             serverSecretExists,
+        });
+    };
+}
+function sethashingParameters(hashingAlgorithm, hashingParameters) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_HASHING_PARAMETERS,
+            hashingAlgorithm: hashingAlgorithm,
+            hashingParameters: hashingParameters,
         });
     };
 }
@@ -259,6 +269,7 @@ function setPasswordConfig(
         { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
         { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
         { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_identity", value: getStore().getState().settingsDatastore.showIdentity },
         { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
         { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: passwordLength },
@@ -304,6 +315,7 @@ function setClientOptionsConfig(
         { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
         { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
         { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_identity", value: getStore().getState().settingsDatastore.showIdentity },
         { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
         { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
@@ -343,6 +355,7 @@ function setShownEntriesConfig(
     showGPGKey,
     showCreditCard,
     showBookmark,
+    showIdentity,
     showElsterCertificate,
     showFile,
 ) {
@@ -357,6 +370,7 @@ function setShownEntriesConfig(
         { key: "setting_show_mail_gpg_own_key", value: showGPGKey },
         { key: "setting_show_credit_card", value: showCreditCard },
         { key: "setting_show_bookmark", value: showBookmark },
+        { key: "setting_show_identity", value: showIdentity },
         { key: "setting_show_elster_certificate", value: showElsterCertificate },
         { key: "setting_show_file", value: showFile },
         { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
@@ -391,6 +405,7 @@ function setShownEntriesConfig(
             showGPGKey,
             showCreditCard,
             showBookmark,
+            showIdentity,
             showElsterCertificate,
             showFile,
         });
@@ -408,6 +423,7 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
         { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
         { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
         { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_identity", value: getStore().getState().settingsDatastore.showIdentity },
         { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
         { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
@@ -510,6 +526,7 @@ const actionCreators = {
     setUserInfo1,
     setUserInfo2,
     setUserInfo3,
+    sethashingParameters,
     setServerSecretExists,
     setHasTwoFactor,
     setEmail,

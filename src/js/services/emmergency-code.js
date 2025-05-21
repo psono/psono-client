@@ -36,9 +36,20 @@ function readEmergencyCodes() {
 function createEmergencyCode(title, leadTime) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const username = getStore().getState().user.username;
 
     const emergencyPassword = cryptoLibrary.generateRecoveryCode();
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, emergencyPassword["base58"]);
+    const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+        username,
+        emergencyPassword["base58"],
+        'scrypt',
+        {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
+    );
     const emergencySauce = cryptoLibrary.generateUserSauce();
 
     const emergencyDataDec = {
@@ -54,7 +65,7 @@ function createEmergencyCode(title, leadTime) {
 
     const onSuccess = function () {
         return {
-            username: getStore().getState().user.username,
+            username: username,
             emergency_password: helperService.splitStringInChunks(emergencyPassword["base58_checksums"], 13).join("-"),
             emergency_words: emergencyPassword["words"].join(" "),
         };

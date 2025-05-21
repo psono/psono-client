@@ -309,6 +309,8 @@ function activateToken() {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const userSauce = getStore().getState().user.userSauce;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
 
     const onSuccess = function (activationData) {
         // decrypt user secret key
@@ -316,7 +318,9 @@ function activateToken() {
             activationData.data.user.secret_key,
             activationData.data.user.secret_key_nonce,
             sessionPassword,
-            userSauce
+            userSauce,
+            hashingAlgorithm,
+            hashingParameters,
         );
 
         let serverSecretExists = ['SAML', 'OIDC', 'LDAP'].includes(activationData.data.user.authentication)
@@ -356,6 +360,7 @@ function activateToken() {
  * @returns {Array} The list of required multifactor challenges to solve
  */
 function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
+
     let decrypted_response_data = JSON.parse(
         cryptoLibrary.decryptDataPublicKey(
             response.data.login_info,
@@ -364,6 +369,7 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
             sessionKeys.private_key
         )
     );
+
     const server_session_public_key = decrypted_response_data.server_session_public_key || decrypted_response_data.session_public_key;
 
     if (decrypted_response_data.hasOwnProperty('data') && decrypted_response_data.hasOwnProperty('data_nonce')) {
@@ -376,6 +382,16 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
             )
         );
     }
+
+    if (!decrypted_response_data.user.hasOwnProperty('hashing_algorithm')) {
+        decrypted_response_data.user['hashing_algorithm'] = getStore().getState().user.hashingAlgorithm
+    }
+    if (!decrypted_response_data.user.hasOwnProperty('hashing_parameters')) {
+        decrypted_response_data.user['hashing_parameters'] = getStore().getState().user.hashingParameters
+
+    }
+    action().sethashingParameters(decrypted_response_data.user['hashing_algorithm'], decrypted_response_data.user['hashing_parameters'])
+
     sessionPassword = (password || !decrypted_response_data.hasOwnProperty("password")) ? password : decrypted_response_data.password;
 
     // decrypt the session key
@@ -399,7 +415,9 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
             decrypted_response_data.user.private_key,
             decrypted_response_data.user.private_key_nonce,
             sessionPassword,
-            decrypted_response_data.user.user_sauce
+            decrypted_response_data.user.user_sauce,
+            decrypted_response_data.user.hashing_algorithm,
+            decrypted_response_data.user.hashing_parameters,
         );
     } catch (error) {
         return {
@@ -444,16 +462,19 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey, d
     return decrypted_response_data;
 }
 
-function login(password, serverInfo, sendPlain) {
-    const username = getStore().getState().user.username;
-    const trustDevice = getStore().getState().user.trustDevice;
-    const serverPublicKey = serverInfo.info.public_key;
-
-    const authkey = cryptoLibrary.generateAuthkey(username, password);
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+function prelogin(username) {
 
     const onSuccess = function (response) {
-        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
+
+        if (!response.data.hasOwnProperty('hashing_algorithm') || response.data.hashing_algorithm !== 'scrypt') {
+            return Promise.reject('UNSUPPORTED_ALGORITHM_UPDATE_CLIENT');
+        }
+
+        if (!response.data.hasOwnProperty('hashing_parameters')) {
+            return Promise.reject('UNSUPPORTED_ALGORITHM_UPDATE_CLIENT');
+        }
+
+        return response
     };
 
     const onError = function (response) {
@@ -464,31 +485,71 @@ function login(password, serverInfo, sendPlain) {
         }
     };
 
-    let loginInfo = {
-        username: username,
-        authkey: authkey,
-        device_time: new Date().toISOString(),
-        device_fingerprint: device.getDeviceFingerprint(),
-        device_description: device.getDeviceDescription(),
+    return apiClient
+        .prelogin(username)
+        .then(onSuccess, onError);
+}
+
+function login(password, serverInfo, sendPlain) {
+    const username = getStore().getState().user.username;
+    const trustDevice = getStore().getState().user.trustDevice;
+    const serverPublicKey = serverInfo.info.public_key;
+
+
+    const onSuccess = function (response) {
+
+        action().sethashingParameters(response.data.hashing_algorithm, response.data.hashing_parameters)
+        const authkey = cryptoLibrary.generateAuthkey(username, password, response.data.hashing_algorithm, response.data.hashing_parameters);
+        const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+
+        const onSuccess = function (response) {
+            return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
+        };
+
+        const onError = function (response) {
+            if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
+                return Promise.reject(response.data.non_field_errors);
+            } else {
+                return Promise.reject(response);
+            }
+        };
+
+        let loginInfo = {
+            username: username,
+            authkey: authkey,
+            device_time: new Date().toISOString(),
+            device_fingerprint: device.getDeviceFingerprint(),
+            device_description: device.getDeviceDescription(),
+        };
+
+        if (sendPlain) {
+            loginInfo["password"] = password;
+        }
+
+        loginInfo = JSON.stringify(loginInfo);
+
+        // encrypt the login infos
+        const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
+
+        let sessionDuration = 24 * 60 * 60;
+        if (trustDevice) {
+            sessionDuration = 24 * 60 * 60 * 30;
+        }
+
+        return apiClient
+            .login(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
+            .then(onSuccess, onError);
     };
 
-    if (sendPlain) {
-        loginInfo["password"] = password;
-    }
+    const onError = function (response) {
+        return Promise.reject(response);
+    };
 
-    loginInfo = JSON.stringify(loginInfo);
 
-    // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
-
-    let sessionDuration = 24 * 60 * 60;
-    if (trustDevice) {
-        sessionDuration = 24 * 60 * 60 * 30;
-    }
-
-    return apiClient
-        .login(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
+    return prelogin(username)
         .then(onSuccess, onError);
+
+
 }
 
 /**
@@ -567,8 +628,16 @@ function isLoggedIn() {
 function deleteAccount(password) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const username = getStore().getState().user.username;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const authkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, password);
+    const authkey = cryptoLibrary.generateAuthkey(
+        username,
+        password,
+        hashingAlgorithm,
+        hashingParameters,
+    );
 
     const onSuccess = function () {
         logout();
@@ -597,10 +666,12 @@ function deleteAccount(password) {
  * @param {string|null} secretKey The encrypted secret key of the user (hex format)
  * @param {string|null} secretKeyNonce The nonce of the secret key (hex format)
  * @param {string|null} language The new language
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
  *
  * @returns {Promise} Returns a promise with the update status
  */
-function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce, language) {
+function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce, language, hashingAlgorithm, hashingParameters) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     return apiClient.updateUser(
@@ -614,6 +685,8 @@ function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, sec
         secretKey,
         secretKeyNonce,
         language,
+        hashingAlgorithm,
+        hashingParameters,
     );
 }
 
@@ -638,6 +711,9 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 secretKeyEnc,
                 onSuccess,
                 onError;
+            const username = getStore().getState().user.username;
+            const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+            const hashingParameters = getStore().getState().user.hashingParameters;
             const test_error = helperService.isValidPassword(
                 newPassword,
                 newPasswordRepeat,
@@ -652,14 +728,14 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
             }
 
-            authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, oldPassword);
-            newAuthkey = cryptoLibrary.generateAuthkey(getStore().getState().user.username, newPassword);
+            authkeyOld = cryptoLibrary.generateAuthkey(username, oldPassword, hashingAlgorithm, hashingParameters);
+            newAuthkey = cryptoLibrary.generateAuthkey(username, newPassword, hashingAlgorithm, hashingParameters);
             userPrivateKey = getStore().getState().user.userPrivateKey;
             userSecretKey = getStore().getState().user.userSecretKey;
             userSauce = getStore().getState().user.userSauce;
 
-            privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce);
-            secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce);
+            privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce, hashingAlgorithm, hashingParameters);
+            secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce, hashingAlgorithm, hashingParameters);
 
             onSuccess = function (data) {
                 return { msgs: ["SAVE_SUCCESS"] };
@@ -677,6 +753,8 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 secretKeyEnc.text,
                 secretKeyEnc.nonce,
                 undefined,
+                hashingAlgorithm,
+                hashingParameters,
             ).then(onSuccess, onError);
         },
         function (data) {
@@ -696,11 +774,14 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
  * @returns {Promise} Returns a promise with the result
  */
 function saveNewEmail(newEmail, verificationPassword) {
+    const username = getStore().getState().user.username;
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
     if (verificationPassword === null || verificationPassword.length === 0) {
         return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
     }
 
-    const authkeyOld = cryptoLibrary.generateAuthkey(getStore().getState().user.username, verificationPassword);
+    const authkeyOld = cryptoLibrary.generateAuthkey(username, verificationPassword, hashingAlgorithm, hashingParameters);
 
     const onSuccess = function (data) {
         action().setEmail(newEmail);
@@ -713,6 +794,8 @@ function saveNewEmail(newEmail, verificationPassword) {
         newEmail,
         null,
         authkeyOld,
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -744,6 +827,8 @@ function saveNewLanguage(language) {
         undefined,
         undefined,
         language,
+        undefined,
+        undefined,
     ).then(onSuccess, onError);
 }
 
@@ -782,7 +867,17 @@ function recoveryEnable(username, recoveryCode, server) {
             verifier_time_valid: data.data.verifier_time_valid,
         };
     };
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+    const recoveryAuthkey = cryptoLibrary.generateAuthkey(
+        username,
+        recoveryCode,
+        'scrypt',
+        {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
+    );
 
     return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
 }
@@ -801,11 +896,14 @@ function recoveryEnable(username, recoveryCode, server) {
  * @returns {Promise} Returns a promise with the set_password status
  */
 function setPassword(username, recoveryCode, password, userPrivateKey, userSecretKey, userSauce, verifierPublicKey) {
-    const privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
-    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
+    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+    const hashingParameters = getStore().getState().user.hashingParameters;
+
+    const privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce, hashingAlgorithm, hashingParameters);
+    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce, hashingAlgorithm, hashingParameters);
 
     const updateRequest = JSON.stringify({
-        authkey: cryptoLibrary.generateAuthkey(username, password),
+        authkey: cryptoLibrary.generateAuthkey(username, password, hashingAlgorithm, hashingParameters),
         private_key: privKeyEnc.text,
         private_key_nonce: privKeyEnc.nonce,
         secret_key: secretKeyEnc.text,
@@ -822,10 +920,20 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
         return data;
     };
 
-    const recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+    const recovery_authkey = cryptoLibrary.generateAuthkey(
+        username,
+        recoveryCode,
+        'scrypt',
+        {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
+    );
 
     return apiClient
-        .setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce)
+        .setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce, hashingAlgorithm, hashingParameters)
         .then(onSuccess, onError);
 }
 
@@ -848,7 +956,17 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
     let policies;
     let userSecretKey;
 
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(username, emergencyCode);
+    const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+        username,
+        emergencyCode,
+        'scrypt',
+        {
+            "u": 14,
+            "r": 8,
+            "p": 1,
+            "l": 64
+        },
+    );
 
     const onSuccess = function (data) {
         if (data.data.status === "started" || data.data.status === "waiting") {
@@ -1047,7 +1165,7 @@ function deleteSession(sessionId) {
  */
 function register(email, username, password, server) {
 
-    const onSuccess = function(base_url){
+    const onSuccess = function(baseUrl){
 
         //managerBase.delete_local_data();
 
@@ -1055,12 +1173,15 @@ function register(email, username, password, server) {
         // storage.upsert('config', {key: 'user_username', value: username});
         // storage.upsert('config', {key: 'server', value: server});
 
+        const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+        const hashingParameters = getStore().getState().user.hashingParameters;
+
         const pair = cryptoLibrary.generatePublicPrivateKeypair();
         const userSauce = cryptoLibrary.generateUserSauce();
 
-        const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);
+        const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce, hashingAlgorithm, hashingParameters);
         const secretKeyEncrypted = cryptoLibrary
-            .encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce);
+            .encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce, hashingAlgorithm, hashingParameters);
 
         const onSuccess = function () {
 
@@ -1083,9 +1204,21 @@ function register(email, username, password, server) {
             };
         };
 
-        return apiClient.register(email, username, cryptoLibrary.generateAuthkey(username, password), pair.public_key,
-            privateKeyEncrypted.text, privateKeyEncrypted.nonce, secretKeyEncrypted.text, secretKeyEncrypted.nonce, userSauce,
-            base_url)
+        const authkey = cryptoLibrary.generateAuthkey(username, password, hashingAlgorithm, hashingParameters);
+        return apiClient.register(
+            email,
+            username,
+            authkey,
+            pair.public_key,
+            privateKeyEncrypted.text,
+            privateKeyEncrypted.nonce,
+            secretKeyEncrypted.text,
+            secretKeyEncrypted.nonce,
+            userSauce,
+            baseUrl,
+            hashingAlgorithm,
+            hashingParameters,
+        )
             .then(onSuccess, onError);
 
     };
@@ -1108,7 +1241,7 @@ function register(email, username, password, server) {
  */
 function unregister(username, email) {
 
-    const onSuccess = function(base_url){
+    const onSuccess = function(baseUrl){
 
         const onSuccess = function () {
             return {
@@ -1120,7 +1253,7 @@ function unregister(username, email) {
             return Promise.reject(response)
         };
 
-        return apiClient.unregister(username, email, base_url)
+        return apiClient.unregister(username, email, baseUrl)
             .then(onSuccess, onError);
 
     };
@@ -1145,7 +1278,7 @@ function unregisterConfirm(unregisterCode, server) {
 
     action().setServerUrl(server);
 
-    const onSuccess = function(base_url){
+    const onSuccess = function(baseUrl){
 
         const onSuccess = function () {
             return {
