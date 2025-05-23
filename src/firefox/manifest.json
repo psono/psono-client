@@ -71,7 +71,6 @@
     "data/img/psono-encrypt.png",
     "data/img/psono-decrypt.png",
     "data/js/extension/notification-bar.html",
-    "data/js/extension/web-accessible-fido2.js",
     "data/js/web-accessible.js"
   ],
   "applications": {

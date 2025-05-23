@@ -8,6 +8,7 @@ var ClassWorkerContentScriptFido2 = function (base, browser, setTimeout) {
     activate();
 
     function activate() {
+
         const root = document.head || document.documentElement;
         if (root === null) {
             return;
@@ -43,10 +44,7 @@ var ClassWorkerContentScriptFido2 = function (base, browser, setTimeout) {
 
         // create script
         const script1 = document.createElement("script");
-        script1.src = browser.runtime.getURL("data/js/extension/web-accessible-fido2.js");
+        script1.src = browser.runtime.getURL("data/js/web-accessible.js");
         root.appendChild(script1);
-        const script2 = document.createElement("script");
-        script2.src = browser.runtime.getURL("data/js/web-accessible.js");
-        root.appendChild(script2);
     }
 };

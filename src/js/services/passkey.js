@@ -645,8 +645,8 @@ async function navigatorCredentialsCreate(options, origin) {
     // https://w3c.github.io/webauthn/#dom-publickeycredentialcreationoptions-pubkeycredparams
     let foundSupportedPublicKeyParams = false;
     for (let i = 0; i < options.publicKey.pubKeyCredParams.length; i++) {
-        let hasType = options.publicKey.pubKeyCredParams[0]["type"] === "public-key";
-        let hasAlg = options.publicKey.pubKeyCredParams[0]["alg"] === -7;
+        let hasType = options.publicKey.pubKeyCredParams[i]["type"] === "public-key";
+        let hasAlg = options.publicKey.pubKeyCredParams[i]["alg"] === -7;
 
         if (hasType && hasAlg) {
             foundSupportedPublicKeyParams = true;
