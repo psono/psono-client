@@ -275,7 +275,6 @@ const GroupsView = (props) => {
                                 onEdit(tableMeta.rowData);
                             }}
                             disabled={
-                                !tableMeta.rowData[4] ||
                                 (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)
                             }
                             size="large">
