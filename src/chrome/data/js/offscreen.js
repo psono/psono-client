@@ -1,5 +1,5 @@
 
-// https://gitlab.com/psono/psono-client/-/issues/551
+// https://gitlab.com/esaqa/psono/psono-client/-/issues/551
 // https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension/66618269
 setInterval(async () => {
     (await navigator.serviceWorker.ready).active.postMessage('keepAlive');

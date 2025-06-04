@@ -1,13 +1,13 @@
 # PSONO Client - Password Manager
 
-[![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
+[![coverage report](https://gitlab.com/esaqa/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/esaqa/psono/psono-client/commits/master)
 [![build status](https://img.shields.io/docker/pulls/psono/psono-client.svg)](https://hub.docker.com/r/psono/psono-client/)
 [![Discord](https://img.shields.io/badge/Discord-join%20chat-738bd7.svg)](https://discord.gg/VmBMzTSbGV)
 [![POEditor](https://img.shields.io/badge/POEditor-Help%20translate-brightgreen.svg)](https://poeditor.com/join/project?hash=Aiea8D0WIr)
 
 # Canonical source
 
-The canonical source of PSONO Client is [hosted on GitLab.com](https://gitlab.com/psono/psono-client).
+The canonical source of PSONO Client is [hosted on GitLab.com](https://gitlab.com/esaqa/psono/psono-client).
 
 # Documentation
 
