@@ -20,7 +20,7 @@ create-translations:
     - pip3 install requests openai==1.55.3
     - python3 var/translate.py
   only:
-    - master@psono/psono-client
+    - master@esaqa/psono/psono-client
 
 test-unittests:
   except:
