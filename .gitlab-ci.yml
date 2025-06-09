@@ -79,7 +79,7 @@ test-upload-translations:
     - python3 var/upload_translations.py
     - python3 var/sync_translations_to_artifactory.py
   only:
-    - develop@psono/psono-client
+    - develop@esaqa/psono/psono-client
 
 build-docker-image:
   except:
@@ -112,7 +112,7 @@ build-docker-image:
 #    - docker build -t $CONTAINER_TEST_IMAGE --pull .
 #    - docker push $CONTAINER_TEST_IMAGE
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
@@ -141,7 +141,7 @@ build-sbom:
     paths:
       - ./*
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
@@ -173,7 +173,7 @@ build-firefox-extension:
     paths:
       - ./*
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
@@ -205,7 +205,7 @@ build-chrome-extension:
     paths:
       - ./*
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-linux:
@@ -235,7 +235,7 @@ build-electron-linux:
       - ./*
     expire_in: 1 week
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-macos:
@@ -264,8 +264,8 @@ build-electron-macos:
   tags:
     - macos
   only:
-    - develop@psono/psono-client
-    - master@psono/psono-client
+    - develop@esaqa/psono/psono-client
+    - master@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-windows:
@@ -296,8 +296,8 @@ build-electron-windows:
   tags:
     - windows
   only:
-    - develop@psono/psono-client
-    - master@psono/psono-client
+    - develop@esaqa/psono/psono-client
+    - master@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 release-electron-jfrog:
@@ -332,8 +332,8 @@ release-electron-jfrog:
     - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.dmg psono/client/$CI_COMMIT_REF_NAME/psono.dmg
     - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
   only:
-    - develop@psono/psono-client
-    - master@psono/psono-client
+    - develop@esaqa/psono/psono-client
+    - master@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 deploy-electron-linux:
@@ -426,7 +426,7 @@ build-webclient:
     paths:
       - ./*
   only:
-    - branches@psono/psono-client
+    - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 release-artifacts:
@@ -490,8 +490,8 @@ release-docker:
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - skopeo copy --all docker://$CONTAINER_TEST_IMAGE docker://$CONTAINER_LATEST_IMAGE_JFROG
   only:
-    - develop@psono/psono-client
-    - master@psono/psono-client
+    - develop@esaqa/psono/psono-client
+    - master@esaqa/psono/psono-client
 
 deploy-docker:
   except:
@@ -622,7 +622,7 @@ deploy-nightlyartifacts:
     name: static.psono.com
     url: https://get.psono.com/psono/psono-client/nightly/chrome-extension.zip
   only:
-    - develop@psono/psono-client
+    - develop@esaqa/psono/psono-client
 
 
 deploy-releaseartifacts:
