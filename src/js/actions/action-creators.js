@@ -33,7 +33,9 @@ import {
     SET_HIDE_DOWNLOAD_BANNER,
     SET_LAST_POPUP_SEARCH,
     SET_REQUESTS_IN_PROGRESS,
-    SET_CLIENT_CONFIG
+    SET_CLIENT_CONFIG,
+    SET_DEVICE_CODE,
+    CLEAR_DEVICE_CODE,
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
@@ -521,6 +523,30 @@ function setRequestsInProgress(requestCounterOpen, requestCounterClosed) {
     };
 }
 
+/**
+ * 
+ * @param {string} id 
+ * @param {string} secretBoxKey 
+ * @returns 
+ */
+function setDeviceCode(id, secretBoxKey) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_DEVICE_CODE,
+            id,
+            secretBoxKey,
+        });
+    };
+}
+
+function clearDeviceCode() {
+    return (dispatch) => {
+        dispatch({
+            type: CLEAR_DEVICE_CODE,
+        });
+    };
+}
+
 const actionCreators = {
     setUserUsername,
     setUserInfo1,
@@ -556,7 +582,9 @@ const actionCreators = {
     sendNotification,
     setNotifications,
     setRequestsInProgress,
-    setClientOptionsConfig
+    setClientOptionsConfig,
+    setDeviceCode,
+    clearDeviceCode,
 };
 
 export default actionCreators;

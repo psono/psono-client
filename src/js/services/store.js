@@ -2,7 +2,7 @@
  * Store service
  */
 
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, combineReducers, compose } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 
@@ -16,7 +16,6 @@ import rootReducer from "../reducers";
 import storageService from "./storage";
 import accountService from "./account";
 
-
 let store
 
 export const initStore = async () => {
@@ -27,11 +26,18 @@ export const initStore = async () => {
 
     const middlewares = [thunkMiddleware, createStateSyncMiddleware(config)];
 
+    let composeEnhancers = compose; // Default to Redux's compose
+
     if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
         const loggerMiddleware = createLogger({
             predicate: (getState, action) => action.type !== SET_REQUESTS_IN_PROGRESS
         });
         middlewares.push(loggerMiddleware);
+
+        // Enable Redux DevTools Extension in development
+        if (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+            composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({});
+        }
     }
 
     const migrations = {
@@ -138,9 +144,17 @@ export const initStore = async () => {
 
     const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-    store = createStore(persistedReducer, applyMiddleware(...middlewares));
+    store = createStore(
+        persistedReducer,
+        composeEnhancers(applyMiddleware(...middlewares))
+    );
 
     initMessageListener(store);
+
+    // Expose store to window only in development for debugging (optional)
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+        window.store = store;
+    }
 
     return store;
 };
