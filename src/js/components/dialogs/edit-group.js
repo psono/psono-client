@@ -635,6 +635,7 @@ const DialogEditGroup = (props) => {
                             name="groupName"
                             autoComplete="off"
                             value={groupName}
+                            disabled={readOnly}
                             required
                             onChange={(event) => {
                                 setGroupName(event.target.value);
@@ -703,7 +704,7 @@ const DialogEditGroup = (props) => {
                 >
                     {t("CLOSE")}
                 </Button>
-                <Button onClick={onSave} variant="contained" color="primary" disabled={!groupName}>
+                <Button onClick={onSave} variant="contained" color="primary" disabled={!groupName || readOnly}>
                     {t("SAVE")}
                 </Button>
             </DialogActions>
