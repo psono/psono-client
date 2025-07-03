@@ -37,20 +37,23 @@ def main():
         print(f"Attempting to upload '{file_path}' to: {upload_url}")
 
         with open(file_path, 'rb') as f:
-            files = {'file': (os.path.basename(file_path), f, 'application/zip')}
+            zip_data = f.read()
 
-            params = {}
-            if EDGE_NOTES:
-                params['notes'] = EDGE_NOTES
-                print(f"Including notes as query parameter: '{EDGE_NOTES}'")
+        upload_headers = headers.copy()
+        upload_headers['Content-Type'] = 'application/zip'
 
-            response = requests.post(
-                upload_url,
-                headers=headers,
-                files=files,
-                params=params,
-                timeout=REQUEST_TIMEOUT
-            )
+        params = {}
+        if EDGE_NOTES:
+            params['notes'] = EDGE_NOTES
+            print(f"Including notes as query parameter: '{EDGE_NOTES}'")
+
+        response = requests.post(
+            upload_url,
+            headers=upload_headers,
+            data=zip_data,
+            params=params,
+            timeout=REQUEST_TIMEOUT
+        )
             response.raise_for_status()
 
             upload_result = response.json()
