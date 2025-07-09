@@ -6,6 +6,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
+import ButtonDanger from "../button-danger";
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import IconButton from "@mui/material/IconButton";
@@ -13,6 +14,7 @@ import Table from "../table";
 import widgetService from "../../services/widget";
 import helper from "../../services/helper";
 import DialogVerify from "./verify";
+import DialogProgress from "./progress";
 
 const DialogTrashBin = (props) => {
     const { open, onClose, datastore } = props;
@@ -21,6 +23,9 @@ const DialogTrashBin = (props) => {
     const [entriesFull, setEntriesFull] = useState({});
     const [verifyDeletePermanentOpen, setVerifyDeletePermanentOpen] = useState(false);
     const [entryIndexBeingDeleted, setEntryIndexBeingDeleted] = useState(0);
+    const [verifyDeleteAllOpen, setVerifyDeleteAllOpen] = useState(false);
+    const [deleteAllInProgress, setDeleteAllInProgress] = useState(false);
+    const [deleteAllProgress, setDeleteAllProgress] = useState(0);
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -114,6 +119,55 @@ const DialogTrashBin = (props) => {
         removeEntry(entryIndexBeingDeleted);
     };
 
+    const deleteAll = () => {
+        if (entries.length === 0) {
+            return;
+        }
+
+        setVerifyDeleteAllOpen(true);
+    };
+
+    const deleteAllConfirmed = async () => {
+        setVerifyDeleteAllOpen(false);
+        setDeleteAllInProgress(true);
+        setDeleteAllProgress(0);
+        
+        const entryIds = entries.map(entry => entry[0]);
+        const entriesFullSnapshot = helper.duplicateObject(entriesFull);
+        const totalEntries = entryIds.length;
+        const deletedIds = [];
+
+        for (let i = 0; i < entryIds.length; i++) {
+            const entryId = entryIds[i];
+            const entry = entriesFullSnapshot[entryId];
+            
+            if (entry) {
+                await widgetService.deleteItemPermanent(datastore, entry["path"], "password");
+                deletedIds.push(entryId);
+                
+                // Update state immediately after each deletion
+                setEntries(prevEntries => {
+                    return prevEntries.filter(e => !deletedIds.includes(e[0]));
+                });
+                
+                setEntriesFull(prevEntriesFull => {
+                    const newEntriesFull = helper.duplicateObject(prevEntriesFull);
+                    delete newEntriesFull[entryId];
+                    return newEntriesFull;
+                });
+            }
+            
+            const progress = Math.round(((i + 1) / totalEntries) * 100);
+            setDeleteAllProgress(progress);
+            
+            // Small delay to allow UI to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        setDeleteAllInProgress(false);
+        setDeleteAllProgress(0);
+    };
+
     const columns = [
         { name: t("ID"), options: { display: false } },
         { name: t("TITLE") },
@@ -142,7 +196,6 @@ const DialogTrashBin = (props) => {
                 filter: false,
                 sort: false,
                 empty: false,
-                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -180,10 +233,17 @@ const DialogTrashBin = (props) => {
                 <Table data={entries} columns={columns} options={options} />
             </DialogContent>
             <DialogActions>
+                <ButtonDanger
+                    onClick={deleteAll}
+                    disabled={entries.length === 0 || deleteAllInProgress}
+                >
+                    {t("DELETE_ALL")}
+                </ButtonDanger>
                 <Button
                     onClick={() => {
                         onClose();
                     }}
+                    disabled={deleteAllInProgress}
                 >
                     {t("CLOSE")}
                 </Button>
@@ -203,6 +263,23 @@ const DialogTrashBin = (props) => {
                     open={verifyDeletePermanentOpen}
                     onClose={() => setVerifyDeletePermanentOpen(false)}
                     onConfirm={deletePermanentConfirmed}
+                />
+            )}
+            {verifyDeleteAllOpen && (
+                <DialogVerify
+                    title="DELETE_ALL"
+                    description="DELETE_ALL_PERMANENT_WARNING"
+                    entries={[]}
+                    affectedEntriesText=""
+                    open={verifyDeleteAllOpen}
+                    onClose={() => setVerifyDeleteAllOpen(false)}
+                    onConfirm={deleteAllConfirmed}
+                />
+            )}
+            {deleteAllInProgress && (
+                <DialogProgress
+                    open={deleteAllInProgress}
+                    percentageComplete={deleteAllProgress}
                 />
             )}
         </Dialog>

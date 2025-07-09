@@ -905,6 +905,8 @@
   "SUCCESS": "Success",
   "WARNING": "Warning",
   "DELETE": "Delete",
+  "DELETE_ALL": "Delete All",
+  "DELETE_ALL_PERMANENT_WARNING": "You are about to permanently delete all entries in the trash bin. This action cannot be reversed. Are you sure?",
   "MOVE_TO_TRASH": "Move to trash",
   "RESTORE": "Restore",
   "GENERATE": "Generate",
