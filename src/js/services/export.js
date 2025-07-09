@@ -534,11 +534,26 @@ async function composeExport(data, type, password) {
                 bookmark_notes: "bookmark_notes",
                 bookmark_url_filter: "bookmark_url_filter",
 
+                identity_title: "identity_title",
+                identity_first_name: "identity_first_name",
+                identity_last_name: "identity_last_name",
+                identity_company: "identity_company",
+                identity_address: "identity_address",
+                identity_city: "identity_city",
+                identity_postal_code: "identity_postal_code",
+                identity_state: "identity_state",
+                identity_country: "identity_country",
+                identity_phone_number: "identity_phone_number",
+                identity_email: "identity_email",
+
                 elster_certificate_title: "elster_certificate_title",
                 elster_certificate_file_content: "elster_certificate_file_content",
                 elster_certificate_password: "elster_certificate_password",
                 elster_certificate_retrieval_code: "elster_certificate_retrieval_code",
                 elster_certificate_notes: "elster_certificate_notes",
+
+                custom_fields: "custom_fields",
+                tags: "tags",
             },
         ];
 
@@ -560,6 +575,32 @@ async function composeExport(data, type, password) {
                             data.items[i]["environment_variables_variables"]
                         );
                     }
+                    if (
+                        data.items[i].hasOwnProperty("custom_fields")
+                    ) {
+                        data.items[i]["custom_fields"] = JSON.stringify(data.items[i]["custom_fields"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("tags")
+                    ) {
+                        data.items[i]["tags"] = JSON.stringify(data.items[i]["tags"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_public_key")
+                    ) {
+                        data.items[i]["passkey_public_key"] = JSON.stringify(data.items[i]["passkey_public_key"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_private_key")
+                    ) {
+                        data.items[i]["passkey_private_key"] = JSON.stringify(data.items[i]["passkey_private_key"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_algorithm")
+                    ) {
+                        data.items[i]["passkey_algorithm"] = JSON.stringify(data.items[i]["passkey_algorithm"]);
+                    }
+
                     helperData.push(data.items[i]);
                 }
             }
