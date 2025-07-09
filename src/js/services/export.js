@@ -450,10 +450,11 @@ async function exportToKdbxv4(passwordData, password) {
  * @param {object} data The datastore data to compose
  * @param {string} type The selected type of the export
  * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {*} filtered folder
  */
-async function composeExport(data, type, password) {
+async function composeExport(data, type, password, selectedColumns) {
     if (type === "json") {
         return JSON.stringify(data);
     } else if (type === "kdbxv4") {
@@ -607,6 +608,23 @@ async function composeExport(data, type, password) {
         }
 
         csv_helper(data, "\\");
+        
+        // Filter columns if selectedColumns is provided
+        if (selectedColumns && selectedColumns.length > 0) {
+            const filteredData = helperData.map(row => {
+                const filteredRow = {};
+                selectedColumns.forEach(columnKey => {
+                    if (row.hasOwnProperty(columnKey)) {
+                        filteredRow[columnKey] = row[columnKey];
+                    }
+                });
+                return filteredRow;
+            });
+            return Papa.unparse(filteredData, {
+                header: false,
+            });
+        }
+        
         return Papa.unparse(helperData, {
             header: false,
         });
@@ -697,10 +715,11 @@ function getExporter() {
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
  * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {Promise} Returns a promise with the exportable datastore content
  */
-function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, password) {
+function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, password, selectedColumns) {
     emit("export-started", {});
 
     return datastorePasswordService
@@ -713,7 +732,7 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, pass
         })
         .then(function (data) {
             emit("export-complete", {});
-            return composeExport(data, type, password);
+            return composeExport(data, type, password, selectedColumns);
         });
 }
 
@@ -724,11 +743,12 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, pass
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
  * @param {string} [password] A password which if provided will be used to encrypt the datastore
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(type, includeTrashBinItems, includeSharedItems, password) {
-    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems, password)
+function exportDatastore(type, includeTrashBinItems, includeSharedItems, password, selectedColumns) {
+    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems, password, selectedColumns)
         .then(function (data) {
             if (password && type === 'json') {
                 data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))
