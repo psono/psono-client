@@ -1513,8 +1513,9 @@ function showFolderContentRecursive(searchTree) {
  *
  * @param {string} newValue The new string from the search box
  * @param {TreeObject} searchTree The part of the datastore to search
+ * @param {string} folderPath The path to the current folder (used for folder name search)
  */
-function modifyTreeForSearch(newValue, searchTree) {
+function modifyTreeForSearch(newValue, searchTree, folderPath = "/") {
     if (typeof newValue === "undefined" || typeof searchTree === "undefined" || searchTree === null) {
         return;
     }
@@ -1528,16 +1529,17 @@ function modifyTreeForSearch(newValue, searchTree) {
     let i;
     if (searchTree.hasOwnProperty("folders")) {
         for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
-            show = modifyTreeForSearch(newValue, searchTree.folders[i]) || show;
+            const childFolderPath = folderPath + searchTree.folders[i].name + "/";
+            show = modifyTreeForSearch(newValue, searchTree.folders[i], childFolderPath) || show;
         }
     }
 
     const password_filter = helperService.getPasswordFilter(newValue);
 
-    // Test title of the items
+    // Test title of the items (include folder path in search)
     if (searchTree.hasOwnProperty("items")) {
         for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
-            if (password_filter(searchTree.items[i])) {
+            if (password_filter(searchTree.items[i], folderPath)) {
                 searchTree.items[i].hidden = false;
                 show = true;
             } else {
