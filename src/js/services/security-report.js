@@ -337,7 +337,7 @@ function analyzePasswordDuplicates(analysis) {
  */
 function analyzeHaveibeenpwnedSingle(entry) {
     const passwordSha1 = cryptoLibrary.sha1(entry.password);
-    const passwordSha1Prefix = passwordSha1.substring(0, 5);
+    const passwordSha1Prefix = passwordSha1.substring(0, 5).toLowerCase();
     const passwordSha1Suffix = passwordSha1.slice(5).toLowerCase();
 
     const onError = function (result) {

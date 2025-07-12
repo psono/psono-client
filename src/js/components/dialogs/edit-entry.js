@@ -796,6 +796,7 @@ const DialogEditEntry = (props) => {
     }, [item]);
 
     const onEdit = (event) => {
+        let passwordSha1;
         const secretObject = {};
 
         if (item.type === "website_password") {
@@ -810,6 +811,10 @@ const DialogEditEntry = (props) => {
             }
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
+                passwordSha1 = cryptoLibrary.sha1(websitePasswordPassword);
+                item["password_hash"]  = passwordSha1.substring(0, 5).toLowerCase();
+            } else {
+                item["password_hash"] = ''
             }
             if (websitePasswordTotpPeriod) {
                 secretObject["website_password_totp_period"] = websitePasswordTotpPeriod;
@@ -879,6 +884,10 @@ const DialogEditEntry = (props) => {
             }
             if (applicationPasswordPassword) {
                 secretObject["application_password_password"] = applicationPasswordPassword;
+                passwordSha1 = cryptoLibrary.sha1(applicationPasswordPassword);
+                item["password_hash"]  = passwordSha1.substring(0, 5).toLowerCase();
+            } else {
+                item["password_hash"] = ''
             }
             if (applicationPasswordNotes) {
                 secretObject["application_password_notes"] = applicationPasswordNotes;

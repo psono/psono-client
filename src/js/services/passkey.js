@@ -240,7 +240,7 @@ async function navigatorCredentialsGet(options, origin) {
             i18n.t("SIGN_IN_REQUIRED"),
             i18n.t("NOT_LOGGED_IN_PLEASE_SIGN_IN_TO_USE_FUNCTION"),
             [],
-            10*1000,
+            12*1000,
         )
     }
     if (!isLoggedIn) {
@@ -258,7 +258,7 @@ async function navigatorCredentialsGet(options, origin) {
                 i18n.t("AUTHENTICATION"),
                 i18n.t("NO_PASSKEY_FOUND_FOR_THIS_WEBSITE"),
                 [],
-                10*1000,
+                12*1000,
             )
         }
         throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))
@@ -629,7 +629,7 @@ async function navigatorCredentialsCreate(options, origin) {
             i18n.t("SIGN_IN_REQUIRED"),
             i18n.t("NOT_LOGGED_IN_PLEASE_SIGN_IN_TO_USE_FUNCTION"),
             [],
-            10*1000,
+            12*1000,
         )
         throw new PasskeyException('USER_NOT_LOGGED_IN', i18n.t('USER_NOT_LOGGED_IN'));
     }
