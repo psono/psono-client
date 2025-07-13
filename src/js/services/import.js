@@ -265,6 +265,26 @@ function createSecrets(parsedData) {
             if (customFields) {
                 content['custom_fields'] = customFields;
             }
+            
+            // Calculate password_hash for website_password and application_password types
+            if (poppedSecret["type"] === "website_password" && content.hasOwnProperty("website_password_password")) {
+                const password = content["website_password_password"];
+                if (password) {
+                    const passwordSha1 = cryptoLibraryService.sha1(password);
+                    poppedSecret["password_hash"] = passwordSha1.substring(0, 5).toLowerCase();
+                } else {
+                    poppedSecret["password_hash"] = "";
+                }
+            } else if (poppedSecret["type"] === "application_password" && content.hasOwnProperty("application_password_password")) {
+                const password = content["application_password_password"];
+                if (password) {
+                    const passwordSha1 = cryptoLibraryService.sha1(password);
+                    poppedSecret["password_hash"] = passwordSha1.substring(0, 5).toLowerCase();
+                } else {
+                    poppedSecret["password_hash"] = "";
+                }
+            }
+            
             const myObject = {
                 'linkId': linkId,
                 'content': content,
