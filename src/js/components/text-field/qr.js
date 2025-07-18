@@ -28,8 +28,8 @@ const TextFieldQrCode = (props) => {
         const QRCode = require("qrcode");
         QRCode.toCanvas(canvas, value, {
                 margin: 0,
-                width: 380,
-                height: 380,
+                width: 200,
+                height: 200,
             },
             function (error) {
                 if (error) {
