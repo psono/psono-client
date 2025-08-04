@@ -129,6 +129,12 @@ function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems)
 
     // Delete items that have been marked as deleted if includeTrashBinItems is not set
     if (folder.hasOwnProperty("items")) {
+        // deleted file entries
+        for (i = folder["items"].length - 1; i >= 0; i--) {
+            if (folder["items"][i].hasOwnProperty("type") && folder["items"][i]["type"] === "file") {
+                folder["items"].splice(i, 1);
+            }
+        }
         if (!includeTrashBinItems) {
             for (i = folder["items"].length - 1; i >= 0; i--) {
                 if (folder["items"][i].hasOwnProperty("deleted") && folder["items"][i]["deleted"]) {
