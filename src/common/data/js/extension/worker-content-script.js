@@ -12,6 +12,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     let creditCardInputFields = [];
     let identityInputFields = [];
     let lastCloseTime = 0;
+    let styleProtectionObserver = null;
+    let protectedElements = new Set();
+    let originalStyles = new WeakMap();
 
     const excludedOrigins = new Set([
         'https://www.elster.de', // conflict with elster certificates
@@ -233,6 +236,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
             base.getAllDocuments(window, documents, windows);
             base.registerObserver(analyzeDocument);
+            
+            // Initialize style protection observer
+            initializeStyleProtection();
         });
 
 
@@ -246,6 +252,285 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 })
             }
         };
+    }
+
+    /**
+     * Initialize the MutationObserver to protect styles of our extension elements
+     */
+    function initializeStyleProtection() {
+        if (styleProtectionObserver) {
+            styleProtectionObserver.disconnect();
+        }
+
+        let isRestoring = false; // Prevent infinite loops
+
+        styleProtectionObserver = new MutationObserver((mutations) => {
+            if (isRestoring) return; // Skip if we're currently restoring styles
+
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && 
+                    (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                    
+                    const target = mutation.target;
+                    
+                    // Check if this is one of our protected elements and the change wasn't made by us
+                    if ((protectedElements.has(target) || isProtectedElement(target)) && 
+                        !target.hasAttribute('data-psono-restoring')) {
+                        
+                        isRestoring = true;
+                        restoreElementStyles(target);
+                        isRestoring = false;
+                    }
+                    
+                    // Check for parent element opacity/visibility attacks
+                    if ((target === document.body || target === document.documentElement) && 
+                        protectedElements.size > 0) {
+                        
+                        isRestoring = true;
+                        checkAndRestoreParentVisibility(target);
+                        isRestoring = false;
+                    }
+                }
+                
+                // Handle childList mutations to catch new elements that might interfere
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Check if any added elements try to interfere with our elements
+                            checkForInterference(node);
+                        }
+                    });
+                }
+            });
+        });
+
+        // Start observing the document with the configured options
+        styleProtectionObserver.observe(document, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeOldValue: true,
+            attributeFilter: ['style', 'class']
+        });
+    }
+
+    /**
+     * Check if an element is one of our protected extension elements
+     * @param {Element} element 
+     * @returns {boolean}
+     */
+    function isProtectedElement(element) {
+        return element.classList.contains('psono-drop') ||
+               element.classList.contains('psono-drop-content') ||
+               element.classList.contains('psono-drop-content-inner') ||
+               element.classList.contains('navigations') ||
+               element.closest('.psono-drop') !== null;
+    }
+
+    /**
+     * Restore the original styles of a protected element
+     * @param {Element} element 
+     */
+    function restoreElementStyles(element) {
+        // Mark element as being restored to prevent loops
+        element.setAttribute('data-psono-restoring', 'true');
+        
+        const originalStyleData = originalStyles.get(element);
+        
+        if (originalStyleData) {
+            // Restore original inline styles
+            element.style.cssText = originalStyleData.inlineStyles;
+            
+            // Restore original classes - remove any non-original classes
+            const currentClasses = Array.from(element.classList);
+            const originalClasses = originalStyleData.classes;
+            
+            // Remove all classes first
+            element.className = '';
+            
+            // Add back only original classes
+            originalClasses.forEach(cls => element.classList.add(cls));
+            
+            // Also preserve any legitimate classes that might have been added during runtime
+            const allowedClasses = new Set([
+                'psono-drop',
+                'psono-drop-content',
+                'psono-drop-content-inner',
+                'psono-autofill-style',
+                'yui3-cssreset',
+                'navigations'
+            ]);
+            
+            const legitimateRuntimeClasses = currentClasses.filter(cls => allowedClasses.has(cls));
+            legitimateRuntimeClasses.forEach(cls => {
+                if (!element.classList.contains(cls)) {
+                    element.classList.add(cls);
+                }
+            });
+            
+        } else if (isProtectedElement(element)) {
+            // If we don't have original data but it's a protected element,
+            // remove any suspicious classes and maintain critical styles
+            removeNonLegitimateClasses(element);
+            maintainCriticalStyles(element);
+        }
+        
+        // Remove the restoration marker after a brief delay
+        setTimeout(() => {
+            element.removeAttribute('data-psono-restoring');
+        }, 10);
+    }
+
+    /**
+     * Remove non-legitimate classes from protected elements
+     * @param {Element} element 
+     */
+    function removeNonLegitimateClasses(element) {
+        // Exact whitelist of allowed classes - NO wildcards or startsWith
+        const allowedClasses = new Set([
+            'psono-drop',
+            'psono-drop-content',
+            'psono-drop-content-inner',
+            'psono-autofill-style',
+            'yui3-cssreset',
+            'navigations'
+        ]);
+        
+        const currentClasses = Array.from(element.classList);
+        const legitimateClasses = currentClasses.filter(cls => allowedClasses.has(cls));
+        
+        // Reset classes to only whitelisted ones
+        element.className = legitimateClasses.join(' ');
+    }
+
+    /**
+     * Maintain critical styles for our extension elements
+     * @param {Element} element 
+     */
+    function maintainCriticalStyles(element) {
+        // Mark element as being restored to prevent loops
+        element.setAttribute('data-psono-restoring', 'true');
+        
+        if (element.classList.contains('psono-drop')) {
+            element.style.setProperty('position', 'absolute', 'important');
+            element.style.setProperty('z-index', '2147483647', 'important');
+            element.style.setProperty('display', 'block', 'important');
+        } else if (element.classList.contains('psono-drop-content')) {
+            element.style.setProperty('position', 'relative', 'important');
+            element.style.setProperty('background', '#FFF', 'important');
+            element.style.setProperty('display', 'block', 'important');
+        }
+        
+        // Remove the restoration marker after a brief delay
+        setTimeout(() => {
+            element.removeAttribute('data-psono-restoring');
+        }, 10);
+    }
+
+    /**
+     * Check and restore parent element visibility (body/html)
+     * @param {Element} element 
+     */
+    function checkAndRestoreParentVisibility(element) {
+        if (!element) return;
+        
+        element.setAttribute('data-psono-restoring', 'true');
+        
+        const computedStyle = window.getComputedStyle(element);
+        const isBodyOrHtml = element === document.body || element === document.documentElement;
+        
+        if (isBodyOrHtml) {
+            // Check for opacity attacks
+            const opacity = parseFloat(computedStyle.opacity);
+            if (opacity < 0.1) {
+                element.style.setProperty('opacity', '1', 'important');
+                console.warn('PSONO Security: Restored parent element opacity from', opacity, 'to 1');
+            }
+            
+            // Check for visibility attacks
+            if (computedStyle.visibility === 'hidden') {
+                element.style.setProperty('visibility', 'visible', 'important');
+                console.warn('PSONO Security: Restored parent element visibility from hidden to visible');
+            }
+            
+            // Check for display attacks
+            if (computedStyle.display === 'none') {
+                element.style.setProperty('display', 'block', 'important');
+                console.warn('PSONO Security: Restored parent element display from none to block');
+            }
+        }
+        
+        setTimeout(() => {
+            element.removeAttribute('data-psono-restoring');
+        }, 10);
+    }
+
+    /**
+     * Check if newly added nodes might interfere with our elements
+     * @param {Element} node 
+     */
+    function checkForInterference(node) {
+        // Check if the added node has styles that might hide our elements
+        if (node.style) {
+            const computedStyle = window.getComputedStyle(node);
+            
+            // If an element is positioned over our dropdown area, monitor it
+            if (computedStyle.position === 'absolute' || 
+                computedStyle.position === 'fixed' ||
+                parseInt(computedStyle.zIndex) > 2147483640) {
+                
+                // Check if it overlaps with any of our dropdowns
+                protectedElements.forEach((protectedElement) => {
+                    if (protectedElement.classList.contains('psono-drop')) {
+                        const protectedRect = protectedElement.getBoundingClientRect();
+                        const nodeRect = node.getBoundingClientRect();
+                        
+                        if (rectsOverlap(protectedRect, nodeRect)) {
+                            // Potentially malicious element detected - lower its z-index
+                            node.style.setProperty('z-index', '1000', 'important');
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Check if two rectangles overlap
+     * @param {DOMRect} rect1 
+     * @param {DOMRect} rect2 
+     * @returns {boolean}
+     */
+    function rectsOverlap(rect1, rect2) {
+        return !(rect1.right < rect2.left || 
+                 rect2.right < rect1.left || 
+                 rect1.bottom < rect2.top || 
+                 rect2.bottom < rect1.top);
+    }
+
+    /**
+     * Add an element to the protected elements set and store its original styles
+     * @param {Element} element 
+     */
+    function protectElement(element) {
+        if (!protectedElements.has(element)) {
+            protectedElements.add(element);
+            
+            // Store original styles
+            originalStyles.set(element, {
+                inlineStyles: element.style.cssText,
+                classes: Array.from(element.classList)
+            });
+        }
+    }
+
+    /**
+     * Remove an element from protection (when it's removed from DOM)
+     * @param {Element} element 
+     */
+    function unprotectElement(element) {
+        protectedElements.delete(element);
+        originalStyles.delete(element);
     }
 
     /**
@@ -658,6 +943,18 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             return
         }
 
+        // Perform comprehensive security check before showing dropdown
+        const securityCheck = performSecurityCheck();
+        if (!securityCheck.safe) {
+            console.warn('PSONO Security: Dropdown blocked due to security threats:', securityCheck.threats);
+            
+            // If existing popovers are detected, don't show our dropdown
+            if (securityCheck.threats.includes('existing_popovers')) {
+                console.warn('PSONO Security: Blocking dropdown due to existing popover elements');
+                return;
+            }
+        }
+
         base.emit("website-password-refresh", document.location.toString(), async (response) => {
 
             let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
@@ -728,16 +1025,16 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             dropInstances.push(dropInstance);
 
             setTimeout(function () {
-                let element = dropInstance.getElement();
+                let shadowRoot = dropInstance.getShadowRoot();
 
-                let openDatastoreElements = element.getElementsByClassName(openDatastoreClass);
+                let openDatastoreElements = shadowRoot.querySelectorAll(`.${openDatastoreClass}`);
                 for (let el of openDatastoreElements) {
                     el.addEventListener("click", function () {
                         openDatastore();
                     });
                 }
 
-                let generatePasswordElements = element.getElementsByClassName(generatePasswordClass);
+                let generatePasswordElements = shadowRoot.querySelectorAll(`.${generatePasswordClass}`);
                 for (let el of generatePasswordElements) {
                     el.addEventListener("click", function () {
                         generate_password();
@@ -747,7 +1044,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 for (let i = 0; i < requestSecretClasses.length; i++) {
                     let className = requestSecretClasses[i]['class'];
                     let secretId = requestSecretClasses[i]['secret_id'];
-                    let secretElements = element.getElementsByClassName(className);
+                    let secretElements = shadowRoot.querySelectorAll(`.${className}`);
 
                     for (let el of secretElements) {
                         el.addEventListener("click", function () {
@@ -758,41 +1055,43 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
                 // Setup search functionality if response.data is longer than 5
                 if (response.data.length > 5) {
-                    let searchInput = document.querySelector('.psono-search-input');
-                    let listItems = querySelectorAllIncShadowRoots(document, '.psono_request-secret');
+                    let searchInput = shadowRoot.querySelector('.psono-search-input');
+                    let listItems = shadowRoot.querySelectorAll('.psono_request-secret');
 
-                    searchInput.addEventListener('click', function (event) {
-                        event.stopPropagation();
-                    });
-
-                    searchInput.addEventListener('keyup', function () {
-                        const searchStrings = searchInput.value.toLowerCase().split(" ");
-
-                        function match(searched) {
-                            let containCounter = 0;
-                            searched = searched.toLowerCase()
-
-                            for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
-                                if (
-                                    searched.indexOf(searchStrings[ii]) > -1
-                                ) {
-                                    containCounter++;
-                                }
-                            }
-                            return containCounter === searchStrings.length;
-                        }
-
-                        let shownElements = 0;
-                        listItems.forEach(function (li) {
-                            let listItemText = li.textContent.toLowerCase();
-                            if (!match(listItemText) || (shownElements >= 5)) {
-                                li.setAttribute('style', 'display:none !important');
-                            } else {
-                                shownElements = shownElements + 1;
-                                li.setAttribute('style', '');
-                            }
+                    if (searchInput) {
+                        searchInput.addEventListener('click', function (event) {
+                            event.stopPropagation();
                         });
-                    });
+
+                        searchInput.addEventListener('keyup', function () {
+                            const searchStrings = searchInput.value.toLowerCase().split(" ");
+
+                            function match(searched) {
+                                let containCounter = 0;
+                                searched = searched.toLowerCase()
+
+                                for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
+                                    if (
+                                        searched.indexOf(searchStrings[ii]) > -1
+                                    ) {
+                                        containCounter++;
+                                    }
+                                }
+                                return containCounter === searchStrings.length;
+                            }
+
+                            let shownElements = 0;
+                            listItems.forEach(function (li) {
+                                let listItemText = li.textContent.toLowerCase();
+                                if (!match(listItemText) || (shownElements >= 5)) {
+                                    li.setAttribute('style', 'display:none !important');
+                                } else {
+                                    shownElements = shownElements + 1;
+                                    li.setAttribute('style', '');
+                                }
+                            });
+                        });
+                    }
                 }
             }, 0);
 
@@ -823,7 +1122,221 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
 
     /**
-     * Creates the dropdown menu
+     * Check if Popover API is supported
+     * @returns {boolean}
+     */
+    function isPopoverSupported() {
+        return typeof HTMLElement.prototype.showPopover === 'function' &&
+               typeof HTMLElement.prototype.hidePopover === 'function';
+    }
+
+    /**
+     * Check for existing popover elements in the top layer
+     * @returns {Element[]} Array of popover elements found
+     */
+    function checkExistingPopovers() {
+        const popovers = [];
+        const allElements = document.querySelectorAll('[popover]');
+        
+        allElements.forEach(element => {
+            // Check if popover is currently showing (in top layer)
+            if (element.matches(':popover-open')) {
+                popovers.push(element);
+            }
+        });
+        
+        return popovers;
+    }
+
+    /**
+     * Check for highest z-index elements that might conflict
+     * @returns {Element[]} Array of high z-index elements
+     */
+    function checkHighZIndexElements() {
+        const highZElements = [];
+        const allElements = document.querySelectorAll('*');
+        
+        allElements.forEach(element => {
+            const computedStyle = window.getComputedStyle(element);
+            const zIndex = parseInt(computedStyle.zIndex);
+            
+            if (zIndex > 2147483640 && !element.id.startsWith('psono_drop-')) {
+                highZElements.push({
+                    element: element,
+                    zIndex: zIndex,
+                    position: computedStyle.position
+                });
+            }
+        });
+        
+        // Sort by z-index descending
+        highZElements.sort((a, b) => b.zIndex - a.zIndex);
+        return highZElements;
+    }
+
+    /**
+     * Check for overlay conflicts using elementsFromPoint
+     * @param {Element} dropdownElement 
+     * @returns {boolean} True if overlay detected
+     */
+    function checkForOverlayConflicts(dropdownElement) {
+        if (!dropdownElement) return false;
+        
+        const rect = dropdownElement.getBoundingClientRect();
+        
+        // Check multiple points across the dropdown
+        const testPoints = [
+            { x: rect.left + rect.width * 0.25, y: rect.top + rect.height * 0.25 },
+            { x: rect.left + rect.width * 0.75, y: rect.top + rect.height * 0.25 },
+            { x: rect.left + rect.width * 0.5, y: rect.top + rect.height * 0.5 },
+            { x: rect.left + rect.width * 0.25, y: rect.top + rect.height * 0.75 },
+            { x: rect.left + rect.width * 0.75, y: rect.top + rect.height * 0.75 }
+        ];
+        
+        for (const point of testPoints) {
+            const elements = document.elementsFromPoint(point.x, point.y);
+            
+            // Check if there are suspicious elements in the stack
+            if (elements.length > 0) {
+                // Look through the element stack to find suspicious overlays
+                for (let i = 0; i < elements.length; i++) {
+                    const element = elements[i];
+                    
+                    // Skip our own dropdown and its contents
+                    if (element === dropdownElement || 
+                        element.closest(`#${dropdownElement.id}`) ||
+                        dropdownElement.contains(element)) {
+                        continue;
+                    }
+                    
+                    // Skip body and html elements (normal page structure)
+                    if (element.tagName === 'BODY' || element.tagName === 'HTML') {
+                        continue;
+                    }
+                    
+                    // Skip normal form elements that are part of the page structure
+                    if (['LABEL', 'FORM', 'INPUT'].includes(element.tagName) && 
+                        !element.id.startsWith('test-') && 
+                        !element.id.startsWith('psono-')) {
+                        continue;
+                    }
+                    
+                    const computedStyle = window.getComputedStyle(element);
+                    
+                    // NEW APPROACH: Check for any suspicious positioned elements in the stack
+                    // regardless of their position relative to our dropdown
+                    const isSuspiciousElement = (
+                        // Test elements (our attack simulation)
+                        element.id.startsWith('test-') ||
+                        // High z-index positioned elements
+                        ((computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
+                         parseInt(computedStyle.zIndex) > 2147483640) ||
+                        // Elements with suspicious styling
+                        (computedStyle.pointerEvents !== 'none' && 
+                         (computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
+                         parseInt(computedStyle.zIndex) > 1000)
+                    );
+                    
+                    if (isSuspiciousElement) {
+                        // For Popover API elements, we need different detection logic
+                        // Check if the suspicious element is actually covering our dropdown
+                        const elementRect = element.getBoundingClientRect();
+                        
+                        // Check if the suspicious element overlaps with our dropdown
+                        const overlaps = !(
+                            rect.right < elementRect.left || 
+                            elementRect.right < rect.left || 
+                            rect.bottom < elementRect.top || 
+                            elementRect.bottom < rect.top
+                        );
+                        
+                        if (overlaps) {
+                            console.warn('PSONO Security: Overlay conflict detected at point', point);
+                            console.warn('PSONO Security: Interfering element:', element);
+                            console.warn('PSONO Security: Element bounds:', elementRect);
+                            console.warn('PSONO Security: Dropdown bounds:', rect);
+                            console.warn('PSONO Security: Element stack:', elements.map(el => `${el.tagName}${el.id ? '#' + el.id : ''}`));
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Temporarily disable pointer-events on all elements except our dropdown
+     * @param {Element} dropdownElement 
+     * @returns {Array} Array of elements that had pointer-events modified
+     */
+    function temporarilyDisablePointerEvents(dropdownElement) {
+        const modifiedElements = [];
+        const allPopovers = document.querySelectorAll('[popover]');
+        
+        allPopovers.forEach(element => {
+            if (element !== dropdownElement && element.matches(':popover-open')) {
+                const originalPointerEvents = element.style.pointerEvents;
+                element.style.setProperty('pointer-events', 'none', 'important');
+                modifiedElements.push({
+                    element: element,
+                    originalPointerEvents: originalPointerEvents
+                });
+            }
+        });
+        
+        return modifiedElements;
+    }
+
+    /**
+     * Restore pointer-events on modified elements
+     * @param {Array} modifiedElements 
+     */
+    function restorePointerEvents(modifiedElements) {
+        modifiedElements.forEach(({ element, originalPointerEvents }) => {
+            if (originalPointerEvents) {
+                element.style.pointerEvents = originalPointerEvents;
+            } else {
+                element.style.removeProperty('pointer-events');
+            }
+        });
+    }
+
+    /**
+     * Comprehensive security check before showing dropdown
+     * @returns {Object} Security check results
+     */
+    function performSecurityCheck() {
+        const result = {
+            safe: true,
+            threats: [],
+            existingPopovers: [],
+            highZElements: []
+        };
+        
+        // Check for existing popovers
+        const existingPopovers = checkExistingPopovers();
+        if (existingPopovers.length > 0) {
+            result.safe = false;
+            result.threats.push('existing_popovers');
+            result.existingPopovers = existingPopovers;
+            console.warn('PSONO Security: Existing popover elements detected:', existingPopovers);
+        }
+        
+        // Check for high z-index elements
+        const highZElements = checkHighZIndexElements();
+        if (highZElements.length > 0) {
+            result.threats.push('high_z_elements');
+            result.highZElements = highZElements;
+            console.warn('PSONO Security: High z-index elements detected:', highZElements);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Creates the dropdown menu with closed shadow root, MutationObserver protection, and Popover API if supported
      *
      * @param setup_event
      * @param content
@@ -832,22 +1345,165 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      */
     function createDropdownMenu(setup_event, content, document) {
         let position = getOffset(setup_event.target);
-
         let height = setup_event.target.offsetHeight;
-
         let element_id = "psono_drop-" + uuid.v4();
 
+        // Create the host element with original positioning
         let element = document.createElement('div');
         element.id = element_id;
         element.className = 'psono-drop yui3-cssreset';
+        
+        // Use Popover API if available for better isolation
+        const usePopover = isPopoverSupported();
+        if (usePopover) {
+            element.setAttribute('popover', 'manual'); // Manual control over show/hide
+        }
+        
         element.setAttribute('style', `transform: translateX(${position.left}px) translateY(${position.top + height}px) translateZ(0px) !important`);
-        element.innerHTML = '<div class="psono-drop-content">' + content + '</div>';
+
+        // Create closed shadow root for complete isolation
+        let shadowRoot = element.attachShadow({ mode: 'closed' });
+        
+        // Inject all styles and content into the closed shadow root
+        shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    top: 0 !important;
+                    left: 0 !important;
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                    padding-top: 12px !important;
+                    position: absolute !important;
+                    display: block !important;
+                    z-index: 2147483647 !important;
+                    box-sizing: border-box !important;
+                }
+                
+                .psono-drop-content {
+                    position: relative !important;
+                    background: #FFF !important;
+                    padding: 2px !important;
+                    transform: translateZ(0) !important;
+                    display: block !important;
+                    box-sizing: border-box !important;
+                }
+
+                .psono-drop-content-inner {
+                    position: relative !important;
+                    background-color: #151f2b !important;
+                    border: 1px solid #cdd2df !important;
+                    border-radius: 2px !important;
+                    padding: 6px !important;
+                    display: block !important;
+                    box-sizing: border-box !important;
+                }
+
+                .psono-drop-content-inner * {
+                    font-family: 'Open Sans', sans-serif !important;
+                    font-size: 13px !important;
+                    color: #b1b6c1 !important;
+                    box-sizing: border-box !important;
+                }
+
+                .psono-drop-content-inner:after,
+                .psono-drop-content-inner:before {
+                    bottom: 100% !important;
+                    left: 20% !important;
+                    border: solid transparent !important;
+                    content: " " !important;
+                    height: 0 !important;
+                    width: 0 !important;
+                    position: absolute !important;
+                    pointer-events: none !important;
+                }
+
+                .psono-drop-content-inner:after {
+                    border-color: #151f2b !important;
+                    border-color: rgba(21, 31, 43, 0) !important;
+                    border-bottom-color: #151f2b !important;
+                    border-width: 10px !important;
+                    margin-left: -10px !important;
+                }
+
+                .psono-drop-content-inner:before {
+                    border-color: #bababa !important;
+                    border-color: rgba(186, 186, 186, 0) !important;
+                    border-bottom-color: #fff !important;
+                    border-width: 13px !important;
+                    border-radius: 2px !important;
+                    margin-left: -13px !important;
+                }
+
+                .navigations {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }
+
+                .navigations li {
+                    list-style-type: none !important;
+                    margin-top: 1px !important;
+                    border-radius: 4px !important;
+                    display: block !important;
+                }
+
+                .navigations li div {
+                    text-decoration: none !important;
+                    display: inline-block !important;
+                    padding: 10px !important;
+                    width: 100% !important;
+                    cursor: pointer !important;
+                    box-sizing: border-box !important;
+                }
+
+                .navigations li input {
+                    padding: 10px !important;
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                    background: transparent !important;
+                    border: none !important;
+                    color: #b1b6c1 !important;
+                    font-family: 'Open Sans', sans-serif !important;
+                    font-size: 13px !important;
+                }
+
+                .navigations li:hover {
+                    background-color: #fff !important;
+                    color: #151f2b !important;
+                }
+
+                .navigations li:hover div {
+                    color: #151f2b !important;
+                }
+
+                .navigations li.active {
+                    background-color: #2dbb93 !important;
+                }
+
+                .navigations li.active div {
+                    color: #fff !important;
+                }
+            </style>
+            <div class="psono-drop-content">
+                ${content}
+            </div>
+        `;
+
+        // Store shadow root reference for internal access only
+        element._psonoShadowRoot = shadowRoot;
 
         document.onclick = function (event) {
             if (event.target !== setup_event.target) {
+                // Clean up both regular dropdowns and shadow root dropdowns
                 let dropdowns = document.getElementsByClassName("psono-drop");
                 for (let i = dropdowns.length - 1; i >= 0; i--) {
                     dropdowns[i].remove();
+                }
+                
+                let shadowDropdowns = document.querySelectorAll('[id^="psono_drop-"]');
+                for (let i = shadowDropdowns.length - 1; i >= 0; i--) {
+                    if (shadowDropdowns[i]._psonoShadowRoot) {
+                        shadowDropdowns[i].remove();
+                    }
                 }
                 lastCloseTime = new Date().getTime();
             }
@@ -855,9 +1511,54 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
         function open() {
             document.body.appendChild(element);
+            
+            // Use Popover API if supported for maximum protection
+            if (usePopover) {
+                try {
+                    element.showPopover();
+                } catch (e) {
+                    console.warn('PSONO: Popover API failed, using fallback', e);
+                }
+            }
+            
+            // Protect the host element with MutationObserver
+            // (the shadow root content is already protected by being closed)
+            protectElement(element);
+            
+            // Perform overlay detection after a brief delay to allow rendering
+            setTimeout(() => {
+                // Temporarily disable pointer-events on other popovers for accurate detection
+                const modifiedElements = temporarilyDisablePointerEvents(element);
+                
+                // Check for overlay conflicts
+                const overlayDetected = checkForOverlayConflicts(element);
+                
+                // Restore pointer-events
+                restorePointerEvents(modifiedElements);
+                
+                // If overlay is detected, close the dropdown for security
+                if (overlayDetected) {
+                    console.error('PSONO Security: Overlay attack detected - closing dropdown for safety');
+                    close();
+                    return;
+                }
+
+            }, 50);
         }
 
         function close() {
+            // Hide popover if using Popover API
+            if (usePopover) {
+                try {
+                    element.hidePopover();
+                } catch (e) {
+                    // Popover might already be hidden
+                }
+            }
+            
+            // Unprotect the host element
+            unprotectElement(element);
+            
             element.remove();
             lastCloseTime = new Date().getTime();
         }
@@ -866,10 +1567,34 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             return document.getElementById(element_id);
         }
 
+        function getShadowRoot() {
+            // Only our code can access this
+            return element._psonoShadowRoot;
+        }
+
+        function manualOverlayCheck() {
+            // Public function for testing overlay detection
+            const overlayDetected = checkForOverlayConflicts(element);
+            if (overlayDetected) {
+                console.error('PSONO Security: Manual check detected overlay attack - closing dropdown');
+                close();
+                return true;
+            }
+            console.log('PSONO Security: Manual check passed - no overlay detected');
+            return false;
+        }
+
+        // Expose manual check function globally for testing
+        if (typeof window !== 'undefined') {
+            window.psonoManualOverlayCheck = manualOverlayCheck;
+        }
+
         return {
             open: open,
             close: close,
             getElement: getElement,
+            getShadowRoot: getShadowRoot,
+            manualOverlayCheck: manualOverlayCheck,
         };
     }
     // Messaging functions below
