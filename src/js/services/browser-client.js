@@ -918,7 +918,6 @@ function copyToClipboard(fetchContent) {
             writeToClipboard(function () {
                 return new Promise(function(resolve, reject) {
                     setTimeout(function () {
-                        console.log("clearClipboard")
                         resolve("")
                     }, clipboardClearDelay*1000);
                 });
@@ -927,6 +926,30 @@ function copyToClipboard(fetchContent) {
     }
     return writeToClipboard(fetchContent)
 }
+
+/**
+ * Initialize extension page message listener for clipboard clearing
+ */
+function initExtensionPageClipboardListener() {
+    if (TARGET === "chrome" || TARGET === "firefox") {
+        const messageListener = function(request, sender, sendResponse) {
+            if (request.event === "clear-clipboard-content-script") {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("");
+                }
+            }
+        };
+        
+        if (TARGET === "chrome") {
+            chrome.runtime.onMessage.addListener(messageListener);
+        } else if (TARGET === "firefox") {
+            browser.runtime.onMessage.addListener(messageListener);
+        }
+    }
+}
+
+// Initialize the extension page listener
+initExtensionPageClipboardListener();
 
 /**
  * Create a notification
