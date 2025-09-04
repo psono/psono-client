@@ -11,6 +11,7 @@ import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
 import i18n from "../i18n";
 import { getStore } from "./store";
+import notificationBarService from "./notification-bar";
 
 const registrations = {};
 let _shareIndex = {};
@@ -557,6 +558,7 @@ function fillStorage(datastore) {
             ["description", "description"],
             ["urlfilter", "urlfilter"],
             ["autosubmit", "autosubmit"],
+            ["password_hash", "password_hash"],
             ["allow_http", "allow_http"],
             ["search", "urlfilter"],
         ],
@@ -638,13 +640,13 @@ function saveDatastoreContent(datastore, paths) {
             promises.push(datastoreService.saveDatastoreContent(type, description, duplicate));
         } else {
             const share_id = duplicate.share_id;
-            const secret_key = duplicate.share_secret_key;
+            const share_secret_key = duplicate.share_secret_key;
 
             delete duplicate.share_id;
-            delete duplicate.secret_key;
+            delete duplicate.share_secret_key;
             delete duplicate.share_rights;
 
-            promises.push(shareService.writeShare(share_id, duplicate, secret_key));
+            promises.push(shareService.writeShare(share_id, duplicate, share_secret_key));
         }
     }
 
@@ -709,12 +711,14 @@ function savePassword(url, username, password) {
         website_password_notes: "",
         website_password_auto_submit: false,
         website_password_url_filter: parsed_url.authority || "",
+        website_password_allow_http: parsed_url.scheme && parsed_url.scheme === "http",
     };
 
     const datastore_object = {
         type: "website_password",
         name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
         urlfilter: parsed_url.authority || "",
+        allow_http: parsed_url.scheme &&parsed_url.scheme === "http",
     };
     if (username) {
         datastore_object['description'] = username;
@@ -734,6 +738,99 @@ function savePassword(url, username, password) {
 
     return saveInDatastore(secret_object, datastore_object).then(onSuccess, onError);
 }
+
+/**
+ * Updates password for a given url, username and password in the datastore
+ *
+ * @param {string} url The URL of the site for which the password has been generated
+ * @param {string} username The username to store
+ * @param {string} password The password to store
+ *
+ * @returns {Promise} Returns a promise with the datastore object
+ */
+function updatePassword(url, username, password) {
+    const parsed_url = helperService.parseUrl(url);
+    const authority = parsed_url.authority || "";
+    
+    const onError = function (result) {
+        console.log("Error updating password:", result);
+        return Promise.reject(result);
+    };
+    
+    const onSuccess = function (datastore) {
+        const matchingEntries = [];
+
+        const searchForMatches = function (obj) {
+            if (obj.hasOwnProperty("items")) {
+                for (let i = 0; i < obj.items.length; i++) {
+                    const item = obj.items[i];
+                    if (item.type !== "website_password") {
+                        continue
+                    }
+                    if (!item.hasOwnProperty("urlfilter")) {
+                        continue
+                    }
+                    const urlFilters = item.urlfilter.split(/\s+|,|;/);
+                    let found = false;
+                    for (let j = 0; j < urlFilters.length; j++) {
+                        if (helperService.isUrlFilterMatch(authority, urlFilters[j])) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        continue
+                    }
+                    matchingEntries.push(item);
+                }
+            }
+            
+            if (obj.hasOwnProperty("folders")) {
+                for (let i = 0; i < obj.folders.length; i++) {
+                    searchForMatches(obj.folders[i]);
+                }
+            }
+        };
+        
+        searchForMatches(datastore);
+        
+        if (matchingEntries.length !== 1) {
+            return Promise.reject({
+                error: "Expected exactly one matching entry, found " + matchingEntries.length
+            });
+        }
+        
+        const entry = matchingEntries[0];
+        
+        if (entry.type !== "website_password") {
+            return Promise.reject({
+                error: "Entry type is not website_password"
+            });
+        }
+        
+        const onSecretReadSuccess = function (secretData) {
+            secretData.website_password_password = password;
+            
+            const passwordSha1 = cryptoLibrary.sha1(password);
+            entry.password_hash = passwordSha1.substring(0, 5).toLowerCase();
+            
+            const onSecretWriteSuccess = function () {
+                return saveDatastoreContent(datastore, [entry.path || []]).then(function () {
+                    handleDatastoreContentChanged(datastore);
+                    return entry;
+                });
+            };
+
+            return secretService.writeSecret(entry.secret_id, entry.secret_key, secretData).then(onSecretWriteSuccess, onError);
+        };
+
+        return secretService.readSecret(entry.secret_id, entry.secret_key).then(onSecretReadSuccess, onError);
+    };
+    
+    return getPasswordDatastore().then(onSuccess, onError);
+}
+
+
 
 /**
  * Stores a passkey in the datastore
@@ -1513,8 +1610,9 @@ function showFolderContentRecursive(searchTree) {
  *
  * @param {string} newValue The new string from the search box
  * @param {TreeObject} searchTree The part of the datastore to search
+ * @param {string} folderPath The path to the current folder (used for folder name search)
  */
-function modifyTreeForSearch(newValue, searchTree) {
+function modifyTreeForSearch(newValue, searchTree, folderPath = "/") {
     if (typeof newValue === "undefined" || typeof searchTree === "undefined" || searchTree === null) {
         return;
     }
@@ -1528,16 +1626,17 @@ function modifyTreeForSearch(newValue, searchTree) {
     let i;
     if (searchTree.hasOwnProperty("folders")) {
         for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
-            show = modifyTreeForSearch(newValue, searchTree.folders[i]) || show;
+            const childFolderPath = folderPath + searchTree.folders[i].name + "/";
+            show = modifyTreeForSearch(newValue, searchTree.folders[i], childFolderPath) || show;
         }
     }
 
     const password_filter = helperService.getPasswordFilter(newValue);
 
-    // Test title of the items
+    // Test title of the items (include folder path in search)
     if (searchTree.hasOwnProperty("items")) {
         for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
-            if (password_filter(searchTree.items[i])) {
+            if (password_filter(searchTree.items[i], folderPath)) {
                 searchTree.items[i].hidden = false;
                 show = true;
             } else {
@@ -1672,6 +1771,7 @@ const datastorePasswordService = {
     saveDatastoreContent: saveDatastoreContent,
     handleDatastoreContentChanged: handleDatastoreContentChanged,
     savePassword: savePassword,
+    updatePassword: updatePassword,
     savePasswordActiveTab: savePasswordActiveTab,
     savePasskey: savePasskey,
     bookmarkActiveTab: bookmarkActiveTab,

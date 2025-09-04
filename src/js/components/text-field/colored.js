@@ -177,7 +177,7 @@ const TextFieldColored = (props) => {
 
   return (
     <div className={classes.wrapper}>
-      <div className={classes.textOverlay}>
+      <div className={classes.textOverlay} translate="no">
         {renderStyledText()}
       </div>
       <TextField

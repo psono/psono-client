@@ -796,6 +796,7 @@ const DialogEditEntry = (props) => {
     }, [item]);
 
     const onEdit = (event) => {
+        let passwordSha1;
         const secretObject = {};
 
         if (item.type === "website_password") {
@@ -810,6 +811,10 @@ const DialogEditEntry = (props) => {
             }
             if (websitePasswordPassword) {
                 secretObject["website_password_password"] = websitePasswordPassword;
+                passwordSha1 = cryptoLibrary.sha1(websitePasswordPassword);
+                item["password_hash"]  = passwordSha1.substring(0, 5).toLowerCase();
+            } else {
+                item["password_hash"] = ''
             }
             if (websitePasswordTotpPeriod) {
                 secretObject["website_password_totp_period"] = websitePasswordTotpPeriod;
@@ -879,6 +884,10 @@ const DialogEditEntry = (props) => {
             }
             if (applicationPasswordPassword) {
                 secretObject["application_password_password"] = applicationPasswordPassword;
+                passwordSha1 = cryptoLibrary.sha1(applicationPasswordPassword);
+                item["password_hash"]  = passwordSha1.substring(0, 5).toLowerCase();
+            } else {
+                item["password_hash"] = ''
             }
             if (applicationPasswordNotes) {
                 secretObject["application_password_notes"] = applicationPasswordNotes;
@@ -1224,6 +1233,11 @@ const DialogEditEntry = (props) => {
         title = item.share_rights && item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
     } else {
         title = t('ACCESS_DENIED')
+    }
+
+    let webClient = getStore().getState().server.webClient || '';
+    if (webClient) {
+       webClient = webClient + "/";
     }
 
     const hasAddCustomField = !hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note");
@@ -3479,7 +3493,7 @@ const DialogEditEntry = (props) => {
 
             {!hideLinkToEntry && showAdvanced && (
                 <Grid item xs={12} sm={12} md={12}>
-                    {t("ENTRY_LINK")}: <a href={"index.html#!/datastore/search/" + item.id}>{item.id}</a>
+                    {t("ENTRY_LINK")}: <a href={webClient + "index.html#!/datastore/search/" + item.id}>{item.id}</a>
                 </Grid>
             )}
 

@@ -129,6 +129,12 @@ function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems)
 
     // Delete items that have been marked as deleted if includeTrashBinItems is not set
     if (folder.hasOwnProperty("items")) {
+        // deleted file entries
+        for (i = folder["items"].length - 1; i >= 0; i--) {
+            if (folder["items"][i].hasOwnProperty("type") && folder["items"][i]["type"] === "file") {
+                folder["items"].splice(i, 1);
+            }
+        }
         if (!includeTrashBinItems) {
             for (i = folder["items"].length - 1; i >= 0; i--) {
                 if (folder["items"][i].hasOwnProperty("deleted") && folder["items"][i]["deleted"]) {
@@ -450,10 +456,11 @@ async function exportToKdbxv4(passwordData, password) {
  * @param {object} data The datastore data to compose
  * @param {string} type The selected type of the export
  * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {*} filtered folder
  */
-async function composeExport(data, type, password) {
+async function composeExport(data, type, password, selectedColumns) {
     if (type === "json") {
         return JSON.stringify(data);
     } else if (type === "kdbxv4") {
@@ -534,11 +541,26 @@ async function composeExport(data, type, password) {
                 bookmark_notes: "bookmark_notes",
                 bookmark_url_filter: "bookmark_url_filter",
 
+                identity_title: "identity_title",
+                identity_first_name: "identity_first_name",
+                identity_last_name: "identity_last_name",
+                identity_company: "identity_company",
+                identity_address: "identity_address",
+                identity_city: "identity_city",
+                identity_postal_code: "identity_postal_code",
+                identity_state: "identity_state",
+                identity_country: "identity_country",
+                identity_phone_number: "identity_phone_number",
+                identity_email: "identity_email",
+
                 elster_certificate_title: "elster_certificate_title",
                 elster_certificate_file_content: "elster_certificate_file_content",
                 elster_certificate_password: "elster_certificate_password",
                 elster_certificate_retrieval_code: "elster_certificate_retrieval_code",
                 elster_certificate_notes: "elster_certificate_notes",
+
+                custom_fields: "custom_fields",
+                tags: "tags",
             },
         ];
 
@@ -560,12 +582,55 @@ async function composeExport(data, type, password) {
                             data.items[i]["environment_variables_variables"]
                         );
                     }
+                    if (
+                        data.items[i].hasOwnProperty("custom_fields")
+                    ) {
+                        data.items[i]["custom_fields"] = JSON.stringify(data.items[i]["custom_fields"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("tags")
+                    ) {
+                        data.items[i]["tags"] = JSON.stringify(data.items[i]["tags"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_public_key")
+                    ) {
+                        data.items[i]["passkey_public_key"] = JSON.stringify(data.items[i]["passkey_public_key"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_private_key")
+                    ) {
+                        data.items[i]["passkey_private_key"] = JSON.stringify(data.items[i]["passkey_private_key"]);
+                    }
+                    if (
+                        data.items[i].hasOwnProperty("passkey_algorithm")
+                    ) {
+                        data.items[i]["passkey_algorithm"] = JSON.stringify(data.items[i]["passkey_algorithm"]);
+                    }
+
                     helperData.push(data.items[i]);
                 }
             }
         }
 
         csv_helper(data, "\\");
+        
+        // Filter columns if selectedColumns is provided
+        if (selectedColumns && selectedColumns.length > 0) {
+            const filteredData = helperData.map(row => {
+                const filteredRow = {};
+                selectedColumns.forEach(columnKey => {
+                    if (row.hasOwnProperty(columnKey)) {
+                        filteredRow[columnKey] = row[columnKey];
+                    }
+                });
+                return filteredRow;
+            });
+            return Papa.unparse(filteredData, {
+                header: false,
+            });
+        }
+        
         return Papa.unparse(helperData, {
             header: false,
         });
@@ -656,10 +721,11 @@ function getExporter() {
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
  * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {Promise} Returns a promise with the exportable datastore content
  */
-function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, password) {
+function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, password, selectedColumns) {
     emit("export-started", {});
 
     return datastorePasswordService
@@ -672,7 +738,7 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, pass
         })
         .then(function (data) {
             emit("export-complete", {});
-            return composeExport(data, type, password);
+            return composeExport(data, type, password, selectedColumns);
         });
 }
 
@@ -683,11 +749,12 @@ function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems, pass
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  * @param {boolean} includeSharedItems Should shared items be included in the export
  * @param {string} [password] A password which if provided will be used to encrypt the datastore
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(type, includeTrashBinItems, includeSharedItems, password) {
-    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems, password)
+function exportDatastore(type, includeTrashBinItems, includeSharedItems, password, selectedColumns) {
+    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems, password, selectedColumns)
         .then(function (data) {
             if (password && type === 'json') {
                 data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))

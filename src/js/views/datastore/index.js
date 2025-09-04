@@ -185,6 +185,23 @@ const DatastoreView = (props) => {
         loadDatastore();
     }, [passwordDatastore]);
 
+    // Add beforeunload event handler to warn user when closing tab with unsaved changes
+    React.useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (editEntryDirty) {
+                event.preventDefault();
+                event.returnValue = t("ITEM_UNSAVED_WARNING");
+                return t("ITEM_UNSAVED_WARNING");
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [editEntryDirty]);
+
     const progressDialogOpen = progress !== 0 && progress !== 100;
     let openRequests = 0;
     let closedRequests = 0;

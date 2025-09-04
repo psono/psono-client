@@ -4,7 +4,7 @@ import os
 import json
 import time
 
-POEDITOR_API_KEY = os.environ['POEDITOR_API_KEY']
+POEDITOR_API_KEY = os.environ['POEDITOR_API_KEY_READ_ONLY']
 POEDITOR_PROJECT_ID = os.environ['POEDITOR_PROJECT_ID']
 ARTIFACTORY_URL = os.environ.get('ARTIFACTORY_URL', 'https://psono.jfrog.io/psono')
 ARTIFACTORY_PATH = os.environ.get('ARTIFACTORY_PATH', '/psono/client/languages/')

@@ -1235,26 +1235,61 @@ function loginFormSubmit(request, sender, sendResponse) {
     }
 
     return searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (existingPasswords) {
-        if (existingPasswords.length > 0) {
-            return;
-        }
-
-        notificationBarService.create(
-            i18n.t("NEW_PASSWORD_DETECTED"),
-            i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD") + " " + i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
-            [
-                {
-                    title: i18n.t("YES"),
-                    onClick: saveLastLoginCredentials,
-                    color: "primary",
-                },
-                {
-                    title: i18n.t("NO"),
-                    onClick: function() {},
-                },
-            ],
-        10 * 1000,
+        if (existingPasswords.length === 0) {
+            notificationBarService.create(
+                i18n.t("NEW_PASSWORD_DETECTED"),
+                i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD") + " " + i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
+                [
+                    {
+                        title: i18n.t("YES"),
+                        onClick: saveLastLoginCredentials,
+                        color: "primary",
+                    },
+                    {
+                        title: i18n.t("NO"),
+                        onClick: function() {},
+                    },
+                ],
+                12 * 1000,
             )
+        } else if (existingPasswords.length === 1) {
+
+            if (!request.data.hasOwnProperty("password") || !request.data["password"]) {
+                return;
+            }
+
+            if (existingPasswords[0].hasOwnProperty("password_hash") && !existingPasswords[0]["password_hash"] && existingPasswords[0]["password_hash"] !== '') {
+                return;
+            }
+
+            const passwordSha1 = cryptoLibrary.sha1(request.data["password"]);
+            if (passwordSha1.substring(0, 5).toLowerCase() === existingPasswords[0]["password_hash"]) {
+                return;
+            }
+
+            notificationBarService.create(
+                i18n.t("DIFFERENT_PASSWORD_DETECTED"),
+                i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD_OR_UPDATE_EXISTING_ONE"),
+                [
+                    {
+                        title: i18n.t("UPDATE_EXISTING"),
+                        onClick: updateLastLoginCredentials,
+                        color: "primary",
+                    },
+                    {
+                        title: i18n.t("CREATE_NEW"),
+                        onClick: saveLastLoginCredentials,
+                        color: "primary",
+                    },
+                    {
+                        title: i18n.t("NO"),
+                        onClick: function() {},
+                    },
+                ],
+                12 * 1000,
+            )
+
+        }
     });
 }
 
@@ -1507,6 +1542,20 @@ function approveIframeLogin(request, sender, sendResponse) {
  */
 function saveLastLoginCredentials() {
     return datastorePasswordService.savePassword(
+        lastLoginCredentials["url"],
+        lastLoginCredentials["username"],
+        lastLoginCredentials["password"]
+    );
+}
+
+/**
+ * Updates the password for the last login credentials in the datastore
+ *
+ * @returns {promise} Returns a promise with the password
+ */
+function updateLastLoginCredentials() {
+    // TODO update logic to update entry
+    return datastorePasswordService.updatePassword(
         lastLoginCredentials["url"],
         lastLoginCredentials["username"],
         lastLoginCredentials["password"]
