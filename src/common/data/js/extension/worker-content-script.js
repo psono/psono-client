@@ -1976,9 +1976,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * Checks if a provided urlfilter and authority fit together
      *
      * @param {string} authority The "authority" of the current website, e.g. www.example.com:80
-     * @param {string} urlFilter The url filter, e.g. *.example.com or www.example.com
+     * @param {string} urlFilter The url filter, e.g. *.example.com, www.example.com, blub.com:*, or *.blub.com:*
      *
-     * @returns {boolean} Whether the string ends with the suffix or not
+     * @returns {boolean} Whether the filter matches the authority
      */
     function isUrlFilterMatch(authority, urlFilter) {
         if (!authority || !urlFilter) {
@@ -1986,10 +1986,35 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         }
         authority = authority.toLowerCase();
         urlFilter = urlFilter.toLowerCase();
-        let directMatch = authority === urlFilter;
-        let wildcardMatch = urlFilter.startsWith('*.') && authority.endsWith(urlFilter.substring(1));
-
-        return directMatch || wildcardMatch
+        
+        // Direct exact match
+        if (authority === urlFilter) {
+            return true;
+        }
+        
+        // Handle port wildcard patterns (e.g., "blub.com:*" or "*.blub.com:*")
+        if (urlFilter.endsWith(':*')) {
+            const filterWithoutPortWildcard = urlFilter.slice(0, -2); // Remove ":*"
+            const authorityParts = authority.split(':');
+            const authorityHost = authorityParts[0];
+            
+            // Check if the host part matches the filter (with potential domain wildcard)
+            if (filterWithoutPortWildcard.startsWith('*.')) {
+                // Pattern like "*.blub.com:*" should match "sub.blub.com:1234"
+                const domainPattern = filterWithoutPortWildcard.substring(1); // Remove "*"
+                return authorityHost.endsWith(domainPattern);
+            } else {
+                // Pattern like "blub.com:*" should match "blub.com:1234"
+                return authorityHost === filterWithoutPortWildcard;
+            }
+        }
+        
+        // Handle domain wildcard patterns (existing logic for "*.example.com")
+        if (urlFilter.startsWith('*.')) {
+            return authority.endsWith(urlFilter.substring(1));
+        }
+        
+        return false;
     }
 
     /**
