@@ -29,6 +29,7 @@ import TrustedUsersView from "./trusted-users";
 import GroupsView from "./groups";
 import ActiveLinkShareView from "./active-link-shares";
 import statusService from "../services/status";
+import jobSchedulerService from "../services/job-scheduler";
 import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
@@ -48,6 +49,7 @@ const IndexView = (props) => {
     React.useEffect(() => {
         document.body.classList.remove('loading');
         statusService.getStatus();
+        jobSchedulerService.checkForJobs();
         if (pathname.endsWith("/background.html")) {
             backgroundService.activateAfterStore();
         }
