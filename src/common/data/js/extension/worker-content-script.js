@@ -487,7 +487,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                         
                         if (rectsOverlap(protectedRect, nodeRect)) {
                             // Potentially malicious element detected - lower its z-index
-                            node.style.setProperty('z-index', '1000', 'important');
+                            node.style.setProperty('z-index', '2147483630', 'important');
                         }
                     }
                 });
@@ -1175,6 +1175,26 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     }
 
     /**
+     * Check if an element is suspicious based on its styling and attributes
+     * @param {Element} element
+     * @returns {boolean} True if element is suspicious
+     */
+    function isSuspiciousElement(element) {
+        const computedStyle = window.getComputedStyle(element);
+        return (
+            // Test elements (our attack simulation)
+            element.id.startsWith('test-') ||
+            // High z-index positioned elements
+            ((computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
+             parseInt(computedStyle.zIndex) > 2147483640) ||
+            // Elements with suspicious styling
+            (computedStyle.pointerEvents !== 'none' && 
+             (computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
+             parseInt(computedStyle.zIndex) > 2147483640)
+        );
+    }
+
+    /**
      * Check for overlay conflicts using elementsFromPoint
      * @param {Element} dropdownElement 
      * @returns {boolean} True if overlay detected
@@ -1221,23 +1241,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                         continue;
                     }
                     
-                    const computedStyle = window.getComputedStyle(element);
-                    
-                    // NEW APPROACH: Check for any suspicious positioned elements in the stack
-                    // regardless of their position relative to our dropdown
-                    const isSuspiciousElement = (
-                        // Test elements (our attack simulation)
-                        element.id.startsWith('test-') ||
-                        // High z-index positioned elements
-                        ((computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
-                         parseInt(computedStyle.zIndex) > 2147483640) ||
-                        // Elements with suspicious styling
-                        (computedStyle.pointerEvents !== 'none' && 
-                         (computedStyle.position === 'fixed' || computedStyle.position === 'absolute') &&
-                         parseInt(computedStyle.zIndex) > 1000)
-                    );
-                    
-                    if (isSuspiciousElement) {
+                    if (isSuspiciousElement(element)) {
                         // For Popover API elements, we need different detection logic
                         // Check if the suspicious element is actually covering our dropdown
                         const elementRect = element.getBoundingClientRect();
@@ -1256,7 +1260,20 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                             console.warn('PSONO Security: Element bounds:', elementRect);
                             console.warn('PSONO Security: Dropdown bounds:', rect);
                             console.warn('PSONO Security: Element stack:', elements.map(el => `${el.tagName}${el.id ? '#' + el.id : ''}`));
-                            return true;
+                            
+                            // Try to lower the z-index of the interfering element first
+                            const currentComputedStyle = window.getComputedStyle(element);
+                            element.style.setProperty('z-index', '2147483630', 'important');
+                            console.warn('PSONO Security: Attempting to lower z-index from', currentComputedStyle.zIndex, 'to 2147483630');
+                            
+                            // Re-check if the element is still suspicious after z-index change
+                            if (isSuspiciousElement(element)) {
+                                console.error('PSONO Security: Z-index lowering failed, element still interfering');
+                                return true;
+                            } else {
+                                console.warn('PSONO Security: Z-index lowering successful, continuing');
+                                // Continue checking other points, don't return true yet
+                            }
                         }
                     }
                 }
@@ -1976,9 +1993,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * Checks if a provided urlfilter and authority fit together
      *
      * @param {string} authority The "authority" of the current website, e.g. www.example.com:80
-     * @param {string} urlFilter The url filter, e.g. *.example.com or www.example.com
+     * @param {string} urlFilter The url filter, e.g. *.example.com, www.example.com, blub.com:*, or *.blub.com:*
      *
-     * @returns {boolean} Whether the string ends with the suffix or not
+     * @returns {boolean} Whether the filter matches the authority
      */
     function isUrlFilterMatch(authority, urlFilter) {
         if (!authority || !urlFilter) {
@@ -1986,10 +2003,35 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         }
         authority = authority.toLowerCase();
         urlFilter = urlFilter.toLowerCase();
-        let directMatch = authority === urlFilter;
-        let wildcardMatch = urlFilter.startsWith('*.') && authority.endsWith(urlFilter.substring(1));
-
-        return directMatch || wildcardMatch
+        
+        // Direct exact match
+        if (authority === urlFilter) {
+            return true;
+        }
+        
+        // Handle port wildcard patterns (e.g., "blub.com:*" or "*.blub.com:*")
+        if (urlFilter.endsWith(':*')) {
+            const filterWithoutPortWildcard = urlFilter.slice(0, -2); // Remove ":*"
+            const authorityParts = authority.split(':');
+            const authorityHost = authorityParts[0];
+            
+            // Check if the host part matches the filter (with potential domain wildcard)
+            if (filterWithoutPortWildcard.startsWith('*.')) {
+                // Pattern like "*.blub.com:*" should match "sub.blub.com:1234"
+                const domainPattern = filterWithoutPortWildcard.substring(1); // Remove "*"
+                return authorityHost.endsWith(domainPattern);
+            } else {
+                // Pattern like "blub.com:*" should match "blub.com:1234"
+                return authorityHost === filterWithoutPortWildcard;
+            }
+        }
+        
+        // Handle domain wildcard patterns (existing logic for "*.example.com")
+        if (urlFilter.startsWith('*.')) {
+            return authority.endsWith(urlFilter.substring(1));
+        }
+        
+        return false;
     }
 
     /**

@@ -454,6 +454,27 @@ describe('Service: helper test suite', function() {
         expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
     });
 
+    it('isUrlFilterMatch with different ports', function() {
+        const authority = 'example.com:8090';
+        const urlFilter = 'example.com:8091'; // should not match
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch with port and wildcard', function() {
+        const authority = 'sub.example.com:8090';
+        const urlFilter = '*.example.com:8090'; // should match
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch with different ports and wildcard', function() {
+        const authority = 'sub.example.com:8090';
+        const urlFilter = '*.example.com'; // should not match
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
     it('isUrlFilterMatch with port', function() {
         const parsedUrl = helperService.parseUrl('http://example.com:8090/whatever.php');
         const urlFilter = 'example.com:8090'; // should match
@@ -501,5 +522,145 @@ describe('Service: helper test suite', function() {
         const urlFilter = '*.Example.com';
 
         expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    // Port wildcard functionality tests
+    it('isUrlFilterMatch port wildcard basic match', function() {
+        const authority = 'blub.com:234';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with different port', function() {
+        const authority = 'blub.com:1234';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with high port number', function() {
+        const authority = 'blub.com:65535';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with no port in authority', function() {
+        const authority = 'blub.com';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard wrong domain', function() {
+        const authority = 'other.com:234';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch port wildcard with similar but wrong domain', function() {
+        const authority = 'notblub.com:234';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch combined domain and port wildcard match', function() {
+        const authority = 'sub.blub.com:1234';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch combined wildcard with different port', function() {
+        const authority = 'sub.blub.com:5678';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch combined wildcard with no port in authority', function() {
+        const authority = 'sub.blub.com';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch combined wildcard wrong domain', function() {
+        const authority = 'sub.other.com:1234';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch combined wildcard with deep subdomain', function() {
+        const authority = 'deep.sub.blub.com:8080';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard case insensitive', function() {
+        const authority = 'BLUB.COM:234';
+        const urlFilter = 'blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch combined wildcard case insensitive', function() {
+        const authority = 'SUB.BLUB.COM:1234';
+        const urlFilter = '*.blub.com:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with mixed case filter', function() {
+        const authority = 'blub.com:234';
+        const urlFilter = 'BLUB.COM:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with customer scenario', function() {
+        const authority = 'subdomain.domain.de:34111';
+        const urlFilter = 'subdomain.domain.de:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch domain wildcard with port wildcard for customer scenario', function() {
+        const authority = 'subdomain.domain.de:34111';
+        const urlFilter = '*.domain.de:*';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch port wildcard with changing ports for customer scenario', function() {
+        const authority1 = 'subdomain.domain.de:34111';
+        const authority2 = 'subdomain.domain.de:35222';
+        const authority3 = 'subdomain.domain.de:8080';
+        const urlFilter = 'subdomain.domain.de:*';
+
+        expect(helperService.isUrlFilterMatch(authority1, urlFilter)).toBeTruthy();
+        expect(helperService.isUrlFilterMatch(authority2, urlFilter)).toBeTruthy();
+        expect(helperService.isUrlFilterMatch(authority3, urlFilter)).toBeTruthy();
+    });
+
+    it('isUrlFilterMatch existing functionality should still work', function() {
+        // Ensure we didn't break existing functionality
+        const testCases = [
+            { authority: 'example.com', filter: 'example.com', expected: true },
+            { authority: 'example.com:80', filter: 'example.com:80', expected: true },
+            { authority: 'sub.example.com', filter: '*.example.com', expected: true },
+            { authority: 'sub.example.com:443', filter: '*.example.com', expected: false },
+            { authority: 'example.com:80', filter: 'example.com:443', expected: false }
+        ];
+
+        testCases.forEach(testCase => {
+            expect(helperService.isUrlFilterMatch(testCase.authority, testCase.filter))
+                .toBe(testCase.expected);
+        });
     });
 });

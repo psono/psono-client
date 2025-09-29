@@ -1703,6 +1703,107 @@ function readStatus(token, sessionSecretKey) {
 }
 
 /**
+ * Ajax GET request to query the open jobs
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ *
+ * @returns {Promise} Returns a promise with the open jobs
+ */
+function readJob(token, sessionSecretKey) {
+    const endpoint = "/job/";
+    const method = "GET";
+    const data = null;
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax POST request to create the missing group secrets for memberships
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} membershipId The membership id to update
+ * @param {string} secretKey encrypted secret key of the group
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} privateKey encrypted private key of the group
+ * @param {string} privateKeyNonce nonce for private key
+ *
+ * @returns {Promise} Returns a promise with the open jobs
+ */
+function createMembershipMissingGroupSecret(
+    token,
+    sessionSecretKey,
+    membershipId,
+    secretKey,
+    secretKeyNonce,
+    privateKey,
+    privateKeyNonce,
+) {
+    const endpoint = "/job/membership-missing-group-secret/";
+    const method = "POST";
+    const data = {
+        membership_id: membershipId,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+    };
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax POST request to create the missing group secrets for staff
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} userId The user id of the user that needs the group
+ * @param {uuid} groupId The group id of the group that the user needs it for
+ * @param {string} secretKey encrypted secret key of the group
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} privateKey encrypted private key of the group
+ * @param {string} privateKeyNonce nonce for private key
+ *
+ * @returns {Promise} Returns a promise with the open jobs
+ */
+function createJobStaffMissingGroupSecret(
+    token,
+    sessionSecretKey,
+    userId,
+    groupId,
+    secretKey,
+    secretKeyNonce,
+    privateKey,
+    privateKeyNonce,
+) {
+    const endpoint = "/job/staff-missing-group-secret/";
+    const method = "POST";
+    const data = {
+        user_id: userId,
+        group_id: groupId,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+    };
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax PUT request with the token as authentication to generate a webauthn
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -3827,6 +3928,9 @@ const apiClientService = {
     activateGa: activateGa,
     deleteGa: deleteGa,
     readStatus: readStatus,
+    readJob: readJob,
+    createMembershipMissingGroupSecret: createMembershipMissingGroupSecret,
+    createJobStaffMissingGroupSecret: createJobStaffMissingGroupSecret,
     createWebauthn: createWebauthn,
     readWebauthn: readWebauthn,
     deleteWebauthn: deleteWebauthn,

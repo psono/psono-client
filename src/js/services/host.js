@@ -26,6 +26,22 @@ function getCurrentHost() {
     return getStore().getState().server;
 }
 /**
+ * Returns whether the current server is EE
+ *
+ * @returns {boolean} The current host is an EE host
+ */
+function isEE() {
+    return getStore().getState().server.type === 'EE';
+}
+/**
+ * Returns whether the current's server version is greater (or equal) than the current specified one
+ *
+ * @returns {*} The current host
+ */
+function isNewerOrEqualVersionThan(version) {
+    return semverCompare(version, getStore().getState().server.version) > -1;
+}
+/**
  * Returns the url of the current host
  *
  * @returns {*} The current host url
@@ -102,6 +118,9 @@ function info() {
  * @returns {number}
  */
 function semverCompare(a, b) {
+    // remove leading v
+    a = a.replace(/^v/, "")
+    b = b.replace(/^v/, "")
     // remove everything after whitespace
     a = a.replace(/\s.*/, "")
     b = b.replace(/\s.*/, "")
@@ -277,8 +296,11 @@ function deleteKnownHost(fingerprint) {
 }
 
 const hostService = {
+    semverCompare: semverCompare,
     getKnownHosts: getKnownHosts,
     getCurrentHost: getCurrentHost,
+    isEE: isEE,
+    isNewerOrEqualVersionThan: isNewerOrEqualVersionThan,
     getCurrentHostUrl: getCurrentHostUrl,
     checkKnownHosts: checkKnownHosts,
     info: info,
