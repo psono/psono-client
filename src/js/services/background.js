@@ -798,7 +798,7 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
         return;
     }
     const fullOrigin = senderUrl.origin + senderUrl.pathname;
-    if (fullOrigin !== 'https://www.elster.de/eportal/login/softpse' && fullOrigin !== 'https://www.elster.de/ekona/login/softpse') {
+    if (fullOrigin !== 'https://www.elster.de/eportal/login/softpse' && fullOrigin !== 'https://www.elster.de/ekona/login/softpse' && fullOrigin !== 'https://www.elster.de/bportal/login/softpse') {
         sendResponse({ event: "status", data: "ok" });
         return;
     }

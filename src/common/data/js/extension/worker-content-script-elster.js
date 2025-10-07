@@ -17,11 +17,13 @@ var ClassWorkerContentScriptElster = function (base, browser, setTimeout) {
     function activate() {
         if (
             document.defaultView.location.origin + document.defaultView.location.pathname === 'https://www.elster.de/eportal/login/softpse' ||
-            document.defaultView.location.origin + document.defaultView.location.pathname === 'https://www.elster.de/ekona/login/softpse'
+            document.defaultView.location.origin + document.defaultView.location.pathname === 'https://www.elster.de/ekona/login/softpse' ||
+            document.defaultView.location.origin + document.defaultView.location.pathname === 'https://www.elster.de/bportal/login/softpse'
         ) {
             // we use origin and pathname instead of href as we also want to support this url
             // https://www.elster.de/eportal/login/softpse?locale=en_US
             // https://www.elster.de/ekona/login/softpse?locale=en_US
+            // https://www.elster.de/bportal/login/softpse?locale=en_US
             base.on("fillelstercertificate", onFillElsterCertificate);
             base.registerObserver(analyze_document);
         }
