@@ -162,7 +162,21 @@ const EditActiveLinksShareDialog = (props) => {
                             value={allowedReads}
                             type="number"
                             onChange={(event) => {
-                                setAllowedReads(event.target.value);
+                                const value = event.target.value;
+                                const numValue = parseInt(value, 10);
+
+                                // If value is empty string, allow it
+                                if (value === "") {
+                                    setAllowedReads("");
+                                    return;
+                                }
+
+                                // Check if it's a valid integer >= 1
+                                if (Number.isInteger(numValue) && numValue >= 1) {
+                                    setAllowedReads(numValue);
+                                } else {
+                                    setAllowedReads("");
+                                }
                             }}
                         />
                     </Grid>
