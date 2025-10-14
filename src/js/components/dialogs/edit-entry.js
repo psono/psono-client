@@ -797,7 +797,9 @@ const DialogEditEntry = (props) => {
     }, [item]);
 
     React.useEffect(() => {
-        onEdit(false)
+        if (triggerAutoSave > 0) {
+            onEdit(false)
+        }
     }, [triggerAutoSave])
 
     const onEdit = (closeEditView) => {
