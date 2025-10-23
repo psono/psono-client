@@ -23,6 +23,7 @@ import importNextcloudCsvService from "./import-nextcloud-csv";
 import import1passwordV7CsvService from "./import-1password-v7-csv";
 import import1passwordV8CsvService from "./import-1password-v8-csv";
 import importProtonPassCsvService from "./import-protonpass-csv";
+import importPasswordstateComCsv from "./import-passwordstate-com-csv";
 import cryptoLibraryService from "./crypto-library";
 import i18n from "../i18n";
 
@@ -130,6 +131,11 @@ const _importer = {
         },
         value: "nextcloud_csv",
         parser: importNextcloudCsvService.parser,
+    },
+    passwordstate_com_csv: {
+        name: "Passwordstate (CSV)",
+        value: "passwordstate_com_csv",
+        parser: importPasswordstateComCsv.parser,
     },
 };
 const registrations = {};
