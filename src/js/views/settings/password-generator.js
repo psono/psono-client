@@ -24,6 +24,7 @@ const SettingsPasswordGeneratorView = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
     const settingsDatastore = useSelector((state) => state.settingsDatastore);
+    const server = useSelector((state) => state.server);
     const [passwordLength, setPasswordLength] = useState(settingsDatastore.passwordLength);
     const [passwordLettersUppercase, setPasswordLettersUppercase] = useState(
         settingsDatastore.passwordLettersUppercase
@@ -41,6 +42,33 @@ const SettingsPasswordGeneratorView = (props) => {
         setPasswordNumbers(settingsDatastore.passwordNumbers);
         setPasswordSpecialChars(settingsDatastore.passwordSpecialChars);
     }, [settingsDatastore]);
+
+    const getDefaultValues = () => {
+        // Use compliance defaults if available, otherwise use hardcoded defaults
+        return {
+            length: server.compliancePasswordGeneratorDefaultPasswordLength || 16,
+            uppercase: server.compliancePasswordGeneratorDefaultLettersUppercase || "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            lowercase: server.compliancePasswordGeneratorDefaultLettersLowercase || "abcdefghijklmnopqrstuvwxyz",
+            numbers: server.compliancePasswordGeneratorDefaultNumbers || "0123456789",
+            specialChars: server.compliancePasswordGeneratorDefaultSpecialChars || ",.-;:_#'+*~!\"$%&/@()=?{[]}\\",
+        };
+    };
+
+    const resetToDefaults = () => {
+        const defaults = getDefaultValues();
+        setPasswordLength(defaults.length);
+        setPasswordLettersUppercase(defaults.uppercase);
+        setPasswordLettersLowercase(defaults.lowercase);
+        setPasswordNumbers(defaults.numbers);
+        setPasswordSpecialChars(defaults.specialChars);
+        action().setPasswordConfig(
+            defaults.length,
+            defaults.uppercase,
+            defaults.lowercase,
+            defaults.numbers,
+            defaults.specialChars
+        );
+    };
 
     const save = (event) => {
         action().setPasswordConfig(
@@ -159,8 +187,8 @@ const SettingsPasswordGeneratorView = (props) => {
                     }}
                 />
             </Grid>
-            <Grid container style={{ marginBottom: "8px",  marginTop: "8px" }}>
-                <Grid item xs={12} sm={12} md={12}>
+            <Grid container style={{ marginBottom: "8px",  marginTop: "8px" }} spacing={2}>
+                <Grid item>
                     <Button
                         variant="contained"
                         color="primary"
@@ -176,6 +204,13 @@ const SettingsPasswordGeneratorView = (props) => {
                         }
                     >
                         {t("SAVE")}
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        onClick={resetToDefaults}
+                    >
+                        {t("RESET")}
                     </Button>
                 </Grid>
             </Grid>

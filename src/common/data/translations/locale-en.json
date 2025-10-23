@@ -1229,6 +1229,22 @@
   "ITEM_UNSAVED_WARNING": "You have unsaved changes. Press Return to continue editing or Discard to discard changes and close the entry.",
   "DATA_CHANGED": "The entry has been modified",
   "DISCARD": "Discard",
-  "RETURN": "Return"
+  "RETURN": "Return",
+  "DEVICE_CODE_INSTANCE_REQUIRED": "Device code instance is required",
+  "USER_AUTHENTICATION_REQUIRED": "User authentication is required",
+  "DEVICE_CODE_USER_MISMATCH": "Device code belongs to a different user",
+  "DEVICE_CODE_ALREADY_CLAIMED": "Device code has already been claimed",
+  "DEVICE_CODE_EXPIRED": "Device code has expired",
+  "NO_VALID_HEX": "Invalid hexadecimal format",
+  "DEVICE_CODE_MISSING": "Device code ID is missing",
+  "DEVICE_CODE_NOT_FOUND": "Device code not found",
+  "DEVICE_CODE_NOT_CLAIMED": "Device code has not been claimed yet",
+  "INVALID_USER_PUBLIC_KEY": "Invalid user public key",
+  "DEVICE_CODE_CLAIM_FAILED": "Failed to claim device code",
+  "DEVICE_CODE_SECRET_INVALID": "Device code secret is invalid",
+  "MISSING_DEVICE_CODE_INFORMATION": "Device code information is missing",
+  "DEVICE_CODE_CLAIM_TITLE": "Claim Device Code",
+  "DEVICE_CODE": "Device Code",
+  "DEVICE_CODE_CLAIMED_SUCCESSFULLY": "Device code claimed successfully",
+  "DEVICE_CODE_IT_APPEARS_THAT_YOU_WANT_TO_CONNECT_DEVICE": "You are about to connect a new device to your Psono account. This will securely share your encrypted credentials with the requesting device. Only proceed if you initiated this connection from a trusted device. Your master password and account security remain protected through end-to-end encryption."
 }
-

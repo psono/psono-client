@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 
 import {GlobalStyles} from "@mui/material";
 import {useTheme} from "@mui/material/styles";
@@ -39,13 +39,18 @@ import InstallSuccessfulView from "./install-successful";
 import ActivateSuccessfulView from "./activate-successful";
 import user from "../services/user";
 import DeleteUserConfirmView from "./delete-user-confirm";
+import DeviceParameterHandler from "./device/device-parameter-handler";
+import DialogDeviceClaimConsent from "../components/dialogs/claim-device-code";
 
 const IndexView = (props) => {
     const theme = useTheme();
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
-    const pathname = window.location.pathname;
+    const deviceCode = useSelector((state) => state.device.deviceCode);
 
+    const [showDeviceCodeModal, setShowDeviceCodeModal] = useState(false);
+    const pathname = window.location.pathname;
+    
     React.useEffect(() => {
         document.body.classList.remove('loading');
         statusService.getStatus();
@@ -54,6 +59,12 @@ const IndexView = (props) => {
             backgroundService.activateAfterStore();
         }
     }, []);
+
+    React.useEffect(() => {
+        if (isLoggedIn && deviceCode && deviceCode.id && deviceCode.secretBoxKey) {
+            setShowDeviceCodeModal(true);
+        }
+    }, [isLoggedIn, deviceCode]);
 
     if (pathname.endsWith("/activate.html")) {
         return (
@@ -216,6 +227,10 @@ const IndexView = (props) => {
                     <Route path="/oidc/token/:oidcTokenId">
                         <LoginView {...props} />
                     </Route>
+                    <Route path="/device/:deviceCode/:deviceCodeSecretBoxKey">
+                        <DeviceParameterHandler {...props} />
+                        <LoginView {...props} />
+                    </Route>
                     <Route path="/">
                         <LoginView {...props} />
                     </Route>
@@ -223,7 +238,15 @@ const IndexView = (props) => {
             );
         } else {
             return (
-                <Switch>
+                <>
+                    <Switch>
+                    <Route path="/device/:deviceCode/:deviceCodeSecretBoxKey">
+                        <DeviceParameterHandler {...props} />
+                        <Redirect to="/" />
+                    </Route>
+                    <Route path="/device">
+                        <Redirect to="/" />
+                    </Route>
                     <Route path="/settings">
                         <SettingsView {...props} />
                     </Route>
@@ -257,7 +280,14 @@ const IndexView = (props) => {
                     <Route path="/">
                         <DatastoreView {...props} />
                     </Route>
-                </Switch>
+                    </Switch>
+                    <DialogDeviceClaimConsent 
+                        open={showDeviceCodeModal} 
+                        onClose={() => {
+                            setShowDeviceCodeModal(false);
+                        }}
+                    />
+                </>
             );
         }
     }

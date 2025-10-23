@@ -3868,6 +3868,33 @@ function validateIvalt(token, sessionSecretKey, mobile){
     return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
+/**
+ * Ajax PUT request to claim a device code.
+ * The user must be authenticated (valid token required).
+ *
+ * @param {string} token Authentication token of the user.
+ * @param {string} sessionSecretKey The session secret key (kept for signature consistency, but null is passed to `call` for its crypto duties).
+ * @param {string} deviceCodeId The UUID of the device code to claim.
+ * @param {string} encryptedCredentialsInput The encrypted credentials bundle.
+ * @param {string} encryptedCredentialsNonce The nonce for the encrypted credentials bundle.
+ *
+ * @returns {Promise} Returns a promise with the API response.
+ */
+function claimDeviceCode(token, sessionSecretKey, deviceCodeId, encryptedCredentialsInput, encryptedCredentialsNonce) {
+    const endpoint = `/device-code/${deviceCodeId}/claim/`;
+    const method = "PUT";
+    const data = {
+        encrypted_credentials_input: encryptedCredentialsInput,
+        encrypted_credentials_nonce: encryptedCredentialsNonce,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+   
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
 const apiClientService = {
     info: info,
     prelogin: prelogin,
@@ -4002,6 +4029,7 @@ const apiClientService = {
     createIvalt: createIvalt,
     validateIvalt: validateIvalt,
     getIvaltApiToken: getIvaltApiToken,
+    claimDeviceCode: claimDeviceCode,
 };
 
 export default apiClientService;

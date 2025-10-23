@@ -146,6 +146,7 @@ const DialogEditEntry = (props) => {
 
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
     const [tags, setTags] = useState([]);
+    const [triggerAutoSave, setTriggerAutoSave] = useState(0);
     const [addTotpOpen, setAddTotpOpen] = useState(false);
     const [addTagOpen, setAddTagOpen] = useState(false);
     const [addCustomFieldOpen, setAddCustomFieldOpen] = useState(false);
@@ -795,7 +796,13 @@ const DialogEditEntry = (props) => {
         }
     }, [item]);
 
-    const onEdit = (event) => {
+    React.useEffect(() => {
+        if (triggerAutoSave > 0) {
+            onEdit(false)
+        }
+    }, [triggerAutoSave])
+
+    const onEdit = (closeEditView) => {
         let passwordSha1;
         const secretObject = {};
 
@@ -1085,7 +1092,9 @@ const DialogEditEntry = (props) => {
             };
 
             const onSuccess = function (e) {
-                props.onEdit(item);
+                if (closeEditView) {
+                    props.onEdit(item);
+                }
             };
             secretService
                 .writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass)
@@ -1436,7 +1445,9 @@ const DialogEditEntry = (props) => {
                 {t("CLOSE")}
             </Button>
             {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && (props.onEdit || props.onCustomSave) && (
-                <Button onClick={onEdit} variant="contained" color="primary" disabled={(!canSave || (getStore().getState().settingsDatastore.noSaveMode))} type="submit">
+                <Button onClick={() => {
+                    onEdit(true)
+                }} variant="contained" color="primary" disabled={(!canSave || (getStore().getState().settingsDatastore.noSaveMode))} type="submit">
                     {t("SAVE")}
                 </Button>
             )}
@@ -3520,6 +3531,7 @@ const DialogEditEntry = (props) => {
                         setWebsitePasswordTotpDigits(totpDigits);
                         setWebsitePasswordTotpCode(totpCode);
                         setAddTotpOpen(false)
+                        setTriggerAutoSave(triggerAutoSave + 1)
                     }}
                 />
             )}

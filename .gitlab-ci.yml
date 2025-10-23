@@ -235,7 +235,8 @@ build-electron-linux:
       - ./*
     expire_in: 1 week
   only:
-    - branches@esaqa/psono/psono-client
+    - develop@esaqa/psono/psono-client
+    - master@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-macos:
