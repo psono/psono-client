@@ -150,10 +150,6 @@ function ProfilePicture() {
         setProfilePic("");  // Reset profile picture to default
         if (fileInputRef.current) fileInputRef.current.value = null;  // Also clear the file input to allow re-upload of same file
     };
-
-    const handleEditEmail = () => {
-
-    };
     return (
         <div className={classes.wrapper}>
             <Grid container>
@@ -266,13 +262,6 @@ function ProfilePicture() {
                             classes: {
                                 input: classes.passwordField,
                             },
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton aria-label="edit email" onClick={handleEditEmail} edge="end" size="large">
-                                        <EditIcon fontSize="small" />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
                         }}
                     />
                 </Grid>
