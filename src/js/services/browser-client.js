@@ -9,6 +9,7 @@ import helperService from "./helper";
 import { getStore } from "./store";
 import deviceService from "./device";
 import notification from "./notification";
+import action from "../actions/bound-action-creators";
 
 const theme = {
     "palette": {
@@ -469,6 +470,47 @@ function loadVersion() {
     return versionSingleton;
 }
 
+/**
+ * Adds servers with verify_key from config.json to known hosts if they don't exist yet
+ *
+ * @param {object} config The configuration object
+ */
+function addConfigServersToKnownHosts(config) {
+    if (!config.hasOwnProperty("backend_servers")) {
+        return;
+    }
+
+    const knownHosts = getStore().getState().persistent.knownHosts || [];
+    let hostsModified = false;
+
+    const knownHostsIndex = {};
+    for (let i = 0; i < knownHosts.length; i++) {
+        knownHostsIndex[knownHosts[i]["url"]] = true;
+    }
+
+    for (let i = 0; i < config["backend_servers"].length; i++) {
+        const server = config["backend_servers"][i];
+
+        if (!server.hasOwnProperty("verify_key") || !server.hasOwnProperty("url")) {
+            continue;
+        }
+
+        const serverUrl = server["url"].toLowerCase();
+        const verifyKey = server["verify_key"];
+
+        if (!knownHostsIndex.hasOwnProperty(serverUrl)) {
+            knownHosts.push({
+                url: serverUrl,
+                verify_key: verifyKey,
+            });
+            hostsModified = true;
+        }
+    }
+
+    if (hostsModified) {
+        action().setKnownHosts(knownHosts);
+    }
+}
 
 /**
  * returns a promise with the version string
@@ -573,6 +615,9 @@ function _loadConfig() {
                     // },
                 ];
             }
+
+            addConfigServersToKnownHosts(newConfig);
+
             return newConfig;
         };
 
