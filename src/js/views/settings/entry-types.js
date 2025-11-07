@@ -11,6 +11,7 @@ import { Check } from "@mui/icons-material";
 
 import itemBlueprintService from "../../services/item-blueprint";
 import GridContainerErrors from "../../components/grid-container-errors";
+import {getStore} from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -141,7 +142,7 @@ const SettingsEntryTypesView = (props) => {
     };
 
     const entryTypes = itemBlueprintService.getEntryTypes();
-
+    console.log(entryTypes)
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
@@ -149,7 +150,10 @@ const SettingsEntryTypesView = (props) => {
                 <p>{t("ENTRY_TYPES_DESCRIPTION")}</p>
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
-            {entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title))).map((entryType) => (<Grid item xs={12} sm={12} md={12} key={entryType.value}>
+            {entryTypes
+                .sort((a, b) => t(a.title).localeCompare(t(b.title)))
+                .filter((entryType) => !entryType.disabled)
+                .map((entryType) => (<Grid item xs={12} sm={12} md={12} key={entryType.value}>
                 <Checkbox
                     tabIndex={1}
                     checked={stateLookupDict[entryType.value].value}

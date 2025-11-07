@@ -996,7 +996,7 @@ const DialogNewEntry = (props) => {
                             {t("ADD_TAG")}
                         </Typography>
                     </MenuItem>
-                    {type === "website_password" && !websitePasswordTotpCode && (
+                    {type === "website_password" && !websitePasswordTotpCode && !getStore().getState().server.complianceDisableTotp && (
                         <MenuItem
                             onClick={() => {
                                 handleClose();

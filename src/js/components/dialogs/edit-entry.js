@@ -1251,7 +1251,7 @@ const DialogEditEntry = (props) => {
 
     const hasAddCustomField = !hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note");
     const hasAddTag = !hideAddTag;
-    const hasAddTOTP = !hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode;
+    const hasAddTOTP = !hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && !getStore().getState().server.complianceDisableTotp;
 
     let renderAddButton = null;
     if (hasAddCustomField || hasAddTag || hasAddTOTP) {

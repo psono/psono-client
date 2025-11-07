@@ -14,6 +14,7 @@ const _entryTypes = [
         show_title: "SHOW_WEBSITE_PASSWORD",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showWebsitePassword,
+        disabled: () => false,
     },
     {
         value: "application_password",
@@ -22,6 +23,7 @@ const _entryTypes = [
         show_title: "SHOW_APPLICATION_PASSWORD",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showApplicationPassword,
+        disabled: () => false,
     },
     {
         value: "totp",
@@ -29,7 +31,8 @@ const _entryTypes = [
         edit_title: "EDIT_TOTP_AUTHENTICATOR",
         show_title: "SHOW_TOTP_AUTHENTICATOR",
         hideOnNewEntry: false,
-        show: () => getStore().getState().settingsDatastore.showTOTPAuthenticator,
+        show: () => getStore().getState().settingsDatastore.showTOTPAuthenticator && !getStore().getState().server.complianceDisableTotp,
+        disabled: () => getStore().getState().server.complianceDisableTotp,
     },
     {
         value: "passkey",
@@ -38,11 +41,14 @@ const _entryTypes = [
         show_title: "SHOW_PASSKEY",
         hideOnNewEntry: true,
         show: () => getStore().getState().settingsDatastore.showPasskey,
+        disabled: () => false,
     },
     {
         value: "note", title: "NOTE", edit_title: "EDIT_NOTE", show_title: "SHOW_NOTE",
         hideOnNewEntry: false,
-        show: () => getStore().getState().settingsDatastore.showNote },
+        show: () => getStore().getState().settingsDatastore.showNote,
+        disabled: () => false,
+    },
     {
         value: "environment_variables",
         title: "ENVIRONMENT_VARIABLES",
@@ -50,36 +56,43 @@ const _entryTypes = [
         show_title: "SHOW_ENVIRONMENT_VARIABLES",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showEnvironmentVariables,
+        disabled: () => false,
     },
     {
         value: "ssh_own_key", title: "SSH_KEY", edit_title: "EDIT_SSH_KEY", show_title: "SHOW_SSH_KEY",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showSSHKey,
+        disabled: () => false,
     },
     {
         value: "mail_gpg_own_key", title: "GPG_KEY", edit_title: "EDIT_GPG_KEY", show_title: "SHOW_GPG_KEY",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showGPGKey,
+        disabled: () => false,
     },
     {
         value: "credit_card", title: "CREDIT_CARD", edit_title: "EDIT_CREDIT_CARD", show_title: "SHOW_CREDIT_CARD",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showCreditCard,
+        disabled: () => false,
     },
     {
         value: "bookmark", title: "BOOKMARK", edit_title: "EDIT_BOOKMARK", show_title: "SHOW_BOOKMARK",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showBookmark,
+        disabled: () => false,
     },
     {
         value: "identity", title: "IDENTITY", edit_title: "EDIT_IDENTITY", show_title: "SHOW_IDENTITY",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showIdentity,
+        disabled: () => false,
     },
     {
         value: "elster_certificate", title: "ELSTER_CERTIFICATE", edit_title: "EDIT_ELSTER_CERTIFICATE", show_title: "SHOW_ELSTER_CERTIFICATE",
         hideOnNewEntry: false,
         show: () => getStore().getState().settingsDatastore.showElsterCertificate,
+        disabled: () => false,
     },
 ];
 
@@ -95,6 +108,7 @@ function getEntryTypes(hideHiddenEntryTypes=false, hideHiddenOnNewEntry=false) {
         'title': entry.title,
         'edit_title': entry.edit_title,
         'show_title': entry.show_title,
+        'disabled': entry.disabled(),
     })));
 
     if (getStore().getState().server.files && (!hideHiddenEntryTypes || getStore().getState().settingsDatastore.showFile)) {
