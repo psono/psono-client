@@ -34,12 +34,20 @@ function isEE() {
     return getStore().getState().server.type === 'EE';
 }
 /**
+ * Returns whether the current server is EE
+ *
+ * @returns {boolean} The current host is an CE host
+ */
+function isCE() {
+    return getStore().getState().server.type === 'CE';
+}
+/**
  * Returns whether the current's server version is greater (or equal) than the current specified one
  *
  * @returns {*} The current host
  */
 function isNewerOrEqualVersionThan(version) {
-    return semverCompare(version, getStore().getState().server.version) > -1;
+    return semverCompare(getStore().getState().server.version, version) >= 0;
 }
 /**
  * Returns the url of the current host
@@ -299,6 +307,7 @@ const hostService = {
     semverCompare: semverCompare,
     getKnownHosts: getKnownHosts,
     getCurrentHost: getCurrentHost,
+    isCE: isCE,
     isEE: isEE,
     isNewerOrEqualVersionThan: isNewerOrEqualVersionThan,
     getCurrentHostUrl: getCurrentHostUrl,

@@ -3359,9 +3359,10 @@ const readFile = function (token, sessionSecretKey, fileId) {
  * @param {string|undefined} fileRepositoryId (optional) The id of the target file repository
  * @param {int} size The size of the complete file in bytes
  * @param {int} chunkCount The amount of chunks that this file is split into
- * @param {string} linkId the local id of the file in the datastructure
+ * @param {string|undefined} linkId (optional) the local id of the file in the datastructure (not used for secret attachments)
  * @param {string|undefined} [parentDatastoreId] (optional) id of the parent datastore, may be left empty if the share resides in a share
  * @param {string|undefined} [parentShareId] (optional) id of the parent share, may be left empty if the share resides in the datastore
+ * @param {string|undefined} [parentSecretId] (optional) id of the parent secret for file attachments
  *
  * @returns {Promise} Returns a promise with the new fileId and fileTransferId
  */
@@ -3374,7 +3375,8 @@ const createFile = function (
     chunkCount,
     linkId,
     parentDatastoreId,
-    parentShareId
+    parentShareId,
+    parentSecretId
 ) {
     const endpoint = "/file/";
     const method = "PUT";
@@ -3386,6 +3388,29 @@ const createFile = function (
         link_id: linkId,
         parent_datastore_id: parentDatastoreId,
         parent_share_id: parentShareId,
+        parent_secret_id: parentSecretId,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax DELETE request to detach a file from a secret (sets secret_id to null)
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} fileId The id of the file to detach
+ *
+ * @returns {Promise} Returns a promise with success status
+ */
+const deleteFile = function (token, sessionSecretKey, fileId) {
+    const endpoint = "/file/";
+    const method = "DELETE";
+    const data = {
+        file_id: fileId,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -4009,6 +4034,7 @@ const apiClientService = {
     declineMembership: declineMembership,
     readFile: readFile,
     createFile: createFile,
+    deleteFile: deleteFile,
     deleteAccount: deleteAccount,
     readShards: readShards,
     createLinkShare: createLinkShare,
