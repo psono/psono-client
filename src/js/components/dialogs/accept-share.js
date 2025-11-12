@@ -41,6 +41,8 @@ const useStyles = makeStyles((theme) => ({
     tree: {
         marginTop: "8px",
         marginBottom: "8px",
+        height: "250px",
+        overflowY: "auto",
     },
     search: {
         backgroundColor: theme.palette.lightBackground.main,

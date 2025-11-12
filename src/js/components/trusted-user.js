@@ -22,6 +22,7 @@ const TrustedUser = (props) => {
     const classes = useStyles();
 
     const [userIsTrusted, setUserIsTrusted] = useState(false);
+    const [keysHaveChanged, setKeysHaveChanged] = useState(false);
     const [user, setUser] = useState({
         data: {
             user_id: "",
@@ -33,58 +34,84 @@ const TrustedUser = (props) => {
 
     let isSubscribed = true;
     React.useEffect(() => {
-        datastoreUserService.searchUserDatastore(user_id, user_username).then(function (user) {
+        const onSuccess = function (data) {
             if (!isSubscribed) {
                 return;
             }
-            if (user !== null) {
-                setUserIsTrusted(true);
-                setUser(user);
-                if (onSetUser) {
-                    onSetUser(user);
-                }
+
+            const users = data.data;
+            let serverUser = null;
+
+            if (Object.prototype.toString.call(users) === "[object Array]") {
+                users.forEach((user) => {
+                    if (user.username === user_username) {
+                        serverUser = {
+                            data: {
+                                user_id: user.id,
+                                user_username: user.username,
+                                user_public_key: user.public_key,
+                            },
+                            name: user.username,
+                        };
+                    }
+                });
+            } else {
+                serverUser = {
+                    data: {
+                        user_id: users.id,
+                        user_username: users.username,
+                        user_public_key: users.public_key,
+                    },
+                    name: users.username,
+                };
+            }
+
+            if (!serverUser) {
                 return;
             }
 
-            const onSuccess = function (data) {
-                const users = data.data;
-                if (Object.prototype.toString.call(users) === "[object Array]") {
-                    users.map((user) => {
-                        if (user.username === user_username) {
-                            const _user = {
-                                data: {
-                                    user_id: user.id,
-                                    user_username: user.username,
-                                    user_public_key: user.public_key,
-                                },
-                                name: user.username,
-                            };
-                            setUser(_user);
-                            if (onSetUser) {
-                                onSetUser(_user);
-                            }
+            datastoreUserService.searchUserDatastore(user_id, user_username).then(function (trustedUser) {
+                if (!isSubscribed) {
+                    return;
+                }
+
+                if (trustedUser !== null) {
+                    if (trustedUser.data.user_public_key === serverUser.data.user_public_key) {
+                        // Keys match - user is trusted
+                        setUserIsTrusted(true);
+                        setKeysHaveChanged(false);
+                        setUser(serverUser);
+                        if (onSetUser) {
+                            onSetUser(serverUser);
                         }
-                    });
+                    } else {
+                        // Keys don't match - user's keys have changed!
+                        setUserIsTrusted(false);
+                        setKeysHaveChanged(true);
+                        setUser(serverUser);
+                        if (onSetUser) {
+                            onSetUser(serverUser);
+                        }
+                    }
                 } else {
-                    const _user = {
-                        data: {
-                            user_id: users.id,
-                            user_username: users.username,
-                            user_public_key: users.public_key,
-                        },
-                        name: users.username,
-                    };
-                    setUser(_user);
+                    // User not in trusted datastore - not trusted
+                    setUserIsTrusted(false);
+                    setKeysHaveChanged(false);
+                    setUser(serverUser);
                     if (onSetUser) {
-                        onSetUser(_user);
+                        onSetUser(serverUser);
                     }
                 }
-            };
-            const onError = function (data) {
-                //pass
-            };
-            return datastoreUserService.searchUser(user_username).then(onSuccess, onError);
-        });
+            });
+        };
+
+        const onError = function (data) {
+            //pass
+        };
+
+        // Always query server first
+        datastoreUserService.searchUser(user_username).then(onSuccess, onError);
+
         // cancel subscription to useEffect
         return () => (isSubscribed = false);
     }, []);
@@ -109,10 +136,39 @@ const TrustedUser = (props) => {
             }
             userObject.name += " (" + user.data.user_public_key + ")";
 
-            user_data_store.items.push(userObject);
+            if (keysHaveChanged) {
+                // Keys have changed - find and update the existing entry
+                const findAndUpdate = (items) => {
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        if (item.type === "user" &&
+                            item.data &&
+                            (item.data.user_id === user.data.user_id ||
+                             item.data.user_username === user.data.user_username)) {
+                            // Found the existing user - update it with new keys
+                            items[i] = userObject;
+                            items[i].id = item.id; // Keep the same ID
+                            return true;
+                        }
+                        // Recursively search in nested items
+                        if (item.items && item.items.length > 0) {
+                            if (findAndUpdate(item.items)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                findAndUpdate(user_data_store.items);
+            } else {
+                // User is not trusted yet - add as new entry
+                user_data_store.items.push(userObject);
+            }
 
             datastoreUserService.saveDatastoreContent(user_data_store);
             setUserIsTrusted(true);
+            setKeysHaveChanged(false);
         };
         const onError = function (data) {
             //pass
@@ -166,7 +222,29 @@ const TrustedUser = (props) => {
                     disabled
                 />
             </Grid>
-            {!userIsTrusted && (
+            {!userIsTrusted && keysHaveChanged && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <MuiAlert
+                        severity="error"
+                        style={{
+                            marginBottom: "5px",
+                            marginTop: "5px",
+                        }}
+                    >
+                        {t("WARNING_USER_KEYS_HAVE_CHANGED")}{" "}
+                        <a
+                            href="#"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                trust();
+                            }}
+                        >
+                            {t("UPDATE_TRUSTED_USER")}
+                        </a>
+                    </MuiAlert>
+                </Grid>
+            )}
+            {!userIsTrusted && !keysHaveChanged && (
                 <Grid item xs={12} sm={12} md={12}>
                     <MuiAlert
                         severity="warning"

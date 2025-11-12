@@ -521,6 +521,8 @@
   "SHARED_BY": "Shared by",
   "INVITED_BY": "Invited by",
   "ADD_TO_TRUSTED_USERS": "Add to trusted users",
+  "UPDATE_TRUSTED_USER": "Update trusted user",
+  "WARNING_USER_KEYS_HAVE_CHANGED": "WARNING: This user's cryptographic keys have changed! This could indicate the user's account was wiped, reset, or potentially compromised. Verify their identity before updating.",
   "CONFIRM": "Confirm",
   "YOU_NEVER_CONFIRMED_THIS_USERS_IDENTITY": "You never confirmed this user's identity. Please ask the user on a 'secure' channel if that really is his or her public key. If you confirmed this public key and want to add it to your trusted user datastore, click here:",
   "ATTENTION": "Attention",
