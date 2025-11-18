@@ -51,10 +51,11 @@ function readFile(fileId) {
  * @param linkId The id of the link
  * @param parentDatastoreId The id of the parent datastore (can be undefined if the parent is a share)
  * @param parentShareId The id of the parent share (can be undefined if the parent is a datastore)
+ * @param parentSecretId (optional) The id of the parent secret for file attachments
  *
  * @returns {Promise} promise
  */
-function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId) {
+function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId, parentSecretId) {
     const token = getStore().getState().user.token;
     const sessionSecretKey = getStore().getState().user.sessionSecretKey;
     const onError = function (result) {
@@ -75,9 +76,31 @@ function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentD
             chunkCount,
             linkId,
             parentDatastoreId,
-            parentShareId
+            parentShareId,
+            parentSecretId
         )
         .then(onSuccess, onError);
+}
+
+/**
+ * Deletes/detaches a file from a secret (sets secret_id to null on backend)
+ *
+ * @param {string} fileId The id of the file to delete/detach
+ *
+ * @returns {Promise} promise
+ */
+function deleteFile(fileId) {
+    const token = getStore().getState().user.token;
+    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+    const onError = function (result) {
+        return Promise.reject(result.data);
+    };
+
+    const onSuccess = function (result) {
+        return result.data;
+    };
+
+    return apiClientService.deleteFile(token, sessionSecretKey, fileId).then(onSuccess, onError);
 }
 
 /**
@@ -720,12 +743,20 @@ function downloadFileFromShard(file, shards, fileTransfer) {
         storage
             .findKey("file-downloads", "shards")
             .then(function (data) {
-                downloadFileFromShardHelper(data.shards);
+                if (data && data.shards) {
+                    downloadFileFromShardHelper(data.shards);
+                } else {
+                    return readShards().then(function (shardsData) {
+                        storage.upsert("file-downloads", { key: "shards", shards: shardsData });
+                        downloadFileFromShardHelper(shardsData);
+                    });
+                }
             })
             .catch(function (err) {
                 console.log(err);
-                return Promise.reject({
-                    non_field_errors: ["NO_FILESERVER_AVAILABLE"],
+                return readShards().then(function (shardsData) {
+                    storage.upsert("file-downloads", { key: "shards", shards: shardsData });
+                    downloadFileFromShardHelper(shardsData);
                 });
             });
     } else {
@@ -813,7 +844,6 @@ function downloadFile(file, shards, fileTransfer) {
         saveAs(new Blob([""], { type: "text/plain;charset=utf-8" }), file["file_title"]);
         return Promise.resolve();
     }
-
     if (file.hasOwnProperty("file_shard_id") && file["file_shard_id"]) {
         return downloadFileFromShard(file, shards, fileTransfer);
     } else {
@@ -851,6 +881,7 @@ function register(key, func) {
 const fileTransferService = {
     readFile: readFile,
     createFile: createFile,
+    deleteFile: deleteFile,
     upload: upload,
     readShards: readShards,
     filterShards: filterShards,

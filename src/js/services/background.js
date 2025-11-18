@@ -225,9 +225,23 @@ function updateContextMenu() {
             const entries = [];
 
             for (let ii = 0; ii < leafs.length; ii++) {
+                let name = leafs[ii].name;
+
+                // Add description (username) in brackets if available and not already in the name
+                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
+                    const description = leafs[ii].description.trim();
+                    const nameLower = name.toLowerCase();
+                    const descriptionLower = description.toLowerCase();
+
+                    // Only add description if it's not already part of the name
+                    if (nameLower.indexOf(descriptionLower) === -1) {
+                        name = name + ' (' + description + ')';
+                    }
+                }
+
                 entries.push({
                     secret_id: leafs[ii].secret_id,
-                    name: leafs[ii].name,
+                    name: name,
                 });
             }
 
@@ -262,9 +276,23 @@ function updateContextMenu() {
             const entries = [];
 
             for (let ii = 0; ii < leafs.length; ii++) {
+                let name = leafs[ii].name;
+
+                // Add description in brackets if available and not already in the name
+                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
+                    const description = leafs[ii].description.trim();
+                    const nameLower = name.toLowerCase();
+                    const descriptionLower = description.toLowerCase();
+
+                    // Only add description if it's not already part of the name
+                    if (nameLower.indexOf(descriptionLower) === -1) {
+                        name = name + ' (' + description + ')';
+                    }
+                }
+
                 entries.push({
                     secret_id: leafs[ii].secret_id,
-                    name: leafs[ii].name,
+                    name: name,
                 });
             }
 
@@ -298,9 +326,23 @@ function updateContextMenu() {
             const entries = [];
 
             for (let ii = 0; ii < leafs.length; ii++) {
+                let name = leafs[ii].name;
+
+                // Add description in brackets if available and not already in the name
+                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
+                    const description = leafs[ii].description.trim();
+                    const nameLower = name.toLowerCase();
+                    const descriptionLower = description.toLowerCase();
+
+                    // Only add description if it's not already part of the name
+                    if (nameLower.indexOf(descriptionLower) === -1) {
+                        name = name + ' (' + description + ')';
+                    }
+                }
+
                 entries.push({
                     secret_id: leafs[ii].secret_id,
-                    name: leafs[ii].name,
+                    name: name,
                 });
             }
 

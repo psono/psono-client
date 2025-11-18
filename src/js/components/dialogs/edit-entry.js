@@ -32,6 +32,8 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import LinkIcon from "@mui/icons-material/Link";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useHotkeys } from 'react-hotkeys-hook'
 import Divider from "@mui/material/Divider";
@@ -55,12 +57,16 @@ import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-thr
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import TextFieldTotp from "../text-field/totp";
 import converterService from "../../services/converter";
+import fileTransferService from "../../services/file-transfer";
+import apiClientService from "../../services/api-client";
+import hostService from "../../services/host";
 import DialogCreateLinkShare from "./create-link-share";
 import DialogAddTotp from "./add-totp";
 import DialogAddCustomField from "./add-custom-field";
 import DialogAddTag from "./add-tag";
 import DialogEditCustomField from "./edit-custom-field";
 import DialogGeneratePassword from "./generate-password";
+import DialogAddAttachment from "./add-attachment";
 import TextFieldColored from "../text-field/colored";
 
 const useStyles = makeStyles((theme) => ({
@@ -139,7 +145,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, hideAddCustomField, hideAddTag, inline, setDirty } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, linkDirectly, hideAddTOTP, hideAddCustomField, hideAddTag, hideAttachments, inline, setDirty } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
@@ -150,6 +156,7 @@ const DialogEditEntry = (props) => {
     const [addTotpOpen, setAddTotpOpen] = useState(false);
     const [addTagOpen, setAddTagOpen] = useState(false);
     const [addCustomFieldOpen, setAddCustomFieldOpen] = useState(false);
+    const [addAttachmentOpen, setAddAttachmentOpen] = useState(false);
     const [editCustomFieldOpenIndex, setEditCustomFieldOpenIndex] = useState(null);
     const [generatePasswordDialogOpen, setGeneratePasswordDialogOpen] = useState(false);
 
@@ -259,6 +266,7 @@ const DialogEditEntry = (props) => {
     const [callbackPass, setCallbackPass] = useState("");
     const [callbackUser, setCallbackUser] = useState("");
     const [customFields, setCustomFields] = useState([]);
+    const [attachments, setAttachments] = useState([]);
 
     const [createDate, setCreateDate] = useState(new Date());
     const [writeDate, setWriteDate] = useState(new Date());
@@ -371,6 +379,11 @@ const DialogEditEntry = (props) => {
                 setCustomFields(data["custom_fields"]);
             } else {
                 setCustomFields([]);
+            }
+            if (data.hasOwnProperty("attachments")) {
+                setAttachments(data["attachments"]);
+            } else {
+                setAttachments([]);
             }
             if (data.hasOwnProperty("tags")) {
                 setTags(data["tags"]);
@@ -1076,6 +1089,9 @@ const DialogEditEntry = (props) => {
         if (customFields) {
             secretObject["custom_fields"] = customFields;
         }
+        if (attachments) {
+            secretObject["attachments"] = attachments;
+        }
         if (tags) {
             item["tags"] = tags;
             secretObject["tags"] = tags;
@@ -1251,10 +1267,10 @@ const DialogEditEntry = (props) => {
 
     const hasAddCustomField = !hideAddCustomField && (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note");
     const hasAddTag = !hideAddTag;
-    const hasAddTOTP = !hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode;
-
+    const hasAddTOTP = !hideAddTOTP && item.type === "website_password" && !websitePasswordTotpCode && !getStore().getState().server.complianceDisableTotp;
+    const hasAddAttachment = (item.type === "website_password" || item.type === "application_password" || item.type === "bookmark" || item.type === "note") && hostService.isNewerOrEqualVersionThan('5.4.0');
     let renderAddButton = null;
-    if (hasAddCustomField || hasAddTag || hasAddTOTP) {
+    if (hasAddCustomField || hasAddTag || hasAddTOTP || hasAddAttachment) {
         renderAddButton = (
             <React.Fragment>
                 <Grid item xs={12} sm={12} md={12}>
@@ -1322,11 +1338,105 @@ const DialogEditEntry = (props) => {
                                 </Typography>
                             </MenuItem>
                         )}
+                        {hasAddAttachment && (
+                            <MenuItem
+                                disabled={readOnly}
+                                onClick={() => {
+                                    handleClose();
+                                    setAddAttachmentOpen(true);
+                                }}
+                            >
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <PlaylistAddIcon className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("ADD_ATTACHMENT")}
+                                </Typography>
+                            </MenuItem>
+                        )}
                     </Menu>
                 </Grid>
             </React.Fragment>
         )
     }
+
+    // Attachment handlers
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    };
+
+    const onAddAttachment = (newAttachment) => {
+        if (newAttachment) {
+            setAttachments([...attachments, newAttachment]);
+            setDirty(true);
+            // Autosave after adding attachment
+            setTriggerAutoSave(triggerAutoSave + 1);
+        }
+        setAddAttachmentOpen(false);
+    };
+
+    const onDownloadAttachment = async (attachment) => {
+        try {
+            // Register download callbacks
+            fileTransferService.register("download_started", function (max) {
+                // Download started
+            });
+
+            fileTransferService.register("download_step_complete", function (newNextStep) {
+                // Download step completed
+            });
+
+            fileTransferService.register("download_complete", function () {
+                // Download completed
+                notification.push("file_download", t("FILE_DOWNLOADED_SUCCESSFULLY"));
+            });
+
+            // Convert attachment format to what downloadFile expects
+            const fileChunksDict = {};
+            attachment.file_chunks.forEach((chunk, index) => {
+                fileChunksDict[index + 1] = chunk.hash; // chunks are 1-indexed
+            });
+
+            const fileObject = {
+                file_id: attachment.file_id,
+                file_chunks: fileChunksDict,
+                file_secret_key: attachment.file_secret_key,
+                file_shard_id: attachment.file_shard_id,
+                file_repository_id: attachment.file_repository_id,
+                file_title: attachment.filename,
+            };
+
+            // Use the existing download functionality
+            await fileTransferService.downloadFile(fileObject);
+
+        } catch (error) {
+            console.error("File download error:", error);
+            notification.push("file_download_error", t("FILE_DOWNLOAD_FAILED"));
+        }
+    };
+
+    const onDeleteAttachment = async (index) => {
+        const attachment = attachments[index];
+
+        try {
+            // Call API to detach file from secret (sets secret_id to null on backend)
+            await fileTransferService.deleteFile(attachment.file_id);
+
+            // Remove from local state
+            setAttachments(attachments.filter((_, i) => i !== index));
+            setDirty(true);
+            // Autosave after deleting attachment
+            setTriggerAutoSave(triggerAutoSave + 1);
+
+        } catch (error) {
+            console.error("Failed to delete attachment:", error);
+            notification.push("file_delete_error", t("ATTACHMENT_DELETE_FAILED"));
+        }
+    };
 
     const renderedCustomFields = (
         <React.Fragment>
@@ -1430,6 +1540,47 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                     />
+                </Grid>
+            ))}
+        </React.Fragment>
+    );
+
+    const renderedAttachments = (
+        <React.Fragment>
+            {/* List of attachments */}
+            {attachments.map((attachment, index) => (
+                <Grid item xs={12} sm={12} md={12} key={`attachment-${index}`}>
+                    <Paper className={classes.textField} variant="outlined" style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                            <AttachFileIcon style={{ marginRight: '8px' }} />
+                            <div>
+                                <Typography variant="body2" noWrap>
+                                    {attachment.filename}
+                                </Typography>
+                                <Typography variant="caption" color="textSecondary">
+                                    {formatFileSize(attachment.file_size)}
+                                </Typography>
+                            </div>
+                        </div>
+                        <div>
+                            <IconButton
+                                size="small"
+                                onClick={() => onDownloadAttachment(attachment)}
+                                title={t("DOWNLOAD")}
+                            >
+                                <CloudDownloadIcon fontSize="small" />
+                            </IconButton>
+                            {!readOnly && (
+                                <IconButton
+                                    size="small"
+                                    onClick={() => onDeleteAttachment(index)}
+                                    title={t("DELETE")}
+                                >
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            )}
+                        </div>
+                    </Paper>
                 </Grid>
             ))}
         </React.Fragment>
@@ -1717,6 +1868,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "website_password" && renderedCustomFields}
+            {item.type === "website_password" && !hideAttachments && renderedAttachments}
             {item.type === "website_password" && renderAddButton}
 
             {item.type === "website_password" && (
@@ -1859,6 +2011,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "application_password" && renderedCustomFields}
+            {item.type === "application_password" && !hideAttachments && renderedAttachments}
             {item.type === "application_password" && renderAddButton}
 
             {item.type === "application_password" && (
@@ -1954,6 +2107,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "bookmark" && renderedCustomFields}
+            {item.type === "bookmark" && !hideAttachments && renderedAttachments}
             {item.type === "bookmark" && renderAddButton}
 
             {item.type === "bookmark" && (
@@ -2236,6 +2390,7 @@ const DialogEditEntry = (props) => {
             )}
 
             {item.type === "note" && renderedCustomFields}
+            {item.type === "note" && !hideAttachments && renderedAttachments}
             {item.type === "note" && renderAddButton}
 
             {item.type === "note" && (
@@ -3566,6 +3721,14 @@ const DialogEditEntry = (props) => {
                 />
             )}
 
+            {addAttachmentOpen && (
+                <DialogAddAttachment
+                    open={addAttachmentOpen}
+                    onClose={onAddAttachment}
+                    item={item}
+                />
+            )}
+
             {editCustomFieldOpenIndex !== null && (
                 <DialogEditCustomField
                     open={editCustomFieldOpenIndex !== null}
@@ -3646,9 +3809,10 @@ const DialogEditEntry = (props) => {
 DialogEditEntry.defaultProps = {
     hideLinkToEntry: false,
     hideShowHistory: false,
-    hideAddTOTP: false, 
+    hideAddTOTP: false,
     hideAddCustomField: false,
     hideAddTag: false,
+    hideAttachments: false,
     hideMoreMenu: false,
     linkDirectly: false,
     inline: false,
@@ -3666,6 +3830,7 @@ DialogEditEntry.propTypes = {
     hideAddTOTP: PropTypes.bool,
     hideAddCustomField: PropTypes.bool,
     hideAddTag: PropTypes.bool,
+    hideAttachments: PropTypes.bool,
     hideMoreMenu: PropTypes.bool,
     linkDirectly: PropTypes.bool,
     inline: PropTypes.bool,

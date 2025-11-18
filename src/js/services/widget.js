@@ -901,6 +901,7 @@ function cloneItem(datastore, item, path) {
         delete secret_object["callback_url"];
         delete secret_object["callback_user"];
         delete secret_object["callback_pass"];
+        delete secret_object["attachments"];
 
         if (secret_object.hasOwnProperty('website_password_title')) {
             secret_object['website_password_title'] = 'Copy ' + secret_object['website_password_title'];

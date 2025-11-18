@@ -15,6 +15,7 @@ const defaultComplianceCentralSecurityReportsRecurrenceInterval = 0;
 const defaultComplianceDisableApiKeys = false;
 const defaultComplianceDisableDeleteAccount = false;
 const defaultComplianceDisableEmergencyCodes = false;
+const defaultComplianceDisableTotp = false;
 const defaultComplianceDisableExport = false;
 const defaultComplianceDisableExportOfSharedItems = false;
 const defaultComplianceDisableUnmanagedGroups = false;
@@ -83,6 +84,7 @@ function server(
         complianceDisableApiKeys: defaultComplianceDisableApiKeys,
         complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
         complianceDisableEmergencyCodes: defaultComplianceDisableEmergencyCodes,
+        complianceDisableTotp: defaultComplianceDisableTotp,
         complianceDisableExport: defaultComplianceDisableExport,
         complianceDisableExportOfSharedItems: defaultComplianceDisableExportOfSharedItems,
         complianceDisableUnmanagedGroups: defaultComplianceDisableUnmanagedGroups,
@@ -148,6 +150,7 @@ function server(
                 complianceDisableApiKeys: defaultComplianceDisableApiKeys,
                 complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
                 complianceDisableEmergencyCodes: defaultComplianceDisableEmergencyCodes,
+                complianceDisableTotp: defaultComplianceDisableTotp,
                 complianceDisableExport: defaultComplianceDisableExport,
                 complianceDisableExportOfSharedItems: defaultComplianceDisableExportOfSharedItems,
                 complianceDisableUnmanagedGroups: defaultComplianceDisableUnmanagedGroups,
@@ -212,6 +215,7 @@ function server(
                 complianceDisableApiKeys: action.info.compliance_disable_api_keys,
                 complianceDisableDeleteAccount: action.info.compliance_disable_delete_account,
                 complianceDisableEmergencyCodes: action.info.compliance_disable_emergency_codes,
+                complianceDisableTotp: action.info.compliance_disable_totp,
                 complianceDisableExport: action.info.compliance_disable_export,
                 complianceDisableExportOfSharedItems: action.info.compliance_disable_export_of_shared_items,
                 complianceDisableUnmanagedGroups: action.info.compliance_disable_unmanaged_groups,
@@ -280,6 +284,9 @@ function server(
             }
             if (action.policy.hasOwnProperty('compliance_enforce_2fa')) {
                 data['complianceEnforce2fa'] = action.policy.compliance_enforce_2fa;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_totp')) {
+                data['complianceDisableTotp'] = action.policy.compliance_disable_totp;
             }
             if (action.policy.hasOwnProperty('compliance_disable_export')) {
                 data['complianceDisableExport'] = action.policy.compliance_disable_export;
