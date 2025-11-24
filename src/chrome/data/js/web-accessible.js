@@ -304,24 +304,27 @@
                 'resolve': resolve,
                 'reject': reject,
             }
+            const postMessageData = {
+                'options': {
+                    'mediation': options.hasOwnProperty('mediation') ? options.mediation : undefined, // "conditional"
+                    'publicKey': {
+                        ...options.publicKey,
+                        challenge: arrayBufferToBase64Url(options.publicKey.challenge),
+                        allowCredentials: options.publicKey.allowCredentials ? options.publicKey.allowCredentials.map((cred) => ({
+                            ...cred,
+                            'id': arrayBufferToBase64Url(cred.id),
+                            'transports': cred.hasOwnProperty('transports') ? [...cred.transports] : undefined,
+                        })) : [],
+                        'extensions': options.publicKey.extensions ? {...options.publicKey.extensions} : undefined,
+                    },
+                },
+                'origin': window.location.origin,
+                'eventId': eventId,
+            }
 
             window.postMessage({
                 event: "navigator-credentials-get",
-                data: {
-                    'options': {
-                        'mediation': options.hasOwnProperty('mediation') ? options.mediation : undefined, // "conditional"
-                        'publicKey': {
-                            ...options.publicKey,
-                            challenge: arrayBufferToBase64Url(options.publicKey.challenge),
-                            allowCredentials: options.publicKey.allowCredentials ? options.publicKey.allowCredentials.map((cred) => ({
-                                ...cred,
-                                'id': arrayBufferToBase64Url(cred.id)
-                            })) : [],
-                        },
-                    },
-                    'origin': window.location.origin,
-                    'eventId': eventId,
-                },
+                data: postMessageData,
             }, window.location.origin);
         })
     }
