@@ -842,10 +842,11 @@ function updatePassword(url, username, password) {
  * @param {string} passkey_user_handle The user handle
  * @param {string} username The username
  * @param {object} passkey_algorithm The algorithm object e.g { 'name': "ECDSA", 'namedCurve': "P-256" }
+ * @param {boolean} [passkey_auto_submit=false] Whether the passkey is discoverable (can be used for autofill)
  *
  * @returns {Promise} Returns a promise with the datastore object
  */
-function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_private_key, passkey_user_handle, username, passkey_algorithm) {
+function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_private_key, passkey_user_handle, username, passkey_algorithm, passkey_auto_submit = false) {
     const title = (passkey_rp_id + " " + username).trim() || i18n.t("UNKNOWN");
     const urlfilter = passkey_rp_id + '#' + passkey_id;
 
@@ -858,7 +859,7 @@ function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_priv
         passkey_user_handle: passkey_user_handle,
         passkey_algorithm: passkey_algorithm,
         passkey_url_filter: urlfilter,
-        passkey_auto_submit: false,
+        passkey_auto_submit: passkey_auto_submit,
     };
 
     const datastore_object = {
@@ -866,6 +867,10 @@ function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_priv
         name: title,
         urlfilter: urlfilter,
     };
+
+    if (passkey_auto_submit) {
+        datastore_object['autosubmit'] = true;
+    }
 
     const onError = function (data) {
         console.log(data);
