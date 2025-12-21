@@ -1029,8 +1029,35 @@ function notify(content) {
         })
     } else {
         const options = { silent: true };
-        function sendNotification() {
-            return new Notification(content, options);
+
+        async function sendNotification() {
+            // Try service worker notifications first (required for some mobile browsers)
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                try {
+                    const registration = await Promise.race([
+                        navigator.serviceWorker.ready,
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Service worker timeout')), 1000))
+                    ]);
+
+                    if (registration) {
+                        await registration.showNotification(content, options);
+                        return;
+                    }
+                } catch (error) {
+                    // Service worker not ready, timed out, or registration failed
+                    console.log("Service worker notification not available:", error.message);
+                    // Continue to try standard notification
+                }
+            }
+
+            // Fallback: Try standard notification for desktop browsers
+            try {
+                new Notification(content, options);
+            } catch (error) {
+                // Standard notification failed - likely in a service worker context on mobile
+                // Silently fail - we can't show notifications in this environment
+                console.log("Notifications not available in this context");
+            }
         }
 
         if (!("Notification" in window)) {
@@ -1044,7 +1071,7 @@ function notify(content) {
         }
 
         if (Notification.permission === "granted") {
-            return new Notification(content, options);
+            return sendNotification();
         }
 
         if (Notification.permission !== "denied") {
