@@ -943,7 +943,10 @@ function writeToClipboard(fetchContent) {
                 if (!document.hasFocus()) {
                     return Promise.resolve();
                 }
-                return navigator.clipboard.writeText(content);
+                return navigator.clipboard.writeText(content).catch((error) => {
+                    console.log("Cannot write to clipboard:", error.message);
+                    return Promise.resolve();
+                });
             } catch (error) {
                 console.log(error);
             }
