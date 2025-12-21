@@ -939,6 +939,10 @@ function writeToClipboard(fetchContent) {
         // Firefox & Chrome and everything else
         return fetchContent().then((content) => {
             try {
+                // Check if document is focused before attempting clipboard write
+                if (!document.hasFocus()) {
+                    return Promise.resolve();
+                }
                 return navigator.clipboard.writeText(content);
             } catch (error) {
                 console.log(error);
