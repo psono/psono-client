@@ -5,7 +5,7 @@
 import action from "../actions/bound-action-creators";
 import apiClient from "./api-client";
 import offlineCache from "./offline-cache";
-import { getStore } from "./store";
+import {getStore, isStoreInitialized} from "./store";
 import storage from "./storage";
 import datastoreService from "./datastore";
 import groupsService from "./groups";
@@ -69,6 +69,13 @@ async function autoAcceptForcedMemberships() {
  * @returns {Promise} Returns a promise with the current status
  */
 function getStatus(forceFresh) {
+
+    if (!isStoreInitialized()) {
+        return Promise.resolve({
+            data: {},
+        });
+    }
+
     const isLoggedIn = getStore().getState().user.isLoggedIn;
     const isOffline = offlineCache.isActive();
 

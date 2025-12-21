@@ -168,6 +168,10 @@ export const initStore = async () => {
     return store;
 };
 
+export const isStoreInitialized = () => {
+    return store !== undefined;
+}
+
 export const getStore = () => {
     return store;
 }
