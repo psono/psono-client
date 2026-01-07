@@ -48,6 +48,7 @@ import datastorePassword from "../../services/datastore-password";
 import helper from "../../services/helper";
 import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
+import storage from "../../services/storage";
 import user from "../../services/user";
 import widgetService from "../../services/widget";
 import { getStore } from "../../services/store";
@@ -574,16 +575,55 @@ const PopupView = (props) => {
         }
     };
 
+    const loadFromCache = async () => {
+        try {
+            // Get all password leafs from cache
+            const leafs = await storage.where("datastore-password-leafs", () => true);
+
+            if (!leafs || leafs.length === 0) {
+                return null;
+            }
+
+            // Transform cache format to popup format
+            const entries = leafs.map(leaf => ({
+                content: {
+                    secret_id: leaf.secret_id,
+                    secret_key: leaf.secret_key,
+                    name: leaf.name,
+                    description: leaf.description,
+                    urlfilter: leaf.urlfilter,
+                    type: leaf.type,
+                    autosubmit: leaf.autosubmit,
+                    allow_http: leaf.allow_http,
+                },
+                path: leaf.folder_path || "/",
+            }));
+
+            return entries;
+        } catch (error) {
+            console.error("Failed to load from cache:", error);
+            return null;
+        }
+    };
+
     useEffect(() => {
+        Promise.all([
+            loadFromCache(),
+            browserClient.getActiveTabUrl()
+        ]).then(([cachedEntries, activeUrl]) => {
+            if (cachedEntries && cachedEntries.length > 0) {
+                setItems(cachedEntries);
+            }
+            if (activeUrl) {
+                setUrl(helper.parseUrl(activeUrl));
+            }
+        });
+
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
             setUnlockOfflineCache(true);
         } else {
             datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
         }
-
-        browserClient.getActiveTabUrl().then((url) => {
-            setUrl(helper.parseUrl(url));
-        });
 
         reloadDatastoreOverview();
         return () => (isSubscribed = false);
@@ -911,9 +951,21 @@ const PopupView = (props) => {
         );
     }
 
+    const sortByName = (a, b) => {
+        const nameA = (a.content.name || "").toLowerCase();
+        const nameB = (b.content.name || "").toLowerCase();
+        const nameCompare = nameA.localeCompare(nameB);
+        if (nameCompare !== 0) {
+            return nameCompare;
+        }
+        const descA = (a.content.description || "").toLowerCase();
+        const descB = (b.content.description || "").toLowerCase();
+        return descA.localeCompare(descB);
+    };
+
     let itemsToDisplay = [];
     if (search) {
-        itemsToDisplay = items.filter(filterBySearch).slice(0, 50);
+        itemsToDisplay = items.filter(filterBySearch).sort(sortByName).slice(0, 50);
     } else if (url) {
         const matching = [];
         const notMatching = [];
@@ -928,9 +980,11 @@ const PopupView = (props) => {
                 notMatching.push(item);
             }
         });
+        matching.sort(sortByName);
+        notMatching.sort(sortByName);
         itemsToDisplay = matching.concat(notMatching).slice(0, 50);
     } else {
-        itemsToDisplay = items.slice(0, 50);
+        itemsToDisplay = items.sort(sortByName).slice(0, 50);
     }
 
     return (
@@ -973,8 +1027,8 @@ const PopupView = (props) => {
                 {itemsToDisplay.length > 0 && (
                     <Grid item xs={12} sm={12} md={12}>
                         <ul className={classes.navigation}>
-                            {itemsToDisplay.map((item, i) => (
-                                <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
+                            {itemsToDisplay.map((item) => (
+                                <PopupItem key={item.content.secret_id || item.content.file_id} editItem={editItem} onItemClick={onItemClick} item={item} />
                             ))}
                         </ul>
                     </Grid>

@@ -541,12 +541,41 @@ function getDatastoreWithId(id) {
 }
 
 /**
+ * Adds folder_path string to all items recursively
+ *
+ * @param {TreeObject} folder The folder node
+ * @param {string} path The accumulated path string
+ */
+function addFolderPathRecursive(folder, path) {
+    if (!folder) {
+        return;
+    }
+    if (folder.hasOwnProperty("folders")) {
+        for (let i = 0; i < folder.folders.length; i++) {
+            if (folder.folders[i].hasOwnProperty("deleted") && folder.folders[i].deleted) {
+                continue;
+            }
+            addFolderPathRecursive(folder.folders[i], path + folder.folders[i].name + "/");
+        }
+    }
+    if (folder.hasOwnProperty("items")) {
+        for (let i = 0; i < folder.items.length; i++) {
+            if (folder.items[i].hasOwnProperty("deleted") && folder.items[i].deleted) {
+                continue;
+            }
+            folder.items[i].folder_path = path;
+        }
+    }
+}
+
+/**
  * Fills the datastore-password-leafs and datastore-file-leafs storage
  *
  * @param {TreeObject} datastore The datastore tree
  */
 function fillStorage(datastore) {
-    // datastore has changed, so lets regenerate local lookup
+    addFolderPathRecursive(datastore, "/");
+
     datastoreService.fillStorage(
         "datastore-password-leafs",
         datastore,
@@ -561,6 +590,8 @@ function fillStorage(datastore) {
             ["password_hash", "password_hash"],
             ["allow_http", "allow_http"],
             ["search", "urlfilter"],
+            ["type", "type"],
+            ["folder_path", "folder_path"],
         ],
         function (item) {
             return !item.type || item.type !== "file";
