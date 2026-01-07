@@ -2,10 +2,19 @@ import React from "react";
 import { Trans } from 'react-i18next';
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import Hidden from "@mui/material/Hidden";
 import { makeStyles } from '@mui/styles';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import PeopleIcon from "@mui/icons-material/People";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import offlineCache from "../../services/offline-cache";
 import datastorePassword from "../../services/datastore-password";
@@ -25,6 +34,47 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
+    emptyStateContainer: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "400px",
+        padding: theme.spacing(3),
+    },
+    emptyStateContent: {
+        maxWidth: "600px",
+        textAlign: "center",
+        [theme.breakpoints.down('sm')]: {
+            maxWidth: "90vw",
+            padding: theme.spacing(2),
+        },
+    },
+    emptyStateIcon: {
+        fontSize: "120px",
+        color: theme.palette.primary.main,
+        marginBottom: theme.spacing(3),
+        opacity: 0.7,
+        [theme.breakpoints.down('sm')]: {
+            fontSize: "80px",
+        },
+    },
+    emptyStateTitle: {
+        marginBottom: theme.spacing(2),
+        fontWeight: 500,
+    },
+    emptyStateDescription: {
+        marginBottom: theme.spacing(4),
+        color: theme.palette.text.secondary,
+    },
+    emptyStateActions: {
+        marginBottom: theme.spacing(3),
+    },
+    emptyStateInstructions: {
+        padding: theme.spacing(2),
+        backgroundColor: theme.palette.action.hover,
+        borderRadius: theme.shape.borderRadius,
+        marginTop: theme.spacing(2),
+    },
     tree: {
         width: "100%",
         overflowX: 'visible',
@@ -43,6 +93,7 @@ const DatastoreTree = (props) => {
     const classes = useStyles();
     const { datastore, setDatastore, search } = props;
     const { t } = useTranslation();
+    const history = useHistory();
     const offline = offlineCache.isActive();
 
     const getIsExpandedFolder = (folder) => {
@@ -160,23 +211,185 @@ const DatastoreTree = (props) => {
 
     const datastoreItems = formatDatastoreItems(datastore, [], true, [], []);
 
+    const handleImportClick = () => {
+        history.push('/other/import');
+    };
+
     if ((!datastore.folders || datastore.folders.filter((folder) => !folder["deleted"]).length === 0) && (!datastore.items || datastore.items.filter((item) => !item["deleted"]).length === 0)) {
+        const canCreateEntries = !!props.onNewEntry;
+        const canCreateFolders = !!props.onNewFolder;
+        const hasCreateAbility = canCreateEntries || canCreateFolders;
+        const isTrustedUsers = props.datastoreContext === "trusted-users";
+        const isShare = props.datastoreContext === "share";
+
+        // Select appropriate icon based on context
+        let EmptyIcon = LockOpenIcon;
+        if (isTrustedUsers) {
+            EmptyIcon = PeopleIcon;
+        } else if (isShare) {
+            EmptyIcon = FolderOpenIcon;
+        }
+
+        // Trusted users datastore has special messaging
+        if (isTrustedUsers) {
+            return (
+                <div className={classes.fullWidth}>
+                    <Box className={classes.emptyStateContainer}>
+                        <Box className={classes.emptyStateContent}>
+                            {/* Icon Section */}
+                            <EmptyIcon className={classes.emptyStateIcon} />
+
+                            {/* Title */}
+                            <Typography variant="h5" className={classes.emptyStateTitle}>
+                                {t("TRUSTED_USERS_EMPTY_TITLE")}
+                            </Typography>
+
+                            {/* Description */}
+                            <Typography variant="body1" className={classes.emptyStateDescription}>
+                                {t("TRUSTED_USERS_EMPTY_DESCRIPTION")}
+                            </Typography>
+
+                            {/* Info Box */}
+                            <Box className={classes.emptyStateInstructions}>
+                                <Typography variant="body2" color="textSecondary">
+                                    <InfoOutlinedIcon
+                                        style={{
+                                            fontSize: '18px',
+                                            verticalAlign: 'middle',
+                                            marginRight: '8px'
+                                        }}
+                                    />
+                                    {t("TRUSTED_USERS_EMPTY_INFO")}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
+                </div>
+            );
+        }
+
+        // Share context (accept share dialog) has special messaging
+        if (isShare) {
+            return (
+                <div className={classes.fullWidth}>
+                    <Box className={classes.emptyStateContainer}>
+                        <Box className={classes.emptyStateContent}>
+                            {/* Icon Section */}
+                            <EmptyIcon className={classes.emptyStateIcon} />
+
+                            {/* Title */}
+                            <Typography variant="h5" className={classes.emptyStateTitle}>
+                                {t("SHARE_SELECT_EMPTY_TITLE")}
+                            </Typography>
+
+                            {/* Description */}
+                            <Typography variant="body1" className={classes.emptyStateDescription}>
+                                {t("SHARE_SELECT_EMPTY_DESCRIPTION")}
+                            </Typography>
+
+                            {/* Info Box - Only show if user can create folders */}
+                            {canCreateFolders && (
+                                <Box className={classes.emptyStateInstructions}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        <InfoOutlinedIcon
+                                            style={{
+                                                fontSize: '18px',
+                                                verticalAlign: 'middle',
+                                                marginRight: '8px'
+                                            }}
+                                        />
+                                        {t("SHARE_SELECT_EMPTY_INFO")}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Box>
+                    </Box>
+                </div>
+            );
+        }
+
+        // Regular datastore logic
+        // Determine the appropriate instruction key based on capabilities
+        let instructionDesktopKey = "DATASTORE_EMPTY_NO_CREATE_INSTRUCTION";
+        let instructionMobileKey = "DATASTORE_EMPTY_NO_CREATE_INSTRUCTION";
+
+        if (canCreateEntries) {
+            instructionDesktopKey = "DATASTORE_EMPTY_CREATE_INSTRUCTION_DESKTOP";
+            instructionMobileKey = "DATASTORE_EMPTY_CREATE_INSTRUCTION_MOBILE";
+        } else if (canCreateFolders) {
+            instructionDesktopKey = "DATASTORE_EMPTY_CREATE_FOLDERS_ONLY_DESKTOP";
+            instructionMobileKey = "DATASTORE_EMPTY_CREATE_FOLDERS_ONLY_MOBILE";
+        }
+
         return (
             <div className={classes.fullWidth}>
-                <div className={classes.center}>
-                    <Hidden smDown>
-                        <i className={classes.bigIcon + " fa fa-plus-circle"} aria-hidden="true" />
-                    </Hidden>
+                <Box className={classes.emptyStateContainer}>
+                    <Box className={classes.emptyStateContent}>
+                        {/* Icon Section */}
+                        <EmptyIcon className={classes.emptyStateIcon} />
 
-                    <div>
-                        {t("NO_ITEMS")} <Hidden smDown>{t("RIGHT_CLICK_HERE_TO_CREATE_ONE")}</Hidden>
-                        <Hidden smUp>
-                            <Trans i18nKey="CLICK_ON_THE_SYMBOL_IN_THE_TOP_RIGHT_CORNER_TO_START">
-                                Click on the<br /><i className={classes.bigIcon + " fa fa-cogs"} /><br />symbol in the top right corner to start.
-                            </Trans>
-                        </Hidden>
-                    </div>
-                </div>
+                        {/* Title */}
+                        <Typography variant="h5" className={classes.emptyStateTitle}>
+                            {t("DATASTORE_EMPTY_TITLE")}
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography variant="body1" className={classes.emptyStateDescription}>
+                            {props.showImportAction
+                                ? t("DATASTORE_EMPTY_DESCRIPTION")
+                                : (hasCreateAbility
+                                    ? t("DATASTORE_EMPTY_DESCRIPTION_NO_IMPORT")
+                                    : t("DATASTORE_EMPTY_DESCRIPTION_READ_ONLY")
+                                )
+                            }
+                        </Typography>
+
+                        {/* Import Button - Only show in main datastore view */}
+                        {props.showImportAction && (
+                            <Box className={classes.emptyStateActions}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="large"
+                                    startIcon={<CloudUploadIcon />}
+                                    onClick={handleImportClick}
+                                >
+                                    {t("DATASTORE_EMPTY_IMPORT_BUTTON")}
+                                </Button>
+                            </Box>
+                        )}
+
+                        {/* Context-Aware Instructions - Only show if user can create items */}
+                        {hasCreateAbility && (
+                            <Box className={classes.emptyStateInstructions}>
+                                <Hidden smDown>
+                                    <Typography variant="body2" color="textSecondary">
+                                        <InfoOutlinedIcon
+                                            style={{
+                                                fontSize: '18px',
+                                                verticalAlign: 'middle',
+                                                marginRight: '8px'
+                                            }}
+                                        />
+                                        {t(instructionDesktopKey)}
+                                    </Typography>
+                                </Hidden>
+                                <Hidden smUp>
+                                    <Typography variant="body2" color="textSecondary">
+                                        <InfoOutlinedIcon
+                                            style={{
+                                                fontSize: '18px',
+                                                verticalAlign: 'middle',
+                                                marginRight: '8px'
+                                            }}
+                                        />
+                                        {t(instructionMobileKey)}
+                                    </Typography>
+                                </Hidden>
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
             </div>
         );
     } else {
@@ -209,6 +422,8 @@ const DatastoreTree = (props) => {
 
 DatastoreTree.defaultProps = {
     allowMultiselect: false,
+    showImportAction: false,
+    datastoreContext: "default",
 };
 
 
@@ -237,6 +452,8 @@ DatastoreTree.propTypes = {
     deleteFolderLabel: PropTypes.string.isRequired,
     deleteItemLabel: PropTypes.string.isRequired,
     setDatastore: PropTypes.func.isRequired,
+    showImportAction: PropTypes.bool,
+    datastoreContext: PropTypes.oneOf(["default", "trusted-users", "share"]),
 };
 
 export default DatastoreTree;
