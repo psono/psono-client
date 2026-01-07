@@ -33,6 +33,9 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import AddIcon from "@mui/icons-material/Add";
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import TimerRoundedIcon from '@mui/icons-material/TimerRounded';
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
@@ -129,6 +132,12 @@ const useStyles = makeStyles((theme) => ({
         "&:hover button span": {
             color: theme.palette.blueBackground.main,
         },
+        "& button svg": {
+            color: theme.palette.lightGreyText.main,
+        },
+        "&:hover button svg": {
+            color: theme.palette.blueBackground.main,
+        },
     },
     navigationItemA: {
         textDecoration: "none",
@@ -223,18 +232,21 @@ const PopupItem = (props) => {
     };
 
     const onCopyUsername = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyUsername(item.content);
-        handleClose(event);
     };
 
     const onCopyPassword = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyPassword(item.content);
-        handleClose(event);
     };
 
     const onCopyTotpToken = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyTotpToken(item.content);
-        handleClose(event);
     };
 
     const onCopyNoteContent = (event) => {
@@ -313,7 +325,40 @@ const PopupItem = (props) => {
                         <OpenInNewIcon fontSize="small" className={classes.regularButtonText} />
                     </Button>
                 )}
-                {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+                {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
+                    <>
+                        <Tooltip title={t("COPY_USERNAME")} placement="left" PopperProps={{
+                            disablePortal: true,
+                        }} classes={{
+                            tooltip: classes.widePopper
+                        }}>
+                            <Button aria-label="copy username" onClick={onCopyUsername}>
+                                <PersonRoundedIcon fontSize="small" />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title={t("COPY_PASSWORD")} placement="left" PopperProps={{
+                            disablePortal: true,
+                        }} classes={{
+                            tooltip: classes.widePopper
+                        }}>
+                            <Button aria-label="copy password" onClick={onCopyPassword}>
+                                <LockRoundedIcon fontSize="small" />
+                            </Button>
+                        </Tooltip>
+                        {item.content.type === "website_password" && (
+                            <Tooltip title={t("COPY_TOTP_TOKEN")} placement="left" PopperProps={{
+                                disablePortal: true,
+                            }} classes={{
+                                tooltip: classes.widePopper
+                            }}>
+                                <Button aria-label="copy totp token" onClick={onCopyTotpToken}>
+                                    <TimerRoundedIcon fontSize="small" />
+                                </Button>
+                            </Tooltip>
+                        )}
+                    </>
+                )}
+                {["credit_card"].indexOf(item.content.type) !== -1 && (
                     <Button aria-label="settings" onClick={openMenu}>
                         <ContentCopy fontSize="small" className={classes.regularButtonText} />
                     </Button>
@@ -352,37 +397,8 @@ const PopupItem = (props) => {
                     </Tooltip>
                 )}
             </ButtonGroup>
-            {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+            {["credit_card"].indexOf(item.content.type) !== -1 && (
                 <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                    {["application_password", "website_password"].indexOf(item.content.type) !== -1 && ([
-                        <MenuItem key="copy-username" onClick={onCopyUsername}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_USERNAME")}
-                            </Typography>
-                        </MenuItem>,
-                        <MenuItem key="copy-password" onClick={onCopyPassword}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_PASSWORD")}
-                            </Typography>
-                        </MenuItem>,
-                        item.content.type === "website_password" && (
-                            <MenuItem key="copy-totp-token" onClick={onCopyTotpToken}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_TOTP_TOKEN")}
-                                </Typography>
-                            </MenuItem>
-                        )
-                    ])}
-
                     {["credit_card"].indexOf(item.content.type) !== -1 && ([
                         <MenuItem key="copy-cc-number" onClick={onCopyCreditCardNumber}>
                             <ListItemIcon className={classes.listItemIcon}>
