@@ -1026,13 +1026,15 @@ const PopupView = (props) => {
                                 )}
                             </Menu>
                         </Grid>
-                        <Grid item>
-                            <Tooltip title={t("BOOKMARK")} placement="top">
-                                <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
-                                    <BookmarkBorderRoundedIcon color="primary" />
-                                </Button>
-                            </Tooltip>
-                        </Grid>
+                        {settingsDatastore.showBookmark && (
+                            <Grid item>
+                                <Tooltip title={t("BOOKMARK")} placement="top">
+                                    <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
+                                        <BookmarkBorderRoundedIcon color="primary" />
+                                    </Button>
+                                </Tooltip>
+                            </Grid>
+                        )}
                         <Grid item>
                             <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
                                 <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>
