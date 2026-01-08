@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import {makeStyles} from "@mui/styles";
 
-import LoginViewForm from "./login-form";
+import LoginForm from "./login-form";
 import FrameControls from "../../components/frame-controls";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
@@ -36,7 +36,7 @@ const LoginView = ({fullWidth}) => {
                 <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                     <i className="fa fa-info-circle" aria-hidden="true"/>
                 </a>
-                <LoginViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} fullWidth={fullWidth}/>
+                <LoginForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} fullWidth={fullWidth}/>
             </DarkBox>
         </>
     );

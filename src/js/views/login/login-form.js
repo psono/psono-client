@@ -115,7 +115,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 const defaultTimer = 2 * 60;
-const LoginViewForm = (props) => {
+const LoginForm = (props) => {
     const theme = useTheme();
     const classes = useStyles();
     const { t } = useTranslation();
@@ -1813,12 +1813,12 @@ const LoginViewForm = (props) => {
     );
 };
 
-LoginViewForm.defaultProps = {
+LoginForm.defaultProps = {
     fullWidth: false,
 };
-LoginViewForm.propTypes = {
+LoginForm.propTypes = {
     fullWidth: PropTypes.bool,
 };
 
 
-export default LoginViewForm;
+export default LoginForm;

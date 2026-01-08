@@ -62,6 +62,12 @@ const useStyles = makeStyles((theme) => ({
     root: {
         color: theme.palette.lightGreyText.main,
     },
+    popupContainer: {
+        width: "550px",
+        minWidth: "550px",
+        maxWidth: "550px",
+        boxSizing: "border-box",
+    },
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -102,13 +108,21 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.blueBackground.main,
         },
     },
+    entriesContainer: {
+        height: "300px",
+        overflow: "hidden",
+        overflowY: "auto",
+    },
     navigation: {
         listStyleType: "none",
         padding: 0,
         margin: 0,
-        overflow: "hidden",
-        overflowY: "auto",
+    },
+    noEntriesMessage: {
         height: "300px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
     },
     navigationItemLi: {
         position: "relative",
@@ -727,7 +741,7 @@ const PopupView = (props) => {
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <MuiAlert
@@ -760,7 +774,7 @@ const PopupView = (props) => {
     } else if (isLoggedIn && user.requireServerSecretModification()) {
 
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <MuiAlert
@@ -794,7 +808,7 @@ const PopupView = (props) => {
 
     if (view === 'generate_password') {
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <TextFieldColored
@@ -988,7 +1002,7 @@ const PopupView = (props) => {
     }
 
     return (
-        <DarkBox>
+        <DarkBox className={classes.popupContainer}>
             <Grid container>
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1024,20 +1038,21 @@ const PopupView = (props) => {
                     />
                     <Divider classes={{ root: classes.divider }} />
                 </Grid>
-                {itemsToDisplay.length > 0 && (
-                    <Grid item xs={12} sm={12} md={12}>
-                        <ul className={classes.navigation}>
-                            {itemsToDisplay.map((item) => (
-                                <PopupItem key={item.content.secret_id || item.content.file_id} editItem={editItem} onItemClick={onItemClick} item={item} />
-                            ))}
-                        </ul>
-                    </Grid>
-                )}
-                {itemsToDisplay.length === 0 && (
-                    <Grid item xs={12} sm={12} md={12} className={classes.regularButtonText}>
-                        {t("NO_ENTRY_FOUND")}
-                    </Grid>
-                )}
+                <Grid item xs={12} sm={12} md={12}>
+                    <div className={classes.entriesContainer}>
+                        {itemsToDisplay.length > 0 ? (
+                            <ul className={classes.navigation}>
+                                {itemsToDisplay.map((item) => (
+                                    <PopupItem key={item.content.secret_id || item.content.file_id} editItem={editItem} onItemClick={onItemClick} item={item} />
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className={`${classes.noEntriesMessage} ${classes.regularButtonText}`}>
+                                {t("NO_ENTRY_FOUND")}
+                            </div>
+                        )}
+                    </div>
+                </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                     <Divider classes={{ root: classes.divider }} />
                     <Grid container spacing={1}>
