@@ -23,15 +23,19 @@ const useStyles = makeStyles((theme) => ({
             width: '540px',
         },
     },
+    popupBox: {
+        paddingBottom: '16px'
+    },
 }));
 
 const LoginView = ({fullWidth}) => {
     const classes = useStyles();
     let { samlTokenId, oidcTokenId } = useParams();
+
     return (
         <>
             <FrameControls />
-            <DarkBox className={fullWidth ? '' : classes.box}>
+            <DarkBox className={fullWidth ? classes.popupBox : classes.box}>
                 <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
                 <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                     <i className="fa fa-info-circle" aria-hidden="true"/>
