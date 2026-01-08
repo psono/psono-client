@@ -115,7 +115,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 const defaultTimer = 2 * 60;
-const LoginViewForm = (props) => {
+const LoginForm = (props) => {
     const theme = useTheme();
     const classes = useStyles();
     const { t } = useTranslation();
@@ -693,6 +693,11 @@ const LoginViewForm = (props) => {
 
     const remoteConfig = (event) => {
         event.preventDefault();
+
+        if (loginLoading) {
+            return;
+        }
+
         action().setServerUrl(server);
         setErrors([]);
 
@@ -971,6 +976,7 @@ const LoginViewForm = (props) => {
                                     onClick={initiateOidcLoginHelper}
                                     type={Boolean(username) && Boolean(password) ? "button": "submit"}
                                     id="sad"
+                                    disabled={loginLoading}
                                 >
                                     <span
                                         style={
@@ -1013,6 +1019,7 @@ const LoginViewForm = (props) => {
                                     onClick={initiateSamlLoginHelper}
                                     type={Boolean(username) && Boolean(password) ? "button": "submit"}
                                     id="sad"
+                                    disabled={loginLoading}
                                 >
                                     <span
                                         style={
@@ -1110,6 +1117,7 @@ const LoginViewForm = (props) => {
                                             redirectRegister(e);
                                         }
                                     }}
+                                    disabled={loginLoading}
                                 >
                                     <span className={classes.regularButtonText}>{t("REGISTER")}</span>
                                 </Button>
@@ -1757,6 +1765,9 @@ const LoginViewForm = (props) => {
                             href="#"
                             onClick={(e) => {
                                 e.preventDefault();
+                                if (loginLoading) {
+                                    return;
+                                }
                                 browserClient.openTab("lost-password.html");
                             }}
                         >
@@ -1774,6 +1785,9 @@ const LoginViewForm = (props) => {
                         href="#"
                         onClick={(e) => {
                             e.preventDefault();
+                            if (loginLoading) {
+                                return;
+                            }
                             browserClient.openTab("delete-user.html");
                         }}
                     >
@@ -1799,12 +1813,12 @@ const LoginViewForm = (props) => {
     );
 };
 
-LoginViewForm.defaultProps = {
+LoginForm.defaultProps = {
     fullWidth: false,
 };
-LoginViewForm.propTypes = {
+LoginForm.propTypes = {
     fullWidth: PropTypes.bool,
 };
 
 
-export default LoginViewForm;
+export default LoginForm;

@@ -545,6 +545,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         }
 
         addPasswordFormButtons(document);
+        addUsernameFormButtons(document);
         findCreditCardInputFields(document);
         findIdentityInputFields(document);
         documentSubmitCatcher(document);
@@ -737,6 +738,8 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                     mouseMove
                 );
 
+                inputs[r].classList.add("psono-addPasswordFormButtons-covered");
+
                 newForm.username = inputs[r];
                 break;
             }
@@ -773,6 +776,76 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             if (newForm.username !== null || newForm.password !== null) {
                 myForms.push(newForm);
             }
+        }
+    }
+
+    /**
+     * Adds the Psono button to input fields with username autocomplete attributes
+     *
+     * @param document
+     */
+    function addUsernameFormButtons(document) {
+        let paddingRight;
+
+        const inputs = querySelectorAllIncShadowRoots(document, "input");
+
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].classList.contains("psono-addUsernameFormButtons-covered")) {
+                continue;
+            }
+
+            if (inputs[i].classList.contains("psono-addPasswordFormButtons-covered")) {
+                continue;
+            }
+
+            const autocompleteValue = inputs[i].getAttribute("autocomplete");
+            if (!autocompleteValue) {
+                continue;
+            }
+
+            const normalizedAutocomplete = autocompleteValue.trim().toLowerCase();
+            if (!usernameFields.has(normalizedAutocomplete)) {
+                continue;
+            }
+
+            inputs[i].classList.add("psono-addUsernameFormButtons-covered");
+
+            if (inputs[i].style.display === "none") {
+                continue;
+            }
+
+            if (inputs[i].hasOwnProperty('checkVisibility') && inputs[i].checkVisibility() && inputs[i].offsetWidth < 90) {
+                continue;
+            }
+
+            paddingRight = window.getComputedStyle(inputs[i]).getPropertyValue("padding-right");
+            base.modifyInputField(
+                inputs[i],
+                backgroundImage,
+                "center right " + paddingRight,
+                document,
+                click,
+                mouseOver,
+                mouseOut,
+                mouseMove
+            );
+
+            let newForm = {
+                username: inputs[i],
+                password: null,
+                form: null,
+            };
+
+            let parent = inputs[i].parentElement;
+            while (parent && parent.nodeName !== "FORM" && parent.parentNode) {
+                parent = parent.parentNode;
+            }
+
+            if (parent && parent.nodeName === "FORM") {
+                newForm.form = parent;
+            }
+
+            myForms.push(newForm);
         }
     }
 

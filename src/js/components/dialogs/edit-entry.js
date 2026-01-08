@@ -3659,7 +3659,7 @@ const DialogEditEntry = (props) => {
 
             {!hideLinkToEntry && showAdvanced && (
                 <Grid item xs={12} sm={12} md={12}>
-                    {t("ENTRY_LINK")}: <a href={webClient + "index.html#!/datastore/search/" + item.id}>{item.id}</a>
+                    {t("ENTRY_LINK")}: <a href={webClient + "index.html#!/datastore/search/" + item.secret_id || item.id}>{item.secret_id || item.id}</a>
                 </Grid>
             )}
 

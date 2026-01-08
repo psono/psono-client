@@ -33,6 +33,9 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import AddIcon from "@mui/icons-material/Add";
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import TimerRoundedIcon from '@mui/icons-material/TimerRounded';
 
 import action from "../../actions/bound-action-creators";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
@@ -45,6 +48,7 @@ import datastorePassword from "../../services/datastore-password";
 import helper from "../../services/helper";
 import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
+import storage from "../../services/storage";
 import user from "../../services/user";
 import widgetService from "../../services/widget";
 import { getStore } from "../../services/store";
@@ -57,6 +61,12 @@ import TextFieldColored from "../../components/text-field/colored";
 const useStyles = makeStyles((theme) => ({
     root: {
         color: theme.palette.lightGreyText.main,
+    },
+    popupContainer: {
+        width: "550px",
+        minWidth: "550px",
+        maxWidth: "550px",
+        boxSizing: "border-box",
     },
     textField: {
         width: "100%",
@@ -98,13 +108,21 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.blueBackground.main,
         },
     },
+    entriesContainer: {
+        height: "300px",
+        overflow: "hidden",
+        overflowY: "auto",
+    },
     navigation: {
         listStyleType: "none",
         padding: 0,
         margin: 0,
-        overflow: "hidden",
-        overflowY: "auto",
+    },
+    noEntriesMessage: {
         height: "300px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
     },
     navigationItemLi: {
         position: "relative",
@@ -127,6 +145,12 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.lightGreyText.main,
         },
         "&:hover button span": {
+            color: theme.palette.blueBackground.main,
+        },
+        "& button svg": {
+            color: theme.palette.lightGreyText.main,
+        },
+        "&:hover button svg": {
             color: theme.palette.blueBackground.main,
         },
     },
@@ -223,18 +247,21 @@ const PopupItem = (props) => {
     };
 
     const onCopyUsername = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyUsername(item.content);
-        handleClose(event);
     };
 
     const onCopyPassword = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyPassword(item.content);
-        handleClose(event);
     };
 
     const onCopyTotpToken = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         secretService.copyTotpToken(item.content);
-        handleClose(event);
     };
 
     const onCopyNoteContent = (event) => {
@@ -313,7 +340,40 @@ const PopupItem = (props) => {
                         <OpenInNewIcon fontSize="small" className={classes.regularButtonText} />
                     </Button>
                 )}
-                {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+                {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
+                    <>
+                        <Tooltip title={t("COPY_USERNAME")} placement="left" PopperProps={{
+                            disablePortal: true,
+                        }} classes={{
+                            tooltip: classes.widePopper
+                        }}>
+                            <Button aria-label="copy username" onClick={onCopyUsername}>
+                                <PersonRoundedIcon fontSize="small" />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title={t("COPY_PASSWORD")} placement="left" PopperProps={{
+                            disablePortal: true,
+                        }} classes={{
+                            tooltip: classes.widePopper
+                        }}>
+                            <Button aria-label="copy password" onClick={onCopyPassword}>
+                                <LockRoundedIcon fontSize="small" />
+                            </Button>
+                        </Tooltip>
+                        {item.content.type === "website_password" && (
+                            <Tooltip title={t("COPY_TOTP_TOKEN")} placement="left" PopperProps={{
+                                disablePortal: true,
+                            }} classes={{
+                                tooltip: classes.widePopper
+                            }}>
+                                <Button aria-label="copy totp token" onClick={onCopyTotpToken}>
+                                    <TimerRoundedIcon fontSize="small" />
+                                </Button>
+                            </Tooltip>
+                        )}
+                    </>
+                )}
+                {["credit_card"].indexOf(item.content.type) !== -1 && (
                     <Button aria-label="settings" onClick={openMenu}>
                         <ContentCopy fontSize="small" className={classes.regularButtonText} />
                     </Button>
@@ -352,37 +412,8 @@ const PopupItem = (props) => {
                     </Tooltip>
                 )}
             </ButtonGroup>
-            {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+            {["credit_card"].indexOf(item.content.type) !== -1 && (
                 <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                    {["application_password", "website_password"].indexOf(item.content.type) !== -1 && ([
-                        <MenuItem key="copy-username" onClick={onCopyUsername}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_USERNAME")}
-                            </Typography>
-                        </MenuItem>,
-                        <MenuItem key="copy-password" onClick={onCopyPassword}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ContentCopy className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("COPY_PASSWORD")}
-                            </Typography>
-                        </MenuItem>,
-                        item.content.type === "website_password" && (
-                            <MenuItem key="copy-totp-token" onClick={onCopyTotpToken}>
-                                <ListItemIcon className={classes.listItemIcon}>
-                                    <ContentCopy className={classes.icon} fontSize="small" />
-                                </ListItemIcon>
-                                <Typography variant="body2" noWrap>
-                                    {t("COPY_TOTP_TOKEN")}
-                                </Typography>
-                            </MenuItem>
-                        )
-                    ])}
-
                     {["credit_card"].indexOf(item.content.type) !== -1 && ([
                         <MenuItem key="copy-cc-number" onClick={onCopyCreditCardNumber}>
                             <ListItemIcon className={classes.listItemIcon}>
@@ -558,16 +589,55 @@ const PopupView = (props) => {
         }
     };
 
+    const loadFromCache = async () => {
+        try {
+            // Get all password leafs from cache
+            const leafs = await storage.where("datastore-password-leafs", () => true);
+
+            if (!leafs || leafs.length === 0) {
+                return null;
+            }
+
+            // Transform cache format to popup format
+            const entries = leafs.map(leaf => ({
+                content: {
+                    secret_id: leaf.secret_id,
+                    secret_key: leaf.secret_key,
+                    name: leaf.name,
+                    description: leaf.description,
+                    urlfilter: leaf.urlfilter,
+                    type: leaf.type,
+                    autosubmit: leaf.autosubmit,
+                    allow_http: leaf.allow_http,
+                },
+                path: leaf.folder_path || "/",
+            }));
+
+            return entries;
+        } catch (error) {
+            console.error("Failed to load from cache:", error);
+            return null;
+        }
+    };
+
     useEffect(() => {
+        Promise.all([
+            loadFromCache(),
+            browserClient.getActiveTabUrl()
+        ]).then(([cachedEntries, activeUrl]) => {
+            if (cachedEntries && cachedEntries.length > 0) {
+                setItems(cachedEntries);
+            }
+            if (activeUrl) {
+                setUrl(helper.parseUrl(activeUrl));
+            }
+        });
+
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
             setUnlockOfflineCache(true);
         } else {
             datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
         }
-
-        browserClient.getActiveTabUrl().then((url) => {
-            setUrl(helper.parseUrl(url));
-        });
 
         reloadDatastoreOverview();
         return () => (isSubscribed = false);
@@ -671,7 +741,7 @@ const PopupView = (props) => {
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <MuiAlert
@@ -704,7 +774,7 @@ const PopupView = (props) => {
     } else if (isLoggedIn && user.requireServerSecretModification()) {
 
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <MuiAlert
@@ -738,7 +808,7 @@ const PopupView = (props) => {
 
     if (view === 'generate_password') {
         return (
-            <DarkBox>
+            <DarkBox className={classes.popupContainer}>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <TextFieldColored
@@ -895,9 +965,21 @@ const PopupView = (props) => {
         );
     }
 
+    const sortByName = (a, b) => {
+        const nameA = (a.content.name || "").toLowerCase();
+        const nameB = (b.content.name || "").toLowerCase();
+        const nameCompare = nameA.localeCompare(nameB);
+        if (nameCompare !== 0) {
+            return nameCompare;
+        }
+        const descA = (a.content.description || "").toLowerCase();
+        const descB = (b.content.description || "").toLowerCase();
+        return descA.localeCompare(descB);
+    };
+
     let itemsToDisplay = [];
     if (search) {
-        itemsToDisplay = items.filter(filterBySearch).slice(0, 50);
+        itemsToDisplay = items.filter(filterBySearch).sort(sortByName).slice(0, 50);
     } else if (url) {
         const matching = [];
         const notMatching = [];
@@ -912,13 +994,15 @@ const PopupView = (props) => {
                 notMatching.push(item);
             }
         });
+        matching.sort(sortByName);
+        notMatching.sort(sortByName);
         itemsToDisplay = matching.concat(notMatching).slice(0, 50);
     } else {
-        itemsToDisplay = items.slice(0, 50);
+        itemsToDisplay = items.sort(sortByName).slice(0, 50);
     }
 
     return (
-        <DarkBox>
+        <DarkBox className={classes.popupContainer}>
             <Grid container>
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -954,20 +1038,21 @@ const PopupView = (props) => {
                     />
                     <Divider classes={{ root: classes.divider }} />
                 </Grid>
-                {itemsToDisplay.length > 0 && (
-                    <Grid item xs={12} sm={12} md={12}>
-                        <ul className={classes.navigation}>
-                            {itemsToDisplay.map((item, i) => (
-                                <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
-                            ))}
-                        </ul>
-                    </Grid>
-                )}
-                {itemsToDisplay.length === 0 && (
-                    <Grid item xs={12} sm={12} md={12} className={classes.regularButtonText}>
-                        {t("NO_ENTRY_FOUND")}
-                    </Grid>
-                )}
+                <Grid item xs={12} sm={12} md={12}>
+                    <div className={classes.entriesContainer}>
+                        {itemsToDisplay.length > 0 ? (
+                            <ul className={classes.navigation}>
+                                {itemsToDisplay.map((item) => (
+                                    <PopupItem key={item.content.secret_id || item.content.file_id} editItem={editItem} onItemClick={onItemClick} item={item} />
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className={`${classes.noEntriesMessage} ${classes.regularButtonText}`}>
+                                {t("NO_ENTRY_FOUND")}
+                            </div>
+                        )}
+                    </div>
+                </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                     <Divider classes={{ root: classes.divider }} />
                     <Grid container spacing={1}>
@@ -1026,13 +1111,15 @@ const PopupView = (props) => {
                                 )}
                             </Menu>
                         </Grid>
-                        <Grid item>
-                            <Tooltip title={t("BOOKMARK")} placement="top">
-                                <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
-                                    <BookmarkBorderRoundedIcon color="primary" />
-                                </Button>
-                            </Tooltip>
-                        </Grid>
+                        {settingsDatastore.showBookmark && (
+                            <Grid item>
+                                <Tooltip title={t("BOOKMARK")} placement="top">
+                                    <Button variant="outlined" color="primary" onClick={bookmark} className={classes.menuButton}>
+                                        <BookmarkBorderRoundedIcon color="primary" />
+                                    </Button>
+                                </Tooltip>
+                            </Grid>
+                        )}
                         <Grid item>
                             <Tooltip title={t("GENERATE_PASSWORD")} placement="top">
                                 <Button variant="outlined" color="primary" onClick={showGeneratePassword} className={classes.menuButton}>

@@ -541,12 +541,41 @@ function getDatastoreWithId(id) {
 }
 
 /**
+ * Adds folder_path string to all items recursively
+ *
+ * @param {TreeObject} folder The folder node
+ * @param {string} path The accumulated path string
+ */
+function addFolderPathRecursive(folder, path) {
+    if (!folder) {
+        return;
+    }
+    if (folder.hasOwnProperty("folders")) {
+        for (let i = 0; i < folder.folders.length; i++) {
+            if (folder.folders[i].hasOwnProperty("deleted") && folder.folders[i].deleted) {
+                continue;
+            }
+            addFolderPathRecursive(folder.folders[i], path + folder.folders[i].name + "/");
+        }
+    }
+    if (folder.hasOwnProperty("items")) {
+        for (let i = 0; i < folder.items.length; i++) {
+            if (folder.items[i].hasOwnProperty("deleted") && folder.items[i].deleted) {
+                continue;
+            }
+            folder.items[i].folder_path = path;
+        }
+    }
+}
+
+/**
  * Fills the datastore-password-leafs and datastore-file-leafs storage
  *
  * @param {TreeObject} datastore The datastore tree
  */
 function fillStorage(datastore) {
-    // datastore has changed, so lets regenerate local lookup
+    addFolderPathRecursive(datastore, "/");
+
     datastoreService.fillStorage(
         "datastore-password-leafs",
         datastore,
@@ -561,6 +590,8 @@ function fillStorage(datastore) {
             ["password_hash", "password_hash"],
             ["allow_http", "allow_http"],
             ["search", "urlfilter"],
+            ["type", "type"],
+            ["folder_path", "folder_path"],
         ],
         function (item) {
             return !item.type || item.type !== "file";
@@ -842,10 +873,11 @@ function updatePassword(url, username, password) {
  * @param {string} passkey_user_handle The user handle
  * @param {string} username The username
  * @param {object} passkey_algorithm The algorithm object e.g { 'name': "ECDSA", 'namedCurve': "P-256" }
+ * @param {boolean} [passkey_auto_submit=false] Whether the passkey is discoverable (can be used for autofill)
  *
  * @returns {Promise} Returns a promise with the datastore object
  */
-function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_private_key, passkey_user_handle, username, passkey_algorithm) {
+function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_private_key, passkey_user_handle, username, passkey_algorithm, passkey_auto_submit = false) {
     const title = (passkey_rp_id + " " + username).trim() || i18n.t("UNKNOWN");
     const urlfilter = passkey_rp_id + '#' + passkey_id;
 
@@ -858,7 +890,7 @@ function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_priv
         passkey_user_handle: passkey_user_handle,
         passkey_algorithm: passkey_algorithm,
         passkey_url_filter: urlfilter,
-        passkey_auto_submit: false,
+        passkey_auto_submit: passkey_auto_submit,
     };
 
     const datastore_object = {
@@ -866,6 +898,10 @@ function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_priv
         name: title,
         urlfilter: urlfilter,
     };
+
+    if (passkey_auto_submit) {
+        datastore_object['autosubmit'] = true;
+    }
 
     const onError = function (data) {
         console.log(data);

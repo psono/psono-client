@@ -33,6 +33,7 @@ import DialogError from "./error";
 import DialogProgress from "./progress";
 import offlineCache from "../../services/offline-cache";
 import DialogNewShare from "./new-group-share";
+import format from "../../services/date";
 
 const useStyles = makeStyles((theme) => ({
     tabPanel: {
@@ -92,12 +93,28 @@ const DialogRightsOverview = (props) => {
                 setShareDetails(newShareDetails);
                 setUserShareRights(
                     newShareDetails.user_share_rights.map((right) => {
-                        return [right.id, right.username, right.read, right.write, right.grant, right.accepted];
+                        return [
+                            right.id,
+                            right.username,
+                            right.read,
+                            right.write,
+                            right.grant,
+                            right.accepted,
+                            right.create_date ? format(new Date(right.create_date)) : "",
+                        ];
                     })
                 );
                 setGroupShareRights(
                     newShareDetails.group_share_rights.map((right) => {
-                        return [right.id, right.group_name, right.read, right.write, right.grant, right.accepted];
+                        return [
+                            right.id,
+                            right.group_name,
+                            right.read,
+                            right.write,
+                            right.grant,
+                            right.accepted,
+                            right.create_date ? format(new Date(right.create_date)) : "",
+                        ];
                     })
                 );
             }
@@ -516,6 +533,12 @@ const DialogRightsOverview = (props) => {
             },
         },
         {
+            name: t("CREATE_DATE"),
+            options: {
+                display: false,
+            },
+        },
+        {
             name: t("DELETE"),
             options: {
                 filter: true,
@@ -613,6 +636,12 @@ const DialogRightsOverview = (props) => {
                         </IconButton>
                     );
                 },
+            },
+        },
+        {
+            name: t("CREATE_DATE"),
+            options: {
+                display: false,
             },
         },
         {

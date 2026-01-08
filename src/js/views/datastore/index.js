@@ -699,6 +699,7 @@ const DatastoreView = (props) => {
                                                 deleteFolderLabel={t('MOVE_TO_TRASH')}
                                                 deleteItemLabel={t('MOVE_TO_TRASH')}
                                                 selectedFilters={selectedFilters}
+                                                showImportAction={true}
                                             />
                                         )}
                                         <FilterSideBar

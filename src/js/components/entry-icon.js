@@ -57,20 +57,18 @@ const EntryIcon = (props) => {
         setImageLoadError(true);
     };
 
-    if (faviconUrl === null) {
-        return null;
-    } else if (faviconUrl === 'default' || imageLoadError) {
+    if (faviconUrl === null || faviconUrl === 'default' || imageLoadError) {
         return (
             <i className={"fa-fw " + widgetService.itemIcon(entry)} {...rest} />
         )
     } else {
         return (
             <span style={{display: "inline-block", verticalAlign: "middle"}}>
-                <img 
+                <img
                     alt={"Psono"}
-                    src={faviconUrl} 
-                    {...rest} 
-                    className={"fa-fw"} 
+                    src={faviconUrl}
+                    {...rest}
+                    className={"fa-fw"}
                     style={{display: "block"}}
                     onError={handleImageError}
                 />

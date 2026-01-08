@@ -321,6 +321,7 @@ const TrustedUsersView = (props) => {
                                 onSelectItem={onEditEntry}
                                 deleteFolderLabel={t('DELETE')}
                                 deleteItemLabel={t('DELETE')}
+                                datastoreContext="trusted-users"
                             />
                         )}
                     </div>

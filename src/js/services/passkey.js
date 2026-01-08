@@ -246,7 +246,6 @@ async function navigatorCredentialsGet(options, origin) {
     if (!isLoggedIn) {
         throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'));
     }
-
     let credentials = await searchPasskeys(rpId, allowCredentialIds);
     if (discoverableCredentialsOnly) {
         credentials = credentials.filter((cred) => cred.autosubmit);
@@ -543,6 +542,40 @@ function createNotificationAsync(title, description, timeout) {
 }
 
 /**
+ * Determines if a passkey should be discoverable (autosubmit) based on WebAuthn options
+ *
+ * @param {object} authenticatorSelection The authenticatorSelection object from publicKeyCredentialCreationOptions
+ * @returns {boolean} True if the credential should be discoverable, false otherwise
+ */
+function determineAutoSubmit(authenticatorSelection) {
+    if (!authenticatorSelection) {
+        return false;
+    }
+
+    // Prioritize modern 'residentKey' field (WebAuthn Level 2)
+    if (authenticatorSelection.hasOwnProperty('residentKey')) {
+        const residentKey = authenticatorSelection.residentKey;
+
+        if (residentKey === 'required') {
+            return true;
+        } else if (residentKey === 'preferred') {
+            // Honor 'preferred' by creating discoverable credential
+            return true;
+        } else if (residentKey === 'discouraged') {
+            return false;
+        }
+    }
+
+    // Fall back to legacy 'requireResidentKey' field (WebAuthn Level 1)
+    if (authenticatorSelection.hasOwnProperty('requireResidentKey')) {
+        return authenticatorSelection.requireResidentKey === true;
+    }
+
+    // Default: non-discoverable
+    return false;
+}
+
+/**
  * Fake navigatorCredentialsCreate which takes options and returns async
  *
  * @param options
@@ -705,6 +738,8 @@ async function navigatorCredentialsCreate(options, origin) {
     const publicKeyJwkFormat = await crypto.subtle.exportKey("jwk",keyPair.publicKey);
     const privateKeyJwkFormat = await crypto.subtle.exportKey("jwk",keyPair.privateKey);
 
+    const autosubmit = determineAutoSubmit(options.publicKey.authenticatorSelection);
+
     await datastorePasswordService.savePasskey(
         converterService.toHex(rawId),
         rpId,
@@ -716,6 +751,7 @@ async function navigatorCredentialsCreate(options, origin) {
             'name': "ECDSA",
             'namedCurve': "P-256",
         },
+        autosubmit
     )
 
 

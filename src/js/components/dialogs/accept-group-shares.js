@@ -231,6 +231,7 @@ const DialogAcceptGroupShares = (props) => {
                                 search={search}
                                 deleteFolderLabel={t('DELETE')}
                                 deleteItemLabel={t('DELETE')}
+                                datastoreContext="share"
                             />
                         )}
                         {newFolderOpen && (

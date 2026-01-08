@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import {makeStyles} from "@mui/styles";
 
-import LoginViewForm from "./login-form";
+import LoginForm from "./login-form";
 import FrameControls from "../../components/frame-controls";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
@@ -23,20 +23,24 @@ const useStyles = makeStyles((theme) => ({
             width: '540px',
         },
     },
+    popupBox: {
+        paddingBottom: '16px'
+    },
 }));
 
 const LoginView = ({fullWidth}) => {
     const classes = useStyles();
     let { samlTokenId, oidcTokenId } = useParams();
+
     return (
         <>
             <FrameControls />
-            <DarkBox className={fullWidth ? '' : classes.box}>
+            <DarkBox className={fullWidth ? classes.popupBox : classes.box}>
                 <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
                 <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                     <i className="fa fa-info-circle" aria-hidden="true"/>
                 </a>
-                <LoginViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} fullWidth={fullWidth}/>
+                <LoginForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} fullWidth={fullWidth}/>
             </DarkBox>
         </>
     );
