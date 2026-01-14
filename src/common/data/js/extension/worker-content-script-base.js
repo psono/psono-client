@@ -182,8 +182,23 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
      * @param sendResponse
      */
     function onMessage(request, sender, sendResponse) {
-        for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
-            registrations[request.event][i](request.data, sender, sendResponse);
+        try {
+            var willRespondAsync = false;
+            for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
+                try {
+                    var result = registrations[request.event][i](request.data, sender, sendResponse);
+                    // If any callback returns true, it means it will respond asynchronously
+                    if (result === true) {
+                        willRespondAsync = true;
+                    }
+                } catch (callbackError) {
+                    console.error("Error in message callback:", callbackError);
+                }
+            }
+            return willRespondAsync;
+        } catch (error) {
+            console.error("Error in onMessage handler:", error);
+            return false;
         }
     }
 

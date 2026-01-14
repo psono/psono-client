@@ -7,19 +7,26 @@ setInterval(async () => {
 
 chrome.runtime.onMessage.addListener(onMessage);
 
-async function onMessage(request, sender, sendResponse) {
-    const eventFunctions = {
-        "get-offline-cache-encryption-key-offscreen": getOfflineCacheEncryptionKey,
-        "set-offline-cache-encryption-key-offscreen": setOfflineCacheEncryptionKey,
-    };
+function onMessage(request, sender, sendResponse) {
+    try {
+        const eventFunctions = {
+            "get-offline-cache-encryption-key-offscreen": getOfflineCacheEncryptionKey,
+            "set-offline-cache-encryption-key-offscreen": setOfflineCacheEncryptionKey,
+        };
 
-    if (eventFunctions.hasOwnProperty(request.event)) {
-        return eventFunctions[request.event](request, sender, sendResponse);
-    } else {
-        // not catchable event
-        // console.log(sender.tab);
-        // console.log("offscreen script received (uncaptured)    " + request.event);
+        if (eventFunctions.hasOwnProperty(request.event)) {
+            eventFunctions[request.event](request, sender, sendResponse);
+        } else {
+            // not catchable event
+            // console.log(sender.tab);
+            // console.log("offscreen script received (uncaptured)    " + request.event);
+        }
+    } catch (error) {
+        console.error("Error in onMessage handler:", error);
+        sendResponse({ error: error.message });
     }
+    // Return false since we're responding synchronously
+    return false;
 }
 
 
