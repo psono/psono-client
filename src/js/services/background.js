@@ -514,13 +514,28 @@ function onMessage(request, sender, sendResponse) {
         "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
         "set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
     };
-
-    if (eventFunctions.hasOwnProperty(request.event)) {
-        return eventFunctions[request.event](request, sender, sendResponse);
-    } else {
-        // not catchable event
-        console.log(sender.tab);
-        console.log("background script received (uncaptured)    " + request.event);
+    try {
+        if (eventFunctions.hasOwnProperty(request.event)) {
+            // Wrap the handler call in try-catch to handle errors properly
+            try {
+                const result = eventFunctions[request.event](request, sender, sendResponse);
+                // If the handler returns true, it means it will respond asynchronously
+                return result === true;
+            } catch (handlerError) {
+                console.error("Error in message handler:", handlerError);
+                sendResponse({ error: handlerError.message });
+                return false;
+            }
+        } else {
+            // not catchable event
+            console.log(sender.tab);
+            console.log("background script received (uncaptured)    " + request.event);
+            return false;
+        }
+    } catch (error) {
+        console.error("Error in onMessage:", error);
+        sendResponse({ error: error.message });
+        return false;
     }
 }
 
@@ -1155,59 +1170,80 @@ function writeGpg(request, sender, sendResponse) {
  * @param {object} sender The sender of the message
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
-async function writeGpgComplete(request, sender, sendResponse) {
+function writeGpgComplete(request, sender, sendResponse) {
     const messageId = request.data.message_id;
     const decryptedMessage = request.data.message;
     const receivers = request.data.receivers;
     const publicKeys = request.data.public_keys;
     const privateKey = request.data.private_key;
     const signMessage = request.data.sign_message;
-    let options;
 
     if (!gpgMessages.hasOwnProperty(messageId)) {
-        return sendResponse({
+        sendResponse({
             error: "Message not found",
         });
+        return false;
     }
 
-    const publicKeysArray = await Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })));
+    // Perform async work inside, return true to keep channel open
+    Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })))
+        .then(function(publicKeysArray) {
+            function finaliseEncryption(options) {
+                openpgp.encrypt(options).then(function (ciphertext) {
+                    const originalSendResponse = gpgMessages[messageId]["sendResponse"];
+                    const windowId = gpgMessages[messageId]["window_id"];
 
-    function finaliseEncryption(options) {
-        openpgp.encrypt(options).then(function (ciphertext) {
-            const originalSendResponse = gpgMessages[messageId]["sendResponse"];
-            const windowId = gpgMessages[messageId]["window_id"];
+                    delete gpgMessages[messageId];
 
-            delete gpgMessages[messageId];
+                    browserClient.closeOpenedPopup(windowId);
+                    return originalSendResponse({
+                        message: ciphertext,
+                        receivers: receivers,
+                    });
+                }).catch(function(error) {
+                    console.error("Error encrypting message:", error);
+                });
+            }
 
-            browserClient.closeOpenedPopup(windowId);
-            return originalSendResponse({
-                message: ciphertext,
-                receivers: receivers,
-            });
+            if (signMessage) {
+                const onSuccess = function (data) {
+                    Promise.all([
+                        openpgp.createMessage({ text: decryptedMessage }),
+                        openpgp.readPrivateKey({ armoredKey: data["mail_gpg_own_key_private"] })
+                    ]).then(function([message, signingKeys]) {
+                        const options = {
+                            message: message,
+                            encryptionKeys: publicKeysArray,
+                            signingKeys: signingKeys,
+                        };
+                        finaliseEncryption(options);
+                    }).catch(function(error) {
+                        console.error("Error preparing signed message:", error);
+                    });
+                };
+
+                const onError = function (error) {
+                    console.error("Error reading secret for GPG signing:", error);
+                };
+
+                secretService.readSecret(privateKey.secret_id, privateKey.secret_key).then(onSuccess, onError);
+            } else {
+                openpgp.createMessage({ text: decryptedMessage }).then(function(message) {
+                    const options = {
+                        message: message,
+                        encryptionKeys: publicKeysArray,
+                    };
+                    finaliseEncryption(options);
+                }).catch(function(error) {
+                    console.error("Error creating message:", error);
+                });
+            }
+        })
+        .catch(function(error) {
+            console.error("Error reading public keys:", error);
         });
-    }
 
-    if (signMessage) {
-        const onSuccess = async function (data) {
-            options = {
-                message: await openpgp.createMessage({ text: decryptedMessage }),
-                encryptionKeys: publicKeysArray,
-                signingKeys: await openpgp.readPrivateKey({ armoredKey: data["mail_gpg_own_key_private"] }),
-            };
-
-            finaliseEncryption(options);
-        };
-
-        const onError = function () {};
-
-        secretService.readSecret(privateKey.secret_id, privateKey.secret_key).then(onSuccess, onError);
-    } else {
-        options = {
-            message: await openpgp.createMessage({ text: decryptedMessage }),
-            encryptionKeys: publicKeysArray,
-        };
-        finaliseEncryption(options);
-    }
+    return true; // Important: keep channel open for async operations
 }
 
 /**
@@ -1273,10 +1309,11 @@ function loginFormSubmit(request, sender, sendResponse) {
     lastLoginCredentials["url"] = sender.url;
 
     if (!user.isLoggedIn()) {
-        return;
+        return false;
     }
 
-    return searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (existingPasswords) {
+    // Perform async work inside, return true to keep channel open
+    searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (existingPasswords) {
         if (existingPasswords.length === 0) {
             notificationBarService.create(
                 i18n.t("NEW_PASSWORD_DETECTED"),
@@ -1332,7 +1369,11 @@ function loginFormSubmit(request, sender, sendResponse) {
             )
 
         }
+    }).catch(function(error) {
+        console.error("Error in loginFormSubmit:", error);
     });
+
+    return true; // Important: keep channel open for async operations
 }
 
 /**

@@ -985,13 +985,19 @@ function copyToClipboard(fetchContent) {
 function initExtensionPageClipboardListener() {
     if (TARGET === "chrome" || TARGET === "firefox") {
         const messageListener = function(request, sender, sendResponse) {
-            if (request.event === "clear-clipboard-content-script") {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText("");
+            try {
+                if (request.event === "clear-clipboard-content-script") {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText("");
+                    }
                 }
+            } catch (error) {
+                console.error("Error clearing clipboard:", error);
             }
+            // Return false since we're responding synchronously
+            return false;
         };
-        
+
         if (TARGET === "chrome") {
             chrome.runtime.onMessage.addListener(messageListener);
         } else if (TARGET === "firefox") {
