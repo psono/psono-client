@@ -12,6 +12,7 @@ import browserClient from "./browser-client";
 import i18n from "../i18n";
 import { getStore } from "./store";
 import notificationBarService from "./notification-bar";
+import urlSynonymsService from "./url-synonyms";
 
 const registrations = {};
 let _shareIndex = {};
@@ -937,6 +938,9 @@ function savePasswordActiveTab(username, password) {
         const onSuccess = function (datastore_object) {
             return datastore_object;
         };
+
+        // Resolve URL synonym to canonical form
+        url = urlSynonymsService.resolveUrlSynonym(url);
 
         return savePassword(url, username, password).then(onSuccess, onError);
     };
