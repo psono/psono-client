@@ -766,6 +766,71 @@ function getPasswordFilter(test) {
     return filter;
 }
 
+/**
+ * Hardcoded domain synonym groups for buildDomainSynonymMap
+ */
+const HARDCODED_DOMAIN_SYNONYMS = [
+    ['microsoft.com', 'live.com', 'outlook.com', 'office.com', '*.live.com'],
+    ['google.com', 'youtube.com', 'gmail.com'],
+    ['*.ebay.com', '*.ebay.de', '*.ebay.co.uk', '*.ebay.com.au'],
+    ['amazon.com', 'amazon.ca', 'amazon.co.uk',  'amazon.co.jp', 'amazon.de', 'amazon.fr', 'amazon.it'],
+    ['apple.com', 'icloud.com', 'me.com', 'account.apple.com', '*.store.apple.com', '*.apple.com'],
+    ['steamcommunity.com', 'store.steampowered.com', 'help.steampowered.com'],
+    ['stackoverflow.com', 'stackexchange.com', 'serverfault.com', 'superuser.com', 'askubuntu.com'],
+    ['themeforest.net', 'codecanyon.net', 'videohive.net', 'audiojungle.net', 'graphicriver.net'],
+];
+
+/**
+ * Normalizes synonym groups (lowercase, trim, filter empty)
+ *
+ * @param {Array<Array<string>>} groups - Synonym groups to normalize
+ * @returns {Array<Array<string>>} Normalized groups
+ */
+function normalizeSynonymGroups(groups) {
+    if (!Array.isArray(groups)) {
+        return [];
+    }
+    return groups
+        .filter(group => Array.isArray(group) && group.length > 0)
+        .map(group => group.map(domain => domain.toLowerCase().trim()).filter(d => d));
+}
+
+/**
+ * Builds a domain synonym map from all synonym sources
+ * Returns a plain object (serializable for Redux) where each domain maps to its synonym group
+ *
+ * @param {Array<Array<string>>} serverSynonyms - Server-provided synonym groups
+ * @param {Array<Array<string>>} customSynonyms - User-defined synonym groups
+ * @returns {Object} Plain object mapping domains to their synonym groups
+ */
+function buildDomainSynonymMap(serverSynonyms = [], customSynonyms = []) {
+    const domainToGroupMap = {};
+
+    const allGroups = [
+        ...HARDCODED_DOMAIN_SYNONYMS,
+        ...normalizeSynonymGroups(serverSynonyms),
+        ...normalizeSynonymGroups(customSynonyms)
+    ];
+
+    allGroups.forEach(group => {
+        group.forEach(domain => {
+            const normalizedDomain = domain.toLowerCase();
+
+            if (domainToGroupMap[normalizedDomain]) {
+                const existingGroup = domainToGroupMap[normalizedDomain];
+                const mergedGroup = [...new Set([...existingGroup, ...group])];
+                mergedGroup.forEach(d => {
+                    domainToGroupMap[d.toLowerCase()] = mergedGroup;
+                });
+            } else {
+                domainToGroupMap[normalizedDomain] = group;
+            }
+        });
+    });
+
+    return domainToGroupMap;
+}
+
 const helperService = {
     parseUrl: parseUrl,
     isValidUrl: isValidUrl,
@@ -788,6 +853,8 @@ const helperService = {
     isValidHostname: isValidHostname,
     isValidDomain: isValidDomain,
     isValidIp: isValidIp,
+    buildDomainSynonymMap: buildDomainSynonymMap,
+    getHardcodedDomainSynonyms: () => HARDCODED_DOMAIN_SYNONYMS,
 };
 
 export default helperService;

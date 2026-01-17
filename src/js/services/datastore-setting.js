@@ -57,7 +57,17 @@ function getSettingsDatastore() {
 
         if (Array.isArray(results)) {
             // if the user has no settings datastore then this function will return an dict, e.g. {'datastore_id': '...'}
-            results.forEach((result) => (data[result["key"]] = result["value"]));
+            results.forEach((result) => {
+                if (result["key"] === "setting_custom_domain_synonyms") {
+                    try {
+                        data[result["key"]] = JSON.parse(result["value"]);
+                    } catch (e) {
+                        data[result["key"]] = [];
+                    }
+                } else {
+                    data[result["key"]] = result["value"];
+                }
+            });
             action().settingsDatastoreLoaded(data);
         }
 

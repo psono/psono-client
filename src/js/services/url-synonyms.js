@@ -29,7 +29,14 @@ const URL_SYNONYMS = {
     "https://x.com/i/flow/signup": "https://x.com/i/flow/login",
     "https://www.netflix.com/de-en/login": "https://www.netflix.com/de-en/login",
     "https://www.linkedin.com/signup": "https://www.linkedin.com/uas/login",
-    "https://signup.ebay.com/pa/crte": "https://signin.ebay.com/ws/eBayISAPI.dll",
+    "https://signup.ebay.de/pa/crte": "https://signin.ebay.de/signin/",
+    "https://signup.ebay.com/pa/crte": "https://signin.ebay.com/signin/",
+    "https://signup.ebay.com.au/pa/crte": "https://signin.ebay.com.au/signin/",
+    "https://signup.ebay.co.uk/pa/crte": "https://signin.ebay.co.uk/signin/",
+    "https://www.psono.pw/register.html": "https://www.psono.pw",
+    "https://stackoverflow.com/users/signup": "https://stackoverflow.com/users/login",
+    "https://superuser.com/users/signup": "https://superuser.com/users/login",
+    "https://askubuntu.com/users/signup": "https://askubuntu.com/users/login",
 };
 
 /**

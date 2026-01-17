@@ -4,7 +4,8 @@ import {
     SET_SHOWN_ENTRIES_CONFIG,
     SET_GPG_CONFIG,
     SET_GPG_DEFAULT_KEY,
-    SET_CLIENT_CONFIG
+    SET_CLIENT_CONFIG,
+    SET_DOMAIN_SYNONYMS_CONFIG
 } from "../actions/action-types";
 import { getStore } from "../services/store";
 
@@ -32,6 +33,7 @@ function settingsDatastore(
         showIdentity: true,
         showElsterCertificate: false,
         showFile: true,
+        customDomainSynonyms: [],
     },
     action
 ) {
@@ -77,6 +79,7 @@ function settingsDatastore(
                 showNoSaveToggle: action.data.hasOwnProperty("setting_show_no_save_toggle") ? action.data.setting_show_no_save_toggle : false,
                 noSaveMode: action.data.hasOwnProperty("setting_no_save_mode") ? action.data.setting_no_save_mode : false,
                 confirmOnUnsavedChanges: action.data.hasOwnProperty("setting_confirm_unsaved_changes") ? action.data.setting_confirm_unsaved_changes : true,
+                customDomainSynonyms: action.data.hasOwnProperty("setting_custom_domain_synonyms") ? action.data.setting_custom_domain_synonyms : [],
 
             });
         case SET_PASSWORD_CONFIG:
@@ -119,6 +122,10 @@ function settingsDatastore(
         case SET_GPG_DEFAULT_KEY:
             return Object.assign({}, state, {
                 gpgDefaultKey: action.gpgDefaultKey,
+            });
+        case SET_DOMAIN_SYNONYMS_CONFIG:
+            return Object.assign({}, state, {
+                customDomainSynonyms: action.customDomainSynonyms,
             });
         default:
             return state;

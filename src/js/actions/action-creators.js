@@ -34,11 +34,13 @@ import {
     SET_LAST_POPUP_SEARCH,
     SET_REQUESTS_IN_PROGRESS,
     SET_CLIENT_CONFIG,
+    SET_DOMAIN_SYNONYMS_CONFIG,
     SET_DEVICE_CODE,
     CLEAR_DEVICE_CODE,
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
+
 import { getStore } from "../services/store";
 
 function setUserUsername(username) {
@@ -286,6 +288,7 @@ function setPasswordConfig(
         { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
         { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
         { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
+        { key: "setting_custom_domain_synonyms", value: JSON.stringify(getStore().getState().settingsDatastore.customDomainSynonyms || []) },
     ]);
     return (dispatch) => {
         dispatch({
@@ -332,6 +335,7 @@ function setClientOptionsConfig(
         { key: "setting_no_save_mode", value: noSaveMode},
         { key: "setting_show_no_save_toggle", value: showNoSaveToggle},
         { key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges},
+        { key: "setting_custom_domain_synonyms", value: JSON.stringify(getStore().getState().settingsDatastore.customDomainSynonyms || []) },
     ]);
 
     return (dispatch) => {
@@ -341,6 +345,45 @@ function setClientOptionsConfig(
             noSaveMode,
             showNoSaveToggle,
             confirmOnUnsavedChanges,
+        });
+    };
+}
+
+function setDomainSynonymsConfig(customDomainSynonyms) {
+    // Save all settings including the new custom synonyms
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_show_website_password", value: getStore().getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: getStore().getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: getStore().getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_passkey", value: getStore().getState().settingsDatastore.showPasskey },
+        { key: "setting_show_note", value: getStore().getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: getStore().getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: getStore().getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: getStore().getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: getStore().getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: getStore().getState().settingsDatastore.showBookmark },
+        { key: "setting_show_identity", value: getStore().getState().settingsDatastore.showIdentity },
+        { key: "setting_show_elster_certificate", value: getStore().getState().settingsDatastore.showElsterCertificate },
+        { key: "setting_show_file", value: getStore().getState().settingsDatastore.showFile },
+        { key: "setting_password_length", value: getStore().getState().settingsDatastore.passwordLength },
+        { key: "setting_password_letters_uppercase", value: getStore().getState().settingsDatastore.passwordLettersUppercase },
+        { key: "setting_password_letters_lowercase", value: getStore().getState().settingsDatastore.passwordLettersLowercase },
+        { key: "setting_password_numbers", value: getStore().getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: getStore().getState().settingsDatastore.passwordSpecialChars },
+        { key: "gpg_default_key", value: getStore().getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: getStore().getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: getStore().getState().settingsDatastore.gpgHkpSearch },
+        { key: "setting_clipboard_clear_delay", value: getStore().getState().settingsDatastore.clipboardClearDelay },
+        { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode },
+        { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle },
+        { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges },
+        { key: "setting_custom_domain_synonyms", value: JSON.stringify(customDomainSynonyms) },
+    ]);
+
+    return (dispatch) => {
+        dispatch({
+            type: SET_DOMAIN_SYNONYMS_CONFIG,
+            customDomainSynonyms,
         });
     };
 }
@@ -393,6 +436,7 @@ function setShownEntriesConfig(
         { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
         { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
         { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
+        { key: "setting_custom_domain_synonyms", value: JSON.stringify(getStore().getState().settingsDatastore.customDomainSynonyms || []) },
     ]);
     return (dispatch) => {
         dispatch({
@@ -446,6 +490,7 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
         { key: "setting_no_save_mode", value: getStore().getState().settingsDatastore.noSaveMode},
         { key: "setting_show_no_save_toggle", value: getStore().getState().settingsDatastore.showNoSaveToggle},
         { key: "setting_confirm_unsaved_changes", value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges},
+        { key: "setting_custom_domain_synonyms", value: JSON.stringify(getStore().getState().settingsDatastore.customDomainSynonyms || []) },
     ]);
     return (dispatch) => {
         dispatch({
@@ -583,6 +628,7 @@ const actionCreators = {
     setNotifications,
     setRequestsInProgress,
     setClientOptionsConfig,
+    setDomainSynonymsConfig,
     setDeviceCode,
     clearDeviceCode,
 };
