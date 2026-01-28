@@ -1102,14 +1102,16 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
                 let openDatastoreElements = shadowRoot.querySelectorAll(`.${openDatastoreClass}`);
                 for (let el of openDatastoreElements) {
-                    el.addEventListener("click", function () {
+                    el.addEventListener("click", function (event) {
+                        event.stopPropagation();
                         openDatastore();
                     });
                 }
 
                 let generatePasswordElements = shadowRoot.querySelectorAll(`.${generatePasswordClass}`);
                 for (let el of generatePasswordElements) {
-                    el.addEventListener("click", function () {
+                    el.addEventListener("click", function (event) {
+                        event.stopPropagation();
                         generate_password();
                     });
                 }
@@ -1120,7 +1122,8 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                     let secretElements = shadowRoot.querySelectorAll(`.${className}`);
 
                     for (let el of secretElements) {
-                        el.addEventListener("click", function () {
+                        el.addEventListener("click", function (event) {
+                            event.stopPropagation();
                             requestSecret(secretId);
                         });
                     }
