@@ -173,7 +173,7 @@ describe('Service: passkey test suite', function() {
 
         expect(
             navigatorCredentials.authenticatorAttachment
-        ).toBe("cross-platform")
+        ).toBe("platform")
 
         expect(
             navigatorCredentials.type

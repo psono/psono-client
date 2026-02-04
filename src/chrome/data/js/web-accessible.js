@@ -12,6 +12,20 @@
     setup();
 
     function setup() {
+        // Override PublicKeyCredential APIs to advertise platform authenticator support
+        if (browserSupportsWebauthn && window.PublicKeyCredential) {
+            window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = function() {
+                return Promise.resolve(true);
+            };
+
+            // Support conditional mediation (autofill UI for passkeys)
+            if (typeof window.PublicKeyCredential.isConditionalMediationAvailable === 'function') {
+                window.PublicKeyCredential.isConditionalMediationAvailable = function() {
+                    return Promise.resolve(true);
+                };
+            }
+        }
+
         if (navigator && navigator.credentials && navigator.credentials.create) {
             originalNavigatorCredentialsCreate = navigator.credentials.create.bind(navigator.credentials);
             navigator.credentials.create = mockedNavigatorCredentialsCreate;
@@ -142,11 +156,20 @@
             console.log(response.error);
             if (response.error.hasOwnProperty('errorType') &&  new Set(['BYPASS_PSONO', 'PASSKEY_DISABLED']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsCreateIndex[response.eventId].options;
-                return eventNavigatorCredentialsCreateIndex[response.eventId].resolve(originalNavigatorCredentialsCreate(options));
+                const resolve = eventNavigatorCredentialsCreateIndex[response.eventId].resolve;
+                delete eventNavigatorCredentialsCreateIndex[response.eventId];
+
+                originalNavigatorCredentialsCreate(options).then(realCredential => {
+                    resolve(realCredential);
+                }).catch(error => {
+                    throw error;
+                });
+                return;
             }
             eventNavigatorCredentialsCreateIndex[response.eventId].reject(
                 new DOMException("The operation either timed out or was not allowed.", "AbortError")
             )
+            delete eventNavigatorCredentialsCreateIndex[response.eventId];
             return;
         }
 
@@ -178,7 +201,8 @@
         Object.setPrototypeOf(credential.response, AuthenticatorAttestationResponse.prototype);
         Object.setPrototypeOf(credential, PublicKeyCredential.prototype);
 
-        eventNavigatorCredentialsCreateIndex[response.eventId].resolve(credential)
+        eventNavigatorCredentialsCreateIndex[response.eventId].resolve(credential);
+        delete eventNavigatorCredentialsCreateIndex[response.eventId];
     }
 
     /**
@@ -193,11 +217,14 @@
             console.log(response.error);
             if (response.error.hasOwnProperty('errorType') && new Set(['BYPASS_PSONO']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsGetIndex[response.eventId].options;
-                return eventNavigatorCredentialsGetIndex[response.eventId].resolve(originalNavigatorCredentialsGet(options));
+                eventNavigatorCredentialsGetIndex[response.eventId].resolve(originalNavigatorCredentialsGet(options));
+                delete eventNavigatorCredentialsGetIndex[response.eventId];
+                return;
             }
             eventNavigatorCredentialsGetIndex[response.eventId].reject(
                 new DOMException("The operation either timed out or was not allowed.", "AbortError")
-            )
+            );
+            delete eventNavigatorCredentialsGetIndex[response.eventId];
             return;
         }
 
@@ -219,7 +246,8 @@
         Object.setPrototypeOf(credential.response, AuthenticatorAssertionResponse.prototype);
         Object.setPrototypeOf(credential, PublicKeyCredential.prototype);
 
-        eventNavigatorCredentialsGetIndex[response.eventId].resolve(credential)
+        eventNavigatorCredentialsGetIndex[response.eventId].resolve(credential);
+        delete eventNavigatorCredentialsGetIndex[response.eventId];
 
     }
 
@@ -242,18 +270,6 @@
      * @param options
      */
     function mockedNavigatorCredentialsCreate (options) {
-
-        // platform: A non-removable authenticator, like TouchID or Windows Hello
-        // cross-platform: A "roaming" authenticator, like a YubiKey
-        let isPlatform = false; // e.g. requires a hardware backed security key
-        if (options && options.publicKey && options.publicKey.authenticatorSelection && options.publicKey.authenticatorSelection.authenticatorAttachment && options.publicKey.authenticatorSelection.authenticatorAttachment === "platform") {
-            isPlatform = true;
-        }
-
-        if (isPlatform && browserSupportsWebauthn) {
-            // the service wants a hardware backed authenticator and the browser / OS supports it, so let's honor that.
-            return originalNavigatorCredentialsCreate(options);
-        }
 
         return new Promise(function(resolve, reject) {
 
