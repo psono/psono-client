@@ -965,6 +965,7 @@
   "REGISTER": "Register",
   "LOGIN": "Login",
   "LOGOUT_SUCCESSFUL": "You have successfully logged out. You can close the window now or log in again.",
+  "REDIRECTING_IN_SECONDS": "Redirecting in {{seconds}} seconds...",
   "USERNAME": "Username",
   "PASSWORD": "Password",
   "REQUEST_PASSWORD_RESET": "Request Password Reset",

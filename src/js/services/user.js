@@ -592,6 +592,15 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
 
         if (result.data.hasOwnProperty('redirect_url')) {
             response['redirect_url'] = result.data['redirect_url']
+            // Store redirect_url in sessionStorage so it survives the logout and can be used by logout-success.html
+            // even if the session is already terminated and a subsequent logout call returns 401
+            if (result.data['redirect_url']) {
+                try {
+                    sessionStorage.setItem('psono_logout_redirect_url', result.data['redirect_url']);
+                } catch (e) {
+                    console.error('Failed to store redirect_url in sessionStorage:', e);
+                }
+            }
         }
 
         return response;

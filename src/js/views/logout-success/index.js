@@ -33,10 +33,57 @@ const LogoutSuccessView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     const [msgs, setMsgs] = useState(['LOGOUT_SUCCESSFUL']);
+    const [redirectUrl, setRedirectUrl] = useState(null);
+    const [countdown, setCountdown] = useState(3);
 
     React.useEffect(() => {
-        user.logout();
+        const handleLogout = async () => {
+            // Check sessionStorage first for redirect_url (in case it was set by a previous logout call)
+            let storedRedirectUrl = null;
+            try {
+                storedRedirectUrl = sessionStorage.getItem('psono_logout_redirect_url');
+                if (storedRedirectUrl) {
+                    // Clear it immediately after reading
+                    sessionStorage.removeItem('psono_logout_redirect_url');
+                }
+            } catch (e) {
+                console.error('Failed to read redirect_url from sessionStorage:', e);
+            }
+
+            try {
+                // Call logout and check for redirect_url in response
+                const response = await user.logout();
+                if (response && response.redirect_url) {
+                    setRedirectUrl(response.redirect_url);
+                } else if (storedRedirectUrl) {
+                    // Use stored redirect_url if API didn't return one (session already terminated)
+                    setRedirectUrl(storedRedirectUrl);
+                }
+            } catch (error) {
+                // If logout fails (e.g., 401 because session already terminated), use stored redirect_url
+                if (storedRedirectUrl) {
+                    setRedirectUrl(storedRedirectUrl);
+                }
+                console.error('Logout error:', error);
+            }
+        };
+
+        handleLogout();
     }, []);
+
+    React.useEffect(() => {
+        if (redirectUrl) {
+            setMsgs([t('REDIRECTING_IN_SECONDS', { seconds: countdown })]);
+
+            if (countdown > 0) {
+                const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+                return () => clearTimeout(timer);
+            } else {
+                // Redirect after countdown reaches 0
+                window.location.href = redirectUrl;
+            }
+        }
+    }, [redirectUrl, countdown, t]);
 
     return (
         <DarkBox className={classes.box}>
@@ -47,7 +94,7 @@ const LogoutSuccessView = (props) => {
             <Grid container>
                 <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"}/>
             </Grid>
-            {browserClientService.getClientType() === 'webclient' && (<Grid item xs={6} sm={6} md={6} style={{marginTop: "5px", marginBottom: "5px"}}>
+            {!redirectUrl && browserClientService.getClientType() === 'webclient' && (<Grid item xs={6} sm={6} md={6} style={{marginTop: "5px", marginBottom: "5px"}}>
                 <Button
                     variant="contained"
                     color="primary"
