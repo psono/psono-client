@@ -3,6 +3,7 @@
  */
 import React from "react";
 import datastorePasswordService from "./datastore-password";
+import datastoreService from "./datastore";
 import secretService from "./secret";
 import importPsonoJson from "./import-psono-json";
 import importChromeCsv from "./import-chrome-csv";
@@ -216,18 +217,45 @@ async function parseExport(data) {
  */
 function updateDatastore(parsedData) {
     return datastorePasswordService.getPasswordDatastore().then(function (datastore) {
-        if (!datastore.hasOwnProperty("folders")) {
-            datastore["folders"] = [];
+        const analyzedBreadcrumbs = datastorePasswordService.analyzeBreadcrumbs(parsedData.breadcrumbs, datastore);
+        const target = analyzedBreadcrumbs.target;
+        const importedDatastore = parsedData["data"]["datastore"];
+
+        const shareRights = analyzedBreadcrumbs.parent_share && analyzedBreadcrumbs.parent_share.hasOwnProperty("share_rights")
+            ? {
+                read: analyzedBreadcrumbs.parent_share.share_rights.read,
+                write: analyzedBreadcrumbs.parent_share.share_rights.write,
+                grant: analyzedBreadcrumbs.parent_share.share_rights.grant && analyzedBreadcrumbs.parent_share.share_rights.write,
+                delete: analyzedBreadcrumbs.parent_share.share_rights.write,
+            }
+            : {
+                read: true,
+                write: true,
+                grant: true,
+                delete: true,
+            };
+
+        importedDatastore["parent_share_id"] = analyzedBreadcrumbs.parent_share_id;
+        importedDatastore["parent_datastore_id"] = analyzedBreadcrumbs.parent_datastore_id;
+        importedDatastore["share_rights"] = shareRights;
+        datastorePasswordService.updateParents(
+            importedDatastore,
+            analyzedBreadcrumbs.parent_share_id,
+            analyzedBreadcrumbs.parent_datastore_id
+        );
+        datastoreService.updateShareRightsOfFoldersAndItems(importedDatastore, shareRights);
+
+        if (!target.hasOwnProperty("folders")) {
+            target["folders"] = [];
         }
 
-        datastore["folders"].push(parsedData["data"]["datastore"]);
+        target["folders"].push(importedDatastore);
 
         datastorePasswordService.handleDatastoreContentChanged(datastore);
-        datastorePasswordService.saveDatastoreContent(datastore, [[]]);
-
-        emit("import-complete", {});
-
-        return Promise.resolve(parsedData);
+        return datastorePasswordService.saveDatastoreContent(datastore, [analyzedBreadcrumbs.path.slice()]).then(function () {
+            emit("import-complete", {});
+            return parsedData;
+        });
     });
 }
 
@@ -243,6 +271,8 @@ function createSecrets(parsedData) {
     emit("create-secret-started", {});
 
     return datastorePasswordService.getPasswordDatastore().then(function (datastore) {
+        const analyzedBreadcrumbs = datastorePasswordService.analyzeBreadcrumbs(parsedData.breadcrumbs, datastore);
+
         const objects = parsedData["data"]["secrets"].map(function(poppedSecret) {
             const content = {};
             const linkId = poppedSecret['id'];
@@ -304,7 +334,11 @@ function createSecrets(parsedData) {
             return myObject;
         })
 
-        return secretService.createSecretBulk(objects, datastore["datastore_id"], undefined).then(function (dbSecrets) {
+        return secretService.createSecretBulk(
+            objects,
+            analyzedBreadcrumbs.parent_datastore_id,
+            analyzedBreadcrumbs.parent_share_id
+        ).then(function (dbSecrets) {
             const lookupIndex = {};
             for (var i = 0; i < dbSecrets.length; i++) {
                 lookupIndex[dbSecrets[i]['link_id']] = {
@@ -365,10 +399,11 @@ function getImporterHelp(type) {
  * @param {string} data The data as text of the import
  * @param {string} binary The data as binary of the import
  * @param {string} [password] The password to decrypt the datastore
+ * @param {{id_breadcrumbs: Array}} [breadcrumbs] The selected folder breadcrumbs
  *
  * @returns {Promise} Returns a promise with the result of the import
  */
-function importDatastore(type, data, binary, password) {
+function importDatastore(type, data, binary, password, breadcrumbs) {
     emit("import-started", {});
 
     if (password) {
@@ -387,7 +422,12 @@ function importDatastore(type, data, binary, password) {
         }
     }
 
-    return Promise.resolve({ type: type, data: data, binary: binary})
+    return Promise.resolve({
+        type: type,
+        data: data,
+        binary: binary,
+        breadcrumbs: breadcrumbs || { id_breadcrumbs: [] },
+    })
         .then(parseExport)
         .then(createSecrets)
         .then(updateDatastore)

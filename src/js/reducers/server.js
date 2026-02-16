@@ -1,4 +1,5 @@
-import { LOGOUT, SET_SERVER_INFO, SET_SERVER_POLICY, SET_SERVER_STATUS, SET_SERVER_URL } from "../actions/action-types";
+import { LOGOUT, SET_SERVER_INFO, SET_SERVER_POLICY, SET_SERVER_STATUS, SET_SERVER_URL, SETTINGS_DATASTORE_LOADED, SET_DOMAIN_SYNONYMS_CONFIG } from "../actions/action-types";
+import helperService from "../services/helper";
 
 const defaultUrl = "";
 const defaultApi = "";
@@ -66,6 +67,9 @@ const defaultMultifactorEnabled = false;
 const defaultSystemWideDuoExists = false;
 const defaultVerifyKey = "";
 const defaultStatus = { data: {} };
+const defaultDomainSynonyms = [];
+const defaultCustomDomainSynonyms = [];
+const defaultDomainSynonymMap = helperService.buildDomainSynonymMap([], []);
 
 function server(
     state = {
@@ -128,6 +132,9 @@ function server(
         systemWideDuoExists: defaultSystemWideDuoExists,
         verifyKey: defaultVerifyKey,
         status: defaultStatus,
+        domainSynonyms: defaultDomainSynonyms,
+        customDomainSynonyms: defaultCustomDomainSynonyms,
+        domainSynonymMap: defaultDomainSynonymMap,
     },
     action
 ) {
@@ -197,6 +204,9 @@ function server(
                 systemWideDuoExists: defaultSystemWideDuoExists,
                 verifyKey: defaultVerifyKey,
                 status: defaultStatus,
+                domainSynonyms: defaultDomainSynonyms,
+                customDomainSynonyms: defaultCustomDomainSynonyms,
+                domainSynonymMap: defaultDomainSynonymMap,
             });
         case SET_SERVER_INFO:
             return Object.assign({}, state, {
@@ -265,6 +275,11 @@ function server(
                 faviconServiceUrl: action.info.favicon_service_url || defaultFaviconServiceUrl,
                 systemWideDuoExists: action.info.system_wide_duo_exists,
                 verifyKey: action.verifyKey,
+                domainSynonyms: typeof(action.info.domain_synonyms) === "undefined" ? defaultDomainSynonyms : action.info.domain_synonyms,
+                domainSynonymMap: helperService.buildDomainSynonymMap(
+                    typeof(action.info.domain_synonyms) === "undefined" ? defaultDomainSynonyms : action.info.domain_synonyms,
+                    state.customDomainSynonyms
+                ),
             });
         case SET_SERVER_POLICY:
 
@@ -375,6 +390,23 @@ function server(
         case SET_SERVER_URL:
             return Object.assign({}, state, {
                 url: action.url,
+            });
+        case SETTINGS_DATASTORE_LOADED:
+            const customSynonyms = action.data.setting_custom_domain_synonyms || [];
+            return Object.assign({}, state, {
+                customDomainSynonyms: customSynonyms,
+                domainSynonymMap: helperService.buildDomainSynonymMap(
+                    state.domainSynonyms,
+                    customSynonyms
+                ),
+            });
+        case SET_DOMAIN_SYNONYMS_CONFIG:
+            return Object.assign({}, state, {
+                customDomainSynonyms: action.customDomainSynonyms,
+                domainSynonymMap: helperService.buildDomainSynonymMap(
+                    state.domainSynonyms,
+                    action.customDomainSynonyms
+                ),
             });
         default:
             return state;

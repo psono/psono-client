@@ -140,12 +140,23 @@ export const initStore = async () => {
                 },
             }
         },
+        8: (state) => {
+            return {
+                ...state,
+                server: {
+                    ...state.server,
+                    domainSynonyms: [],
+                    customDomainSynonyms: [],
+                    domainSynonymMap: {},
+                },
+            }
+        },
     }
 
     const persistConfig = {
         key: await accountService.getCurrentId(),
         blacklist: ['transient', 'notification'],
-        version: 7,
+        version: 8,
         storage: storageService.get('state'),
         debug: false,
         migrate: createMigrate(migrations, { debug: false }),

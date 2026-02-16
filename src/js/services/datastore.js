@@ -371,7 +371,14 @@ function addNodeToStorage(db, folder, map, filter) {
         const item = {};
 
         for (let m = 0; m < map.length; m++) {
-            item[map[m][0]] = folder.items[i][map[m][1]];
+            const targetField = map[m][0];
+            const sourceField = map[m][1];
+
+            if (typeof sourceField === 'function') {
+                item[targetField] = sourceField(folder.items[i]);
+            } else {
+                item[targetField] = folder.items[i][sourceField];
+            }
         }
 
         item["type"] = folder.items[i].type;

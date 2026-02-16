@@ -15,6 +15,7 @@ import SettingsEntryTypesView from "./entry-types";
 import SettingsNotificationView from "./notification";
 import SettingsGpgView from "./gpg";
 import SettingsGeneralView from "./general";
+import SettingsDomainSynonymsView from "./domain-synonyms";
 import TabPanel from "../../components/tab-panel";
 
 const SettingsView = (props) => {
@@ -63,6 +64,13 @@ const SettingsView = (props) => {
                                 onClick={() => setValue("/settings/gpg")}
                             />
                             <Tab
+                                label={t("DOMAIN_SYNONYMS")}
+                                value="/settings/domain-synonyms"
+                                component={Link}
+                                to={"/settings/domain-synonyms"}
+                                onClick={() => setValue("/settings/domain-synonyms")}
+                            />
+                            <Tab
                                 label={t("GENERAL")}
                                 value="/settings/general"
                                 component={Link}
@@ -82,6 +90,9 @@ const SettingsView = (props) => {
                     </TabPanel>
                     <TabPanel value={value} index={"/settings/gpg"}>
                         <SettingsGpgView {...props} />
+                    </TabPanel>
+                    <TabPanel value={value} index={"/settings/domain-synonyms"}>
+                        <SettingsDomainSynonymsView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/settings/general"}>
                         <SettingsGeneralView {...props} />

@@ -307,7 +307,7 @@ const PopupItem = (props) => {
     let title = item.content.name;
     let description = "";
 
-    if (item.content.hasOwnProperty("description") && item.content.description && (!item.content.hasOwnProperty("name") || !item.content.name.toLowerCase().includes(item.content.description.toLowerCase()))) {
+    if (item.content.hasOwnProperty("description") && item.content.description && (!item.content.hasOwnProperty("name") || !(item.content.name || "").toLowerCase().includes(item.content.description.toLowerCase()))) {
         description = item.content.description;
     }
 

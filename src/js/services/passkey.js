@@ -335,7 +335,7 @@ async function navigatorCredentialsGet(options, origin) {
             //     "rk": true
             // }
         },
-        "authenticatorAttachment": "cross-platform"
+        "authenticatorAttachment": "platform"
     }
 
     return credential;
@@ -719,10 +719,11 @@ async function navigatorCredentialsCreate(options, origin) {
 
     const authData = await createAuthData(rpId, rawId, keyPair.publicKey, 0, true)
 
+    // IMPORTANT: Key order matters for CBOR encoding!
     const attestationObject = {
         fmt: 'none',
-        authData: authData,
-        attStmt: {} // Empty for 'none' attestation format
+        attStmt: {}, // Empty for 'none' attestation format
+        authData: authData
     };
 
     const attestationObjectCBOREncoded = converterService.cborEncode(attestationObject);
@@ -774,7 +775,7 @@ async function navigatorCredentialsCreate(options, origin) {
             //     "rk": true
             // }
         },
-        "authenticatorAttachment": "cross-platform"
+        "authenticatorAttachment": "platform"
     }
 
     return credential;

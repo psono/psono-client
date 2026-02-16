@@ -16,6 +16,7 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
+import urlSynonymsService from "./url-synonyms";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -1002,7 +1003,10 @@ function onGeneratePassword(request, sender, sendResponse) {
         );
     };
 
-    datastorePasswordService.savePassword(request.data.url, request.data.username, password).then(onSuccess, onError);
+    // Resolve URL synonym to canonical form
+    const url = urlSynonymsService.resolveUrlSynonym(request.data.url);
+
+    datastorePasswordService.savePassword(url, request.data.username, password).then(onSuccess, onError);
 
     sendResponse({ event: "return-secret", data: {
             website_password_password: password
@@ -1624,8 +1628,11 @@ function approveIframeLogin(request, sender, sendResponse) {
  * @returns {promise} Returns a promise with the password
  */
 function saveLastLoginCredentials() {
+    // Resolve URL synonym to canonical form
+    const url = urlSynonymsService.resolveUrlSynonym(lastLoginCredentials["url"]);
+
     return datastorePasswordService.savePassword(
-        lastLoginCredentials["url"],
+        url,
         lastLoginCredentials["username"],
         lastLoginCredentials["password"]
     );

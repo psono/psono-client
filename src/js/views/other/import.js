@@ -16,6 +16,8 @@ import { BarLoader } from "react-spinners";
 import importService from "../../services/import";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TextFieldPassword from "../../components/text-field/password";
+import TextFieldPath from "../../components/text-field/path";
+import DialogSelectFolder from "../../components/dialogs/select-folder";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -39,6 +41,8 @@ const OtherImportView = (props) => {
     const [errors, setErrors] = React.useState([]);
     const [messages, setMessages] = React.useState([]);
     const [password, setPassword] = React.useState("");
+    const [selectFolderOpen, setSelectFolderOpen] = React.useState(false);
+    const [breadcrumbs, setBreadcrumbs] = React.useState({ id_breadcrumbs: [], path: [] });
 
     let openRequests = 0;
     let closedRequest = 0;
@@ -88,7 +92,29 @@ const OtherImportView = (props) => {
             setProcessing(false);
         };
 
-        importService.importDatastore(exportFormat, fileContent, fileBinary, password).then(onSuccess, onError);
+        importService.importDatastore(exportFormat, fileContent, fileBinary, password, breadcrumbs).then(onSuccess, onError);
+    };
+
+    const setSelectedPath = (path) => {
+        setBreadcrumbs({
+            id_breadcrumbs: path.map((node) => node.id),
+            path: Array.from(path),
+        });
+    };
+
+    const onSelectNodeForImport = (newBreadcrumbs) => {
+        setSelectedPath(newBreadcrumbs.path || []);
+        setSelectFolderOpen(false);
+    };
+
+    const isSelectableForImport = (node) => {
+        if (node.hasOwnProperty("share_id") && !node.hasOwnProperty("share_rights")) {
+            return false;
+        }
+        if (!node.hasOwnProperty("share_rights")) {
+            return true;
+        }
+        return !!(node.share_rights.read && node.share_rights.write);
     };
 
     const onFileChange = (event) => {
@@ -154,6 +180,12 @@ const OtherImportView = (props) => {
                     }}
                 />
             </Grid>)}
+            <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
+                <Button variant="outlined" disabled={processing} component="label">
+                    {fileName ? fileName : t("SELECT_EXPORT_FILE")}
+                    <input type="file" hidden onChange={onFileChange} />
+                </Button>
+            </Grid>
             <Grid item xs={12} sm={12} md={12}>
                 <FormControl variant="outlined" margin="dense" size="small" className={classes.textField} required>
                     <InputLabel id="export-encoding-select-label-label">{t("ENCODING")}</InputLabel>
@@ -199,11 +231,17 @@ const OtherImportView = (props) => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
-                <Button variant="contained" disabled={processing} component="label">
-                    {fileName ? fileName : t("FILE")}
-                    <input type="file" hidden onChange={onFileChange} />
-                </Button>
+            <Grid item xs={12} sm={12} md={12}>
+                <TextFieldPath
+                    className={classes.textField}
+                    variant="outlined"
+                    margin="dense" size="small"
+                    required
+                    value={breadcrumbs.path}
+                    setPath={setSelectedPath}
+                    onOpenFolderSelect={() => setSelectFolderOpen(true)}
+                    helperText="Choose where the Import folder will be created."
+                />
             </Grid>
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
                 <Button
@@ -257,6 +295,15 @@ const OtherImportView = (props) => {
                         );
                     })}
                 </Grid>
+            )}
+            {selectFolderOpen && (
+                <DialogSelectFolder
+                    open={selectFolderOpen}
+                    onClose={() => setSelectFolderOpen(false)}
+                    title={`${t("SELECT")} ${t("FOLDER")}`}
+                    onSelectNode={onSelectNodeForImport}
+                    isSelectable={isSelectableForImport}
+                />
             )}
         </Grid>
     );
