@@ -782,6 +782,7 @@
   "EXPORT_DESCRIPTION": "Export data for an offline backup or other purposes. The export contains all the passwords, usernames, URLs, etc., excluding files which need to be manually downloaded.",
   "IMPORT": "Import",
   "IMPORT_DESCRIPTION": "Import data from browsers or other password managers.",
+  "SELECT_EXPORT_FILE": "Select data export file",
   "FILE": "File",
   "INSTRUCTIONS": "Instructions",
   "HOST": "Host",
