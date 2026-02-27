@@ -19,6 +19,13 @@ class PasskeyException extends Error {
     }
 }
 
+function createBypassPsonoException(reason, metadata) {
+    return new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'), {
+        'reason': reason,
+        ...(metadata || {}),
+    });
+}
+
 
 
 /**
@@ -169,7 +176,7 @@ function p1363ToDer(p1363Signature) {
  * @param origin
  * @returns {Promise<{authenticatorAttachment: string, response: {clientDataJSON: string, transports: string[], publicKeyAlgorithm: number, publicKey: string, attestationObject: string, authenticatorData: string}, rawId: Uint8Array, id: string, type: string, clientExtensionResults: {credProps: {rk: boolean}}}>}
  */
-async function navigatorCredentialsGet(options, origin) {
+async function navigatorCredentialsGet(options, origin, eventId) {
     /**
      * Receives something like:
      *
@@ -244,7 +251,12 @@ async function navigatorCredentialsGet(options, origin) {
         )
     }
     if (!isLoggedIn) {
-        throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'));
+        throw createBypassPsonoException('NOT_LOGGED_IN', {
+            'eventId': eventId,
+            'origin': origin,
+            'rpId': rpId,
+            'isConditional': isConditional,
+        });
     }
     let credentials = await searchPasskeys(rpId, allowCredentialIds);
     if (discoverableCredentialsOnly) {
@@ -260,13 +272,26 @@ async function navigatorCredentialsGet(options, origin) {
                 12*1000,
             )
         }
-        throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))
+        throw createBypassPsonoException('NO_MATCHING_PASSKEY', {
+            'eventId': eventId,
+            'origin': origin,
+            'rpId': rpId,
+            'isConditional': isConditional,
+            'allowCredentialsCount': allowCredentials.length,
+            'discoverableCredentialsOnly': discoverableCredentialsOnly,
+        })
     }
 
     await createNotificationAsync(
         i18n.t("AUTHENTICATION"),
         i18n.t("WEBSITE_WANTS_TO_AUTHENTICATE_WITH_PASSKEY_ALLOW_OR_DENY"),
         options.publicKey.timeout || 30*1000,
+        {
+            'eventId': eventId,
+            'origin': origin,
+            'rpId': rpId,
+            'operation': 'navigator.credentials.get',
+        }
     )
 
     const decryptedSecret = await secretService.readSecret(
@@ -354,9 +379,16 @@ function onNavigatorCredentialsGet(request, sender, sendResponse) {
     async function asyncResponse() {
         let credential;
         try {
-            credential = await navigatorCredentialsGet(request.data.options, request.data.origin);
+            credential = await navigatorCredentialsGet(request.data.options, request.data.origin, request.data.eventId);
         } catch (e) {
             if (e instanceof PasskeyException) {
+                if (e.errorType === 'BYPASS_PSONO') {
+                    console.info('[Psono Passkey] navigator-credentials-get bypass', {
+                        'eventId': request.data.eventId,
+                        'reason': e.metadata && e.metadata.reason,
+                        'metadata': e.metadata,
+                    });
+                }
                 sendResponse({
                     'event': 'navigator-credentials-get-response',
                     'data': {
@@ -515,7 +547,7 @@ async function createAuthData(rpId, rawId, publicKey, signCountInt, userPresent)
  *
  * @returns {Promise}
  */
-function createNotificationAsync(title, description, timeout) {
+function createNotificationAsync(title, description, timeout, metadata) {
     return new Promise(function (resolve, reject) {
         notificationBarService.create(
             title,
@@ -532,7 +564,7 @@ function createNotificationAsync(title, description, timeout) {
                 },
                 {
                     title: i18n.t("BYPASS_PSONO"),
-                    onClick: () => reject(new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))),
+                    onClick: () => reject(createBypassPsonoException('USER_CLICKED_BYPASS', metadata)),
                 },
             ],
             timeout,
@@ -582,7 +614,7 @@ function determineAutoSubmit(authenticatorSelection) {
  * @param origin
  * @returns {Promise<{authenticatorAttachment: string, response: {clientDataJSON: string, transports: string[], publicKeyAlgorithm: number, publicKey: string, attestationObject: string, authenticatorData: string}, rawId: Uint8Array, id: string, type: string, clientExtensionResults: {credProps: {rk: boolean}}}>}
  */
-async function navigatorCredentialsCreate(options, origin) {
+async function navigatorCredentialsCreate(options, origin, eventId) {
     /**
      * Receives something like:
      *
@@ -673,6 +705,11 @@ async function navigatorCredentialsCreate(options, origin) {
         i18n.t("NEW_PASSKEY"),
         i18n.t("WEBSITE_WANTS_TO_CREATE_NEW_PASSKEY_ALLOW_OR_DENY"),
         options.publicKey.timeout || 30*1000,
+        {
+            'eventId': eventId,
+            'origin': origin,
+            'operation': 'navigator.credentials.create',
+        }
     )
 
     // https://w3c.github.io/webauthn/#dom-publickeycredentialcreationoptions-pubkeycredparams
@@ -796,7 +833,7 @@ function onNavigatorCredentialsCreate(request, sender, sendResponse) {
 
         let credential;
         try {
-            credential = await navigatorCredentialsCreate(request.data.options, request.data.origin);
+            credential = await navigatorCredentialsCreate(request.data.options, request.data.origin, request.data.eventId);
         } catch (e) {
             if (e instanceof PasskeyException) {
                 sendResponse({
