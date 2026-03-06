@@ -254,6 +254,8 @@ function gaVerify(gaToken) {
     return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
+        } else if (response.hasOwnProperty("data") && response.data.hasOwnProperty("ga_token")) {
+            return Promise.reject(response.data.ga_token);
         } else {
             return Promise.reject(response);
         }

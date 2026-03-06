@@ -1459,6 +1459,7 @@ const LoginForm = (props) => {
                             label={t("TOTP_CODE")}
                             name="gaToken"
                             autoComplete="off"
+                            autoFocus
                             required
                             value={gaToken}
                             onChange={(event) => {
@@ -1616,7 +1617,7 @@ const LoginForm = (props) => {
                 {multifactors.indexOf("google_authenticator_2fa") !== -1 && (
                     <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={showGa2faForm} type="submit">
+                            <Button variant="contained" color="primary" onClick={showGa2faForm} type="submit" fullWidth>
                                 {t("TOTP")}
                             </Button>
                         </Grid>
@@ -1625,7 +1626,7 @@ const LoginForm = (props) => {
                 {multifactors.indexOf("yubikey_otp_2fa") !== -1 && (
                     <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={showYubikeyOtp2faForm} type="submit">
+                            <Button variant="contained" color="primary" onClick={showYubikeyOtp2faForm} type="submit" fullWidth>
                                 {t("YUBIKEY")}
                             </Button>
                         </Grid>
@@ -1634,7 +1635,7 @@ const LoginForm = (props) => {
                 {multifactors.indexOf("webauthn_2fa") !== -1 && (
                     <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={showWebauthn2faForm} type="submit">
+                            <Button variant="contained" color="primary" onClick={showWebauthn2faForm} type="submit" fullWidth>
                                 {t("FIDO2_WEBAUTHN")}
                             </Button>
                         </Grid>
@@ -1643,7 +1644,7 @@ const LoginForm = (props) => {
                 {multifactors.indexOf("duo_2fa") !== -1 && (
                     <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={showDuo2faForm} type="submit">
+                            <Button variant="contained" color="primary" onClick={showDuo2faForm} type="submit" fullWidth>
                                 {t("DUO")}
                             </Button>
                         </Grid>
