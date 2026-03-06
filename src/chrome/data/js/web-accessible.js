@@ -326,11 +326,23 @@
                     'publicKey': {
                         ...options.publicKey,
                         challenge: arrayBufferToBase64Url(options.publicKey.challenge),
-                        allowCredentials: options.publicKey.allowCredentials ? options.publicKey.allowCredentials.map((cred) => ({
-                            ...cred,
-                            'id': arrayBufferToBase64Url(cred.id),
-                            'transports': cred.hasOwnProperty('transports') ? [...cred.transports] : undefined,
-                        })) : [],
+                        allowCredentials: options.publicKey.allowCredentials ? options.publicKey.allowCredentials.map((cred) => {
+                            let transports = undefined;
+
+                            if (cred.hasOwnProperty('transports') && cred.transports) {
+                                if (typeof cred.transports[Symbol.iterator] === 'function') {
+                                    transports = [...cred.transports];
+                                } else {
+                                    console.debug('Psono passkey debug: allowCredentials transport is not iterable', cred.transports, cred);
+                                }
+                            }
+
+                            return {
+                                ...cred,
+                                'id': arrayBufferToBase64Url(cred.id),
+                                'transports': transports,
+                            };
+                        }) : [],
                         'extensions': options.publicKey.extensions ? {...options.publicKey.extensions} : undefined,
                     },
                 },
