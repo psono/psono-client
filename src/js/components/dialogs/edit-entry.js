@@ -2954,8 +2954,10 @@ const DialogEditEntry = (props) => {
                         }}
                         required
                         onChange={(event) => {
-                            setDirty(true);
-                            setCreditCardNumber(event.target.value);
+                            if (creditCardNumber !== event.target.value) {
+                                setDirty(true);
+                                setCreditCardNumber(event.target.value);
+                            }
                         }}
                     />
 
@@ -3000,8 +3002,10 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
-                            setDirty(true);
-                            setCreditCardValidThrough(event.target.value)
+                            if (creditCardValidThrough !== event.target.value) {
+                                setDirty(true);
+                                setCreditCardValidThrough(event.target.value)
+                            }
                         }}
                     />
                 </Grid>
@@ -3022,8 +3026,10 @@ const DialogEditEntry = (props) => {
                         InputProps={{ readOnly: readOnly }}
                         required
                         onChange={(event) => {
-                            setDirty(true);
-                            setCreditCardCVC(event.target.value)
+                            if (creditCardCVC !== event.target.value) {
+                                setDirty(true);
+                                setCreditCardCVC(event.target.value)
+                            }
                         }}
                     />
                 </Grid>
