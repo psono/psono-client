@@ -2,29 +2,31 @@
  * The Datastore service collects all functions to edit / update / create a datastore and to work with it.
  */
 
-import { getStore } from "./store";
 import action from "../actions/bound-action-creators";
-import storage from "./storage";
+import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
-import apiClient from "./api-client";
+import storage from "./storage";
+import { getStore } from "./store";
 
-let tempDatastoreKeyStorage = {};
+const tempDatastoreKeyStorage = {};
 
 function _getDatastoreOverview() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    // we dont have them in cache, so lets query and save them in cache for next time
-    const onSuccess = function (result) {
-        action().setUserDatastoreOverview(result.data);
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	// we dont have them in cache, so lets query and save them in cache for next time
+	const onSuccess = (result) => {
+		action().setUserDatastoreOverview(result.data);
+		return result.data;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient.readDatastore(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient
+		.readDatastore(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 const datastoreOverview = {};
@@ -34,11 +36,11 @@ const datastoreOverview = {};
  * @private
  */
 function _getDatastoreOverviewSingleton() {
-    const userId = getStore().getState().user.userId;
-    if (!datastoreOverview.hasOwnProperty(userId) || !datastoreOverview[userId]) {
-        datastoreOverview[userId] = _getDatastoreOverview();
-    }
-    return datastoreOverview[userId];
+	const userId = getStore().getState().user.userId;
+	if (!Object.hasOwn(datastoreOverview, userId) || !datastoreOverview[userId]) {
+		datastoreOverview[userId] = _getDatastoreOverview();
+	}
+	return datastoreOverview[userId];
 }
 
 /**
@@ -49,19 +51,23 @@ function _getDatastoreOverviewSingleton() {
  * @returns {Promise} Promise with the datastore overview
  */
 function getDatastoreOverview(forceFresh) {
-    const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
+	const userDatastoreOverview =
+		getStore().getState().user.userDatastoreOverview;
 
-    if ((typeof forceFresh === "undefined" || forceFresh === false) && userDatastoreOverview.datastores.length > 0) {
-        // we have them in cache, so lets save the query
-        return new Promise(function (resolve) {
-            resolve(userDatastoreOverview);
-        });
-    } else if (typeof forceFresh === "undefined" || forceFresh === false) {
-        // we have them in cache, so lets save the query
-        return _getDatastoreOverviewSingleton()
-    } else {
-        return _getDatastoreOverview();
-    }
+	if (
+		(typeof forceFresh === "undefined" || forceFresh === false) &&
+		userDatastoreOverview.datastores.length > 0
+	) {
+		// we have them in cache, so lets save the query
+		return new Promise((resolve) => {
+			resolve(userDatastoreOverview);
+		});
+	} else if (typeof forceFresh === "undefined" || forceFresh === false) {
+		// we have them in cache, so lets save the query
+		return _getDatastoreOverviewSingleton();
+	} else {
+		return _getDatastoreOverview();
+	}
 }
 
 /**
@@ -73,24 +79,23 @@ function getDatastoreOverview(forceFresh) {
  * @returns {Promise} Promise with the datastore id
  */
 function getDatastoreId(type, forceFresh) {
-    const onSuccess = function (result) {
+	const onSuccess = (result) => {
+		const stores = result.datastores;
 
-        const stores = result.datastores;
+		const datastoreId = "";
+		for (let i = 0; i < stores.length; i++) {
+			if (stores[i].type !== type || !stores[i].is_default) {
+				continue;
+			}
+			return stores[i].id;
+		}
+		return datastoreId;
+	};
+	const onError = () => {
+		// pass
+	};
 
-        const datastoreId = "";
-        for (let i = 0; i < stores.length; i++) {
-            if (stores[i].type !== type || !stores[i].is_default) {
-                continue;
-            }
-            return stores[i].id;
-        }
-        return datastoreId;
-    };
-    const onError = function () {
-        // pass
-    };
-
-    return getDatastoreOverview(forceFresh).then(onSuccess, onError);
+	return getDatastoreOverview(forceFresh).then(onSuccess, onError);
 }
 
 /**
@@ -101,35 +106,41 @@ function getDatastoreId(type, forceFresh) {
  * @returns {Promise} Promise with the datastore that belongs to the given id
  */
 function getDatastoreWithId(datastoreId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (result) {
-        const datastore_secret_key = cryptoLibrary.decryptSecretKey(
-            result.data.secret_key,
-            result.data.secret_key_nonce
-        );
+	const onSuccess = (result) => {
+		const datastore_secret_key = cryptoLibrary.decryptSecretKey(
+			result.data.secret_key,
+			result.data.secret_key_nonce,
+		);
 
-        tempDatastoreKeyStorage[datastoreId] = datastore_secret_key;
+		tempDatastoreKeyStorage[datastoreId] = datastore_secret_key;
 
-        let datastore = {};
+		let datastore = {};
 
-        if (result.data.data !== "") {
-            const data = cryptoLibrary.decryptData(result.data.data, result.data.data_nonce, datastore_secret_key);
+		if (result.data.data !== "") {
+			const data = cryptoLibrary.decryptData(
+				result.data.data,
+				result.data.data_nonce,
+				datastore_secret_key,
+			);
 
-            datastore = JSON.parse(data);
-        }
+			datastore = JSON.parse(data);
+		}
 
-        datastore["datastore_id"] = datastoreId;
+		datastore["datastore_id"] = datastoreId;
 
-        return datastore;
-    };
+		return datastore;
+	};
 
-    return apiClient.readDatastore(token, sessionSecretKey, datastoreId).then(onSuccess, onError);
+	return apiClient
+		.readDatastore(token, sessionSecretKey, datastoreId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -142,47 +153,58 @@ function getDatastoreWithId(datastoreId) {
  * @returns {Promise} A promise with result of the operation
  */
 function createDatastore(type, description, isDefault) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    //datastore does really not exist, lets create one and return it
-    const secretKey = cryptoLibrary.generateSecretKey();
-    const cipher = cryptoLibrary.encryptSecretKey(secretKey);
+	//datastore does really not exist, lets create one and return it
+	const secretKey = cryptoLibrary.generateSecretKey();
+	const cipher = cryptoLibrary.encryptSecretKey(secretKey);
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (result) {
-        const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
-        if (userDatastoreOverview) {
-            if (isDefault) {
-                // New datastore is the new default, so update the existing list
-                for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
-                    if (userDatastoreOverview.datastores[i].type !== type) {
-                        continue;
-                    }
-                    userDatastoreOverview.datastores[i].is_default = false;
-                }
-            }
+	const onSuccess = (result) => {
+		const userDatastoreOverview =
+			getStore().getState().user.userDatastoreOverview;
+		if (userDatastoreOverview) {
+			if (isDefault) {
+				// New datastore is the new default, so update the existing list
+				for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
+					if (userDatastoreOverview.datastores[i].type !== type) {
+						continue;
+					}
+					userDatastoreOverview.datastores[i].is_default = false;
+				}
+			}
 
-            userDatastoreOverview.datastores.push({
-                id: result.data.datastore_id,
-                description: description,
-                type: type,
-                is_default: isDefault,
-            });
+			userDatastoreOverview.datastores.push({
+				id: result.data.datastore_id,
+				description: description,
+				type: type,
+				is_default: isDefault,
+			});
 
-            action().setUserDatastoreOverview({
-                ...userDatastoreOverview,
-            })
-        }
-        return result;
-    };
+			action().setUserDatastoreOverview({
+				...userDatastoreOverview,
+			});
+		}
+		return result;
+	};
 
-    return apiClient
-        .createDatastore(token, sessionSecretKey, type, description, "", "", isDefault, cipher.text, cipher.nonce)
-        .then(onSuccess, onError);
+	return apiClient
+		.createDatastore(
+			token,
+			sessionSecretKey,
+			type,
+			description,
+			"",
+			"",
+			isDefault,
+			cipher.text,
+			cipher.nonce,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -194,28 +216,28 @@ function createDatastore(type, description, isDefault) {
  * @returns {Promise} A promise with result of the operation
  */
 function deleteDatastore(datastoreId, password) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const username = getStore().getState().user.username;
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const authkey = cryptoLibrary.generateAuthkey(
-        username,
-        password,
-        hashingAlgorithm,
-        hashingParameters,
-    );
+	const authkey = cryptoLibrary.generateAuthkey(
+		username,
+		password,
+		hashingAlgorithm,
+		hashingParameters,
+	);
 
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (data) {
-        // pass
-    };
+	const onSuccess = (data) => {
+		// pass
+	};
 
-    return apiClient.deleteDatastore(token, sessionSecretKey, datastoreId, authkey).then(onSuccess, onError);
+	return apiClient
+		.deleteDatastore(token, sessionSecretKey, datastoreId, authkey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -225,22 +247,22 @@ function deleteDatastore(datastoreId, password) {
  * @param parentPath
  */
 function updatePathsRecursive(datastore, parentPath) {
-    let i;
-    if (datastore.hasOwnProperty("items")) {
-        for (i = 0; i < datastore["items"].length; i++) {
-            datastore["items"][i]["path"] = parentPath.slice();
-            datastore["items"][i]["path"].push(datastore["items"][i]["id"]);
-        }
-    }
-    if (datastore.hasOwnProperty("folders")) {
-        for (i = 0; i < datastore["folders"].length; i++) {
-            datastore["folders"][i]["path"] = parentPath.slice();
-            datastore["folders"][i]["path"].push(datastore["folders"][i]["id"]);
-            const parent_path_copy = parentPath.slice();
-            parent_path_copy.push(datastore["folders"][i]["id"]);
-            updatePathsRecursive(datastore["folders"][i], parent_path_copy);
-        }
-    }
+	let i;
+	if (Object.hasOwn(datastore, "items")) {
+		for (i = 0; i < datastore["items"].length; i++) {
+			datastore["items"][i]["path"] = parentPath.slice();
+			datastore["items"][i]["path"].push(datastore["items"][i]["id"]);
+		}
+	}
+	if (Object.hasOwn(datastore, "folders")) {
+		for (i = 0; i < datastore["folders"].length; i++) {
+			datastore["folders"][i]["path"] = parentPath.slice();
+			datastore["folders"][i]["path"].push(datastore["folders"][i]["id"]);
+			const parent_path_copy = parentPath.slice();
+			parent_path_copy.push(datastore["folders"][i]["id"]);
+			updatePathsRecursive(datastore["folders"][i], parent_path_copy);
+		}
+	}
 }
 
 /**
@@ -251,37 +273,38 @@ function updatePathsRecursive(datastore, parentPath) {
  * @param {RightObject} shareRights The share rights to update it with.
  */
 function updateShareRightsOfFoldersAndItems(obj, shareRights) {
-    let n;
+	let n;
 
-    if (obj.hasOwnProperty("datastore_id")) {
-        // pass
-    } else if (obj.hasOwnProperty("share_id")) {
-        shareRights["read"] = obj["share_rights"]["read"];
-        shareRights["write"] = obj["share_rights"]["write"];
-        shareRights["grant"] = obj["share_rights"]["grant"] && obj["share_rights"]["write"];
-        shareRights["delete"] = obj["share_rights"]["write"];
-    }
+	if (Object.hasOwn(obj, "datastore_id")) {
+		// pass
+	} else if (Object.hasOwn(obj, "share_id")) {
+		shareRights["read"] = obj["share_rights"]["read"];
+		shareRights["write"] = obj["share_rights"]["write"];
+		shareRights["grant"] =
+			obj["share_rights"]["grant"] && obj["share_rights"]["write"];
+		shareRights["delete"] = obj["share_rights"]["write"];
+	}
 
-    // check all folders recursive
-    if (obj.hasOwnProperty("folders")) {
-        for (n = 0; n < obj.folders.length; n++) {
-            // lets not go inside of a new share, and don't touch the shareRights as they will come directly from the share
-            if (obj.folders[n].hasOwnProperty("share_id")) {
-                continue;
-            }
-            obj.folders[n]["share_rights"] = shareRights;
-            updateShareRightsOfFoldersAndItems(obj.folders[n], shareRights);
-        }
-    }
-    // check all items
-    if (obj.hasOwnProperty("items")) {
-        for (n = 0; n < obj.items.length; n++) {
-            if (obj.items[n].hasOwnProperty("share_id")) {
-                continue;
-            }
-            obj.items[n]["share_rights"] = shareRights;
-        }
-    }
+	// check all folders recursive
+	if (Object.hasOwn(obj, "folders")) {
+		for (n = 0; n < obj.folders.length; n++) {
+			// lets not go inside of a new share, and don't touch the shareRights as they will come directly from the share
+			if (Object.hasOwn(obj.folders[n], "share_id")) {
+				continue;
+			}
+			obj.folders[n]["share_rights"] = shareRights;
+			updateShareRightsOfFoldersAndItems(obj.folders[n], shareRights);
+		}
+	}
+	// check all items
+	if (Object.hasOwn(obj, "items")) {
+		for (n = 0; n < obj.items.length; n++) {
+			if (Object.hasOwn(obj.items[n], "share_id")) {
+				continue;
+			}
+			obj.items[n]["share_rights"] = shareRights;
+		}
+	}
 }
 
 /**
@@ -293,49 +316,51 @@ function updateShareRightsOfFoldersAndItems(obj, shareRights) {
  * @returns {Promise} Promise with the datastore's content
  */
 function getDatastore(type, id) {
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (datastore_id) {
-        if (datastore_id === "") {
-            //datastore does not exist, lets force a fresh query to make sure
+	const onSuccess = (datastore_id) => {
+		if (datastore_id === "") {
+			//datastore does not exist, lets force a fresh query to make sure
 
-            const onSuccess = function (datastore_id) {
-                if (datastore_id === "") {
-                    //datastore does really not exist, lets create one and return it
+			const onSuccess = (datastore_id) => {
+				if (datastore_id === "") {
+					//datastore does really not exist, lets create one and return it
 
-                    const onError = function (result) {
-                        // pass
-                        console.log(result);
-                    };
+					const onError = (result) => {
+						// pass
+						console.log(result);
+					};
 
-                    const onSuccess = function (result) {
-                        return getDatastoreWithId(result.data.datastore_id);
-                    };
+					const onSuccess = (result) =>
+						getDatastoreWithId(result.data.datastore_id);
 
-                    return createDatastore(type, "Default", true).then(onSuccess, onError);
-                } else {
-                    // okay, cache was out of date, so lets get this datastore now
-                    return getDatastoreWithId(datastore_id);
-                }
-            };
+					return createDatastore(type, "Default", true).then(
+						onSuccess,
+						onError,
+					);
+				} else {
+					// okay, cache was out of date, so lets get this datastore now
+					return getDatastoreWithId(datastore_id);
+				}
+			};
 
-            const onError = function (result) {
-                // pass
-            };
+			const onError = (result) => {
+				// pass
+			};
 
-            return getDatastoreId(type, true).then(onSuccess, onError);
-        } else {
-            return getDatastoreWithId(datastore_id);
-        }
-    };
+			return getDatastoreId(type, true).then(onSuccess, onError);
+		} else {
+			return getDatastoreWithId(datastore_id);
+		}
+	};
 
-    if (id) {
-        return onSuccess(id);
-    } else {
-        return getDatastoreId(type).then(onSuccess, onError);
-    }
+	if (id) {
+		return onSuccess(id);
+	} else {
+		return getDatastoreId(type).then(onSuccess, onError);
+	}
 }
 
 /**
@@ -347,44 +372,51 @@ function getDatastore(type, id) {
  * @param {function} [filter] A function to filter
  */
 function addNodeToStorage(db, folder, map, filter) {
-    if (typeof folder === "undefined") {
-        return;
-    }
+	if (typeof folder === "undefined") {
+		return;
+	}
 
-    if (folder.hasOwnProperty("deleted") && folder["deleted"]) {
-        return;
-    }
+	if (Object.hasOwn(folder, "deleted") && folder["deleted"]) {
+		return;
+	}
 
-    let i;
-    for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i++) {
-        addNodeToStorage(db, folder.folders[i], map, filter);
-    }
+	let i;
+	for (
+		i = 0;
+		Object.hasOwn(folder, "folders") && i < folder.folders.length;
+		i++
+	) {
+		addNodeToStorage(db, folder.folders[i], map, filter);
+	}
 
-    for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
-        if (folder.items[i].hasOwnProperty("deleted") && folder.items[i]["deleted"]) {
-            continue;
-        }
-        if (filter && !filter(folder.items[i])) {
-            continue;
-        }
+	for (i = 0; Object.hasOwn(folder, "items") && i < folder.items.length; i++) {
+		if (
+			Object.hasOwn(folder.items[i], "deleted") &&
+			folder.items[i]["deleted"]
+		) {
+			continue;
+		}
+		if (filter && !filter(folder.items[i])) {
+			continue;
+		}
 
-        const item = {};
+		const item = {};
 
-        for (let m = 0; m < map.length; m++) {
-            const targetField = map[m][0];
-            const sourceField = map[m][1];
+		for (let m = 0; m < map.length; m++) {
+			const targetField = map[m][0];
+			const sourceField = map[m][1];
 
-            if (typeof sourceField === 'function') {
-                item[targetField] = sourceField(folder.items[i]);
-            } else {
-                item[targetField] = folder.items[i][sourceField];
-            }
-        }
+			if (typeof sourceField === "function") {
+				item[targetField] = sourceField(folder.items[i]);
+			} else {
+				item[targetField] = folder.items[i][sourceField];
+			}
+		}
 
-        item["type"] = folder.items[i].type;
+		item["type"] = folder.items[i].type;
 
-        storage.upsert(db, item);
-    }
+		storage.upsert(db, item);
+	}
 }
 
 /**
@@ -396,11 +428,11 @@ function addNodeToStorage(db, folder, map, filter) {
  * @param {function} [filter] A function to filter
  */
 function fillStorage(db, datastore, map, filter) {
-    storage.removeAll(db);
+	storage.removeAll(db);
 
-    addNodeToStorage(db, datastore, map, filter);
+	addNodeToStorage(db, datastore, map, filter);
 
-    storage.save();
+	storage.save();
 }
 
 /**
@@ -413,31 +445,31 @@ function fillStorage(db, datastore, map, filter) {
  * @returns {Promise} Promise with the status of the save
  */
 function encryptDatastore(datastoreId, content) {
-    const jsonContent = JSON.stringify(content);
+	const jsonContent = JSON.stringify(content);
 
-    function encrypt(datastoreId, json_content) {
-        const secret_key = tempDatastoreKeyStorage[datastoreId];
+	function encrypt(datastoreId, json_content) {
+		const secret_key = tempDatastoreKeyStorage[datastoreId];
 
-        return cryptoLibrary.encryptData(json_content, secret_key);
-    }
+		return cryptoLibrary.encryptData(json_content, secret_key);
+	}
 
-    if (tempDatastoreKeyStorage.hasOwnProperty(datastoreId)) {
-        // datastore secret key exists in temp datastore key storage, but we have to return a promise :/
-        return new Promise(function (resolve) {
-            resolve(encrypt(datastoreId, jsonContent));
-        });
-    } else {
-        const onError = function (result) {
-            // pass
-        };
+	if (Object.hasOwn(tempDatastoreKeyStorage, datastoreId)) {
+		// datastore secret key exists in temp datastore key storage, but we have to return a promise :/
+		return new Promise((resolve) => {
+			resolve(encrypt(datastoreId, jsonContent));
+		});
+	} else {
+		const onError = (result) => {
+			// pass
+		};
 
-        const onSuccess = function (datastore_id) {
-            // datastore_secret key should now exist in temp datastore key storage
-            return encrypt(datastore_id, jsonContent);
-        };
+		const onSuccess = (datastore_id) => {
+			// datastore_secret key should now exist in temp datastore key storage
+			return encrypt(datastore_id, jsonContent);
+		};
 
-        return getDatastoreWithId(datastoreId).then(onSuccess, onError);
-    }
+		return getDatastoreWithId(datastoreId).then(onSuccess, onError);
+	}
 }
 
 /**
@@ -449,26 +481,30 @@ function encryptDatastore(datastoreId, content) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContentWithId(datastoreId, content) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
-    const onSuccess = function (data) {
-        const onError = function (result) {
-            // pass
-        };
-        const onSuccess = function (result) {
-            return result.data;
-        };
+	const onError = (result) => {
+		// pass
+	};
+	const onSuccess = (data) => {
+		const onError = (result) => {
+			// pass
+		};
+		const onSuccess = (result) => result.data;
 
-        return apiClient
-            .writeDatastore(token, sessionSecretKey, datastoreId, data.text, data.nonce)
-            .then(onSuccess, onError);
-    };
+		return apiClient
+			.writeDatastore(
+				token,
+				sessionSecretKey,
+				datastoreId,
+				data.text,
+				data.nonce,
+			)
+			.then(onSuccess, onError);
+	};
 
-    return encryptDatastore(datastoreId, content).then(onSuccess, onError);
+	return encryptDatastore(datastoreId, content).then(onSuccess, onError);
 }
 
 /**
@@ -481,54 +517,55 @@ function saveDatastoreContentWithId(datastoreId, content) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreMeta(datastoreId, description, isDefault) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
-    const onSuccess = function (result) {
-        // update our datastore overview cache
-        let update_happened = false;
-        const userDatastoreOverview = getStore().getState().user.userDatastoreOverview;
-        for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
-            if (
-                userDatastoreOverview.datastores[i].id === datastoreId &&
-                userDatastoreOverview.datastores[i].description === description &&
-                userDatastoreOverview.datastores[i].is_default === isDefault
-            ) {
-                break;
-            }
+	const onError = (result) => {
+		// pass
+	};
+	const onSuccess = (result) => {
+		// update our datastore overview cache
+		let update_happened = false;
+		const userDatastoreOverview =
+			getStore().getState().user.userDatastoreOverview;
+		for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
+			if (
+				userDatastoreOverview.datastores[i].id === datastoreId &&
+				userDatastoreOverview.datastores[i].description === description &&
+				userDatastoreOverview.datastores[i].is_default === isDefault
+			) {
+				break;
+			}
 
-            if (userDatastoreOverview.datastores[i].id === datastoreId) {
-                userDatastoreOverview.datastores[i].description = description;
-                userDatastoreOverview.datastores[i].is_default = isDefault;
-                update_happened = true;
-            }
-            if (userDatastoreOverview.datastores[i].id !== datastoreId && isDefault) {
-                userDatastoreOverview.datastores[i].is_default = false;
-            }
-        }
+			if (userDatastoreOverview.datastores[i].id === datastoreId) {
+				userDatastoreOverview.datastores[i].description = description;
+				userDatastoreOverview.datastores[i].is_default = isDefault;
+				update_happened = true;
+			}
+			if (userDatastoreOverview.datastores[i].id !== datastoreId && isDefault) {
+				userDatastoreOverview.datastores[i].is_default = false;
+			}
+		}
 
-        action().setUserDatastoreOverview({
-            ...userDatastoreOverview,
-        })
-        return result.data;
-    };
+		action().setUserDatastoreOverview({
+			...userDatastoreOverview,
+		});
+		return result.data;
+	};
 
-    return apiClient
-        .writeDatastore(
-            token,
-            sessionSecretKey,
-            datastoreId,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            description,
-            isDefault
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.writeDatastore(
+			token,
+			sessionSecretKey,
+			datastoreId,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			description,
+			isDefault,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -541,24 +578,22 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContent(type, description, content) {
+	const duplicate = helperService.duplicateObject(content);
+	hideSubShareContent(duplicate);
+	normalizeShareContent(duplicate);
 
-    const duplicate = helperService.duplicateObject(content);
-    hideSubShareContent(duplicate);
-    normalizeShareContent(duplicate);
+	if (Object.hasOwn(duplicate, "datastore_id")) {
+		return saveDatastoreContentWithId(duplicate["datastore_id"], duplicate);
+	}
 
-    if (duplicate.hasOwnProperty("datastore_id")) {
-        return saveDatastoreContentWithId(duplicate["datastore_id"], duplicate);
-    }
+	const onError = (result) => {
+		// pass
+	};
 
-    const onError = function (result) {
-        // pass
-    };
+	const onSuccess = (datastore_id) =>
+		saveDatastoreContentWithId(datastore_id, duplicate);
 
-    const onSuccess = function (datastore_id) {
-        return saveDatastoreContentWithId(datastore_id, duplicate);
-    };
-
-    return getDatastoreId(type).then(onSuccess, onError);
+	return getDatastoreId(type).then(onSuccess, onError);
 }
 
 /**
@@ -568,23 +603,22 @@ function saveDatastoreContent(type, description, content) {
  * @param {function} func The call back function
  */
 function filter(folder, func) {
-    let i;
-    if (!folder) {
-        return;
-    }
-    if (folder.hasOwnProperty("folders")) {
-        for (i = 0; i < folder["folders"].length; i++) {
-            filter(folder["folders"][i], func);
-        }
-    }
+	let i;
+	if (!folder) {
+		return;
+	}
+	if (Object.hasOwn(folder, "folders")) {
+		for (i = 0; i < folder["folders"].length; i++) {
+			filter(folder["folders"][i], func);
+		}
+	}
 
-    if (folder.hasOwnProperty("items")) {
-        for (i = 0; i < folder["items"].length; i++) {
-            func(folder["items"][i]);
-        }
-    }
+	if (Object.hasOwn(folder, "items")) {
+		for (i = 0; i < folder["items"].length; i++) {
+			func(folder["items"][i]);
+		}
+	}
 }
-
 
 /**
  * Searches a folder and expects to find an element (item or folder) with a specific searchId.
@@ -596,26 +630,26 @@ function filter(folder, func) {
  * @returns {[]} Returns a tuple of the containing list and index or raises an error if not found
  */
 function findObject(folder, searchId) {
-    let n, l;
+	let n, l;
 
-    if (folder.hasOwnProperty("folders")) {
-        // check if the object is a folder, if yes return the folder list and the index
-        for (n = 0, l = folder.folders.length; n < l; n++) {
-            if (folder.folders[n].id === searchId) {
-                return [folder.folders, n];
-            }
-        }
-    }
-    if (folder.hasOwnProperty("items")) {
-        // check if its a file, if yes return the file list and the index
-        for (n = 0, l = folder.items.length; n < l; n++) {
-            if (folder.items[n].id === searchId) {
-                return [folder.items, n];
-            }
-        }
-    }
-    // something went wrong, couldn't find the item / folder here
-    throw new RangeError("ObjectNotFound");
+	if (Object.hasOwn(folder, "folders")) {
+		// check if the object is a folder, if yes return the folder list and the index
+		for (n = 0, l = folder.folders.length; n < l; n++) {
+			if (folder.folders[n].id === searchId) {
+				return [folder.folders, n];
+			}
+		}
+	}
+	if (Object.hasOwn(folder, "items")) {
+		// check if its a file, if yes return the file list and the index
+		for (n = 0, l = folder.items.length; n < l; n++) {
+			if (folder.items[n].id === searchId) {
+				return [folder.items, n];
+			}
+		}
+	}
+	// something went wrong, couldn't find the item / folder here
+	throw new RangeError("ObjectNotFound");
 }
 
 /**
@@ -627,21 +661,21 @@ function findObject(folder, searchId) {
  * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
  */
 function findInDatastore(path, datastore) {
-    const to_search = path[0];
-    let n, l;
-    const rest = path.slice(1);
+	const to_search = path[0];
+	let n, l;
+	const rest = path.slice(1);
 
-    if (rest.length === 0) {
-        // found the parent
-        return findObject(datastore, to_search);
-    }
+	if (rest.length === 0) {
+		// found the parent
+		return findObject(datastore, to_search);
+	}
 
-    for (n = 0, l = datastore.folders.length; n < l; n++) {
-        if (datastore.folders[n].id === to_search) {
-            return findInDatastore(rest, datastore.folders[n]);
-        }
-    }
-    throw new RangeError("ObjectNotFound");
+	for (n = 0, l = datastore.folders.length; n < l; n++) {
+		if (datastore.folders[n].id === to_search) {
+			return findInDatastore(rest, datastore.folders[n]);
+		}
+	}
+	throw new RangeError("ObjectNotFound");
 }
 
 /**
@@ -650,34 +684,41 @@ function findInDatastore(path, datastore) {
  * @param {TreeObject} share The share tree object which we want to modify
  */
 function hideSubShareContent(share) {
-    const allowedProps = ["id", "name", "description", "share_id", "share_secret_key", "deleted"];
+	const allowedProps = [
+		"id",
+		"name",
+		"description",
+		"share_id",
+		"share_secret_key",
+		"deleted",
+	];
 
-    if (!share || !share.hasOwnProperty("share_index")) {
-        return
-    }
+	if (!share || !Object.hasOwn(share, "share_index")) {
+		return;
+	}
 
-    for (let share_id in share.share_index) {
-        if (!share.share_index.hasOwnProperty(share_id)) {
-            continue;
-        }
+	for (const share_id in share.share_index) {
+		if (!Object.hasOwn(share.share_index, share_id)) {
+			continue;
+		}
 
-        for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
-            const path_copy = share.share_index[share_id].paths[i].slice();
-            const search = findInDatastore(path_copy, share);
+		for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
+			const path_copy = share.share_index[share_id].paths[i].slice();
+			const search = findInDatastore(path_copy, share);
 
-            const obj = search[0][search[1]];
+			const obj = search[0][search[1]];
 
-            for (let prop in obj) {
-                if (!obj.hasOwnProperty(prop)) {
-                    continue;
-                }
-                if (allowedProps.indexOf(prop) > -1) {
-                    continue;
-                }
-                delete obj[prop];
-            }
-        }
-    }
+			for (const prop in obj) {
+				if (!Object.hasOwn(obj, prop)) {
+					continue;
+				}
+				if (allowedProps.indexOf(prop) > -1) {
+					continue;
+				}
+				delete obj[prop];
+			}
+		}
+	}
 }
 
 /**
@@ -686,50 +727,60 @@ function hideSubShareContent(share) {
  * @param {TreeObject} share The share tree object which we want to modify
  */
 function normalizeShareContent(share) {
-    let i;
-    const artificalProps = ["path", "is_folder", "hidden", "parent_share_id", "parent_datastore_id", "expanded", "expanded_temporary", "share_rights", "filter"];
+	let i;
+	const artificalProps = [
+		"path",
+		"is_folder",
+		"hidden",
+		"parent_share_id",
+		"parent_datastore_id",
+		"expanded",
+		"expanded_temporary",
+		"share_rights",
+		"filter",
+	];
 
-    for (const prop of artificalProps) {
-        if (share.hasOwnProperty(prop)) {
-            delete share[prop];
-        }
-    }
+	for (const prop of artificalProps) {
+		if (Object.hasOwn(share, prop)) {
+			delete share[prop];
+		}
+	}
 
-    if (share.hasOwnProperty("items")) {
-        for (const item of share["items"]) {
-            for (const prop of artificalProps) {
-                if (item.hasOwnProperty(prop)) {
-                    delete item[prop];
-                }
-            }
-        }
-    }
+	if (Object.hasOwn(share, "items")) {
+		for (const item of share["items"]) {
+			for (const prop of artificalProps) {
+				if (Object.hasOwn(item, prop)) {
+					delete item[prop];
+				}
+			}
+		}
+	}
 
-    if (share.hasOwnProperty("folders")) {
-        for (const folder of share["folders"]) {
-            normalizeShareContent(folder);
-        }
-    }
+	if (Object.hasOwn(share, "folders")) {
+		for (const folder of share["folders"]) {
+			normalizeShareContent(folder);
+		}
+	}
 }
 
 const datastoreService = {
-    getDatastoreOverview: getDatastoreOverview,
-    getDatastoreId: getDatastoreId,
-    getDatastoreWithId: getDatastoreWithId,
-    createDatastore: createDatastore,
-    deleteDatastore: deleteDatastore,
-    updatePathsRecursive: updatePathsRecursive,
-    updateShareRightsOfFoldersAndItems: updateShareRightsOfFoldersAndItems,
-    getDatastore: getDatastore,
-    addNodeToStorage: addNodeToStorage,
-    fillStorage: fillStorage,
-    saveDatastoreContent: saveDatastoreContent,
-    saveDatastoreContentWithId: saveDatastoreContentWithId,
-    saveDatastoreMeta: saveDatastoreMeta,
-    encryptDatastore: encryptDatastore,
-    filter: filter,
-    hideSubShareContent: hideSubShareContent,
-    normalizeShareContent: normalizeShareContent,
-    findInDatastore: findInDatastore,
+	getDatastoreOverview: getDatastoreOverview,
+	getDatastoreId: getDatastoreId,
+	getDatastoreWithId: getDatastoreWithId,
+	createDatastore: createDatastore,
+	deleteDatastore: deleteDatastore,
+	updatePathsRecursive: updatePathsRecursive,
+	updateShareRightsOfFoldersAndItems: updateShareRightsOfFoldersAndItems,
+	getDatastore: getDatastore,
+	addNodeToStorage: addNodeToStorage,
+	fillStorage: fillStorage,
+	saveDatastoreContent: saveDatastoreContent,
+	saveDatastoreContentWithId: saveDatastoreContentWithId,
+	saveDatastoreMeta: saveDatastoreMeta,
+	encryptDatastore: encryptDatastore,
+	filter: filter,
+	hideSubShareContent: hideSubShareContent,
+	normalizeShareContent: normalizeShareContent,
+	findInDatastore: findInDatastore,
 };
 export default datastoreService;

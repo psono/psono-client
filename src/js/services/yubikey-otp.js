@@ -2,9 +2,9 @@
  * Yubikey OTP and all the functions to create / edit / delete it ...
  */
 
+import action from "../actions/bound-action-creators";
 import apiClient from "./api-client";
 import { getStore } from "./store";
-import action from "../actions/bound-action-creators";
 
 /**
  * creates a yubikey otp
@@ -15,18 +15,18 @@ import action from "../actions/bound-action-creators";
  * @returns {promise} Returns a promise with the user information
  */
 function createYubikeyOtp(title, otp) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function (request) {
-        action().setHasTwoFactor(true);
-        return {
-            id: request.data["id"],
-        };
-    };
-    const onError = function (error) {
-        return Promise.reject(error.data);
-    };
-    return apiClient.createYubikeyOtp(token, sessionSecretKey, title, otp).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = (request) => {
+		action().setHasTwoFactor(true);
+		return {
+			id: request.data["id"],
+		};
+	};
+	const onError = (error) => Promise.reject(error.data);
+	return apiClient
+		.createYubikeyOtp(token, sessionSecretKey, title, otp)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -35,16 +35,16 @@ function createYubikeyOtp(title, otp) {
  * @returns {promise} Returns a promise with a list of all yubikey otps
  */
 function readYubikeyOtp() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        return request.data["yubikey_otps"];
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.readYubikeyOtp(token, sessionSecretKey).then(onSuccess, onError);
+	const onSuccess = (request) => request.data["yubikey_otps"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.readYubikeyOtp(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -56,16 +56,16 @@ function readYubikeyOtp() {
  * @returns {promise} Returns a promise with true or false
  */
 function activateYubikeyOtp(yubikeyId, yubikeyOtp) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function () {
-        action().setHasTwoFactor(true);
-        return true;
-    };
-    const onError = function () {
-        return false;
-    };
-    return apiClient.activateYubikeyOtp(token, sessionSecretKey, yubikeyId, yubikeyOtp).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = () => {
+		action().setHasTwoFactor(true);
+		return true;
+	};
+	const onError = () => false;
+	return apiClient
+		.activateYubikeyOtp(token, sessionSecretKey, yubikeyId, yubikeyOtp)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -76,22 +76,20 @@ function activateYubikeyOtp(yubikeyId, yubikeyOtp) {
  * @returns {promise} Returns a promise with true or false
  */
 function deleteYubikeyOtp(yubikeyOtpId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function () {
-        return true;
-    };
-    const onError = function (data) {
-        return Promise.reject(data.data);
-    };
-    return apiClient.deleteYubikeyOtp(token, sessionSecretKey, yubikeyOtpId).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = () => true;
+	const onError = (data) => Promise.reject(data.data);
+	return apiClient
+		.deleteYubikeyOtp(token, sessionSecretKey, yubikeyOtpId)
+		.then(onSuccess, onError);
 }
 
 const yubikeyOtpService = {
-    createYubikeyOtp,
-    readYubikeyOtp,
-    activateYubikeyOtp,
-    deleteYubikeyOtp,
+	createYubikeyOtp,
+	readYubikeyOtp,
+	activateYubikeyOtp,
+	deleteYubikeyOtp,
 };
 
 export default yubikeyOtpService;

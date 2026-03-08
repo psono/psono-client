@@ -2,14 +2,14 @@
  * Service to handle all share related tasks
  */
 
-import cryptoLibrary from "../services/crypto-library";
 import apiClient from "../services/api-client";
-import { getStore } from "./store";
+import cryptoLibrary from "../services/crypto-library";
 import datastoreService from "./datastore";
-import secretLinkService from "./secret-link";
 import fileLinkService from "./file-link";
-import shareLinkService from "./share-link";
 import helperService from "./helper";
+import secretLinkService from "./secret-link";
+import shareLinkService from "./share-link";
+import { getStore } from "./store";
 
 const registrations = {};
 
@@ -22,21 +22,27 @@ const registrations = {};
  * @returns {Promise} Returns a promise with the decrypted content of the share
  */
 function readShare(shareId, secretKey) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        return {
-            data: JSON.parse(cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey)),
-            rights: content.data.rights,
-        };
-    };
+	const onSuccess = (content) => ({
+		data: JSON.parse(
+			cryptoLibrary.decryptData(
+				content.data.data,
+				content.data.data_nonce,
+				secretKey,
+			),
+		),
+		rights: content.data.rights,
+	});
 
-    return apiClient.readShare(token, sessionSecretKey, shareId).then(onSuccess, onError);
+	return apiClient
+		.readShare(token, sessionSecretKey, shareId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -45,42 +51,44 @@ function readShare(shareId, secretKey) {
  * @returns {Promise} Returns a list of all shares
  */
 function readShares() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        for (let i = content.data.shares.length - 1; i >= 0; i--) {
-            if (
-                content.data.shares[i].share_right_title !== "" &&
-                content.data.shares[i].share_right_create_user_public_key
-            ) {
-                content.data.shares[i].share_right_title = cryptoLibrary.decryptPrivateKey(
-                    content.data.shares[i].share_right_title,
-                    content.data.shares[i].share_right_title_nonce,
-                    content.data.shares[i].share_right_create_user_public_key
-                );
-            }
-            if (
-                content.data.shares[i].share_right_type &&
-                content.data.shares[i].share_right_type !== "" &&
-                content.data.shares[i].share_right_create_user_public_key
-            ) {
-                content.data.shares[i].share_right_type = cryptoLibrary.decryptPrivateKey(
-                    content.data.shares[i].share_right_type,
-                    content.data.shares[i].share_right_type_nonce,
-                    content.data.shares[i].share_right_create_user_public_key
-                );
-            }
-        }
+	const onSuccess = (content) => {
+		for (let i = content.data.shares.length - 1; i >= 0; i--) {
+			if (
+				content.data.shares[i].share_right_title !== "" &&
+				content.data.shares[i].share_right_create_user_public_key
+			) {
+				content.data.shares[i].share_right_title =
+					cryptoLibrary.decryptPrivateKey(
+						content.data.shares[i].share_right_title,
+						content.data.shares[i].share_right_title_nonce,
+						content.data.shares[i].share_right_create_user_public_key,
+					);
+			}
+			if (
+				content.data.shares[i].share_right_type &&
+				content.data.shares[i].share_right_type !== "" &&
+				content.data.shares[i].share_right_create_user_public_key
+			) {
+				content.data.shares[i].share_right_type =
+					cryptoLibrary.decryptPrivateKey(
+						content.data.shares[i].share_right_type,
+						content.data.shares[i].share_right_type_nonce,
+						content.data.shares[i].share_right_create_user_public_key,
+					);
+			}
+		}
 
-        return content.data;
-    };
+		return content.data;
+	};
 
-    return apiClient.readShares(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient.readShares(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -93,24 +101,30 @@ function readShares() {
  * @returns {Promise} Returns a promise with the status of the update
  */
 function writeShare(shareId, content, secretKey) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const duplicate = helperService.duplicateObject(content);
-    datastoreService.hideSubShareContent(duplicate);
-    datastoreService.normalizeShareContent(duplicate);
+	const duplicate = helperService.duplicateObject(content);
+	datastoreService.hideSubShareContent(duplicate);
+	datastoreService.normalizeShareContent(duplicate);
 
-    if (duplicate.hasOwnProperty("id")) {
-        delete duplicate.id;
-    }
-    if (duplicate.hasOwnProperty("share_rights")) {
-        delete duplicate.share_rights;
-    }
+	if (Object.hasOwn(duplicate, "id")) {
+		delete duplicate.id;
+	}
+	if (Object.hasOwn(duplicate, "share_rights")) {
+		delete duplicate.share_rights;
+	}
 
-    const jsonContent = JSON.stringify(duplicate);
+	const jsonContent = JSON.stringify(duplicate);
 
-    const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
-    return apiClient.writeShare(token, sessionSecretKey, shareId, encryptedData.text, encryptedData.nonce);
+	const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
+	return apiClient.writeShare(
+		token,
+		sessionSecretKey,
+		shareId,
+		encryptedData.text,
+		encryptedData.nonce,
+	);
 }
 
 /**
@@ -125,69 +139,92 @@ function writeShare(shareId, content, secretKey) {
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
-function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRequest, onClosedRequest) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function createShare(
+	content,
+	parentShareId,
+	parentDatastoreId,
+	linkId,
+	onOpenRequest,
+	onClosedRequest,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const child_shares = [];
-    registrations["get_all_child_shares"](content, 1, child_shares, []);
+	const child_shares = [];
+	registrations["get_all_child_shares"](content, 1, child_shares, []);
 
-    const filteredContent = helperService.duplicateObject(content);
-    datastoreService.normalizeShareContent(filteredContent);
-    let old_link_id;
+	const filteredContent = helperService.duplicateObject(content);
+	datastoreService.normalizeShareContent(filteredContent);
+	let old_link_id;
 
-    if (filteredContent.hasOwnProperty("id")) {
-        old_link_id = filteredContent.id;
-        delete filteredContent.id;
-    }
+	if (Object.hasOwn(filteredContent, "id")) {
+		old_link_id = filteredContent.id;
+		delete filteredContent.id;
+	}
 
-    const secretKey = cryptoLibrary.generateSecretKey();
+	const secretKey = cryptoLibrary.generateSecretKey();
 
-    const jsonContent = JSON.stringify(filteredContent);
+	const jsonContent = JSON.stringify(filteredContent);
 
-    const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
-    const encryptedKey = cryptoLibrary.encryptSecretKey(secretKey);
+	const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
+	const encryptedKey = cryptoLibrary.encryptSecretKey(secretKey);
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        if (filteredContent.hasOwnProperty("secret_id")) {
-            secretLinkService.moveSecretLink(old_link_id, content.data.share_id);
-        } else {
-            secretLinkService.resetSecretLinkTimeout();
-            secretLinkService.moveSecretLinks(filteredContent, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
-        }
+	const onSuccess = (content) => {
+		if (Object.hasOwn(filteredContent, "secret_id")) {
+			secretLinkService.moveSecretLink(old_link_id, content.data.share_id);
+		} else {
+			secretLinkService.resetSecretLinkTimeout();
+			secretLinkService.moveSecretLinks(
+				filteredContent,
+				content.data.share_id,
+				undefined,
+				onOpenRequest,
+				onClosedRequest,
+			);
+		}
 
-        if (filteredContent.hasOwnProperty("file_id")) {
-            fileLinkService.moveFileLink(old_link_id, content.data.share_id);
-        } else {
-            fileLinkService.resetFileLinkTimeout();
-            fileLinkService.moveFileLinks(filteredContent, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
-        }
+		if (Object.hasOwn(filteredContent, "file_id")) {
+			fileLinkService.moveFileLink(old_link_id, content.data.share_id);
+		} else {
+			fileLinkService.resetFileLinkTimeout();
+			fileLinkService.moveFileLinks(
+				filteredContent,
+				content.data.share_id,
+				undefined,
+				onOpenRequest,
+				onClosedRequest,
+			);
+		}
 
-        // Update all child shares to be now a child of this share.
-        for (let i = 0; i < child_shares.length; i++) {
-            shareLinkService.moveShareLink(child_shares[i]["share"]["id"], content.data.share_id, undefined);
-        }
+		// Update all child shares to be now a child of this share.
+		for (let i = 0; i < child_shares.length; i++) {
+			shareLinkService.moveShareLink(
+				child_shares[i]["share"]["id"],
+				content.data.share_id,
+				undefined,
+			);
+		}
 
-        return { share_id: content.data.share_id, secret_key: secretKey };
-    };
+		return { share_id: content.data.share_id, secret_key: secretKey };
+	};
 
-    return apiClient
-        .createShare(
-            token,
-            sessionSecretKey,
-            encryptedData.text,
-            encryptedData.nonce,
-            encryptedKey.text,
-            encryptedKey.nonce,
-            parentShareId,
-            parentDatastoreId,
-            linkId
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createShare(
+			token,
+			sessionSecretKey,
+			encryptedData.text,
+			encryptedData.nonce,
+			encryptedKey.text,
+			encryptedKey.nonce,
+			parentShareId,
+			parentDatastoreId,
+			linkId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -198,18 +235,18 @@ function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRe
  * @returns {Promise} Returns a promise with all the specific rights
  */
 function readShareRights(shareId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        return content.data;
-    };
+	const onSuccess = (content) => content.data;
 
-    return apiClient.readShareRights(token, sessionSecretKey, shareId).then(onSuccess, onError);
+	return apiClient
+		.readShareRights(token, sessionSecretKey, shareId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -218,18 +255,18 @@ function readShareRights(shareId) {
  * @returns {Promise} Returns a promise with the share rights overview
  */
 function readShareRightsOverview() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        return content.data;
-    };
+	const onSuccess = (content) => content.data;
 
-    return apiClient.readShareRightsOverview(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient
+		.readShareRightsOverview(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -249,47 +286,57 @@ function readShareRightsOverview() {
  *
  * @returns {Promise} Returns a promise with the new share right id
  */
-function createShareRight(title, type, shareId, userId, groupId, publicKey, secretKey, key, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    let encrypted_key, encrypted_title, encrypted_type;
+function createShareRight(
+	title,
+	type,
+	shareId,
+	userId,
+	groupId,
+	publicKey,
+	secretKey,
+	key,
+	read,
+	write,
+	grant,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	let encrypted_key, encrypted_title, encrypted_type;
 
-    const onError = function (result) {
-        return Promise.reject(result);
-    };
+	const onError = (result) => Promise.reject(result);
 
-    const onSuccess = function (content) {
-        return { share_right_id: content.data.share_right_id };
-    };
+	const onSuccess = (content) => ({
+		share_right_id: content.data.share_right_id,
+	});
 
-    if (typeof publicKey !== "undefined") {
-        encrypted_key = cryptoLibrary.encryptPrivateKey(key, publicKey);
-        encrypted_title = cryptoLibrary.encryptPrivateKey(title, publicKey);
-        encrypted_type = cryptoLibrary.encryptPrivateKey(type, publicKey);
-    } else {
-        encrypted_key = cryptoLibrary.encryptData(key, secretKey);
-        encrypted_title = cryptoLibrary.encryptData(title, secretKey);
-        encrypted_type = cryptoLibrary.encryptData(type, secretKey);
-    }
+	if (typeof publicKey !== "undefined") {
+		encrypted_key = cryptoLibrary.encryptPrivateKey(key, publicKey);
+		encrypted_title = cryptoLibrary.encryptPrivateKey(title, publicKey);
+		encrypted_type = cryptoLibrary.encryptPrivateKey(type, publicKey);
+	} else {
+		encrypted_key = cryptoLibrary.encryptData(key, secretKey);
+		encrypted_title = cryptoLibrary.encryptData(title, secretKey);
+		encrypted_type = cryptoLibrary.encryptData(type, secretKey);
+	}
 
-    return apiClient
-        .createShareRight(
-            token,
-            sessionSecretKey,
-            encrypted_title.text,
-            encrypted_title.nonce,
-            encrypted_type.text,
-            encrypted_type.nonce,
-            shareId,
-            userId,
-            groupId,
-            encrypted_key.text,
-            encrypted_key.nonce,
-            read,
-            write,
-            grant
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createShareRight(
+			token,
+			sessionSecretKey,
+			encrypted_title.text,
+			encrypted_title.nonce,
+			encrypted_type.text,
+			encrypted_type.nonce,
+			shareId,
+			userId,
+			groupId,
+			encrypted_key.text,
+			encrypted_key.nonce,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -305,21 +352,30 @@ function createShareRight(title, type, shareId, userId, groupId, publicKey, secr
  * @returns {Promise} Returns a promise with the update status
  */
 function updateShareRight(shareId, userId, groupId, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => {
+		// pass
+		return Promise.reject(result.data);
+	};
 
-    const onSuccess = function (content) {
-        return { share_right_id: content.data.share_right_id };
-    };
+	const onSuccess = (content) => ({
+		share_right_id: content.data.share_right_id,
+	});
 
-    return apiClient
-        .updateShareRight(token, sessionSecretKey, shareId, userId, groupId, read, write, grant)
-        .then(onSuccess, onError);
+	return apiClient
+		.updateShareRight(
+			token,
+			sessionSecretKey,
+			shareId,
+			userId,
+			groupId,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -331,20 +387,25 @@ function updateShareRight(shareId, userId, groupId, read, write, grant) {
  * @returns {Promise} Returns a promise with the status of the delete
  */
 function deleteShareRight(userShareRightId, groupShareRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        return { share_right_id: content.data.share_right_id };
-    };
+	const onSuccess = (content) => ({
+		share_right_id: content.data.share_right_id,
+	});
 
-    return apiClient
-        .deleteShareRight(token, sessionSecretKey, userShareRightId, groupShareRightId)
-        .then(onSuccess, onError);
+	return apiClient
+		.deleteShareRight(
+			token,
+			sessionSecretKey,
+			userShareRightId,
+			groupShareRightId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -356,18 +417,22 @@ function deleteShareRight(userShareRightId, groupShareRightId) {
  * @returns {object} The decrypted share
  */
 function decryptShare(encryptedShare, secretKey) {
-    let share = {};
+	let share = {};
 
-    if (typeof encryptedShare.share_data !== "undefined") {
-        share = JSON.parse(
-            cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey)
-        );
-    }
+	if (typeof encryptedShare.share_data !== "undefined") {
+		share = JSON.parse(
+			cryptoLibrary.decryptData(
+				encryptedShare.share_data,
+				encryptedShare.share_data_nonce,
+				secretKey,
+			),
+		);
+	}
 
-    share.share_id = encryptedShare.share_id;
-    share.share_secret_key = secretKey;
+	share.share_id = encryptedShare.share_id;
+	share.share_secret_key = secretKey;
 
-    return share;
+	return share;
 }
 
 /**
@@ -381,38 +446,47 @@ function decryptShare(encryptedShare, secretKey) {
  * @returns {Promise} Returns a promise with the share content
  */
 function acceptShareRight(shareRightId, text, nonce, publicKey) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const secret_key = cryptoLibrary.decryptPrivateKey(text, nonce, publicKey);
+	const secret_key = cryptoLibrary.decryptPrivateKey(text, nonce, publicKey);
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        const decrypted_share = decryptShare(content.data, secret_key);
+	const onSuccess = (content) => {
+		const decrypted_share = decryptShare(content.data, secret_key);
 
-        if (typeof decrypted_share.type === "undefined" && typeof content.data.share_type !== "undefined") {
-            const type = cryptoLibrary.decryptPrivateKey(
-                content.data.share_type,
-                content.data.share_type_nonce,
-                publicKey
-            );
+		if (
+			typeof decrypted_share.type === "undefined" &&
+			typeof content.data.share_type !== "undefined"
+		) {
+			const type = cryptoLibrary.decryptPrivateKey(
+				content.data.share_type,
+				content.data.share_type_nonce,
+				publicKey,
+			);
 
-            if (type !== "folder") {
-                decrypted_share.type = type;
-            }
-        }
+			if (type !== "folder") {
+				decrypted_share.type = type;
+			}
+		}
 
-        return decrypted_share;
-    };
+		return decrypted_share;
+	};
 
-    const encrypted_key = cryptoLibrary.encryptSecretKey(secret_key);
+	const encrypted_key = cryptoLibrary.encryptSecretKey(secret_key);
 
-    return apiClient
-        .acceptShareRight(token, sessionSecretKey, shareRightId, encrypted_key.text, encrypted_key.nonce)
-        .then(onSuccess, onError);
+	return apiClient
+		.acceptShareRight(
+			token,
+			sessionSecretKey,
+			shareRightId,
+			encrypted_key.text,
+			encrypted_key.nonce,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -423,18 +497,20 @@ function acceptShareRight(shareRightId, text, nonce, publicKey) {
  * @returns {Promise} Returns a promise with the status of the decline
  */
 function declineShareRight(shareRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        // pass
-    };
+	const onSuccess = (content) => {
+		// pass
+	};
 
-    return apiClient.declineShareRight(token, sessionSecretKey, shareRightId).then(onSuccess, onError);
+	return apiClient
+		.declineShareRight(token, sessionSecretKey, shareRightId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -449,69 +525,87 @@ function declineShareRight(shareRightId) {
  * @returns {false|TreeObject} Returns the closest parent or false
  */
 function getClosestParentShare(path, datastore, closestShare, distance) {
-    const original_path = path.slice();
+	const original_path = path.slice();
 
-    const get_closest_parent_share_helper = function (path, datastore, closest_share, relative_path, distance) {
-        let n, l;
+	const get_closest_parent_share_helper = (
+		path,
+		datastore,
+		closest_share,
+		relative_path,
+		distance,
+	) => {
+		let n, l;
 
-        if (path.length === distance) {
-            return {
-                closest_share: closest_share,
-                relative_path: relative_path, //relative path inside of the share to the item
-                path_to_share: original_path.slice(0, original_path.length - relative_path.length), //path to the share itself
-            };
-        }
+		if (path.length === distance) {
+			return {
+				closest_share: closest_share,
+				relative_path: relative_path, //relative path inside of the share to the item
+				path_to_share: original_path.slice(
+					0,
+					original_path.length - relative_path.length,
+				), //path to the share itself
+			};
+		}
 
-        const to_search = path.shift();
+		const to_search = path.shift();
 
-        if (datastore.hasOwnProperty("folders")) {
-            for (n = 0, l = datastore.folders.length; n < l; n++) {
-                if (datastore.folders[n].id === to_search) {
-                    if (typeof datastore.folders[n].share_id !== "undefined") {
-                        return get_closest_parent_share_helper(
-                            path.slice(),
-                            datastore.folders[n],
-                            datastore.folders[n],
-                            path.slice(),
-                            distance
-                        );
-                    } else {
-                        return get_closest_parent_share_helper(
-                            path.slice(),
-                            datastore.folders[n],
-                            closest_share,
-                            relative_path,
-                            distance
-                        );
-                    }
-                }
-            }
-        }
+		if (Object.hasOwn(datastore, "folders")) {
+			for (n = 0, l = datastore.folders.length; n < l; n++) {
+				if (datastore.folders[n].id === to_search) {
+					if (typeof datastore.folders[n].share_id !== "undefined") {
+						return get_closest_parent_share_helper(
+							path.slice(),
+							datastore.folders[n],
+							datastore.folders[n],
+							path.slice(),
+							distance,
+						);
+					} else {
+						return get_closest_parent_share_helper(
+							path.slice(),
+							datastore.folders[n],
+							closest_share,
+							relative_path,
+							distance,
+						);
+					}
+				}
+			}
+		}
 
-        if (datastore.hasOwnProperty("items")) {
-            for (n = 0, l = datastore.items.length; n < l; n++) {
-                if (datastore.items[n].id === to_search) {
-                    if (typeof datastore.items[n].share_id !== "undefined") {
-                        return {
-                            closest_share: datastore.items[n],
-                            relative_path: [],
-                            path_to_share: original_path,
-                        };
-                    } else {
-                        return {
-                            closest_share: closest_share,
-                            relative_path: relative_path,
-                            path_to_share: original_path.slice(0, original_path.length - relative_path.length),
-                        };
-                    }
-                }
-            }
-        }
+		if (Object.hasOwn(datastore, "items")) {
+			for (n = 0, l = datastore.items.length; n < l; n++) {
+				if (datastore.items[n].id === to_search) {
+					if (typeof datastore.items[n].share_id !== "undefined") {
+						return {
+							closest_share: datastore.items[n],
+							relative_path: [],
+							path_to_share: original_path,
+						};
+					} else {
+						return {
+							closest_share: closest_share,
+							relative_path: relative_path,
+							path_to_share: original_path.slice(
+								0,
+								original_path.length - relative_path.length,
+							),
+						};
+					}
+				}
+			}
+		}
 
-        return false;
-    };
+		return false;
+	};
 
-    return get_closest_parent_share_helper(path, datastore, closestShare, path.slice(), distance);
+	return get_closest_parent_share_helper(
+		path,
+		datastore,
+		closestShare,
+		path.slice(),
+		distance,
+	);
 }
 
 /**
@@ -521,7 +615,7 @@ function getClosestParentShare(path, datastore, closestShare, distance) {
  * @param {function} func The call back function
  */
 function register(key, func) {
-    registrations[key] = func;
+	registrations[key] = func;
 }
 
 // registrations
@@ -532,19 +626,19 @@ function register(key, func) {
 // itemBlueprint.register('get_closest_parent_share', get_closest_parent_share);
 
 const shareService = {
-    readShare: readShare,
-    readShares: readShares,
-    writeShare: writeShare,
-    createShare: createShare,
-    readShareRights: readShareRights,
-    readShareRightsOverview: readShareRightsOverview,
-    createShareRight: createShareRight,
-    updateShareRight: updateShareRight,
-    deleteShareRight: deleteShareRight,
-    decryptShare: decryptShare,
-    acceptShareRight: acceptShareRight,
-    declineShareRight: declineShareRight,
-    getClosestParentShare: getClosestParentShare,
-    register: register,
+	readShare: readShare,
+	readShares: readShares,
+	writeShare: writeShare,
+	createShare: createShare,
+	readShareRights: readShareRights,
+	readShareRightsOverview: readShareRightsOverview,
+	createShareRight: createShareRight,
+	updateShareRight: updateShareRight,
+	deleteShareRight: deleteShareRight,
+	decryptShare: decryptShare,
+	acceptShareRight: acceptShareRight,
+	declineShareRight: declineShareRight,
+	getClosestParentShare: getClosestParentShare,
+	register: register,
 };
 export default shareService;

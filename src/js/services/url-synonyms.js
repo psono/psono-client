@@ -18,25 +18,27 @@
  * Matching is exact and case-sensitive. Add new mappings as discovered.
  */
 const URL_SYNONYMS = {
-    "https://dash.cloudflare.com/sign-up": "https://dash.cloudflare.com/login",
-    "https://github.com/signup": "https://github.com/login",
-    "https://gitlab.com/users/sign_up": "https://gitlab.com/users/sign_in",
-    "https://accounts.google.com/lifecycle/steps/signup/password": "https://accounts.google.com/signin",
-    "https://www.amazon.com/ap/signin": "https://www.amazon.com",
-    "https://de-de.facebook.com/r.php": "https://de-de.facebook.com",
-    "https://www.facebook.com/r.php": "https://www.facebook.com",
-    "https://www.instagram.com/accounts/emailsignup": "https://www.instagram.com",
-    "https://x.com/i/flow/signup": "https://x.com/i/flow/login",
-    "https://www.netflix.com/de-en/login": "https://www.netflix.com/de-en/login",
-    "https://www.linkedin.com/signup": "https://www.linkedin.com/uas/login",
-    "https://signup.ebay.de/pa/crte": "https://signin.ebay.de/signin/",
-    "https://signup.ebay.com/pa/crte": "https://signin.ebay.com/signin/",
-    "https://signup.ebay.com.au/pa/crte": "https://signin.ebay.com.au/signin/",
-    "https://signup.ebay.co.uk/pa/crte": "https://signin.ebay.co.uk/signin/",
-    "https://www.psono.pw/register.html": "https://www.psono.pw",
-    "https://stackoverflow.com/users/signup": "https://stackoverflow.com/users/login",
-    "https://superuser.com/users/signup": "https://superuser.com/users/login",
-    "https://askubuntu.com/users/signup": "https://askubuntu.com/users/login",
+	"https://dash.cloudflare.com/sign-up": "https://dash.cloudflare.com/login",
+	"https://github.com/signup": "https://github.com/login",
+	"https://gitlab.com/users/sign_up": "https://gitlab.com/users/sign_in",
+	"https://accounts.google.com/lifecycle/steps/signup/password":
+		"https://accounts.google.com/signin",
+	"https://www.amazon.com/ap/signin": "https://www.amazon.com",
+	"https://de-de.facebook.com/r.php": "https://de-de.facebook.com",
+	"https://www.facebook.com/r.php": "https://www.facebook.com",
+	"https://www.instagram.com/accounts/emailsignup": "https://www.instagram.com",
+	"https://x.com/i/flow/signup": "https://x.com/i/flow/login",
+	"https://www.netflix.com/de-en/login": "https://www.netflix.com/de-en/login",
+	"https://www.linkedin.com/signup": "https://www.linkedin.com/uas/login",
+	"https://signup.ebay.de/pa/crte": "https://signin.ebay.de/signin/",
+	"https://signup.ebay.com/pa/crte": "https://signin.ebay.com/signin/",
+	"https://signup.ebay.com.au/pa/crte": "https://signin.ebay.com.au/signin/",
+	"https://signup.ebay.co.uk/pa/crte": "https://signin.ebay.co.uk/signin/",
+	"https://www.psono.pw/register.html": "https://www.psono.pw",
+	"https://stackoverflow.com/users/signup":
+		"https://stackoverflow.com/users/login",
+	"https://superuser.com/users/signup": "https://superuser.com/users/login",
+	"https://askubuntu.com/users/signup": "https://askubuntu.com/users/login",
 };
 
 /**
@@ -54,25 +56,25 @@ const URL_SYNONYMS = {
  * // Returns: "https://example.com/login"
  */
 function normalizeUrl(url) {
-    if (!url || typeof url !== 'string') {
-        return url;
-    }
+	if (!url || typeof url !== "string") {
+		return url;
+	}
 
-    // Strip query parameters (? and everything after)
-    let normalized = url.split('?')[0];
+	// Strip query parameters (? and everything after)
+	let normalized = url.split("?")[0];
 
-    // Strip fragments (# and everything after)
-    normalized = normalized.split('#')[0];
+	// Strip fragments (# and everything after)
+	normalized = normalized.split("#")[0];
 
-    // Convert to lowercase
-    normalized = normalized.toLowerCase();
+	// Convert to lowercase
+	normalized = normalized.toLowerCase();
 
-    // Remove trailing slash
-    if (normalized.endsWith('/')) {
-        normalized = normalized.slice(0, -1);
-    }
+	// Remove trailing slash
+	if (normalized.endsWith("/")) {
+		normalized = normalized.slice(0, -1);
+	}
 
-    return normalized;
+	return normalized;
 }
 
 /**
@@ -102,29 +104,29 @@ function normalizeUrl(url) {
  * // Returns: null (unchanged)
  */
 function resolveUrlSynonym(url) {
-    // Handle edge cases: null, undefined, empty strings
-    if (!url || typeof url !== 'string') {
-        return url;
-    }
+	// Handle edge cases: null, undefined, empty strings
+	if (!url || typeof url !== "string") {
+		return url;
+	}
 
-    // Normalize URL for lookup
-    const normalizedUrl = normalizeUrl(url);
+	// Normalize URL for lookup
+	const normalizedUrl = normalizeUrl(url);
 
-    // Lookup using normalized URL
-    if (URL_SYNONYMS.hasOwnProperty(normalizedUrl)) {
-        return URL_SYNONYMS[normalizedUrl];
-    }
+	// Lookup using normalized URL
+	if (Object.hasOwn(URL_SYNONYMS, normalizedUrl)) {
+		return URL_SYNONYMS[normalizedUrl];
+	}
 
-    // No synonym found, return original URL
-    return url;
+	// No synonym found, return original URL
+	return url;
 }
 
 /**
  * Service export
  */
 const urlSynonymsService = {
-    resolveUrlSynonym: resolveUrlSynonym,
-    URL_SYNONYMS: URL_SYNONYMS, // Export for testing/debugging purposes
+	resolveUrlSynonym: resolveUrlSynonym,
+	URL_SYNONYMS: URL_SYNONYMS, // Export for testing/debugging purposes
 };
 
 export default urlSynonymsService;

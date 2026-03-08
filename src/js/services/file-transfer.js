@@ -2,21 +2,20 @@
  * Service to manage everything around file transfer
  */
 import { saveAs } from "file-saver";
-
+import apiAWS from "./api-aws";
+import apiDO from "./api-aws";
+import apiAzureBlob from "./api-azure-blob";
+import apiBackblaze from "./api-backblaze";
 import apiClientService from "./api-client";
+import apiFileserver from "./api-fileserver";
+import apiGCP from "./api-gcp";
+import apiOtherS3 from "./api-other-s3";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
 import helper from "./helper";
-import apiAWS from "./api-aws";
-import apiAzureBlob from "./api-azure-blob";
-import apiBackblaze from "./api-backblaze";
-import apiOtherS3 from "./api-other-s3";
-import apiGCP from "./api-gcp";
-import apiDO from "./api-aws";
-import apiFileserver from "./api-fileserver";
-import { getStore } from "./store";
-import storage from "./storage";
 import offlineCache from "./offline-cache";
+import storage from "./storage";
+import { getStore } from "./store";
 
 const registrations = {};
 
@@ -28,17 +27,15 @@ const registrations = {};
  * @returns {Promise} promise
  */
 function readFile(fileId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
+	const onSuccess = (result) => result.data;
 
-    return apiClientService.readFile(token, sessionSecretKey, fileId).then(onSuccess, onError);
+	return apiClientService
+		.readFile(token, sessionSecretKey, fileId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -55,31 +52,36 @@ function readFile(fileId) {
  *
  * @returns {Promise} promise
  */
-function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId, parentSecretId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+function createFile(
+	shardId,
+	fileRepositoryId,
+	size,
+	chunkCount,
+	linkId,
+	parentDatastoreId,
+	parentShareId,
+	parentSecretId,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
+	const onSuccess = (result) => result.data;
 
-    return apiClientService
-        .createFile(
-            token,
-            sessionSecretKey,
-            shardId,
-            fileRepositoryId,
-            size,
-            chunkCount,
-            linkId,
-            parentDatastoreId,
-            parentShareId,
-            parentSecretId
-        )
-        .then(onSuccess, onError);
+	return apiClientService
+		.createFile(
+			token,
+			sessionSecretKey,
+			shardId,
+			fileRepositoryId,
+			size,
+			chunkCount,
+			linkId,
+			parentDatastoreId,
+			parentShareId,
+			parentSecretId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -90,17 +92,15 @@ function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentD
  * @returns {Promise} promise
  */
 function deleteFile(fileId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
+	const onSuccess = (result) => result.data;
 
-    return apiClientService.deleteFile(token, sessionSecretKey, fileId).then(onSuccess, onError);
+	return apiClientService
+		.deleteFile(token, sessionSecretKey, fileId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -115,34 +115,46 @@ function deleteFile(fileId) {
  *
  * @returns {Promise} promise
  */
-function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum) {
-    const ticket = {
-        chunk_position: chunkPosition,
-        hash_checksum: hashChecksum,
-    };
+function uploadShard(
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkPosition,
+	shard,
+	hashChecksum,
+) {
+	const ticket = {
+		chunk_position: chunkPosition,
+		hash_checksum: hashChecksum,
+	};
 
-    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
+	const ticketEncrypted = cryptoLibrary.encryptData(
+		JSON.stringify(ticket),
+		fileTransferSecretKey,
+	);
 
-    let fileserver;
-    if (shard["fileserver"].length > 1) {
-        // math random should be good enough here, don't use for crypto!
-        const pos = Math.floor(Math.random() * shard["fileserver"].length);
-        fileserver = shard["fileserver"][pos];
-    } else {
-        fileserver = shard["fileserver"][0];
-    }
+	let fileserver;
+	if (shard["fileserver"].length > 1) {
+		// math random should be good enough here, don't use for crypto!
+		const pos = Math.floor(Math.random() * shard["fileserver"].length);
+		fileserver = shard["fileserver"][pos];
+	} else {
+		fileserver = shard["fileserver"][0];
+	}
 
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
+	const onSuccess = (result) => result.data;
 
-    return apiFileserver
-        .upload(fileserver["fileserver_url"], fileTransferId, chunk, ticketEncrypted.text, ticketEncrypted.nonce)
-        .then(onSuccess, onError);
+	return apiFileserver
+		.upload(
+			fileserver["fileserver_url"],
+			fileTransferId,
+			chunk,
+			ticketEncrypted.text,
+			ticketEncrypted.nonce,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -158,32 +170,32 @@ function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition
  * @returns {Promise} promise
  */
 function uploadFileRepositoryGcpCloudStorage(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiGCP.upload(result.data.url, chunk).then(onSuccess, onError);
-    };
+		return apiGCP.upload(result.data.url, chunk).then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -199,32 +211,34 @@ function uploadFileRepositoryGcpCloudStorage(
  * @returns {Promise} promise
  */
 function uploadFileRepositoryAwsS3(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiAWS.upload(result.data.url, result.data.fields, chunk).then(onSuccess, onError);
-    };
+		return apiAWS
+			.upload(result.data.url, result.data.fields, chunk)
+			.then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -240,32 +254,32 @@ function uploadFileRepositoryAwsS3(
  * @returns {Promise} promise
  */
 function uploadFileRepositoryAzureBlob(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiAzureBlob.upload(result.data.url, chunk).then(onSuccess, onError);
-    };
+		return apiAzureBlob.upload(result.data.url, chunk).then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -281,32 +295,34 @@ function uploadFileRepositoryAzureBlob(
  * @returns {Promise} promise
  */
 function uploadFileRepositoryBackblaze(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiBackblaze.upload(result.data.url, result.data.fields, chunk).then(onSuccess, onError);
-    };
+		return apiBackblaze
+			.upload(result.data.url, result.data.fields, chunk)
+			.then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -322,32 +338,34 @@ function uploadFileRepositoryBackblaze(
  * @returns {Promise} promise
  */
 function uploadFileRepositoryOtherS3(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiOtherS3.upload(result.data.url, result.data.fields, chunk).then(onSuccess, onError);
-    };
+		return apiOtherS3
+			.upload(result.data.url, result.data.fields, chunk)
+			.then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -363,32 +381,34 @@ function uploadFileRepositoryOtherS3(
  * @returns {Promise} promise
  */
 function uploadFileRepositoryDoSpaces(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
 ) {
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => Promise.reject(result.data);
 
-        const onSuccess = function (result) {
-            return result;
-        };
+		const onSuccess = (result) => result;
 
-        return apiDO.upload(result.data.url, result.data.fields, chunk).then(onSuccess, onError);
-    };
+		return apiDO
+			.upload(result.data.url, result.data.fields, chunk)
+			.then(onSuccess, onError);
+	};
 
-    return apiClientService
-        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryUpload(
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -406,72 +426,97 @@ function uploadFileRepositoryDoSpaces(
  * @returns {Promise} promise
  */
 function upload(
-    chunk,
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    shard,
-    fileRepository,
-    hashChecksum
+	chunk,
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	shard,
+	fileRepository,
+	hashChecksum,
 ) {
-    if (typeof shard !== "undefined") {
-        return uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum);
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "gcp_cloud_storage") {
-        return uploadFileRepositoryGcpCloudStorage(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "do_spaces") {
-        return uploadFileRepositoryDoSpaces(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "aws_s3") {
-        return uploadFileRepositoryAwsS3(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "azure_blob") {
-        return uploadFileRepositoryAzureBlob(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "backblaze") {
-        return uploadFileRepositoryBackblaze(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "other_s3") {
-        return uploadFileRepositoryOtherS3(
-            chunk,
-            fileTransferId,
-            fileTransferSecretKey,
-            chunkSize,
-            chunkPosition,
-            hashChecksum
-        );
-    }
+	if (typeof shard !== "undefined") {
+		return uploadShard(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkPosition,
+			shard,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "gcp_cloud_storage"
+	) {
+		return uploadFileRepositoryGcpCloudStorage(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "do_spaces"
+	) {
+		return uploadFileRepositoryDoSpaces(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "aws_s3"
+	) {
+		return uploadFileRepositoryAwsS3(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "azure_blob"
+	) {
+		return uploadFileRepositoryAzureBlob(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "backblaze"
+	) {
+		return uploadFileRepositoryBackblaze(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	} else if (
+		typeof fileRepository !== "undefined" &&
+		fileRepository["type"] === "other_s3"
+	) {
+		return uploadFileRepositoryOtherS3(
+			chunk,
+			fileTransferId,
+			fileTransferSecretKey,
+			chunkSize,
+			chunkPosition,
+			hashChecksum,
+		);
+	}
 }
 
 /**
@@ -480,17 +525,15 @@ function upload(
  * @returns {Promise} promise with all the shards
  */
 function readShards() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => Promise.reject(result.data);
 
-    const onSuccess = function (result) {
-        return result.data["shards"];
-    };
+	const onSuccess = (result) => result.data["shards"];
 
-    return apiClientService.readShards(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClientService
+		.readShards(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -503,24 +546,28 @@ function readShards() {
  * @returns {array} list of shards with fileservers that fulfill the filter criteria
  */
 function filterShards(shards, requireRead, requireWrite) {
-    const filteredShards = [];
+	const filteredShards = [];
 
-    for (let i = 0; i < shards.length; i++) {
-        if (requireRead && !shards[i]["read"]) {
-            continue;
-        }
-        if (requireWrite && !shards[i]["write"]) {
-            continue;
-        }
-        const filtered_shard = helper.duplicateObject(shards[i]);
-        filteredShards.push(filtered_shard);
+	for (let i = 0; i < shards.length; i++) {
+		if (requireRead && !shards[i]["read"]) {
+			continue;
+		}
+		if (requireWrite && !shards[i]["write"]) {
+			continue;
+		}
+		const filtered_shard = helper.duplicateObject(shards[i]);
+		filteredShards.push(filtered_shard);
 
-        helper.removeFromArray(filtered_shard["fileserver"], undefined, function (fileserver, nothing) {
-            return (requireRead && !fileserver["read"]) || (requireWrite && !fileserver["write"]);
-        });
-    }
+		helper.removeFromArray(
+			filtered_shard["fileserver"],
+			undefined,
+			(fileserver, nothing) =>
+				(requireRead && !fileserver["read"]) ||
+				(requireWrite && !fileserver["write"]),
+		);
+	}
 
-    return filteredShards;
+	return filteredShards;
 }
 
 /**
@@ -529,12 +576,15 @@ function filterShards(shards, requireRead, requireWrite) {
  * @param {object} item The item one has clicked on
  */
 function onItemClick(item) {
-    readShards().then(function (data) {
-        storage.upsert("file-downloads", { key: "shards", shards: data });
-        browserClient.openTab("download-file.html#!/file/download/" + item.id).then(function (window) {
-            window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
-        });
-    });
+	readShards().then((data) => {
+		storage.upsert("file-downloads", { key: "shards", shards: data });
+		browserClient
+			.openTab("download-file.html#!/file/download/" + item.id)
+			.then((window) => {
+				window.psono_offline_cache_encryption_key =
+					offlineCache.getEncryptionKey();
+			});
+	});
 }
 
 /**
@@ -544,37 +594,39 @@ function onItemClick(item) {
  * @param {array} shards A list of shards
  */
 function createShardReadDict(shards) {
-    const shards_dict = {};
+	const shards_dict = {};
 
-    for (let i = 0; i < shards.length; i++) {
-        if (!shards[i]["read"]) {
-            continue;
-        }
-        if (!shards_dict.hasOwnProperty(shards[i]["id"])) {
-            shards_dict[shards[i]["id"]] = {
-                fileserver: [],
-                id: shards[i]["id"],
-            };
-        }
+	for (let i = 0; i < shards.length; i++) {
+		if (!shards[i]["read"]) {
+			continue;
+		}
+		if (!Object.hasOwn(shards_dict, shards[i]["id"])) {
+			shards_dict[shards[i]["id"]] = {
+				fileserver: [],
+				id: shards[i]["id"],
+			};
+		}
 
-        for (let ii = 0; ii < shards[i]["fileserver"].length; ii++) {
-            if (!shards[i]["fileserver"][ii]["read"]) {
-                continue;
-            }
-            shards_dict[shards[i]["id"]]["fileserver"].push(shards[i]["fileserver"][ii]);
-        }
-    }
+		for (let ii = 0; ii < shards[i]["fileserver"].length; ii++) {
+			if (!shards[i]["fileserver"][ii]["read"]) {
+				continue;
+			}
+			shards_dict[shards[i]["id"]]["fileserver"].push(
+				shards[i]["fileserver"][ii],
+			);
+		}
+	}
 
-    for (let shardId in shards_dict) {
-        if (!shards_dict.hasOwnProperty(shardId)) {
-            continue;
-        }
-        if (shards_dict[shardId]["fileserver"].length === 0) {
-            delete shards_dict[shardId];
-        }
-    }
+	for (const shardId in shards_dict) {
+		if (!Object.hasOwn(shards_dict, shardId)) {
+			continue;
+		}
+		if (shards_dict[shardId]["fileserver"].length === 0) {
+			delete shards_dict[shardId];
+		}
+	}
 
-    return shards_dict;
+	return shards_dict;
 }
 
 /**
@@ -587,35 +639,46 @@ function createShardReadDict(shards) {
  *
  * @returns {PromiseLike<T | void> | Promise<T | void> | *}
  */
-function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashChecksum) {
-    registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
+function shardDownload(
+	fileTransferId,
+	fileTransferSecretKey,
+	shard,
+	hashChecksum,
+) {
+	registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
-    const ticket = {
-        hash_checksum: hashChecksum,
-    };
+	const ticket = {
+		hash_checksum: hashChecksum,
+	};
 
-    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
-    let fileserver;
-    if (shard["fileserver"].length > 1) {
-        // math random should be good enough here, don't use for crypto!
-        const pos = Math.floor(Math.random() * shard["fileserver"].length);
-        fileserver = shard["fileserver"][pos];
-    } else {
-        fileserver = shard["fileserver"][0];
-    }
+	const ticketEncrypted = cryptoLibrary.encryptData(
+		JSON.stringify(ticket),
+		fileTransferSecretKey,
+	);
+	let fileserver;
+	if (shard["fileserver"].length > 1) {
+		// math random should be good enough here, don't use for crypto!
+		const pos = Math.floor(Math.random() * shard["fileserver"].length);
+		fileserver = shard["fileserver"][pos];
+	} else {
+		fileserver = shard["fileserver"][0];
+	}
 
-    const onError = function (result) {
-        console.log(result);
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => {
+		console.log(result);
+		return Promise.reject(result.data);
+	};
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
+	const onSuccess = (result) => result.data;
 
-    return apiFileserver
-        .download(fileserver["fileserver_url"], fileTransferId, ticketEncrypted.text, ticketEncrypted.nonce)
-        .then(onSuccess, onError);
+	return apiFileserver
+		.download(
+			fileserver["fileserver_url"],
+			fileTransferId,
+			ticketEncrypted.text,
+			ticketEncrypted.nonce,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -627,44 +690,46 @@ function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashChecksu
  *
  * @returns {PromiseLike<T | void> | Promise<T | void> | *}
  */
-function fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum) {
-    registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
+function fileRepositoryDownload(
+	fileTransferId,
+	fileTransferSecretKey,
+	hashChecksum,
+) {
+	registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
-    const onError = function (result) {
-        console.log(result);
-        return Promise.reject(result.data);
-    };
+	const onError = (result) => {
+		console.log(result);
+		return Promise.reject(result.data);
+	};
 
-    const onSuccess = function (result) {
-        const onError = function (result) {
-            console.log(result);
-            return Promise.reject(result.data);
-        };
+	const onSuccess = (result) => {
+		const onError = (result) => {
+			console.log(result);
+			return Promise.reject(result.data);
+		};
 
-        const onSuccess = function (result) {
-            return result.data;
-        };
+		const onSuccess = (result) => result.data;
 
-        if (result.data.type === "aws_s3") {
-            return apiAWS.download(result.data.url).then(onSuccess, onError);
-        } else if (result.data.type === "azure_blob") {
-            return apiAzureBlob.download(result.data.url).then(onSuccess, onError);
-        } else if (result.data.type === "backblaze") {
-            return apiBackblaze.download(result.data.url).then(onSuccess, onError);
-        } else if (result.data.type === "other_s3") {
-            return apiOtherS3.download(result.data.url).then(onSuccess, onError);
-        } else if (result.data.type === "gcp_cloud_storage") {
-            return apiGCP.download(result.data.url).then(onSuccess, onError);
-        } else if (result.data.type === "do_spaces") {
-            return apiDO.download(result.data.url).then(onSuccess, onError);
-        } else {
-            return Promise.reject("UNKNOWN_FILE_REPOSITORY_TYPE");
-        }
-    };
+		if (result.data.type === "aws_s3") {
+			return apiAWS.download(result.data.url).then(onSuccess, onError);
+		} else if (result.data.type === "azure_blob") {
+			return apiAzureBlob.download(result.data.url).then(onSuccess, onError);
+		} else if (result.data.type === "backblaze") {
+			return apiBackblaze.download(result.data.url).then(onSuccess, onError);
+		} else if (result.data.type === "other_s3") {
+			return apiOtherS3.download(result.data.url).then(onSuccess, onError);
+		} else if (result.data.type === "gcp_cloud_storage") {
+			return apiGCP.download(result.data.url).then(onSuccess, onError);
+		} else if (result.data.type === "do_spaces") {
+			return apiDO.download(result.data.url).then(onSuccess, onError);
+		} else {
+			return Promise.reject("UNKNOWN_FILE_REPOSITORY_TYPE");
+		}
+	};
 
-    return apiClientService
-        .fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum)
-        .then(onSuccess, onError);
+	return apiClientService
+		.fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -677,91 +742,103 @@ function fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashCheck
  * @returns {Promise}
  */
 function downloadFileFromShard(file, shards, fileTransfer) {
-    function downloadFileFromShardHelper(shards) {
-        const shards_dict = createShardReadDict(shards);
-        const shardId = file["file_shard_id"];
+	function downloadFileFromShardHelper(shards) {
+		const shards_dict = createShardReadDict(shards);
+		const shardId = file["file_shard_id"];
 
-        if (!shards_dict.hasOwnProperty(shardId)) {
-            return Promise.reject({
-                non_field_errors: ["NO_FILESERVER_AVAILABLE"],
-            });
-        }
+		if (!Object.hasOwn(shards_dict, shardId)) {
+			return Promise.reject({
+				non_field_errors: ["NO_FILESERVER_AVAILABLE"],
+			});
+		}
 
-        function onSuccess(data) {
-            const fileTransferId = data.file_transfer_id;
-            const fileTransferSecretKey = data.file_transfer_secret_key;
+		function onSuccess(data) {
+			const fileTransferId = data.file_transfer_id;
+			const fileTransferSecretKey = data.file_transfer_secret_key;
 
-            const shard = shards_dict[shardId];
-            let next_chunk_id = 1;
-            const allblobs = [];
-            const chunkCount = Object.keys(file.file_chunks).length;
-            registrations["download_started"](chunkCount * 2);
+			const shard = shards_dict[shardId];
+			let next_chunk_id = 1;
+			const allblobs = [];
+			const chunkCount = Object.keys(file.file_chunks).length;
+			registrations["download_started"](chunkCount * 2);
 
-            function onError(data) {
-                return Promise.reject(data);
-            }
+			function onError(data) {
+				return Promise.reject(data);
+			}
 
-            function onChunkDownload(data) {
-                registrations["download_step_complete"]("DECRYPTING_FILE_CHUNK");
+			function onChunkDownload(data) {
+				registrations["download_step_complete"]("DECRYPTING_FILE_CHUNK");
 
-                next_chunk_id = next_chunk_id + 1;
-                return cryptoLibrary.decryptFile(new Uint8Array(data), file["file_secret_key"]).then(function (data) {
-                    allblobs.push(data);
-                    if (next_chunk_id > chunkCount) {
-                        const concat = new Blob(allblobs, { type: "application/octet-string" });
-                        registrations["download_complete"]();
-                        saveAs(concat, file["file_title"]);
-                    } else {
-                        return shardDownload(
-                            fileTransferId,
-                            fileTransferSecretKey,
-                            shard,
-                            file.file_chunks[next_chunk_id]
-                        ).then(onChunkDownload, onError);
-                    }
-                });
-            }
+				next_chunk_id = next_chunk_id + 1;
+				return cryptoLibrary
+					.decryptFile(new Uint8Array(data), file["file_secret_key"])
+					.then((data) => {
+						allblobs.push(data);
+						if (next_chunk_id > chunkCount) {
+							const concat = new Blob(allblobs, {
+								type: "application/octet-string",
+							});
+							registrations["download_complete"]();
+							saveAs(concat, file["file_title"]);
+						} else {
+							return shardDownload(
+								fileTransferId,
+								fileTransferSecretKey,
+								shard,
+								file.file_chunks[next_chunk_id],
+							).then(onChunkDownload, onError);
+						}
+					});
+			}
 
-            return shardDownload(fileTransferId, fileTransferSecretKey, shard, file.file_chunks[next_chunk_id]).then(
-                onChunkDownload,
-                onError
-            );
-        }
+			return shardDownload(
+				fileTransferId,
+				fileTransferSecretKey,
+				shard,
+				file.file_chunks[next_chunk_id],
+			).then(onChunkDownload, onError);
+		}
 
-        function onError(data) {
-            return Promise.reject(data);
-        }
+		function onError(data) {
+			return Promise.reject(data);
+		}
 
-        if (!fileTransfer) {
-            return readFile(file["file_id"]).then(onSuccess, onError);
-        } else {
-            return Promise.resolve(onSuccess(fileTransfer));
-        }
-    }
+		if (!fileTransfer) {
+			return readFile(file["file_id"]).then(onSuccess, onError);
+		} else {
+			return Promise.resolve(onSuccess(fileTransfer));
+		}
+	}
 
-    if (shards === null || typeof shards === "undefined") {
-        storage
-            .findKey("file-downloads", "shards")
-            .then(function (data) {
-                if (data && data.shards) {
-                    downloadFileFromShardHelper(data.shards);
-                } else {
-                    return readShards().then(function (shardsData) {
-                        storage.upsert("file-downloads", { key: "shards", shards: shardsData });
-                        downloadFileFromShardHelper(shardsData);
-                    });
-                }
-            })
-            .catch(function (err) {
-                console.log(err);
-                return readShards().then(function (shardsData) {
-                    storage.upsert("file-downloads", { key: "shards", shards: shardsData });
-                    downloadFileFromShardHelper(shardsData);
-                });
-            });
-    } else {
-        downloadFileFromShardHelper(shards);
-    }
+	if (shards === null || typeof shards === "undefined") {
+		storage
+			.findKey("file-downloads", "shards")
+			.then((data) => {
+				if (data && data.shards) {
+					downloadFileFromShardHelper(data.shards);
+				} else {
+					return readShards().then((shardsData) => {
+						storage.upsert("file-downloads", {
+							key: "shards",
+							shards: shardsData,
+						});
+						downloadFileFromShardHelper(shardsData);
+					});
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				return readShards().then((shardsData) => {
+					storage.upsert("file-downloads", {
+						key: "shards",
+						shards: shardsData,
+					});
+					downloadFileFromShardHelper(shardsData);
+				});
+			});
+	} else {
+		downloadFileFromShardHelper(shards);
+	}
 }
 
 /**
@@ -773,55 +850,60 @@ function downloadFileFromShard(file, shards, fileTransfer) {
  * @returns {Promise}
  */
 function downloadFileFromFileRepository(file, fileTransfer) {
-    function onSuccess(data) {
-        const fileTransferId = data.file_transfer_id;
-        const fileTransferSecretKey = data.file_transfer_secret_key;
+	function onSuccess(data) {
+		const fileTransferId = data.file_transfer_id;
+		const fileTransferSecretKey = data.file_transfer_secret_key;
 
-        let next_chunk_id = 1;
-        const allblobs = [];
-        const chunkCount = Object.keys(file.file_chunks).length;
+		let next_chunk_id = 1;
+		const allblobs = [];
+		const chunkCount = Object.keys(file.file_chunks).length;
 
-        registrations["download_started"](chunkCount * 2);
+		registrations["download_started"](chunkCount * 2);
 
-        function onError(data) {
-            return Promise.reject(data);
-        }
+		function onError(data) {
+			return Promise.reject(data);
+		}
 
-        function on_chunk_download(data) {
-            registrations["download_step_complete"]("DECRYPTING_FILE_CHUNK");
+		function on_chunk_download(data) {
+			registrations["download_step_complete"]("DECRYPTING_FILE_CHUNK");
 
-            next_chunk_id = next_chunk_id + 1;
-            return cryptoLibrary.decryptFile(new Uint8Array(data), file["file_secret_key"]).then(function (data) {
-                allblobs.push(data);
-                if (next_chunk_id > chunkCount) {
-                    const concat = new Blob(allblobs, { type: "application/octet-string" });
-                    registrations["download_complete"]();
-                    saveAs(concat, file["file_title"]);
-                } else {
-                    return fileRepositoryDownload(
-                        fileTransferId,
-                        fileTransferSecretKey,
-                        file.file_chunks[next_chunk_id]
-                    ).then(on_chunk_download, onError);
-                }
-            });
-        }
+			next_chunk_id = next_chunk_id + 1;
+			return cryptoLibrary
+				.decryptFile(new Uint8Array(data), file["file_secret_key"])
+				.then((data) => {
+					allblobs.push(data);
+					if (next_chunk_id > chunkCount) {
+						const concat = new Blob(allblobs, {
+							type: "application/octet-string",
+						});
+						registrations["download_complete"]();
+						saveAs(concat, file["file_title"]);
+					} else {
+						return fileRepositoryDownload(
+							fileTransferId,
+							fileTransferSecretKey,
+							file.file_chunks[next_chunk_id],
+						).then(on_chunk_download, onError);
+					}
+				});
+		}
 
-        return fileRepositoryDownload(fileTransferId, fileTransferSecretKey, file.file_chunks[next_chunk_id]).then(
-            on_chunk_download,
-            onError
-        );
-    }
-    function onError(data) {
-        console.log(data);
-        return Promise.reject(data);
-    }
+		return fileRepositoryDownload(
+			fileTransferId,
+			fileTransferSecretKey,
+			file.file_chunks[next_chunk_id],
+		).then(on_chunk_download, onError);
+	}
+	function onError(data) {
+		console.log(data);
+		return Promise.reject(data);
+	}
 
-    if (!fileTransfer) {
-        return readFile(file["file_id"]).then(onSuccess, onError);
-    } else {
-        return Promise.resolve(onSuccess(fileTransfer));
-    }
+	if (!fileTransfer) {
+		return readFile(file["file_id"]).then(onSuccess, onError);
+	} else {
+		return Promise.resolve(onSuccess(fileTransfer));
+	}
 }
 
 /**
@@ -834,21 +916,24 @@ function downloadFileFromFileRepository(file, fileTransfer) {
  * @returns {Promise}
  */
 function downloadFile(file, shards, fileTransfer) {
-    if (
-        !file.hasOwnProperty("file_id") ||
-        !file.hasOwnProperty("file_chunks") ||
-        !file["file_id"] ||
-        Object.keys(file.file_chunks).length === 0
-    ) {
-        registrations["download_complete"]();
-        saveAs(new Blob([""], { type: "text/plain;charset=utf-8" }), file["file_title"]);
-        return Promise.resolve();
-    }
-    if (file.hasOwnProperty("file_shard_id") && file["file_shard_id"]) {
-        return downloadFileFromShard(file, shards, fileTransfer);
-    } else {
-        return downloadFileFromFileRepository(file, fileTransfer);
-    }
+	if (
+		!Object.hasOwn(file, "file_id") ||
+		!Object.hasOwn(file, "file_chunks") ||
+		!file["file_id"] ||
+		Object.keys(file.file_chunks).length === 0
+	) {
+		registrations["download_complete"]();
+		saveAs(
+			new Blob([""], { type: "text/plain;charset=utf-8" }),
+			file["file_title"],
+		);
+		return Promise.resolve();
+	}
+	if (Object.hasOwn(file, "file_shard_id") && file["file_shard_id"]) {
+		return downloadFileFromShard(file, shards, fileTransfer);
+	} else {
+		return downloadFileFromFileRepository(file, fileTransfer);
+	}
 }
 
 /**
@@ -859,13 +944,13 @@ function downloadFile(file, shards, fileTransfer) {
  * @returns {Promise}
  */
 function downloadFileByStorageId(id) {
-    return storage.findKey("datastore-file-leafs", id).then(function (file) {
-        if (file === null || typeof file === "undefined") {
-            return Promise.resolve();
-        }
+	return storage.findKey("datastore-file-leafs", id).then((file) => {
+		if (file === null || typeof file === "undefined") {
+			return Promise.resolve();
+		}
 
-        return downloadFile(file, undefined, undefined);
-    });
+		return downloadFile(file, undefined, undefined);
+	});
 }
 
 /**
@@ -875,19 +960,19 @@ function downloadFileByStorageId(id) {
  * @param {function} func The call back function
  */
 function register(key, func) {
-    registrations[key] = func;
+	registrations[key] = func;
 }
 
 const fileTransferService = {
-    readFile: readFile,
-    createFile: createFile,
-    deleteFile: deleteFile,
-    upload: upload,
-    readShards: readShards,
-    filterShards: filterShards,
-    onItemClick: onItemClick,
-    downloadFileByStorageId: downloadFileByStorageId,
-    downloadFile: downloadFile,
-    register: register,
+	readFile: readFile,
+	createFile: createFile,
+	deleteFile: deleteFile,
+	upload: upload,
+	readShards: readShards,
+	filterShards: filterShards,
+	onItemClick: onItemClick,
+	downloadFileByStorageId: downloadFileByStorageId,
+	downloadFile: downloadFile,
+	register: register,
 };
 export default fileTransferService;

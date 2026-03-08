@@ -2,11 +2,11 @@
  * Service to manage the user datastore and user related functions
  */
 
+import apiClient from "./api-client";
 import datastoreService from "./datastore";
+import datastorePasswordService from "./datastore-password";
 import helper from "./helper";
 import { getStore } from "./store";
-import apiClient from "./api-client";
-import datastorePasswordService from "./datastore-password";
 
 /**
  * Sets the "path" attribute for all folders and items
@@ -15,7 +15,7 @@ import datastorePasswordService from "./datastore-password";
  * @param parent_path
  */
 function updatePathsRecursive(datastore, parent_path) {
-    return datastoreService.updatePathsRecursive(datastore, parent_path);
+	return datastoreService.updatePathsRecursive(datastore, parent_path);
 }
 
 /**
@@ -25,25 +25,25 @@ function updatePathsRecursive(datastore, parent_path) {
  * @returns {Promise} Returns a promise with the user datastore
  */
 function getUserDatastore() {
-    const type = "user";
-    const description = "default";
+	const type = "user";
+	const description = "default";
 
-    const onSuccess = function (datastore) {
-        datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
-            read: true,
-            write: true,
-            grant: true,
-            delete: true,
-        });
-        updatePathsRecursive(datastore, []);
+	const onSuccess = (datastore) => {
+		datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
+			read: true,
+			write: true,
+			grant: true,
+			delete: true,
+		});
+		updatePathsRecursive(datastore, []);
 
-        return datastore;
-    };
-    const onError = function () {
-        // pass
-    };
+		return datastore;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return datastoreService.getDatastore(type).then(onSuccess, onError);
+	return datastoreService.getDatastore(type).then(onSuccess, onError);
 }
 
 /**
@@ -54,7 +54,7 @@ function getUserDatastore() {
  * @returns {Promise} Returns a promise with the datastore
  */
 function getDatastoreWithId(id) {
-    return getUserDatastore();
+	return getUserDatastore();
 }
 
 /**
@@ -65,44 +65,48 @@ function getDatastoreWithId(id) {
  * @returns {Promise} Returns a promise with the user
  */
 function searchUserDatastore(userId, email) {
-    const onSuccess = function (userDataStore) {
-        const users = [];
-        let idMatch = null;
-        let emailMatch = null;
+	const onSuccess = (userDataStore) => {
+		const users = [];
+		let idMatch = null;
+		let emailMatch = null;
 
-        helper.createList(userDataStore, users);
+		helper.createList(userDataStore, users);
 
-        for (let i = users.length - 1; i >= 0; i--) {
-            if (users[i].data.user_id === userId) {
-                idMatch = users[i];
-            }
-            if (users[i].data.user_email === email) {
-                emailMatch = users[i];
-            }
-        }
+		for (let i = users.length - 1; i >= 0; i--) {
+			if (users[i].data.user_id === userId) {
+				idMatch = users[i];
+			}
+			if (users[i].data.user_email === email) {
+				emailMatch = users[i];
+			}
+		}
 
-        if (idMatch === null && emailMatch === null) {
-            // no match found
-            return null;
-        } else if (idMatch !== null && emailMatch !== null && idMatch.id === emailMatch.id) {
-            // id match and email match is the same user
-            return idMatch;
-        } else if (idMatch !== null) {
-            // only idMatch is set
-            return idMatch;
-        } else if (emailMatch !== null) {
-            // only emailMatch is set
-            return emailMatch;
-        } else {
-            // no match found, or id and email match are different
-            return null;
-        }
-    };
-    const onError = function () {
-        // pass
-    };
+		if (idMatch === null && emailMatch === null) {
+			// no match found
+			return null;
+		} else if (
+			idMatch !== null &&
+			emailMatch !== null &&
+			idMatch.id === emailMatch.id
+		) {
+			// id match and email match is the same user
+			return idMatch;
+		} else if (idMatch !== null) {
+			// only idMatch is set
+			return idMatch;
+		} else if (emailMatch !== null) {
+			// only emailMatch is set
+			return emailMatch;
+		} else {
+			// no match found, or id and email match are different
+			return null;
+		}
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getUserDatastore().then(onSuccess, onError);
+	return getUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -111,7 +115,7 @@ function searchUserDatastore(userId, email) {
  * @param {TreeObject} datastore The datastore tree
  */
 function handleDatastoreContentChanged(datastore) {
-    // don't do anything
+	// don't do anything
 }
 
 /**
@@ -122,10 +126,10 @@ function handleDatastoreContentChanged(datastore) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContent(content, paths) {
-    const type = "user";
-    const description = "default";
+	const type = "user";
+	const description = "default";
 
-    return datastoreService.saveDatastoreContent(type, description, content);
+	return datastoreService.saveDatastoreContent(type, description, content);
 }
 
 /**
@@ -136,10 +140,16 @@ function saveDatastoreContent(content, paths) {
  * @returns {Promise} Returns a promise with the user information
  */
 function searchUser(username, email) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.searchUser(token, sessionSecretKey, undefined, username, email);
+	return apiClient.searchUser(
+		token,
+		sessionSecretKey,
+		undefined,
+		username,
+		email,
+	);
 }
 
 /**
@@ -151,53 +161,57 @@ function searchUser(username, email) {
  * @returns {Promise} Returns a promise with the user information
  */
 function addUserToDatastore(userDatastore, userObject, targetParent) {
-    let parent;
-    if (targetParent) {
-        parent = targetParent;
-    } else {
-        parent = userDatastore;
-    }
-    if (typeof parent.items === "undefined") {
-        parent.items = [];
-    }
+	let parent;
+	if (targetParent) {
+		parent = targetParent;
+	} else {
+		parent = userDatastore;
+	}
+	if (typeof parent.items === "undefined") {
+		parent.items = [];
+	}
 
-    // check if we do not already have the user in our trusted user datastore
-    // skip if we already have it
-    const existingLocations = datastorePasswordService.searchInDatastore(userObject, userDatastore, function (a, b) {
-        if (!a.hasOwnProperty("data")) {
-            return false;
-        }
-        if (!b.hasOwnProperty("data")) {
-            return false;
-        }
-        if (!a["data"].hasOwnProperty("user_public_key")) {
-            return false;
-        }
-        if (!b["data"].hasOwnProperty("user_public_key")) {
-            return false;
-        }
-        return a["data"]["user_public_key"] === b["data"]["user_public_key"];
-    });
+	// check if we do not already have the user in our trusted user datastore
+	// skip if we already have it
+	const existingLocations = datastorePasswordService.searchInDatastore(
+		userObject,
+		userDatastore,
+		(a, b) => {
+			if (!Object.hasOwn(a, "data")) {
+				return false;
+			}
+			if (!Object.hasOwn(b, "data")) {
+				return false;
+			}
+			if (!Object.hasOwn(a["data"], "user_public_key")) {
+				return false;
+			}
+			if (!Object.hasOwn(b["data"], "user_public_key")) {
+				return false;
+			}
+			return a["data"]["user_public_key"] === b["data"]["user_public_key"];
+		},
+	);
 
-    if (existingLocations.length < 1) {
-        parent.items.push(userObject);
-        datastoreService.updateShareRightsOfFoldersAndItems(userDatastore, {
-            read: true,
-            write: true,
-            grant: true,
-            delete: true,
-        });
-        return saveDatastoreContent(userDatastore);
-    }
+	if (existingLocations.length < 1) {
+		parent.items.push(userObject);
+		datastoreService.updateShareRightsOfFoldersAndItems(userDatastore, {
+			read: true,
+			write: true,
+			grant: true,
+			delete: true,
+		});
+		return saveDatastoreContent(userDatastore);
+	}
 }
 
 const datastoreUserService = {
-    getUserDatastore: getUserDatastore,
-    getDatastoreWithId: getDatastoreWithId,
-    searchUserDatastore: searchUserDatastore,
-    handleDatastoreContentChanged: handleDatastoreContentChanged,
-    saveDatastoreContent: saveDatastoreContent,
-    searchUser: searchUser,
-    addUserToDatastore: addUserToDatastore,
+	getUserDatastore: getUserDatastore,
+	getDatastoreWithId: getDatastoreWithId,
+	searchUserDatastore: searchUserDatastore,
+	handleDatastoreContentChanged: handleDatastoreContentChanged,
+	saveDatastoreContent: saveDatastoreContent,
+	searchUser: searchUser,
+	addUserToDatastore: addUserToDatastore,
 };
 export default datastoreUserService;

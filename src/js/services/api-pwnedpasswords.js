@@ -3,32 +3,29 @@
  */
 
 function call(connection_type, endpoint, body, headers) {
-    const backend = "https://api.pwnedpasswords.com";
+	const backend = "https://api.pwnedpasswords.com";
 
-    const req = {
-        method: connection_type,
-        headers: {
-            ...headers
-        }
-    };
+	const req = {
+		method: connection_type,
+		headers: {
+			...headers,
+		},
+	};
 
-    if (body != null) {
-        req['body'] = JSON.stringify(body);
-    }
+	if (body != null) {
+		req["body"] = JSON.stringify(body);
+	}
 
-    return new Promise(function (resolve, reject) {
-        const onSuccess = async function (data) {
-            return resolve({
-                data: await data.text(),
-            });
-        };
+	return new Promise((resolve, reject) => {
+		const onSuccess = async (data) =>
+			resolve({
+				data: await data.text(),
+			});
 
-        const onError = function (data) {
-            return reject(data);
-        };
+		const onError = (data) => reject(data);
 
-        fetch(backend + endpoint, req).then(onSuccess, onError);
-    });
+		fetch(backend + endpoint, req).then(onSuccess, onError);
+	});
 }
 
 /**
@@ -39,16 +36,16 @@ function call(connection_type, endpoint, body, headers) {
  * @returns {Promise} Returns a list of sha1 hashes
  */
 function range(hash_chars) {
-    const endpoint = "/range/" + hash_chars;
-    const connection_type = "GET";
-    const body = null;
-    const headers = {};
+	const endpoint = "/range/" + hash_chars;
+	const connection_type = "GET";
+	const body = null;
+	const headers = {};
 
-    return call(connection_type, endpoint, body, headers);
+	return call(connection_type, endpoint, body, headers);
 }
 
 const apiPwnedpasswordsService = {
-    range: range,
+	range: range,
 };
 
 export default apiPwnedpasswordsService;

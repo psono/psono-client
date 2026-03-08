@@ -1,99 +1,100 @@
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Grid } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@mui/material/Divider";
-import { Grid } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 import Table from "../../components/table";
 import host from "../../services/host";
 
 const OtherKnownHostsView = (props) => {
-    const { t } = useTranslation();
-    const [knownHosts, setKnownHosts] = React.useState([]);
+	const { t } = useTranslation();
+	const [knownHosts, setKnownHosts] = React.useState([]);
 
-    React.useEffect(() => {
-        loadKnownHosts();
-    }, []);
+	React.useEffect(() => {
+		loadKnownHosts();
+	}, []);
 
-    const loadKnownHosts = () => {
-        const knownHosts = host.getKnownHosts();
-        const currentHostUrl = host.getCurrentHostUrl();
-        setKnownHosts(
-            knownHosts.map((knownHost, index) => {
-                return [
-                    knownHost.verify_key,
-                    knownHost.url,
-                    knownHost.verify_key.length <= 15
-                        ? knownHost.verify_key
-                        : knownHost.verify_key.substring(0, 20) + "...",
-                    currentHostUrl === knownHost.url,
-                ];
-            })
-        );
-    };
+	const loadKnownHosts = () => {
+		const knownHosts = host.getKnownHosts();
+		const currentHostUrl = host.getCurrentHostUrl();
+		setKnownHosts(
+			knownHosts.map((knownHost, index) => {
+				return [
+					knownHost.verify_key,
+					knownHost.url,
+					knownHost.verify_key.length <= 15
+						? knownHost.verify_key
+						: knownHost.verify_key.substring(0, 20) + "...",
+					currentHostUrl === knownHost.url,
+				];
+			}),
+		);
+	};
 
-    const onDelete = (rowData) => {
-        host.deleteKnownHost(rowData[0]);
-        loadKnownHosts();
-    };
+	const onDelete = (rowData) => {
+		host.deleteKnownHost(rowData[0]);
+		loadKnownHosts();
+	};
 
-    const columns = [
-        { name: t("ID"), options: { display: false } },
-        { name: t("HOST") },
-        { name: t("FINGERPRINT") },
-        {
-            name: t("CURRENT_HOST"),
-            options: {
-                filter: true,
-                sort: true,
-                empty: false,
-                customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[3] && <CheckIcon />}</span>;
-                },
-            },
-        },
-        {
-            name: t("DELETE"),
-            options: {
-                filter: true,
-                sort: false,
-                empty: false,
-                customHeadLabelRender: () => null,
-                customBodyRender: (value, tableMeta, updateValue) => {
-                    return (
-                        <IconButton
-                            onClick={() => {
-                                onDelete(tableMeta.rowData);
-                            }}
-                            size="large">
-                            <DeleteIcon />
-                        </IconButton>
-                    );
-                },
-            },
-        },
-    ];
+	const columns = [
+		{ name: t("ID"), options: { display: false } },
+		{ name: t("HOST") },
+		{ name: t("FINGERPRINT") },
+		{
+			name: t("CURRENT_HOST"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return <span>{tableMeta.rowData[3] && <CheckIcon />}</span>;
+				},
+			},
+		},
+		{
+			name: t("DELETE"),
+			options: {
+				filter: true,
+				sort: false,
+				empty: false,
+				customHeadLabelRender: () => null,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => {
+								onDelete(tableMeta.rowData);
+							}}
+							size="large"
+						>
+							<DeleteIcon />
+						</IconButton>
+					);
+				},
+			},
+		},
+	];
 
-    const options = {
-        filterType: "checkbox",
-    };
+	const options = {
+		filterType: "checkbox",
+	};
 
-    return (
-        <>
-            <Grid container>
-                <Grid item xs={12} sm={12} md={12}>
-                    <h2>{t("KNOWN_HOSTS")}</h2>
-                    <p>{t("KNOWN_HOSTS_DESCRIPTION")}</p>
-                    <Divider style={{ marginBottom: "20px" }} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Table data={knownHosts} columns={columns} options={options} />
-                </Grid>
-            </Grid>
-        </>
-    );
+	return (
+		<>
+			<Grid container>
+				<Grid item xs={12} sm={12} md={12}>
+					<h2>{t("KNOWN_HOSTS")}</h2>
+					<p>{t("KNOWN_HOSTS_DESCRIPTION")}</p>
+					<Divider style={{ marginBottom: "20px" }} />
+				</Grid>
+				<Grid item xs={12} sm={12} md={12}>
+					<Table data={knownHosts} columns={columns} options={options} />
+				</Grid>
+			</Grid>
+		</>
+	);
 };
 
 export default OtherKnownHostsView;

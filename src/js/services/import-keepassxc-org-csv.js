@@ -2,9 +2,10 @@
  * Service which handles the import of a keepassxc.org CSV
  */
 
+import * as OTPAuth from "otpauth";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
-import * as OTPAuth from "otpauth";
+
 const Papa = require("papaparse");
 
 const INDEX_GROUP = 0;
@@ -25,32 +26,32 @@ const INDEX_TOTP = 6;
  * @returns {*} Returns the specified folder object, containing items and folders
  */
 function getFolderHelper(path, folder) {
-    let next_folder_name;
-    let next_folder;
+	let next_folder_name;
+	let next_folder;
 
-    if (path.length === 0) {
-        return folder;
-    }
-    next_folder_name = path.shift();
+	if (path.length === 0) {
+		return folder;
+	}
+	next_folder_name = path.shift();
 
-    for (let i = 0; i < folder["folders"].length; i++) {
-        if (folder["folders"][i].name === next_folder_name) {
-            next_folder = folder["folders"][i];
-            break;
-        }
-    }
+	for (let i = 0; i < folder["folders"].length; i++) {
+		if (folder["folders"][i].name === next_folder_name) {
+			next_folder = folder["folders"][i];
+			break;
+		}
+	}
 
-    if (typeof next_folder === "undefined") {
-        next_folder = {
-            id: cryptoLibrary.generateUuid(),
-            name: next_folder_name,
-            folders: [],
-            items: [],
-        };
-        folder["folders"].push(next_folder);
-    }
+	if (typeof next_folder === "undefined") {
+		next_folder = {
+			id: cryptoLibrary.generateUuid(),
+			name: next_folder_name,
+			folders: [],
+			items: [],
+		};
+		folder["folders"].push(next_folder);
+	}
 
-    return getFolderHelper(path, next_folder);
+	return getFolderHelper(path, next_folder);
 }
 
 /**
@@ -62,10 +63,10 @@ function getFolderHelper(path, folder) {
  * @returns {object} Returns the folder
  */
 function getFolder(line, datastore) {
-    let path = line[INDEX_GROUP].split("/");
-    path.shift(); // Drop "Root" element
+	const path = line[INDEX_GROUP].split("/");
+	path.shift(); // Drop "Root" element
 
-    return getFolderHelper(path, datastore);
+	return getFolderHelper(path, datastore);
 }
 
 /**
@@ -76,21 +77,21 @@ function getFolder(line, datastore) {
  * @returns {*} The secrets object
  */
 function transformToSecret(line) {
-    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
+	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-    return {
-        id: cryptoLibrary.generateUuid(),
-        type: "website_password",
-        name: line[INDEX_TITLE],
-        description: line[INDEX_USERNAME],
-        urlfilter: parsed_url.authority || undefined,
-        website_password_url_filter: parsed_url.authority || undefined,
-        website_password_password: line[INDEX_PASSWORD],
-        website_password_username: line[INDEX_USERNAME],
-        website_password_notes: line[INDEX_NOTES],
-        website_password_url: line[INDEX_URL],
-        website_password_title: line[INDEX_TITLE],
-    };
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "website_password",
+		name: line[INDEX_TITLE],
+		description: line[INDEX_USERNAME],
+		urlfilter: parsed_url.authority || undefined,
+		website_password_url_filter: parsed_url.authority || undefined,
+		website_password_password: line[INDEX_PASSWORD],
+		website_password_username: line[INDEX_USERNAME],
+		website_password_notes: line[INDEX_NOTES],
+		website_password_url: line[INDEX_URL],
+		website_password_title: line[INDEX_TITLE],
+	};
 }
 
 /**
@@ -101,35 +102,35 @@ function transformToSecret(line) {
  * @returns {*} The secrets object
  */
 function transformToTotp(line) {
-    let totp_period = 30;
-    let totp_algorithm = "SHA1";
-    let totp_digits = "6";
-    let totp_code = "";
+	let totp_period = 30;
+	let totp_algorithm = "SHA1";
+	let totp_digits = "6";
+	let totp_code = "";
 
-    if (!line[INDEX_TOTP]) {
-        return null;
-    }
-    try {
-        let parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
-        totp_period = parsedTotp.period;
-        totp_algorithm = parsedTotp.algorithm;
-        totp_digits = parsedTotp.digits;
-        totp_code = parsedTotp.secret.base32;
-    } catch (e) {
-        return null;
-    }
+	if (!line[INDEX_TOTP]) {
+		return null;
+	}
+	try {
+		const parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
+		totp_period = parsedTotp.period;
+		totp_algorithm = parsedTotp.algorithm;
+		totp_digits = parsedTotp.digits;
+		totp_code = parsedTotp.secret.base32;
+	} catch (e) {
+		return null;
+	}
 
-    return {
-        id: cryptoLibrary.generateUuid(),
-        type: "totp",
-        name: line[INDEX_TITLE] + ' TOTP',
-        totp_notes: line[INDEX_NOTES],
-        totp_code: totp_code,
-        totp_digits: totp_digits,
-        totp_algorithm: totp_algorithm,
-        totp_period: totp_period,
-        totp_title: line[INDEX_TITLE] + ' TOTP',
-    };
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "totp",
+		name: line[INDEX_TITLE] + " TOTP",
+		totp_notes: line[INDEX_NOTES],
+		totp_code: totp_code,
+		totp_digits: totp_digits,
+		totp_algorithm: totp_algorithm,
+		totp_period: totp_period,
+		totp_title: line[INDEX_TITLE] + " TOTP",
+	};
 }
 
 /**
@@ -140,33 +141,32 @@ function transformToTotp(line) {
  * @param {[]} csv The array containing all the found secrets
  */
 function gather_secrets(datastore, secrets, csv) {
-    let line;
-    let folder;
+	let line;
+	let folder;
 
-    for (let i = 0; i < csv.length; i++) {
-        line = csv[i];
-        if (i === 0) {
-            continue;
-        }
-        if (line.length < 6) {
-            continue;
-        }
+	for (let i = 0; i < csv.length; i++) {
+		line = csv[i];
+		if (i === 0) {
+			continue;
+		}
+		if (line.length < 6) {
+			continue;
+		}
 
-        folder = getFolder(line, datastore);
-        const secret = transformToSecret(line);
-        if (secret !== null) {
-            //empty line
-            folder["items"].push(secret);
-            secrets.push(secret);
-        }
-        const totp = transformToTotp(line);
-        if (totp !== null) {
-            //empty line
-            folder["items"].push(totp);
-            secrets.push(totp);
-        }
-
-    }
+		folder = getFolder(line, datastore);
+		const secret = transformToSecret(line);
+		if (secret !== null) {
+			//empty line
+			folder["items"].push(secret);
+			secrets.push(secret);
+		}
+		const totp = transformToTotp(line);
+		if (totp !== null) {
+			//empty line
+			folder["items"].push(totp);
+			secrets.push(totp);
+		}
+	}
 }
 
 /**
@@ -176,13 +176,13 @@ function gather_secrets(datastore, secrets, csv) {
  * @returns {Array} The array of arrays representing the CSV
  */
 function parseCsv(data) {
-    const csv = Papa.parse(data);
+	const csv = Papa.parse(data);
 
-    if (csv["errors"].length > 0) {
-        throw new Error(csv["errors"][0]["message"]);
-    }
+	if (csv["errors"].length > 0) {
+		throw new Error(csv["errors"][0]["message"]);
+	}
 
-    return csv["data"];
+	return csv["data"];
 }
 
 /**
@@ -200,34 +200,34 @@ function parseCsv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    const d = new Date();
-    const n = d.toISOString();
+	const d = new Date();
+	const n = d.toISOString();
 
-    const secrets = [];
-    const datastore = {
-        id: cryptoLibrary.generateUuid(),
-        name: "Import " + n,
-        folders: [],
-        items: [],
-    };
+	const secrets = [];
+	const datastore = {
+		id: cryptoLibrary.generateUuid(),
+		name: "Import " + n,
+		folders: [],
+		items: [],
+	};
 
-    let csv;
-    try {
-        csv = parseCsv(data);
-    } catch (err) {
-        return null;
-    }
+	let csv;
+	try {
+		csv = parseCsv(data);
+	} catch (err) {
+		return null;
+	}
 
-    gather_secrets(datastore, secrets, csv);
+	gather_secrets(datastore, secrets, csv);
 
-    return {
-        datastore: datastore,
-        secrets: secrets,
-    };
+	return {
+		datastore: datastore,
+		secrets: secrets,
+	};
 }
 
 const importKeepassxcOrgCsvService = {
-    parser,
+	parser,
 };
 
 export default importKeepassxcOrgCsvService;

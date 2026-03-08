@@ -1,13 +1,14 @@
 /**
  * Service to manage the groups and group related functions
  */
-import cryptoLibraryService from "./crypto-library";
+
 import apiClient from "./api-client";
+import cryptoLibraryService from "./crypto-library";
 import datastorePasswordService from "./datastore-password";
-import helper from "./helper";
-import { getStore } from "./store";
-import shareService from "./share";
 import datastorePassword from "./datastore-password";
+import helper from "./helper";
+import shareService from "./share";
+import { getStore } from "./store";
 
 let groups_cache = [];
 const group_secret_key_cache = {};
@@ -24,35 +25,44 @@ const group_private_key_cache = {};
  *
  * @returns {string} Returns the secret key of a group
  */
-function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSecretKeyType, groupPublicKey) {
-    if (group_secret_key_cache.hasOwnProperty(groupId)) {
-        return group_secret_key_cache[groupId];
-    }
-    if (typeof groupSecretKey === "undefined") {
-        for (let i = 0; i < groups_cache.length; i++) {
-            if (groups_cache[i]["group_id"] !== groupId) {
-                continue;
-            }
+function getGroupSecretKey(
+	groupId,
+	groupSecretKey,
+	groupSecretKeyNonce,
+	groupSecretKeyType,
+	groupPublicKey,
+) {
+	if (Object.hasOwn(group_secret_key_cache, groupId)) {
+		return group_secret_key_cache[groupId];
+	}
+	if (typeof groupSecretKey === "undefined") {
+		for (let i = 0; i < groups_cache.length; i++) {
+			if (groups_cache[i]["group_id"] !== groupId) {
+				continue;
+			}
 
-            groupSecretKey = groups_cache[i]["secret_key"];
-            groupSecretKeyNonce = groups_cache[i]["secret_key_nonce"];
-            groupSecretKeyType = groups_cache[i]["secret_key_type"];
-            groupPublicKey = groups_cache[i]["public_key"];
+			groupSecretKey = groups_cache[i]["secret_key"];
+			groupSecretKeyNonce = groups_cache[i]["secret_key_nonce"];
+			groupSecretKeyType = groups_cache[i]["secret_key_type"];
+			groupPublicKey = groups_cache[i]["public_key"];
 
-            break;
-        }
-    }
-    if (groupSecretKeyType === "symmetric") {
-        group_secret_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupSecretKey, groupSecretKeyNonce);
-    } else {
-        group_secret_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
-            groupSecretKey,
-            groupSecretKeyNonce,
-            groupPublicKey
-        );
-    }
+			break;
+		}
+	}
+	if (groupSecretKeyType === "symmetric") {
+		group_secret_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(
+			groupSecretKey,
+			groupSecretKeyNonce,
+		);
+	} else {
+		group_secret_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+			groupSecretKey,
+			groupSecretKeyNonce,
+			groupPublicKey,
+		);
+	}
 
-    return group_secret_key_cache[groupId];
+	return group_secret_key_cache[groupId];
 }
 
 /**
@@ -66,21 +76,30 @@ function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSe
  *
  * @returns {string} Returns the private key of a group
  */
-function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, groupPrivateKeyType, groupPublicKey) {
-    if (group_private_key_cache.hasOwnProperty(groupId)) {
-        return group_private_key_cache[groupId];
-    }
-    if (groupPrivateKeyType === "symmetric") {
-        group_private_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupPrivateKey, groupPrivateKeyNonce);
-    } else {
-        group_private_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
-            groupPrivateKey,
-            groupPrivateKeyNonce,
-            groupPublicKey
-        );
-    }
+function getGroupPrivateKey(
+	groupId,
+	groupPrivateKey,
+	groupPrivateKeyNonce,
+	groupPrivateKeyType,
+	groupPublicKey,
+) {
+	if (Object.hasOwn(group_private_key_cache, groupId)) {
+		return group_private_key_cache[groupId];
+	}
+	if (groupPrivateKeyType === "symmetric") {
+		group_private_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(
+			groupPrivateKey,
+			groupPrivateKeyNonce,
+		);
+	} else {
+		group_private_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+			groupPrivateKey,
+			groupPrivateKeyNonce,
+			groupPublicKey,
+		);
+	}
 
-    return group_private_key_cache[groupId];
+	return group_private_key_cache[groupId];
 }
 
 /**
@@ -94,8 +113,12 @@ function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, grou
  * @returns {string} Returns the decrypted message
  */
 function decryptSecretKey(groupId, encryptedMessage, encryptedMessageNonce) {
-    const secretKey = getGroupSecretKey(groupId);
-    return cryptoLibraryService.decryptData(encryptedMessage, encryptedMessageNonce, secretKey);
+	const secretKey = getGroupSecretKey(groupId);
+	return cryptoLibraryService.decryptData(
+		encryptedMessage,
+		encryptedMessageNonce,
+		secretKey,
+	);
 }
 
 /**
@@ -109,9 +132,19 @@ function decryptSecretKey(groupId, encryptedMessage, encryptedMessageNonce) {
  *
  * @returns {string} Returns the decrypted secret
  */
-function decrypt_private_key(groupId, encryptedMessage, encryptedMessageNonce, publicKey) {
-    const private_key = getGroupPrivateKey(groupId);
-    return cryptoLibraryService.decryptDataPublicKey(encryptedMessage, encryptedMessageNonce, publicKey, private_key);
+function decrypt_private_key(
+	groupId,
+	encryptedMessage,
+	encryptedMessageNonce,
+	publicKey,
+) {
+	const private_key = getGroupPrivateKey(groupId);
+	return cryptoLibraryService.decryptDataPublicKey(
+		encryptedMessage,
+		encryptedMessageNonce,
+		publicKey,
+		private_key,
+	);
 }
 
 /**
@@ -122,18 +155,18 @@ function decrypt_private_key(groupId, encryptedMessage, encryptedMessageNonce, p
  * @returns {Promise} Returns the details of a group
  */
 function readGroup(groupId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
-    };
+	const onSuccess = (data) => data.data;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.readGroup(token, sessionSecretKey, groupId).then(onSuccess, onError);
+	return apiClient
+		.readGroup(token, sessionSecretKey, groupId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -144,23 +177,26 @@ function readGroup(groupId) {
  * @returns {Promise} Returns a list of groups
  */
 function readGroups(forceFresh) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    if ((typeof forceFresh === "undefined" || forceFresh === false) && groups_cache.length > 0) {
-        return Promise.resolve(helper.duplicateObject(groups_cache));
-    }
+	if (
+		(typeof forceFresh === "undefined" || forceFresh === false) &&
+		groups_cache.length > 0
+	) {
+		return Promise.resolve(helper.duplicateObject(groups_cache));
+	}
 
-    const onSuccess = function (data) {
-        groups_cache = helper.duplicateObject(data.data.groups);
-        return data.data.groups;
-    };
+	const onSuccess = (data) => {
+		groups_cache = helper.duplicateObject(data.data.groups);
+		return data.data.groups;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.readGroup(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient.readGroup(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -171,36 +207,39 @@ function readGroups(forceFresh) {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createGroup(name) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        groups_cache.push(helper.duplicateObject(data.data));
-        return data.data;
-    };
+	const onSuccess = (data) => {
+		groups_cache.push(helper.duplicateObject(data.data));
+		return data.data;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    const group_secret_key = cryptoLibraryService.generateSecretKey();
-    const group_secret_key_enc = cryptoLibraryService.encryptSecretKey(group_secret_key);
-    const group_key_pair = cryptoLibraryService.generatePublicPrivateKeypair();
-    const group_private_key_enc = cryptoLibraryService.encryptSecretKey(group_key_pair["private_key"]);
-    const group_public_key = group_key_pair["public_key"];
+	const group_secret_key = cryptoLibraryService.generateSecretKey();
+	const group_secret_key_enc =
+		cryptoLibraryService.encryptSecretKey(group_secret_key);
+	const group_key_pair = cryptoLibraryService.generatePublicPrivateKeypair();
+	const group_private_key_enc = cryptoLibraryService.encryptSecretKey(
+		group_key_pair["private_key"],
+	);
+	const group_public_key = group_key_pair["public_key"];
 
-    return apiClient
-        .createGroup(
-            token,
-            sessionSecretKey,
-            name,
-            group_secret_key_enc.text,
-            group_secret_key_enc.nonce,
-            group_private_key_enc.text,
-            group_private_key_enc.nonce,
-            group_public_key
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createGroup(
+			token,
+			sessionSecretKey,
+			name,
+			group_secret_key_enc.text,
+			group_secret_key_enc.nonce,
+			group_private_key_enc.text,
+			group_private_key_enc.nonce,
+			group_public_key,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -212,25 +251,27 @@ function createGroup(name) {
  * @returns {Promise} Returns whether the update was successful or not
  */
 function updateGroup(groupId, name) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        for (let i = 0; i < groups_cache.length; i++) {
-            if (groups_cache[i].group_id !== groupId) {
-                continue;
-            }
-            groups_cache[i] = name;
-        }
+	const onSuccess = (data) => {
+		for (let i = 0; i < groups_cache.length; i++) {
+			if (groups_cache[i].group_id !== groupId) {
+				continue;
+			}
+			groups_cache[i] = name;
+		}
 
-        return data.data;
-    };
+		return data.data;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.updateGroup(token, sessionSecretKey, groupId, name).then(onSuccess, onError);
+	return apiClient
+		.updateGroup(token, sessionSecretKey, groupId, name)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -241,21 +282,25 @@ function updateGroup(groupId, name) {
  * @returns {Promise} Returns whether the delete was successful or not
  */
 function deleteGroup(groupId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        helper.removeFromArray(groups_cache, groupId, function (a, b) {
-            return a["group_id"] === b;
-        });
-        return data.data;
-    };
+	const onSuccess = (data) => {
+		helper.removeFromArray(
+			groups_cache,
+			groupId,
+			(a, b) => a["group_id"] === b,
+		);
+		return data.data;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.deleteGroup(token, sessionSecretKey, groupId).then(onSuccess, onError);
+	return apiClient
+		.deleteGroup(token, sessionSecretKey, groupId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -266,18 +311,18 @@ function deleteGroup(groupId) {
  * @returns {Promise} Returns a list of groups rights
  */
 function readGroupRights(groupId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
-    };
+	const onSuccess = (data) => data.data;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.readGroupRights(token, sessionSecretKey, groupId).then(onSuccess, onError);
+	return apiClient
+		.readGroupRights(token, sessionSecretKey, groupId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -287,27 +332,32 @@ function readGroupRights(groupId) {
  * @returns {Promise} Returns a dict with the inaccessible group shares, grouped by group_id
  */
 function getOutstandingGroupShares() {
-    const onSuccess = async function (data) {
-        const inaccessibleShareList = await datastorePasswordService.getInaccessibleShares(data.group_rights);
-        const inaccessibleShareByGroupDict = {};
+	const onSuccess = async (data) => {
+		const inaccessibleShareList =
+			await datastorePasswordService.getInaccessibleShares(data.group_rights);
+		const inaccessibleShareByGroupDict = {};
 
-        for (let i = 0; i < inaccessibleShareList.length; i++) {
-            const inaccessibleShare = inaccessibleShareList[i];
+		for (let i = 0; i < inaccessibleShareList.length; i++) {
+			const inaccessibleShare = inaccessibleShareList[i];
 
-            if (!inaccessibleShareByGroupDict.hasOwnProperty(inaccessibleShare.group_id)) {
-                inaccessibleShareByGroupDict[inaccessibleShare.group_id] = {};
-            }
-            inaccessibleShareByGroupDict[inaccessibleShare.group_id][inaccessibleShare.share_id] = inaccessibleShare;
-        }
+			if (
+				!Object.hasOwn(inaccessibleShareByGroupDict, inaccessibleShare.group_id)
+			) {
+				inaccessibleShareByGroupDict[inaccessibleShare.group_id] = {};
+			}
+			inaccessibleShareByGroupDict[inaccessibleShare.group_id][
+				inaccessibleShare.share_id
+			] = inaccessibleShare;
+		}
 
-        return inaccessibleShareByGroupDict;
-    };
+		return inaccessibleShareByGroupDict;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return readGroupRights().then(onSuccess, onError);
+	return readGroupRights().then(onSuccess, onError);
 }
 
 /**
@@ -322,60 +372,56 @@ function getOutstandingGroupShares() {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createMembership(user, group, groupAdmin, shareAdmin) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        return request.data;
-    };
+	const onSuccess = (request) => request.data;
 
-    const onError = function (request) {
-        return Promise.reject(request);
-    };
+	const onError = (request) => Promise.reject(request);
 
-    const groupSecretKey = getGroupSecretKey(
-        group.group_id,
-        group.secret_key,
-        group.secret_key_nonce,
-        group.secret_key_type,
-        group.public_key
-    );
+	const groupSecretKey = getGroupSecretKey(
+		group.group_id,
+		group.secret_key,
+		group.secret_key_nonce,
+		group.secret_key_type,
+		group.public_key,
+	);
 
-    const groupPrivateKey = getGroupPrivateKey(
-        group.group_id,
-        group.private_key,
-        group.private_key_nonce,
-        group.private_key_type,
-        group.public_key
-    );
+	const groupPrivateKey = getGroupPrivateKey(
+		group.group_id,
+		group.private_key,
+		group.private_key_nonce,
+		group.private_key_type,
+		group.public_key,
+	);
 
-    const groupSecretKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
-        groupSecretKey,
-        user.public_key,
-        groupPrivateKey
-    );
-    const groupPrivateKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
-        groupPrivateKey,
-        user.public_key,
-        groupPrivateKey
-    );
+	const groupSecretKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+		groupSecretKey,
+		user.public_key,
+		groupPrivateKey,
+	);
+	const groupPrivateKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+		groupPrivateKey,
+		user.public_key,
+		groupPrivateKey,
+	);
 
-    return apiClient
-        .createMembership(
-            token,
-            sessionSecretKey,
-            group.group_id,
-            user.id,
-            groupSecretKeyEncrypted.text,
-            groupSecretKeyEncrypted.nonce,
-            "asymmetric",
-            groupPrivateKeyEncrypted.text,
-            groupPrivateKeyEncrypted.nonce,
-            "asymmetric",
-            groupAdmin,
-            shareAdmin
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createMembership(
+			token,
+			sessionSecretKey,
+			group.group_id,
+			user.id,
+			groupSecretKeyEncrypted.text,
+			groupSecretKeyEncrypted.nonce,
+			"asymmetric",
+			groupPrivateKeyEncrypted.text,
+			groupPrivateKeyEncrypted.nonce,
+			"asymmetric",
+			groupAdmin,
+			shareAdmin,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -388,20 +434,24 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
  * @returns {Promise} Returns whether the deletion was successful or not
  */
 function updateMembership(membershipId, groupAdmin, shareAdmin) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
-    };
+	const onSuccess = (data) => data.data;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient
-        .updateMembership(token, sessionSecretKey, membershipId, groupAdmin, shareAdmin)
-        .then(onSuccess, onError);
+	return apiClient
+		.updateMembership(
+			token,
+			sessionSecretKey,
+			membershipId,
+			groupAdmin,
+			shareAdmin,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -412,18 +462,18 @@ function updateMembership(membershipId, groupAdmin, shareAdmin) {
  * @returns {Promise} Returns whether the deletion was successful or not
  */
 function deleteMembership(membershipId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
-    };
+	const onSuccess = (data) => data.data;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.deleteMembership(token, sessionSecretKey, membershipId).then(onSuccess, onError);
+	return apiClient
+		.deleteMembership(token, sessionSecretKey, membershipId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -435,22 +485,37 @@ function deleteMembership(membershipId) {
  * @returns {object} The decrypted sahre
  */
 function decryptGroupShare(groupId, share) {
-    const share_secret_key = decryptSecretKey(groupId, share.share_key, share.share_key_nonce);
-    const decrypted_share = shareService.decryptShare(share, share_secret_key);
+	const share_secret_key = decryptSecretKey(
+		groupId,
+		share.share_key,
+		share.share_key_nonce,
+	);
+	const decrypted_share = shareService.decryptShare(share, share_secret_key);
 
-    if (typeof decrypted_share.name === "undefined") {
-        decrypted_share.name = decryptSecretKey(groupId, share.share_title, share.share_title_nonce);
-    }
+	if (typeof decrypted_share.name === "undefined") {
+		decrypted_share.name = decryptSecretKey(
+			groupId,
+			share.share_title,
+			share.share_title_nonce,
+		);
+	}
 
-    if (typeof decrypted_share.type === "undefined" && typeof share.share_type !== "undefined") {
-        const type = decryptSecretKey(groupId, share.share_type, share.share_type_nonce);
+	if (
+		typeof decrypted_share.type === "undefined" &&
+		typeof share.share_type !== "undefined"
+	) {
+		const type = decryptSecretKey(
+			groupId,
+			share.share_type,
+			share.share_type_nonce,
+		);
 
-        if (type !== "folder") {
-            decrypted_share.type = type;
-        }
-    }
+		if (type !== "folder") {
+			decrypted_share.type = type;
+		}
+	}
 
-    return decrypted_share;
+	return decrypted_share;
 }
 
 /**
@@ -462,13 +527,13 @@ function decryptGroupShare(groupId, share) {
  * @returns {Array} A list of decrypted shares
  */
 function decryptGroupShares(groupId, shares) {
-    const decrypted_shares = [];
-    for (let i = 0; i < shares.length; i++) {
-        const decrypted_share = decryptGroupShare(groupId, shares[i]);
-        decrypted_shares.push(decrypted_share);
-    }
+	const decrypted_shares = [];
+	for (let i = 0; i < shares.length; i++) {
+		const decrypted_share = decryptGroupShare(groupId, shares[i]);
+		decrypted_shares.push(decrypted_share);
+	}
 
-    return decrypted_shares;
+	return decrypted_shares;
 }
 
 /**
@@ -479,43 +544,45 @@ function decryptGroupShares(groupId, shares) {
  * @returns {Promise} Returns the decrypted share
  */
 function acceptMembership(membershipId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        let group_id;
-        let public_key;
-        for (let i = 0; i < groups_cache.length; i++) {
-            if (groups_cache[i]["membership_id"] !== membershipId) {
-                continue;
-            }
+	const onSuccess = (data) => {
+		let group_id;
+		let public_key;
+		for (let i = 0; i < groups_cache.length; i++) {
+			if (groups_cache[i]["membership_id"] !== membershipId) {
+				continue;
+			}
 
-            group_id = groups_cache[i]["group_id"];
-            groups_cache[i]["accepted"] = true;
-            groups_cache[i]["secret_key"] = data.data.secret_key;
-            groups_cache[i]["secret_key_nonce"] = data.data.secret_key_nonce;
-            groups_cache[i]["secret_key_type"] = data.data.secret_key_type;
-            groups_cache[i]["private_key"] = data.data.private_key;
-            groups_cache[i]["private_key_nonce"] = data.data.private_key_nonce;
-            groups_cache[i]["private_key_type"] = data.data.private_key_type;
+			group_id = groups_cache[i]["group_id"];
+			groups_cache[i]["accepted"] = true;
+			groups_cache[i]["secret_key"] = data.data.secret_key;
+			groups_cache[i]["secret_key_nonce"] = data.data.secret_key_nonce;
+			groups_cache[i]["secret_key_type"] = data.data.secret_key_type;
+			groups_cache[i]["private_key"] = data.data.private_key;
+			groups_cache[i]["private_key_nonce"] = data.data.private_key_nonce;
+			groups_cache[i]["private_key_type"] = data.data.private_key_type;
 
-            public_key = groups_cache[i]["public_key"];
+			public_key = groups_cache[i]["public_key"];
 
-            delete groups_cache[i]["share_right_grant"];
-            delete groups_cache[i]["user_id"];
-            delete groups_cache[i]["user_username"];
+			delete groups_cache[i]["share_right_grant"];
+			delete groups_cache[i]["user_id"];
+			delete groups_cache[i]["user_username"];
 
-            break;
-        }
+			break;
+		}
 
-        return decryptGroupShares(group_id, data.data.shares);
-    };
+		return decryptGroupShares(group_id, data.data.shares);
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.acceptMembership(token, sessionSecretKey, membershipId).then(onSuccess, onError);
+	return apiClient
+		.acceptMembership(token, sessionSecretKey, membershipId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -526,96 +593,95 @@ function acceptMembership(membershipId) {
  * @returns {Promise} Returns whether the declination was successful or not
  */
 function declineMembership(membershipId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
-    };
+	const onSuccess = (data) => data.data;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.declineMembership(token, sessionSecretKey, membershipId).then(onSuccess, onError);
+	return apiClient
+		.declineMembership(token, sessionSecretKey, membershipId)
+		.then(onSuccess, onError);
 }
 
 async function acceptMembershipsAndShares(membershipIds, path) {
+	let datastore;
+	try {
+		datastore = await datastorePassword.getPasswordDatastore();
+	} catch (e) {
+		// pass
+		console.log(e);
+		return;
+	}
 
-    let datastore;
-    try {
-        datastore = await datastorePassword.getPasswordDatastore();
-    } catch (e) {
-        // pass
-        console.log(e);
-        return;
-    }
+	const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
 
-    const breadcrumbs = {id_breadcrumbs: path.map((node) => node.id)};
+	const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(
+		breadcrumbs,
+		datastore,
+	);
 
-    const analyzed_breadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
+	if (typeof analyzed_breadcrumbs["parent_share_id"] !== "undefined") {
+		// No grant right, yet the parent is a a share?!?
+		alert(
+			"Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1",
+		);
+		return;
+	}
 
-    if (typeof analyzed_breadcrumbs["parent_share_id"] !== "undefined") {
-        // No grant right, yet the parent is a a share?!?
-        alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
-        return;
-    }
+	const shares = [];
+	const allPromises = [];
 
-    const shares = []
-    const allPromises = []
+	for (const membershipId of membershipIds) {
+		const onSuccess = (newShares) => {
+			shares.push(...newShares);
+		};
 
-    for (const membershipId of membershipIds) {
+		const onError = (data) => {
+			//pass
+			console.log(data);
+		};
 
-        const onSuccess = function (newShares) {
-            shares.push(...newShares);
-        };
+		allPromises.push(acceptMembership(membershipId).then(onSuccess, onError));
+	}
 
-        const onError = function (data) {
-            //pass
-            console.log(data);
-        };
+	await Promise.all(allPromises);
 
-        allPromises.push(acceptMembership(membershipId).then(onSuccess, onError));
-    }
-
-    await Promise.all(allPromises);
-
-    return datastorePassword
-        .createShareLinksInDatastore(
-            shares,
-            analyzed_breadcrumbs["target"],
-            analyzed_breadcrumbs["parent_path"],
-            analyzed_breadcrumbs["path"],
-            analyzed_breadcrumbs["parent_share_id"],
-            analyzed_breadcrumbs["parent_datastore_id"],
-            analyzed_breadcrumbs["parent_share"],
-            datastore
-        )
-
+	return datastorePassword.createShareLinksInDatastore(
+		shares,
+		analyzed_breadcrumbs["target"],
+		analyzed_breadcrumbs["parent_path"],
+		analyzed_breadcrumbs["path"],
+		analyzed_breadcrumbs["parent_share_id"],
+		analyzed_breadcrumbs["parent_datastore_id"],
+		analyzed_breadcrumbs["parent_share"],
+		datastore,
+	);
 }
-
-
 
 //itemBlueprint.register('getGroupSecretKey', getGroupSecretKey);
 
 const groupsService = {
-    getGroupSecretKey: getGroupSecretKey,
-    getGroupPrivateKey: getGroupPrivateKey,
-    decryptSecretKey: decryptSecretKey,
-    readGroup: readGroup,
-    readGroups: readGroups,
-    createGroup: createGroup,
-    updateGroup: updateGroup,
-    deleteGroup: deleteGroup,
-    readGroupRights: readGroupRights,
-    getOutstandingGroupShares: getOutstandingGroupShares,
-    createMembership: createMembership,
-    updateMembership: updateMembership,
-    deleteMembership: deleteMembership,
-    decryptGroupShare: decryptGroupShare,
-    decryptGroupShares: decryptGroupShares,
-    acceptMembership: acceptMembership,
-    declineMembership: declineMembership,
-    acceptMembershipsAndShares: acceptMembershipsAndShares,
+	getGroupSecretKey: getGroupSecretKey,
+	getGroupPrivateKey: getGroupPrivateKey,
+	decryptSecretKey: decryptSecretKey,
+	readGroup: readGroup,
+	readGroups: readGroups,
+	createGroup: createGroup,
+	updateGroup: updateGroup,
+	deleteGroup: deleteGroup,
+	readGroupRights: readGroupRights,
+	getOutstandingGroupShares: getOutstandingGroupShares,
+	createMembership: createMembership,
+	updateMembership: updateMembership,
+	deleteMembership: deleteMembership,
+	decryptGroupShare: decryptGroupShare,
+	decryptGroupShares: decryptGroupShares,
+	acceptMembership: acceptMembership,
+	declineMembership: declineMembership,
+	acceptMembershipsAndShares: acceptMembershipsAndShares,
 };
 export default groupsService;

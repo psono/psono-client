@@ -1,29 +1,32 @@
-import React from "react";
+import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
-import { makeStyles } from '@mui/styles';
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-        width: "100%",
-        marginLeft: "15px",
-        overflowX: "visible",
-        maxWidth: `calc(100% - 30px)`,
-        [theme.breakpoints.up("sm")]: {
-            maxWidth: `calc(100% - 270px)`,
-        },
-    },
+	root: {
+		flexGrow: 1,
+		width: "100%",
+		marginLeft: "15px",
+		overflowX: "visible",
+		maxWidth: `calc(100% - 30px)`,
+		[theme.breakpoints.up("sm")]: {
+			maxWidth: `calc(100% - 270px)`,
+		},
+	},
 }));
 
 const BaseContent = (props) => {
-    const classes = useStyles();
-    const { children } = props;
+	const classes = useStyles();
+	const { children } = props;
 
-    return <div className={classes.root}>{children}</div>;
+	return <div className={classes.root}>{children}</div>;
 };
 
 BaseContent.propTypes = {
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+	children: PropTypes.oneOfType([
+		PropTypes.arrayOf(PropTypes.node),
+		PropTypes.node,
+	]).isRequired,
 };
 
 export default BaseContent;

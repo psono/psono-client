@@ -2,10 +2,10 @@
  * Emergency codes and all the functions to create / edit / delete them ...
  */
 
-import { getStore } from "./store";
-import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+import { getStore } from "./store";
 
 /**
  * Returns a list of configured emergency codes
@@ -13,16 +13,16 @@ import cryptoLibrary from "./crypto-library";
  * @returns {Promise} Returns a promise with the emergency codes
  */
 function readEmergencyCodes() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        return request.data["emegency_codes"];
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.readEmergencyCodes(token, sessionSecretKey).then(onSuccess, onError);
+	const onSuccess = (request) => request.data["emegency_codes"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.readEmergencyCodes(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -34,57 +34,55 @@ function readEmergencyCodes() {
  * @returns {Promise} Returns a promise with the emergency code
  */
 function createEmergencyCode(title, leadTime) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const username = getStore().getState().user.username;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
 
-    const emergencyPassword = cryptoLibrary.generateRecoveryCode();
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(
-        username,
-        emergencyPassword["base58"],
-        'scrypt',
-        {
-            "u": 14,
-            "r": 8,
-            "p": 1,
-            "l": 64
-        },
-    );
-    const emergencySauce = cryptoLibrary.generateUserSauce();
+	const emergencyPassword = cryptoLibrary.generateRecoveryCode();
+	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		emergencyPassword["base58"],
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+	const emergencySauce = cryptoLibrary.generateUserSauce();
 
-    const emergencyDataDec = {
-        user_private_key: getStore().getState().user.userPrivateKey,
-        user_secret_key: getStore().getState().user.userSecretKey,
-    };
+	const emergencyDataDec = {
+		user_private_key: getStore().getState().user.userPrivateKey,
+		user_secret_key: getStore().getState().user.userSecretKey,
+	};
 
-    const emergency_data = cryptoLibrary.encryptSecret(
-        JSON.stringify(emergencyDataDec),
-        emergencyPassword["base58"],
-        emergencySauce
-    );
+	const emergency_data = cryptoLibrary.encryptSecret(
+		JSON.stringify(emergencyDataDec),
+		emergencyPassword["base58"],
+		emergencySauce,
+	);
 
-    const onSuccess = function () {
-        return {
-            username: username,
-            emergency_password: helperService.splitStringInChunks(emergencyPassword["base58_checksums"], 13).join("-"),
-            emergency_words: emergencyPassword["words"].join(" "),
-        };
-    };
-    const onError = function (request) {
-        return Promise.reject(request.data);
-    };
-    return apiClient
-        .createEmergencyCode(
-            token,
-            sessionSecretKey,
-            title,
-            leadTime,
-            emergencyAuthkey,
-            emergency_data.text,
-            emergency_data.nonce,
-            emergencySauce
-        )
-        .then(onSuccess, onError);
+	const onSuccess = () => ({
+		username: username,
+		emergency_password: helperService
+			.splitStringInChunks(emergencyPassword["base58_checksums"], 13)
+			.join("-"),
+		emergency_words: emergencyPassword["words"].join(" "),
+	});
+	const onError = (request) => Promise.reject(request.data);
+	return apiClient
+		.createEmergencyCode(
+			token,
+			sessionSecretKey,
+			title,
+			leadTime,
+			emergencyAuthkey,
+			emergency_data.text,
+			emergency_data.nonce,
+			emergencySauce,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -95,22 +93,24 @@ function createEmergencyCode(title, leadTime) {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteEmergencyCode(emergencyCodeId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        // pass
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId).then(onSuccess, onError);
+	const onSuccess = (request) => {
+		// pass
+	};
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId)
+		.then(onSuccess, onError);
 }
 
 const emergencyCodeService = {
-    readEmergencyCodes,
-    createEmergencyCode,
-    deleteEmergencyCode,
+	readEmergencyCodes,
+	createEmergencyCode,
+	deleteEmergencyCode,
 };
 
 export default emergencyCodeService;

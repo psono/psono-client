@@ -8,7 +8,7 @@ import { getStore } from "./store";
  * @param {array} message The message to send
  */
 function infoSend(message) {
-    action().sendNotification(message, "info");
+	action().sendNotification(message, "info");
 }
 
 /**
@@ -17,14 +17,14 @@ function infoSend(message) {
  * @param {array} message The message to send
  */
 function errorSend(message) {
-    action().sendNotification(message, "error");
+	action().sendNotification(message, "error");
 }
 
 /**
  * Resets messages
  */
 function reset() {
-    action().setNotifications([]);
+	action().setNotifications([]);
 }
 
 /**
@@ -33,7 +33,7 @@ function reset() {
  * @param {array} messages The message to set
  */
 function set(messages) {
-    action().setNotifications(messages);
+	action().setNotifications(messages);
 }
 
 /**
@@ -43,37 +43,39 @@ function set(messages) {
  * @param {string} notificationType The suffix key to manage this type of notification in settings
  */
 function push(notificationType, notificationContent) {
-    const knownNotificationTypes = [
-        "content_copy",
-        "pin_copy",
-        "value_copy",
-        "password_copy",
-        "username_copy",
-        "totp_token_copy",
-        "note_content_copy",
-        "credit_card_number_copy",
-        "credit_card_name_copy",
-        "credit_card_expiry_date_copy",
-        "credit_card_cvc_copy",
-        "credit_card_pin_copy"
-    ];
+	const knownNotificationTypes = [
+		"content_copy",
+		"pin_copy",
+		"value_copy",
+		"password_copy",
+		"username_copy",
+		"totp_token_copy",
+		"note_content_copy",
+		"credit_card_number_copy",
+		"credit_card_name_copy",
+		"credit_card_expiry_date_copy",
+		"credit_card_cvc_copy",
+		"credit_card_pin_copy",
+	];
 
-    if (!knownNotificationTypes.includes(notificationType)) {
-        console.error("This notification type: '" + notificationType + "' doesn't exist");
-        return;
-    }
+	if (!knownNotificationTypes.includes(notificationType)) {
+		console.error(
+			"This notification type: '" + notificationType + "' doesn't exist",
+		);
+		return;
+	}
 
-    if (getStore().getState().client.notificationOnCopy) {
-        browserClient.notify(notificationContent);
-    }
+	if (getStore().getState().client.notificationOnCopy) {
+		browserClient.notify(notificationContent);
+	}
 }
 
 const notificationService = {
-    infoSend,
-    errorSend,
-    reset,
-    set,
-    push,
+	infoSend,
+	errorSend,
+	reset,
+	set,
+	push,
 };
 
 export default notificationService;

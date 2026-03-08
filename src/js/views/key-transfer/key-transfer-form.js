@@ -1,230 +1,256 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import {ClipLoader} from "react-spinners";
-
 import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import { useTheme } from "@mui/material/styles";
-import { makeStyles } from '@mui/styles';
-import MuiAlert from '@mui/material/Alert'
-
-import GridContainerErrors from "../../components/grid-container-errors";
-import FooterLinks from "../../components/footer-links";
-import userService from "../../services/user";
-import { getStore } from "../../services/store";
-import ButtonDanger from "../../components/button-danger";
-import serverSecretService from "../../services/server-secret";
-import TextField from "@mui/material/TextField";
 import LinearProgress from "@mui/material/LinearProgress";
+import { useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from "@mui/styles";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { ClipLoader } from "react-spinners";
+import ButtonDanger from "../../components/button-danger";
+import FooterLinks from "../../components/footer-links";
+import GridContainerErrors from "../../components/grid-container-errors";
 import cryptoLibrary from "../../services/crypto-library";
 import helperService from "../../services/helper";
+import serverSecretService from "../../services/server-secret";
+import { getStore } from "../../services/store";
+import userService from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-        "& .MuiInputBase-root": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: theme.palette.greyText.main,
-        },
-        "& MuiFormControl-root": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& label": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& .MuiInput-underline:after": {
-            borderBottomColor: "green",
-        },
-        "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-                borderColor: theme.palette.greyText.main,
-            },
-        },
-    },
-    passwordComplexityWrapper: {
-        "& .MuiLinearProgress-colorPrimary": {
-            backgroundColor: theme.palette.blueBackground.main,
-        },
-    },
-    button: {
-        color: "white !important",
-    },
-    loader: {
-        textAlign: "center",
-        marginTop: "20px",
-        marginBottom: "20px",
-        margin: "auto",
-    },
-    regularButtonText: {
-        color: theme.palette.lightGreyText.main,
-    },
+	textField: {
+		width: "100%",
+		"& .MuiInputBase-root": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
+			color: theme.palette.greyText.main,
+		},
+		"& MuiFormControl-root": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& label": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& .MuiInput-underline:after": {
+			borderBottomColor: "green",
+		},
+		"& .MuiOutlinedInput-root": {
+			"& fieldset": {
+				borderColor: theme.palette.greyText.main,
+			},
+		},
+	},
+	passwordComplexityWrapper: {
+		"& .MuiLinearProgress-colorPrimary": {
+			backgroundColor: theme.palette.blueBackground.main,
+		},
+	},
+	button: {
+		color: "white !important",
+	},
+	loader: {
+		textAlign: "center",
+		marginTop: "20px",
+		marginBottom: "20px",
+		margin: "auto",
+	},
+	regularButtonText: {
+		color: theme.palette.lightGreyText.main,
+	},
 }));
 
 const KeyTransferForm = (props) => {
-    const classes = useStyles();
-    const theme = useTheme();
-    const { t } = useTranslation();
+	const classes = useStyles();
+	const theme = useTheme();
+	const { t } = useTranslation();
 
-    const serverSecretExists = useSelector((state) => state.user.serverSecretExists);
-    const [errors, setErrors] = useState([]);
-    const [view, setView] = useState("default");
-    const [password, setPassword] = useState("");
-    const [passwordRepeat, setPasswordRepeat] = useState("");
+	const serverSecretExists = useSelector(
+		(state) => state.user.serverSecretExists,
+	);
+	const [errors, setErrors] = useState([]);
+	const [view, setView] = useState("default");
+	const [password, setPassword] = useState("");
+	const [passwordRepeat, setPasswordRepeat] = useState("");
 
-    const logout = () => {
-        window.location.href = 'logout-success.html';
-    };
+	const logout = () => {
+		window.location.href = "logout-success.html";
+	};
 
-    if (userService.requireServerSecret() === serverSecretExists) {
-        setTimeout(function () {
-            // Timeout required, otherwise hasTwoFactor is not persisted
-            window.location.href = "index.html";
-        }, 1);
-    }
+	if (userService.requireServerSecret() === serverSecretExists) {
+		setTimeout(() => {
+			// Timeout required, otherwise hasTwoFactor is not persisted
+			window.location.href = "index.html";
+		}, 1);
+	}
 
-    const approveCreation = async () => {
-        setView('loading');
+	const approveCreation = async () => {
+		setView("loading");
 
-        await serverSecretService.createServerSecret();
+		await serverSecretService.createServerSecret();
 
-        // loading screen can stay as we will redirect the user
-        // setView('default');
-    }
+		// loading screen can stay as we will redirect the user
+		// setView('default');
+	};
 
-    const approveDeletion = async () => {
-        let testError = helperService.isValidPassword(
-            password,
-            passwordRepeat,
-            getStore().getState().server.complianceMinMasterPasswordLength,
-            getStore().getState().server.complianceMinMasterPasswordComplexity,
-        );
+	const approveDeletion = async () => {
+		const testError = helperService.isValidPassword(
+			password,
+			passwordRepeat,
+			getStore().getState().server.complianceMinMasterPasswordLength,
+			getStore().getState().server.complianceMinMasterPasswordComplexity,
+		);
 
-        if (testError) {
-            setErrors([testError]);
-            return;
-        }
-        setView('loading');
+		if (testError) {
+			setErrors([testError]);
+			return;
+		}
+		setView("loading");
 
-        await serverSecretService.deleteServerSecret(password);
+		await serverSecretService.deleteServerSecret(password);
 
-        // loading screen can stay as we will redirect the user
-        // setView('default');
-    }
+		// loading screen can stay as we will redirect the user
+		// setView('default');
+	};
 
-    if (view === 'loading') {
-        return (
-            <div className={classes.root}>
-                <div className={classes.loader}>
-                    <ClipLoader color={theme.palette.primary.main}/>
-                </div>
-            </div>)
-    }
+	if (view === "loading") {
+		return (
+			<div className={classes.root}>
+				<div className={classes.loader}>
+					<ClipLoader color={theme.palette.primary.main} />
+				</div>
+			</div>
+		);
+	}
 
-    return (
-        <form
-            onSubmit={(e) => {
-                e.preventDefault();
-            }}
-            name="serverSecretsForm"
-            autoComplete="off"
-        >
-            <Grid container>
-                <Grid item xs={12} sm={12} md={12}>
-                    <MuiAlert
-                        severity="info"
-                        style={{
-                            marginBottom: "5px",
-                            marginTop: "5px",
-                        }}
-                    >
-                        {serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
-                    </MuiAlert>
-                </Grid>
-                {serverSecretExists && <>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                            className={classes.textField}
-                            variant="outlined"
-                            margin="dense" size="small"
-                            id="password"
-                            label={t("PASSWORD")}
-                            InputProps={{
-                                type: "password",
-                            }}
-                            name="password"
-                            autoComplete="off"
-                            value={password}
-                            onChange={(event) => {
-                                setPassword(event.target.value);
-                            }}
-                        />
-                        <div className={classes.passwordComplexityWrapper}><LinearProgress variant="determinate"
-                                                                                           value={cryptoLibrary.calculatePasswordStrengthInPercent(password)}
-                                                                                           classes={{
-                                                                                               colorPrimary: classes.colorPrimary,
-                                                                                               barColorPrimary: classes.barColorPrimary
-                                                                                           }}/></div>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                            className={classes.textField}
-                            variant="outlined"
-                            margin="dense" size="small"
-                            id="passwordRepeat"
-                            label={t("PASSWORD_REPEAT")}
-                            error={password && passwordRepeat && passwordRepeat !== password}
-                            InputProps={{
-                                type: "password",
-                            }}
-                            name="passwordRepeat"
-                            autoComplete="off"
-                            value={passwordRepeat}
-                            onChange={(event) => {
-                                setPasswordRepeat(event.target.value);
-                            }}
-                        />
-                    </Grid>
-                </>}
-            </Grid>
-            <Grid container>
-                <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                    {serverSecretExists && <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={approveDeletion}
-                        disabled={
-                            !password || !passwordRepeat || password !== passwordRepeat
-                        }
-                        type="submit"
-                        style={{marginRight: "10px"}}
-                    >
-                        {t("APPROVE")}
-                    </Button>}
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+			}}
+			name="serverSecretsForm"
+			autoComplete="off"
+		>
+			<Grid container>
+				<Grid item xs={12} sm={12} md={12}>
+					<MuiAlert
+						severity="info"
+						style={{
+							marginBottom: "5px",
+							marginTop: "5px",
+						}}
+					>
+						{serverSecretExists
+							? t(
+									"ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION",
+								)
+							: t(
+									"ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION",
+								)}
+					</MuiAlert>
+				</Grid>
+				{serverSecretExists && (
+					<>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="password"
+								label={t("PASSWORD")}
+								InputProps={{
+									type: "password",
+								}}
+								name="password"
+								autoComplete="off"
+								value={password}
+								onChange={(event) => {
+									setPassword(event.target.value);
+								}}
+							/>
+							<div className={classes.passwordComplexityWrapper}>
+								<LinearProgress
+									variant="determinate"
+									value={cryptoLibrary.calculatePasswordStrengthInPercent(
+										password,
+									)}
+									classes={{
+										colorPrimary: classes.colorPrimary,
+										barColorPrimary: classes.barColorPrimary,
+									}}
+								/>
+							</div>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="passwordRepeat"
+								label={t("PASSWORD_REPEAT")}
+								error={
+									password && passwordRepeat && passwordRepeat !== password
+								}
+								InputProps={{
+									type: "password",
+								}}
+								name="passwordRepeat"
+								autoComplete="off"
+								value={passwordRepeat}
+								onChange={(event) => {
+									setPasswordRepeat(event.target.value);
+								}}
+							/>
+						</Grid>
+					</>
+				)}
+			</Grid>
+			<Grid container>
+				<Grid
+					item
+					xs={6}
+					sm={6}
+					md={6}
+					style={{ marginTop: "5px", marginBottom: "5px" }}
+				>
+					{serverSecretExists && (
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={approveDeletion}
+							disabled={
+								!password || !passwordRepeat || password !== passwordRepeat
+							}
+							type="submit"
+							style={{ marginRight: "10px" }}
+						>
+							{t("APPROVE")}
+						</Button>
+					)}
 
-                    {!serverSecretExists && <ButtonDanger
-                        onClick={approveCreation}
-                        style={{marginRight: "10px"}}
-                        autoFocus
-                    >
-                        {t("APPROVE")}
-                    </ButtonDanger>}
-                    <Button
-                        onClick={logout}
-                        type="submit"
-                    >
-                        <span className={classes.regularButtonText}>{t("LOGOUT")}</span>
-                    </Button>
-                </Grid>
-            </Grid>
-            <GridContainerErrors errors={errors} setErrors={setErrors} />
-            <div className="box-footer">
-                <FooterLinks />
-            </div>
-        </form>
-    );
+					{!serverSecretExists && (
+						<ButtonDanger
+							onClick={approveCreation}
+							style={{ marginRight: "10px" }}
+							autoFocus
+						>
+							{t("APPROVE")}
+						</ButtonDanger>
+					)}
+					<Button onClick={logout} type="submit">
+						<span className={classes.regularButtonText}>{t("LOGOUT")}</span>
+					</Button>
+				</Grid>
+			</Grid>
+			<GridContainerErrors errors={errors} setErrors={setErrors} />
+			<div className="box-footer">
+				<FooterLinks />
+			</div>
+		</form>
+	);
 };
 
 export default KeyTransferForm;

@@ -16,19 +16,24 @@ import { getStore } from "./store";
  * @returns {promise} Returns a promise withe the new share link id
  */
 function createShareLink(linkId, shareId, parentShareId, parentDatastoreId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        // pass
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (result) {
-        return result;
-    };
+	const onSuccess = (result) => result;
 
-    return apiClient
-        .createShareLink(token, sessionSecretKey, linkId, shareId, parentShareId, parentDatastoreId)
-        .then(onSuccess, onError);
+	return apiClient
+		.createShareLink(
+			token,
+			sessionSecretKey,
+			linkId,
+			shareId,
+			parentShareId,
+			parentDatastoreId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -41,19 +46,23 @@ function createShareLink(linkId, shareId, parentShareId, parentDatastoreId) {
  * @returns {promise} Returns a promise with the status of the move
  */
 function moveShareLink(linkId, newParentShareId, newParentDatastoreId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        // pass
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (result) {
-        return result;
-    };
+	const onSuccess = (result) => result;
 
-    return apiClient
-        .moveShareLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
-        .then(onSuccess, onError);
+	return apiClient
+		.moveShareLink(
+			token,
+			sessionSecretKey,
+			linkId,
+			newParentShareId,
+			newParentDatastoreId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -63,17 +72,17 @@ function moveShareLink(linkId, newParentShareId, newParentDatastoreId) {
  * @returns {promise} Returns a promise with the status of the delete operation
  */
 function deleteShareLink(linkId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        // pass
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (result) {
-        return result;
-    };
+	const onSuccess = (result) => result;
 
-    return apiClient.deleteShareLink(token, sessionSecretKey, linkId).then(onSuccess, onError);
+	return apiClient
+		.deleteShareLink(token, sessionSecretKey, linkId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -85,21 +94,20 @@ function deleteShareLink(linkId) {
  * @returns {promise} Returns a promise with the status of the move
  */
 function onShareMoved(linkId, parent) {
-    let new_parent_share_id = undefined,
-        new_parent_datastore_id = undefined;
+	let new_parent_share_id, new_parent_datastore_id;
 
-    if (parent.hasOwnProperty("share_id")) {
-        new_parent_share_id = parent.share_id;
-    } else if (parent.hasOwnProperty("datastore_id")) {
-        new_parent_datastore_id = parent.datastore_id;
-    } else {
-        return Promise.reject({
-            response: "error",
-            error_data: "Could not determine if its a share or datastore parent",
-        });
-    }
+	if (Object.hasOwn(parent, "share_id")) {
+		new_parent_share_id = parent.share_id;
+	} else if (Object.hasOwn(parent, "datastore_id")) {
+		new_parent_datastore_id = parent.datastore_id;
+	} else {
+		return Promise.reject({
+			response: "error",
+			error_data: "Could not determine if its a share or datastore parent",
+		});
+	}
 
-    return moveShareLink(linkId, new_parent_share_id, new_parent_datastore_id);
+	return moveShareLink(linkId, new_parent_share_id, new_parent_datastore_id);
 }
 
 /**
@@ -108,14 +116,14 @@ function onShareMoved(linkId, parent) {
  * @param {uuid} link_id the link_id to delete
  */
 function onShareDeleted(link_id) {
-    return deleteShareLink(link_id);
+	return deleteShareLink(link_id);
 }
 
 const shareLinkService = {
-    createShareLink: createShareLink,
-    moveShareLink: moveShareLink,
-    deleteShareLink: deleteShareLink,
-    onShareMoved: onShareMoved,
-    onShareDeleted: onShareDeleted,
+	createShareLink: createShareLink,
+	moveShareLink: moveShareLink,
+	deleteShareLink: deleteShareLink,
+	onShareMoved: onShareMoved,
+	onShareDeleted: onShareDeleted,
 };
 export default shareLinkService;

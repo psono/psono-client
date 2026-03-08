@@ -1,7 +1,7 @@
 import browserClient from "./browser-client";
 import cryptoLibraryService from "./crypto-library";
 
-let _notifications = {};
+const _notifications = {};
 
 /**
  * shows the notification bar for a speicfic tab specified by its id
@@ -9,14 +9,13 @@ let _notifications = {};
  * @param tabId
  */
 function showNotificationBarInTab(tabId) {
-    if (!_notifications.hasOwnProperty(tabId)) {
-        return;
-    }
+	if (!Object.hasOwn(_notifications, tabId)) {
+		return;
+	}
 
-    browserClient.emitTab(tabId, "show-notification-bar", {
-            'notificationBarUrl': browserClient.getURL('data/notification-bar.html'),
-        }
-    )
+	browserClient.emitTab(tabId, "show-notification-bar", {
+		notificationBarUrl: browserClient.getURL("data/notification-bar.html"),
+	});
 }
 
 /**
@@ -25,7 +24,7 @@ function showNotificationBarInTab(tabId) {
  * @param tabId The id of the tab
  */
 function removeNotificationBar(tabId) {
-    browserClient.emitTab(tabId, "remove-notification-bar", {});
+	browserClient.emitTab(tabId, "remove-notification-bar", {});
 }
 
 /**
@@ -38,34 +37,33 @@ function removeNotificationBar(tabId) {
  * @param [onAutoClose] A callback function that is triggered on auto close
  */
 async function create(title, description, buttons, autoClose, onAutoClose) {
+	const id = cryptoLibraryService.generateUuid();
+	const activeTab = await browserClient.getActiveTab();
 
-    const id = cryptoLibraryService.generateUuid();
-    const activeTab = await browserClient.getActiveTab();
+	if (Object.hasOwn(_notifications, activeTab.id)) {
+		removeNotificationBar(activeTab.id);
+	}
+	_notifications[activeTab.id] = {
+		id: id,
+		title: title || "",
+		description: description || "",
+		buttons: buttons || [],
+	};
 
-    if (_notifications.hasOwnProperty(activeTab.id)) {
-        removeNotificationBar(activeTab.id)
-    }
-    _notifications[activeTab.id] = {
-        'id': id,
-        'title': title || "",
-        'description': description || "",
-        'buttons': buttons || []
-    }
+	showNotificationBarInTab(activeTab.id);
+	if (autoClose) {
+		setTimeout(() => {
+			if (!Object.hasOwn(_notifications, activeTab.id)) {
+				return;
+			}
+			delete _notifications[activeTab.id];
 
-    showNotificationBarInTab(activeTab.id);
-    if (autoClose) {
-        setTimeout(function () {
-            if (!_notifications.hasOwnProperty(activeTab.id)) {
-                return;
-            }
-            delete _notifications[activeTab.id];
-
-            removeNotificationBar(activeTab.id)
-            if (typeof onAutoClose === "function") {
-                onAutoClose()
-            }
-        }, autoClose);
-    }
+			removeNotificationBar(activeTab.id);
+			if (typeof onAutoClose === "function") {
+				onAutoClose();
+			}
+		}, autoClose);
+	}
 }
 
 /**
@@ -76,13 +74,13 @@ async function create(title, description, buttons, autoClose, onAutoClose) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onNotificationBarReady(request, sender, sendResponse) {
-    if (!sender.tab) {
-        return;
-    }
-    if (!_notifications.hasOwnProperty(sender.tab.id)) {
-        removeNotificationBar(sender.tab.id)
-    }
-    showNotificationBarInTab(sender.tab.id)
+	if (!sender.tab) {
+		return;
+	}
+	if (!Object.hasOwn(_notifications, sender.tab.id)) {
+		removeNotificationBar(sender.tab.id);
+	}
+	showNotificationBarInTab(sender.tab.id);
 }
 
 /**
@@ -93,24 +91,24 @@ function onNotificationBarReady(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onNotificationBarLoaded(request, sender, sendResponse) {
-    if (!sender.tab) {
-        return;
-    }
-    if (!_notifications.hasOwnProperty(sender.tab.id)) {
-        return;
-    }
+	if (!sender.tab) {
+		return;
+	}
+	if (!Object.hasOwn(_notifications, sender.tab.id)) {
+		return;
+	}
 
-    sendResponse({
-        'id': _notifications[sender.tab.id].id,
-        'title': _notifications[sender.tab.id].title,
-        'description': _notifications[sender.tab.id].description,
-        'buttons': _notifications[sender.tab.id].buttons.map((button) => {
-            return {
-                'title': button.title,
-                'color': button.color,
-            }
-        }),
-    });
+	sendResponse({
+		id: _notifications[sender.tab.id].id,
+		title: _notifications[sender.tab.id].title,
+		description: _notifications[sender.tab.id].description,
+		buttons: _notifications[sender.tab.id].buttons.map((button) => {
+			return {
+				title: button.title,
+				color: button.color,
+			};
+		}),
+	});
 }
 
 /**
@@ -121,25 +119,25 @@ function onNotificationBarLoaded(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onNotificationBarButtonClick(request, sender, sendResponse) {
-    if (!sender.tab) {
-        return;
-    }
-    if (!_notifications.hasOwnProperty(sender.tab.id)) {
-        return;
-    }
+	if (!sender.tab) {
+		return;
+	}
+	if (!Object.hasOwn(_notifications, sender.tab.id)) {
+		return;
+	}
 
-    const notificationConfig = _notifications[sender.tab.id];
-    delete _notifications[sender.tab.id];
+	const notificationConfig = _notifications[sender.tab.id];
+	delete _notifications[sender.tab.id];
 
-    removeNotificationBar(sender.tab.id);
+	removeNotificationBar(sender.tab.id);
 
-    if (notificationConfig['id'] != request.data['id']) {
-        return;
-    }
-    if (notificationConfig['buttons'].length <= request.data['index']) {
-        return;
-    }
-    notificationConfig['buttons'][request.data['index']]['onClick']();
+	if (notificationConfig["id"] != request.data["id"]) {
+		return;
+	}
+	if (notificationConfig["buttons"].length <= request.data["index"]) {
+		return;
+	}
+	notificationConfig["buttons"][request.data["index"]]["onClick"]();
 }
 
 /**
@@ -150,22 +148,22 @@ function onNotificationBarButtonClick(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onNotificationBarClose(request, sender, sendResponse) {
-    if (!sender.tab) {
-        return;
-    }
-    removeNotificationBar(sender.tab.id)
-    if (!_notifications.hasOwnProperty(sender.tab.id)) {
-        return;
-    }
-    delete _notifications.hasOwnProperty[sender.tab.id];
+	if (!sender.tab) {
+		return;
+	}
+	removeNotificationBar(sender.tab.id);
+	if (!Object.hasOwn(_notifications, sender.tab.id)) {
+		return;
+	}
+	delete _notifications.hasOwnProperty[sender.tab.id];
 }
 
 const notificationBarService = {
-    create,
-    onNotificationBarReady,
-    onNotificationBarClose,
-    onNotificationBarLoaded,
-    onNotificationBarButtonClick,
+	create,
+	onNotificationBarReady,
+	onNotificationBarClose,
+	onNotificationBarLoaded,
+	onNotificationBarButtonClick,
 };
 
 export default notificationBarService;

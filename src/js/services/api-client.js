@@ -1,182 +1,203 @@
 /**
  * Service to talk to the psono REST api
  */
+
+import i18n from "../i18n";
 import cryptoLibrary from "./crypto-library";
-import offlineCache from "./offline-cache";
 import device from "./device";
+import offlineCache from "./offline-cache";
 import { getStore } from "./store";
 import user from "./user";
-import i18n from "../i18n";
 
 // TODO add later for audit log again
 //let AUDIT_LOG_HEADER = 'Audit-Log';
 
-const decryptData = function (sessionSecretKey, data, url, method) {
-    if (
-        sessionSecretKey &&
-        data !== null &&
-        data.hasOwnProperty("data") &&
-        data.data !== "" &&
-        (
-            !data.data.hasOwnProperty("text") ||
-            !data.data.hasOwnProperty("nonce")
-        )
-    ) {
-        // we expected an encrypted response, yet the response was unencrypted, so we don't trust it.
-        console.log("UNENCRYPTED_RESPONSE_RECEIVED", data.data)
-        throw new Error("UNENCRYPTED_RESPONSE_RECEIVED");
-    }
-    if (
-        sessionSecretKey &&
-        data !== null &&
-        data.hasOwnProperty("data") &&
-        data.data !== "" &&
-        data.data.hasOwnProperty("text") &&
-        data.data.hasOwnProperty("nonce")
-    ) {
-        data.data = JSON.parse(cryptoLibrary.decryptData(data.data.text, data.data.nonce, sessionSecretKey));
-    }
-    offlineCache.set(url, method, data);
-    return data;
+const decryptData = (sessionSecretKey, data, url, method) => {
+	if (
+		sessionSecretKey &&
+		data !== null &&
+		Object.hasOwn(data, "data") &&
+		data.data !== "" &&
+		(!Object.hasOwn(data.data, "text") || !Object.hasOwn(data.data, "nonce"))
+	) {
+		// we expected an encrypted response, yet the response was unencrypted, so we don't trust it.
+		console.log("UNENCRYPTED_RESPONSE_RECEIVED", data.data);
+		throw new Error("UNENCRYPTED_RESPONSE_RECEIVED");
+	}
+	if (
+		sessionSecretKey &&
+		data !== null &&
+		Object.hasOwn(data, "data") &&
+		data.data !== "" &&
+		Object.hasOwn(data.data, "text") &&
+		Object.hasOwn(data.data, "nonce")
+	) {
+		data.data = JSON.parse(
+			cryptoLibrary.decryptData(
+				data.data.text,
+				data.data.nonce,
+				sessionSecretKey,
+			),
+		);
+	}
+	offlineCache.set(url, method, data);
+	return data;
 };
 
-function _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect) {
-    const url = serverUrl + endpoint;
+function _statelessCall(
+	method,
+	endpoint,
+	body,
+	headers,
+	sessionSecretKey,
+	serverUrl,
+	deviceFingerprint,
+	sideEffect,
+) {
+	const url = serverUrl + endpoint;
 
-    if (sessionSecretKey && body !== null) {
-        body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
-    }
+	if (sessionSecretKey && body !== null) {
+		body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
+	}
 
-    if (sessionSecretKey && headers && headers.hasOwnProperty("Authorization")) {
-        const validator = {
-            request_time: new Date().toISOString(),
-            request_device_fingerprint: deviceFingerprint,
-        };
-        headers["Authorization-Validator"] = JSON.stringify(
-            cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
-        );
-    }
+	if (sessionSecretKey && headers && Object.hasOwn(headers, "Authorization")) {
+		const validator = {
+			request_time: new Date().toISOString(),
+			request_device_fingerprint: deviceFingerprint,
+		};
+		headers["Authorization-Validator"] = JSON.stringify(
+			cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey),
+		);
+	}
 
-    // TODO add later for audit log again
-    // let log_audit = storage.find_key('config','server_info')
-    // if (log_audit) {
-    //     log_audit = log_audit.value['log_audit']
-    // }
-    //
-    // if (sessionSecretKey && headers && headers.hasOwnProperty(AUDIT_LOG_HEADER) && log_audit) {
-    //     headers[AUDIT_LOG_HEADER] = JSON.stringify(cryptoLibrary.encryptData(JSON.stringify(headers[AUDIT_LOG_HEADER]), sessionSecretKey));
-    // } else if (headers && headers.hasOwnProperty(AUDIT_LOG_HEADER)) {
-    //     delete headers[AUDIT_LOG_HEADER];
-    // }
+	// TODO add later for audit log again
+	// let log_audit = storage.find_key('config','server_info')
+	// if (log_audit) {
+	//     log_audit = log_audit.value['log_audit']
+	// }
+	//
+	// if (sessionSecretKey && headers && headers.hasOwnProperty(AUDIT_LOG_HEADER) && log_audit) {
+	//     headers[AUDIT_LOG_HEADER] = JSON.stringify(cryptoLibrary.encryptData(JSON.stringify(headers[AUDIT_LOG_HEADER]), sessionSecretKey));
+	// } else if (headers && headers.hasOwnProperty(AUDIT_LOG_HEADER)) {
+	//     delete headers[AUDIT_LOG_HEADER];
+	// }
 
-    const req = {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            ...headers
-        }
-    };
+	const req = {
+		method,
+		headers: {
+			"Content-Type": "application/json",
+			...headers,
+		},
+	};
 
-    if (body != null) {
-        req['body'] = JSON.stringify(body);
-    }
+	if (body != null) {
+		req["body"] = JSON.stringify(body);
+	}
 
-    return offlineCache.get(url, req.method).then((cached) => {
-        if (cached !== null) {
-            return cached;
-        }
+	return offlineCache.get(url, req.method).then((cached) => {
+		if (cached !== null) {
+			return cached;
+		}
 
-        return new Promise(async (resolve, reject) => {
-            let rawResponse;
-            try {
-                rawResponse = await fetch(url, req);
-            } catch (e) {
-                console.log(e);
-                reject({errors: ["SERVER_OFFLINE"]});
-                return;
-            }
+		return new Promise(async (resolve, reject) => {
+			let rawResponse;
+			try {
+				rawResponse = await fetch(url, req);
+			} catch (e) {
+				console.log(e);
+				reject({ errors: ["SERVER_OFFLINE"] });
+				return;
+			}
 
-            if (typeof sideEffect === "function") {
-                sideEffect(rawResponse);
-            }
+			if (typeof sideEffect === "function") {
+				sideEffect(rawResponse);
+			}
 
-            let data = await rawResponse.text();
-            if (data) {
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    // pass
-                }
-            }
+			let data = await rawResponse.text();
+			if (data) {
+				try {
+					data = JSON.parse(data);
+				} catch (e) {
+					// pass
+				}
+			}
 
-            let decryptedData
+			let decryptedData;
 
-            // compatibility to old axios library
-            if (data) {
-                data = {
-                    data
-                }
-            }
+			// compatibility to old axios library
+			if (data) {
+				data = {
+					data,
+				};
+			}
 
-            if (!rawResponse.ok) {
-                console.log(rawResponse);
-                console.log(data);
-                if (rawResponse.status === 404) {
-                    if (rawResponse.statusText) {
-                        return reject(rawResponse.statusText);
-                    }
-                    return reject({errors: ["RESOURCE_NOT_FOUND"]});
-                }
+			if (!rawResponse.ok) {
+				console.log(rawResponse);
+				console.log(data);
+				if (rawResponse.status === 404) {
+					if (rawResponse.statusText) {
+						return reject(rawResponse.statusText);
+					}
+					return reject({ errors: ["RESOURCE_NOT_FOUND"] });
+				}
 
-                if (rawResponse.status >= 500) {
-                    if (rawResponse.statusText) {
-                        return reject(rawResponse.statusText);
-                    }
-                    return reject({errors: ["SERVER_OFFLINE"]});
-                }
-                // received error 400. We fall through here and check below with rawResponse.ok whether we have to return
-                // a success or failed response
+				if (rawResponse.status >= 500) {
+					if (rawResponse.statusText) {
+						return reject(rawResponse.statusText);
+					}
+					return reject({ errors: ["SERVER_OFFLINE"] });
+				}
+				// received error 400. We fall through here and check below with rawResponse.ok whether we have to return
+				// a success or failed response
+			}
 
-            }
-
-            try {
-                decryptedData = decryptData(sessionSecretKey, data, url, req.method)
-            } catch (e) {
-                return reject({errors: ["UNENCRYPTED_RESPONSE_RECEIVED"]})
-            }
-            if (rawResponse.ok) {
-                return resolve(decryptedData);
-            } else {
-                return reject(decryptedData);
-            }
-        });
-    });
+			try {
+				decryptedData = decryptData(sessionSecretKey, data, url, req.method);
+			} catch (e) {
+				return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] });
+			}
+			if (rawResponse.ok) {
+				return resolve(decryptedData);
+			} else {
+				return reject(decryptedData);
+			}
+		});
+	});
 }
 
 function call(method, endpoint, body, headers, sessionSecretKey) {
-    const serverUrl = getStore().getState().server.url;
-    const deviceFingerprint = device.getDeviceFingerprint();
-    const sideEffect = (rawResponse) => {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        if (rawResponse.status === 401 && user.isLoggedIn()) {
-            // session expired, lets log the user out
-            user.logout(i18n.t("SESSION_EXPIRED"));
-        }
-        if (rawResponse.status === 423 && user.isLoggedIn()) {
-            // server error, lets log the user out
-            user.logout(rawResponse.statusText);
-        }
-        if (rawResponse.status === 502 && user.isLoggedIn()) {
-            // server error, lets log the user out
-            user.logout(rawResponse.statusText);
-        }
-        if (rawResponse.status === 503 && user.isLoggedIn()) {
-            // server error, lets log the user out
-            user.logout(rawResponse.statusText);
-        }
-    }
-    return _statelessCall(method, endpoint, body, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
+	const serverUrl = getStore().getState().server.url;
+	const deviceFingerprint = device.getDeviceFingerprint();
+	const sideEffect = (rawResponse) => {
+		// The request was made and the server responded with a status code
+		// that falls out of the range of 2xx
+		if (rawResponse.status === 401 && user.isLoggedIn()) {
+			// session expired, lets log the user out
+			user.logout(i18n.t("SESSION_EXPIRED"));
+		}
+		if (rawResponse.status === 423 && user.isLoggedIn()) {
+			// server error, lets log the user out
+			user.logout(rawResponse.statusText);
+		}
+		if (rawResponse.status === 502 && user.isLoggedIn()) {
+			// server error, lets log the user out
+			user.logout(rawResponse.statusText);
+		}
+		if (rawResponse.status === 503 && user.isLoggedIn()) {
+			// server error, lets log the user out
+			user.logout(rawResponse.statusText);
+		}
+	};
+	return _statelessCall(
+		method,
+		endpoint,
+		body,
+		headers,
+		sessionSecretKey,
+		serverUrl,
+		deviceFingerprint,
+		sideEffect,
+	);
 }
 
 /**
@@ -185,12 +206,12 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
  * @returns {Promise} Returns a promise with server's public information
  */
 function info() {
-    const endpoint = "/info/";
-    const method = "GET";
-    const data = null;
-    const headers = null;
+	const endpoint = "/info/";
+	const method = "GET";
+	const data = null;
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -200,15 +221,15 @@ function info() {
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const prelogin = function (username) {
-    const endpoint = "/authentication/prelogin/";
-    const method = "POST";
-    const data = {
-        username: username,
-    };
-    const headers = null;
+const prelogin = (username) => {
+	const endpoint = "/authentication/prelogin/";
+	const method = "POST";
+	const data = {
+		username: username,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 };
 
 /**
@@ -222,18 +243,18 @@ const prelogin = function (username) {
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const login = function (login_info, login_info_nonce, public_key, session_duration) {
-    const endpoint = "/authentication/login/";
-    const method = "POST";
-    const data = {
-        login_info: login_info,
-        login_info_nonce: login_info_nonce,
-        public_key: public_key,
-        session_duration: session_duration,
-    };
-    const headers = null;
+const login = (login_info, login_info_nonce, public_key, session_duration) => {
+	const endpoint = "/authentication/login/";
+	const method = "POST";
+	const data = {
+		login_info: login_info,
+		login_info_nonce: login_info_nonce,
+		public_key: public_key,
+		session_duration: session_duration,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 };
 
 /**
@@ -246,14 +267,14 @@ const login = function (login_info, login_info_nonce, public_key, session_durati
  * @returns {Promise} Returns a promise with the login status
  */
 function samlInitiateLogin(saml_provider_id, return_to_url) {
-    const endpoint = "/saml/" + saml_provider_id + "/initiate-login/";
-    const method = "POST";
-    const data = {
-        return_to_url: return_to_url,
-    };
-    const headers = null;
+	const endpoint = "/saml/" + saml_provider_id + "/initiate-login/";
+	const method = "POST";
+	const data = {
+		return_to_url: return_to_url,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -266,14 +287,14 @@ function samlInitiateLogin(saml_provider_id, return_to_url) {
  * @returns {Promise} Returns a promise with the login status
  */
 function oidcInitiateLogin(oidc_provider_id, return_to_url) {
-    const endpoint = "/oidc/" + oidc_provider_id + "/initiate-login/";
-    const method = "POST";
-    const data = {
-        return_to_url: return_to_url,
-    };
-    const headers = null;
+	const endpoint = "/oidc/" + oidc_provider_id + "/initiate-login/";
+	const method = "POST";
+	const data = {
+		return_to_url: return_to_url,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -288,17 +309,17 @@ function oidcInitiateLogin(oidc_provider_id, return_to_url) {
  * @returns {Promise} Returns a promise with the login status
  */
 function samlLogin(login_info, login_info_nonce, public_key, session_duration) {
-    const endpoint = "/saml/login/";
-    const method = "POST";
-    const data = {
-        login_info: login_info,
-        login_info_nonce: login_info_nonce,
-        public_key: public_key,
-        session_duration: session_duration,
-    };
-    const headers = null;
+	const endpoint = "/saml/login/";
+	const method = "POST";
+	const data = {
+		login_info: login_info,
+		login_info_nonce: login_info_nonce,
+		public_key: public_key,
+		session_duration: session_duration,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -313,17 +334,17 @@ function samlLogin(login_info, login_info_nonce, public_key, session_duration) {
  * @returns {Promise} Returns a promise with the login status
  */
 function oidcLogin(login_info, login_info_nonce, public_key, session_duration) {
-    const endpoint = "/oidc/login/";
-    const method = "POST";
-    const data = {
-        login_info: login_info,
-        login_info_nonce: login_info_nonce,
-        public_key: public_key,
-        session_duration: session_duration,
-    };
-    const headers = null;
+	const endpoint = "/oidc/login/";
+	const method = "POST";
+	const data = {
+		login_info: login_info,
+		login_info_nonce: login_info_nonce,
+		public_key: public_key,
+		session_duration: session_duration,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -336,16 +357,16 @@ function oidcLogin(login_info, login_info_nonce, public_key, session_duration) {
  * @returns {Promise} Returns a promise with the verification status
  */
 function gaVerify(token, ga_token, sessionSecretKey) {
-    const endpoint = "/authentication/ga-verify/";
-    const method = "POST";
-    const data = {
-        ga_token: ga_token,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/ga-verify/";
+	const method = "POST";
+	const data = {
+		ga_token: ga_token,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -358,16 +379,16 @@ function gaVerify(token, ga_token, sessionSecretKey) {
  * @returns {Promise} Returns a promise with the verification status
  */
 function duoVerify(token, duoToken, sessionSecretKey) {
-    const endpoint = "/authentication/duo-verify/";
-    const method = "POST";
-    const data = {
-        duo_token: duoToken,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/duo-verify/";
+	const method = "POST";
+	const data = {
+		duo_token: duoToken,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -380,16 +401,16 @@ function duoVerify(token, duoToken, sessionSecretKey) {
  * @returns {Promise} Returns a promise with the verification status
  */
 function yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey) {
-    const endpoint = "/authentication/yubikey-otp-verify/";
-    const method = "POST";
-    const data = {
-        yubikey_otp: yubikey_otp,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/yubikey-otp-verify/";
+	const method = "POST";
+	const data = {
+		yubikey_otp: yubikey_otp,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -403,19 +424,25 @@ function yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-function activateToken(token, verification, verification_nonce, sessionSecretKey, zoneinfo) {
-    const endpoint = "/authentication/activate-token/";
-    const method = "POST";
-    const data = {
-        verification: verification,
-        verification_nonce: verification_nonce,
-        zoneinfo: zoneinfo,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function activateToken(
+	token,
+	verification,
+	verification_nonce,
+	sessionSecretKey,
+	zoneinfo,
+) {
+	const endpoint = "/authentication/activate-token/";
+	const method = "POST";
+	const data = {
+		verification: verification,
+		verification_nonce: verification_nonce,
+		zoneinfo: zoneinfo,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -427,15 +454,15 @@ function activateToken(token, verification, verification_nonce, sessionSecretKey
  * @returns {Promise} promise
  */
 function getSessions(token, sessionSecretKey) {
-    const endpoint = "/authentication/sessions/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/authentication/sessions/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -447,15 +474,15 @@ function getSessions(token, sessionSecretKey) {
  * @returns {Promise} promise
  */
 function readEmergencyCodes(token, sessionSecretKey) {
-    const endpoint = "/emergencycode/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/emergencycode/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -475,30 +502,30 @@ function readEmergencyCodes(token, sessionSecretKey) {
  * @returns {Promise} promise
  */
 function createEmergencyCode(
-    token,
-    sessionSecretKey,
-    description,
-    activation_delay,
-    emergency_authkey,
-    emergency_data,
-    emergency_data_nonce,
-    emergency_sauce
+	token,
+	sessionSecretKey,
+	description,
+	activation_delay,
+	emergency_authkey,
+	emergency_data,
+	emergency_data_nonce,
+	emergency_sauce,
 ) {
-    const endpoint = "/emergencycode/";
-    const method = "POST";
-    const data = {
-        description: description,
-        activation_delay: activation_delay,
-        emergency_authkey: emergency_authkey,
-        emergency_data: emergency_data,
-        emergency_data_nonce: emergency_data_nonce,
-        emergency_sauce: emergency_sauce,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/emergencycode/";
+	const method = "POST";
+	const data = {
+		description: description,
+		activation_delay: activation_delay,
+		emergency_authkey: emergency_authkey,
+		emergency_data: emergency_data,
+		emergency_data_nonce: emergency_data_nonce,
+		emergency_sauce: emergency_sauce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -511,18 +538,18 @@ function createEmergencyCode(
  * @returns {Promise} Returns a promise which can succeed or fail
  */
 function deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId) {
-    const endpoint = "/emergencycode/";
-    const method = "DELETE";
-    const data = {
-        emergency_code_id: emergencyCodeId,
-    };
+	const endpoint = "/emergencycode/";
+	const method = "DELETE";
+	const data = {
+		emergency_code_id: emergencyCodeId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -536,17 +563,17 @@ function deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId) {
  * @returns {Promise} Returns a promise with the logout status
  */
 function logout(token, sessionSecretKey, sessionId, postLogoutRedirectUri) {
-    const endpoint = "/authentication/logout/";
-    const method = "POST";
-    const data = {
-        session_id: sessionId,
-        post_logout_redirect_uri: postLogoutRedirectUri,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/logout/";
+	const method = "POST";
+	const data = {
+		session_id: sessionId,
+		post_logout_redirect_uri: postLogoutRedirectUri,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -562,18 +589,35 @@ function logout(token, sessionSecretKey, sessionId, postLogoutRedirectUri) {
  *
  * @returns {Promise} Returns a promise with the logout status
  */
-function statelessLogout(token, sessionSecretKey, sessionId, postLogoutRedirectUri, serverUrl, deviceFingerprint, sideEffect) {
-    const endpoint = "/authentication/logout/";
-    const method = "POST";
-    const data = {
-        session_id: sessionId,
-        post_logout_redirect_uri: postLogoutRedirectUri,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function statelessLogout(
+	token,
+	sessionSecretKey,
+	sessionId,
+	postLogoutRedirectUri,
+	serverUrl,
+	deviceFingerprint,
+	sideEffect,
+) {
+	const endpoint = "/authentication/logout/";
+	const method = "POST";
+	const data = {
+		session_id: sessionId,
+		post_logout_redirect_uri: postLogoutRedirectUri,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return _statelessCall(method, endpoint, data, headers, sessionSecretKey, serverUrl, deviceFingerprint, sideEffect);
+	return _statelessCall(
+		method,
+		endpoint,
+		data,
+		headers,
+		sessionSecretKey,
+		serverUrl,
+		deviceFingerprint,
+		sideEffect,
+	);
 }
 
 /**
@@ -596,38 +640,38 @@ function statelessLogout(token, sessionSecretKey, sessionId, postLogoutRedirectU
  * @returns {Promise} promise
  */
 function register(
-    email,
-    username,
-    authkey,
-    publicKey,
-    privateKey,
-    privateKeyNonce,
-    secretKey,
-    secretKeyNonce,
-    userSauce,
-    baseUrl,
-    hashingAlgorithm,
-    hashingParameters,
+	email,
+	username,
+	authkey,
+	publicKey,
+	privateKey,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+	userSauce,
+	baseUrl,
+	hashingAlgorithm,
+	hashingParameters,
 ) {
-    const endpoint = "/authentication/register/";
-    const method = "POST";
-    const data = {
-        email: email,
-        username: username,
-        authkey: authkey,
-        public_key: publicKey,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        user_sauce: userSauce,
-        base_url: baseUrl,
-        hashing_algorithm: hashingAlgorithm,
-        hashing_parameters: hashingParameters,
-    };
-    const headers = null;
+	const endpoint = "/authentication/register/";
+	const method = "POST";
+	const data = {
+		email: email,
+		username: username,
+		authkey: authkey,
+		public_key: publicKey,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		user_sauce: userSauce,
+		base_url: baseUrl,
+		hashing_algorithm: hashingAlgorithm,
+		hashing_parameters: hashingParameters,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -640,21 +684,17 @@ function register(
  *
  * @returns {Promise} promise
  */
-function unregister(
-    username,
-    email,
-    baseUrl
-) {
-    const endpoint = "/authentication/unregister/";
-    const method = "POST";
-    const data = {
-        email: email,
-        username: username,
-        base_url: baseUrl,
-    };
-    const headers = null;
+function unregister(username, email, baseUrl) {
+	const endpoint = "/authentication/unregister/";
+	const method = "POST";
+	const data = {
+		email: email,
+		username: username,
+		base_url: baseUrl,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -665,14 +705,14 @@ function unregister(
  * @returns {Promise} Returns a promise with the unregistration status
  */
 function unregisterConfirm(unregisterCode) {
-    const endpoint = "/authentication/unregister/";
-    const method = "PUT";
-    const data = {
-        unregister_code: unregisterCode,
-    };
-    const headers = null;
+	const endpoint = "/authentication/unregister/";
+	const method = "PUT";
+	const data = {
+		unregister_code: unregisterCode,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -684,14 +724,14 @@ function unregisterConfirm(unregisterCode) {
  * @returns {Promise} Returns a promise with the activation status
  */
 function verifyEmail(activation_code) {
-    const endpoint = "/authentication/verify-email/";
-    const method = "POST";
-    const data = {
-        activation_code: activation_code,
-    };
-    const headers = null;
+	const endpoint = "/authentication/verify-email/";
+	const method = "POST";
+	const data = {
+		activation_code: activation_code,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -714,38 +754,38 @@ function verifyEmail(activation_code) {
  * @returns {Promise} Returns a promise with the update status
  */
 function updateUser(
-    token,
-    sessionSecretKey,
-    email,
-    authkey,
-    authkey_old,
-    private_key,
-    privateKeyNonce,
-    secretKey,
-    secretKeyNonce,
-    language,
-    hashingAlgorithm,
-    hashingParameters,
+	token,
+	sessionSecretKey,
+	email,
+	authkey,
+	authkey_old,
+	private_key,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+	language,
+	hashingAlgorithm,
+	hashingParameters,
 ) {
-    const endpoint = "/user/update/";
-    const method = "PUT";
-    const data = {
-        email: email,
-        authkey: authkey,
-        authkey_old: authkey_old,
-        private_key: private_key,
-        private_key_nonce: privateKeyNonce,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        language: language,
-        hashing_algorithm: hashingAlgorithm,
-        hashing_parameters: hashingParameters,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/user/update/";
+	const method = "PUT";
+	const data = {
+		email: email,
+		authkey: authkey,
+		authkey_old: authkey_old,
+		private_key: private_key,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		language: language,
+		hashing_algorithm: hashingAlgorithm,
+		hashing_parameters: hashingParameters,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -761,26 +801,26 @@ function updateUser(
  * @returns {Promise} Returns a promise with the recovery_data_id
  */
 function writeRecoverycode(
-    token,
-    sessionSecretKey,
-    recovery_authkey,
-    recovery_data,
-    recovery_data_nonce,
-    recovery_sauce
+	token,
+	sessionSecretKey,
+	recovery_authkey,
+	recovery_data,
+	recovery_data_nonce,
+	recovery_sauce,
 ) {
-    const endpoint = "/recoverycode/";
-    const method = "POST";
-    const data = {
-        recovery_authkey: recovery_authkey,
-        recovery_data: recovery_data,
-        recovery_data_nonce: recovery_data_nonce,
-        recovery_sauce: recovery_sauce,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/recoverycode/";
+	const method = "POST";
+	const data = {
+		recovery_authkey: recovery_authkey,
+		recovery_data: recovery_data,
+		recovery_data_nonce: recovery_data_nonce,
+		recovery_sauce: recovery_sauce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -792,15 +832,15 @@ function writeRecoverycode(
  * @returns {Promise} Returns a promise with the recovery_data
  */
 function enableRecoverycode(username, recovery_authkey) {
-    const endpoint = "/password/";
-    const method = "POST";
-    const data = {
-        username: username,
-        recovery_authkey: recovery_authkey,
-    };
-    const headers = null;
+	const endpoint = "/password/";
+	const method = "POST";
+	const data = {
+		username: username,
+		recovery_authkey: recovery_authkey,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -812,15 +852,15 @@ function enableRecoverycode(username, recovery_authkey) {
  * @returns {Promise} Returns a promise with the recovery_data
  */
 function armEmergencyCode(username, emergency_authkey) {
-    const endpoint = "/emergency-login/";
-    const method = "POST";
-    const data = {
-        username: username,
-        emergency_authkey: emergency_authkey,
-    };
-    const headers = null;
+	const endpoint = "/emergency-login/";
+	const method = "POST";
+	const data = {
+		username: username,
+		emergency_authkey: emergency_authkey,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -833,18 +873,23 @@ function armEmergencyCode(username, emergency_authkey) {
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-function activateEmergencyCode(username, emergency_authkey, update_data, update_data_nonce) {
-    const endpoint = "/emergency-login/";
-    const method = "PUT";
-    const data = {
-        username: username,
-        emergency_authkey: emergency_authkey,
-        update_data: update_data,
-        update_data_nonce: update_data_nonce,
-    };
-    const headers = null;
+function activateEmergencyCode(
+	username,
+	emergency_authkey,
+	update_data,
+	update_data_nonce,
+) {
+	const endpoint = "/emergency-login/";
+	const method = "PUT";
+	const data = {
+		username: username,
+		emergency_authkey: emergency_authkey,
+		update_data: update_data,
+		update_data_nonce: update_data_nonce,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -859,21 +904,27 @@ function activateEmergencyCode(username, emergency_authkey, update_data, update_
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-function setPassword(username, recovery_authkey, update_data, update_data_nonce, hashingAlgorithm, hashingParameters) {
-    const endpoint = "/password/";
-    const method = "PUT";
-    const data = {
-        username: username,
-        recovery_authkey: recovery_authkey,
-        update_data: update_data,
-        update_data_nonce: update_data_nonce,
-        hashing_algorithm: hashingAlgorithm,
-        hashing_parameters: hashingParameters,
+function setPassword(
+	username,
+	recovery_authkey,
+	update_data,
+	update_data_nonce,
+	hashingAlgorithm,
+	hashingParameters,
+) {
+	const endpoint = "/password/";
+	const method = "PUT";
+	const data = {
+		username: username,
+		recovery_authkey: recovery_authkey,
+		update_data: update_data,
+		update_data_nonce: update_data_nonce,
+		hashing_algorithm: hashingAlgorithm,
+		hashing_parameters: hashingParameters,
+	};
+	const headers = null;
 
-    };
-    const headers = null;
-
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 }
 
 /**
@@ -886,14 +937,14 @@ function setPassword(username, recovery_authkey, update_data, update_data_nonce,
  * @returns {Promise} Returns a promise with the encrypted datastore
  */
 function readDatastore(token, sessionSecretKey, datastoreId) {
-    const endpoint = "/datastore/" + (!datastoreId ? "" : datastoreId + "/");
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/datastore/" + (!datastoreId ? "" : datastoreId + "/");
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -906,14 +957,14 @@ function readDatastore(token, sessionSecretKey, datastoreId) {
  * @returns {Promise} promise
  */
 function readSecretHistory(token, sessionSecretKey, secretId) {
-    const endpoint = "/secret/history/" + secretId + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/secret/history/" + secretId + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -926,14 +977,14 @@ function readSecretHistory(token, sessionSecretKey, secretId) {
  * @returns {Promise} promise
  */
 function readHistory(token, sessionSecretKey, secret_history_id) {
-    const endpoint = "/history/" + secret_history_id + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/history/" + secret_history_id + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -953,32 +1004,32 @@ function readHistory(token, sessionSecretKey, secret_history_id) {
  * @returns {Promise} promise
  */
 function createDatastore(
-    token,
-    sessionSecretKey,
-    type,
-    description,
-    encryptedData,
-    encryptedDataNonce,
-    isDefault,
-    encryptedDataSecretKey,
-    encryptedDataSecretKeyNonce
+	token,
+	sessionSecretKey,
+	type,
+	description,
+	encryptedData,
+	encryptedDataNonce,
+	isDefault,
+	encryptedDataSecretKey,
+	encryptedDataSecretKeyNonce,
 ) {
-    const endpoint = "/datastore/";
-    const method = "PUT";
-    const data = {
-        type: type,
-        description: description,
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-        is_default: isDefault,
-        secret_key: encryptedDataSecretKey,
-        secret_key_nonce: encryptedDataSecretKeyNonce,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/datastore/";
+	const method = "PUT";
+	const data = {
+		type: type,
+		description: description,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+		is_default: isDefault,
+		secret_key: encryptedDataSecretKey,
+		secret_key_nonce: encryptedDataSecretKeyNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -992,18 +1043,18 @@ function createDatastore(
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteDatastore(token, sessionSecretKey, datastoreId, authkey) {
-    const endpoint = "/datastore/";
-    const method = "DELETE";
-    const data = {
-        datastore_id: datastoreId,
-        authkey: authkey,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/datastore/";
+	const method = "DELETE";
+	const data = {
+		datastore_id: datastoreId,
+		authkey: authkey,
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1022,32 +1073,32 @@ function deleteDatastore(token, sessionSecretKey, datastoreId, authkey) {
  * @returns {Promise} promise
  */
 function writeDatastore(
-    token,
-    sessionSecretKey,
-    datastoreId,
-    encryptedData,
-    encryptedDataNonce,
-    encryptedDataSecretKey,
-    encryptedDataSecretKeyNonce,
-    description,
-    is_default
+	token,
+	sessionSecretKey,
+	datastoreId,
+	encryptedData,
+	encryptedDataNonce,
+	encryptedDataSecretKey,
+	encryptedDataSecretKeyNonce,
+	description,
+	is_default,
 ) {
-    const endpoint = "/datastore/";
-    const method = "POST";
-    const data = {
-        datastore_id: datastoreId,
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-        secret_key: encryptedDataSecretKey,
-        secret_key_nonce: encryptedDataSecretKeyNonce,
-        description: description,
-        is_default: is_default,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/datastore/";
+	const method = "POST";
+	const data = {
+		datastore_id: datastoreId,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+		secret_key: encryptedDataSecretKey,
+		secret_key_nonce: encryptedDataSecretKeyNonce,
+		description: description,
+		is_default: is_default,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1060,18 +1111,18 @@ function writeDatastore(
  * @returns {Promise} promise
  */
 function readSecret(token, sessionSecretKey, secretId) {
-    const endpoint = "/secret/" + secretId + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/secret/" + secretId + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    // headers[AUDIT_LOG_HEADER] = {
-    //     'test': 'something secret'
-    // }
+	// headers[AUDIT_LOG_HEADER] = {
+	//     'test': 'something secret'
+	// }
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1091,34 +1142,34 @@ function readSecret(token, sessionSecretKey, secretId) {
  * @returns {Promise} Returns a promise with the new secretId
  */
 function createSecret(
-    token,
-    sessionSecretKey,
-    encryptedData,
-    encryptedDataNonce,
-    linkId,
-    parentDatastoreId,
-    parentShareId,
-    callback_url,
-    callback_user,
-    callback_pass
+	token,
+	sessionSecretKey,
+	encryptedData,
+	encryptedDataNonce,
+	linkId,
+	parentDatastoreId,
+	parentShareId,
+	callback_url,
+	callback_user,
+	callback_pass,
 ) {
-    const endpoint = "/secret/";
-    const method = "PUT";
-    const data = {
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-        link_id: linkId,
-        parent_datastore_id: parentDatastoreId,
-        parent_share_id: parentShareId,
-        callback_url: callback_url,
-        callback_user: callback_user,
-        callback_pass: callback_pass,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/secret/";
+	const method = "PUT";
+	const data = {
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+		link_id: linkId,
+		parent_datastore_id: parentDatastoreId,
+		parent_share_id: parentShareId,
+		callback_url: callback_url,
+		callback_user: callback_user,
+		callback_pass: callback_pass,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1133,24 +1184,24 @@ function createSecret(
  * @returns {Promise} Returns a promise with the new secretId
  */
 function createSecretBulk(
-    token,
-    sessionSecretKey,
-    secrets,
-    parentDatastoreId,
-    parentShareId
+	token,
+	sessionSecretKey,
+	secrets,
+	parentDatastoreId,
+	parentShareId,
 ) {
-    const endpoint = "/bulk-secret/";
-    const method = "PUT";
-    const data = {
-        parent_datastore_id: parentDatastoreId,
-        parent_share_id: parentShareId,
-        secrets: secrets,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/bulk-secret/";
+	const method = "PUT";
+	const data = {
+		parent_datastore_id: parentDatastoreId,
+		parent_share_id: parentShareId,
+		secrets: secrets,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1162,21 +1213,17 @@ function createSecretBulk(
  *
  * @returns {Promise} Returns a promise with the new secretId
  */
-function readSecretBulk(
-    token,
-    sessionSecretKey,
-    secretIds,
-) {
-    const endpoint = "/bulk-secret-read/";
-    const method = "POST";
-    const data = {
-        secret_ids: secretIds,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function readSecretBulk(token, sessionSecretKey, secretIds) {
+	const endpoint = "/bulk-secret-read/";
+	const method = "POST";
+	const data = {
+		secret_ids: secretIds,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1194,30 +1241,30 @@ function readSecretBulk(
  * @returns {Promise} promise
  */
 function writeSecret(
-    token,
-    sessionSecretKey,
-    secretId,
-    encryptedData,
-    encryptedDataNonce,
-    callback_url,
-    callback_user,
-    callback_pass
+	token,
+	sessionSecretKey,
+	secretId,
+	encryptedData,
+	encryptedDataNonce,
+	callback_url,
+	callback_user,
+	callback_pass,
 ) {
-    const endpoint = "/secret/";
-    const method = "POST";
-    const data = {
-        secret_id: secretId,
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-        callback_url: callback_url,
-        callback_user: callback_user,
-        callback_pass: callback_pass,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/secret/";
+	const method = "POST";
+	const data = {
+		secret_id: secretId,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+		callback_url: callback_url,
+		callback_user: callback_user,
+		callback_pass: callback_pass,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1231,19 +1278,25 @@ function writeSecret(
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
-    const endpoint = "/secret/link/";
-    const method = "POST";
-    const data = {
-        link_id: linkId,
-        new_parent_share_id: newParentShareId,
-        new_parent_datastore_id: newParentDatastoreId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function moveSecretLink(
+	token,
+	sessionSecretKey,
+	linkId,
+	newParentShareId,
+	newParentDatastoreId,
+) {
+	const endpoint = "/secret/link/";
+	const method = "POST";
+	const data = {
+		link_id: linkId,
+		new_parent_share_id: newParentShareId,
+		new_parent_datastore_id: newParentDatastoreId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1257,18 +1310,18 @@ function moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newPa
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle) {
-    const endpoint = "/secret/link/";
-    const method = "DELETE";
-    const data = {
-        link_id: linkId,
-        log_audit_title: getStore().getState().server.logAudit ? logAuditTitle : '',
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/secret/link/";
+	const method = "DELETE";
+	const data = {
+		link_id: linkId,
+		log_audit_title: getStore().getState().server.logAudit ? logAuditTitle : "",
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1282,19 +1335,25 @@ function deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle) {
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
-    const endpoint = "/file/link/";
-    const method = "POST";
-    const data = {
-        link_id: linkId,
-        new_parent_share_id: newParentShareId,
-        new_parent_datastore_id: newParentDatastoreId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function moveFileLink(
+	token,
+	sessionSecretKey,
+	linkId,
+	newParentShareId,
+	newParentDatastoreId,
+) {
+	const endpoint = "/file/link/";
+	const method = "POST";
+	const data = {
+		link_id: linkId,
+		new_parent_share_id: newParentShareId,
+		new_parent_datastore_id: newParentDatastoreId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1307,17 +1366,17 @@ function moveFileLink(token, sessionSecretKey, linkId, newParentShareId, newPare
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteFileLink(token, sessionSecretKey, linkId) {
-    const endpoint = "/file/link/";
-    const method = "DELETE";
-    const data = {
-        link_id: linkId,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/file/link/";
+	const method = "DELETE";
+	const data = {
+		link_id: linkId,
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1330,14 +1389,14 @@ function deleteFileLink(token, sessionSecretKey, linkId) {
  * @returns {Promise} promise
  */
 function readShare(token, sessionSecretKey, share_id) {
-    const endpoint = "/share/" + share_id + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/" + share_id + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1349,14 +1408,14 @@ function readShare(token, sessionSecretKey, share_id) {
  * @returns {Promise} promise
  */
 function readShares(token, sessionSecretKey) {
-    const endpoint = "/share/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1376,33 +1435,33 @@ function readShares(token, sessionSecretKey) {
  * @returns {Promise} Returns a promise with the status and the new share id
  */
 function createShare(
-    token,
-    sessionSecretKey,
-    encryptedData,
-    encryptedDataNonce,
-    key,
-    keyNonce,
-    parentShareId,
-    parentDatastoreId,
-    linkId
+	token,
+	sessionSecretKey,
+	encryptedData,
+	encryptedDataNonce,
+	key,
+	keyNonce,
+	parentShareId,
+	parentDatastoreId,
+	linkId,
 ) {
-    const endpoint = "/share/";
-    const method = "POST";
-    const data = {
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-        key: key,
-        key_nonce: keyNonce,
-        key_type: "symmetric",
-        parent_share_id: parentShareId,
-        parent_datastore_id: parentDatastoreId,
-        link_id: linkId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/";
+	const method = "POST";
+	const data = {
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+		key: key,
+		key_nonce: keyNonce,
+		key_type: "symmetric",
+		parent_share_id: parentShareId,
+		parent_datastore_id: parentDatastoreId,
+		link_id: linkId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1416,19 +1475,25 @@ function createShare(
  *
  * @returns {Promise} Returns a promise with the status of the update
  */
-function writeShare(token, sessionSecretKey, share_id, encryptedData, encryptedDataNonce) {
-    const endpoint = "/share/";
-    const method = "PUT";
-    const data = {
-        share_id: share_id,
-        data: encryptedData,
-        data_nonce: encryptedDataNonce,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function writeShare(
+	token,
+	sessionSecretKey,
+	share_id,
+	encryptedData,
+	encryptedDataNonce,
+) {
+	const endpoint = "/share/";
+	const method = "PUT";
+	const data = {
+		share_id: share_id,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1441,14 +1506,14 @@ function writeShare(token, sessionSecretKey, share_id, encryptedData, encryptedD
  * @returns {Promise} promise
  */
 function readShareRights(token, sessionSecretKey, share_id) {
-    const endpoint = "/share/rights/" + share_id + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/rights/" + share_id + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1460,14 +1525,14 @@ function readShareRights(token, sessionSecretKey, share_id) {
  * @returns {Promise} promise
  */
 function readShareRightsOverview(token, sessionSecretKey) {
-    const endpoint = "/share/right/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/right/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1491,42 +1556,42 @@ function readShareRightsOverview(token, sessionSecretKey) {
  * @returns {Promise} promise
  */
 function createShareRight(
-    token,
-    sessionSecretKey,
-    encrypted_title,
-    encrypted_title_nonce,
-    encrypted_type,
-    encrypted_type_nonce,
-    share_id,
-    user_id,
-    group_id,
-    key,
-    keyNonce,
-    read,
-    write,
-    grant
+	token,
+	sessionSecretKey,
+	encrypted_title,
+	encrypted_title_nonce,
+	encrypted_type,
+	encrypted_type_nonce,
+	share_id,
+	user_id,
+	group_id,
+	key,
+	keyNonce,
+	read,
+	write,
+	grant,
 ) {
-    const endpoint = "/share/right/";
-    const method = "PUT";
-    const data = {
-        title: encrypted_title,
-        title_nonce: encrypted_title_nonce,
-        type: encrypted_type,
-        type_nonce: encrypted_type_nonce,
-        share_id: share_id,
-        user_id: user_id,
-        group_id: group_id,
-        key: key,
-        key_nonce: keyNonce,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/right/";
+	const method = "PUT";
+	const data = {
+		title: encrypted_title,
+		title_nonce: encrypted_title_nonce,
+		type: encrypted_type,
+		type_nonce: encrypted_type_nonce,
+		share_id: share_id,
+		user_id: user_id,
+		group_id: group_id,
+		key: key,
+		key_nonce: keyNonce,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1543,22 +1608,31 @@ function createShareRight(
  *
  * @returns {Promise} promise
  */
-function updateShareRight(token, sessionSecretKey, share_id, user_id, group_id, read, write, grant) {
-    const endpoint = "/share/right/";
-    const method = "POST";
-    const data = {
-        share_id: share_id,
-        user_id: user_id,
-        group_id: group_id,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function updateShareRight(
+	token,
+	sessionSecretKey,
+	share_id,
+	user_id,
+	group_id,
+	read,
+	write,
+	grant,
+) {
+	const endpoint = "/share/right/";
+	const method = "POST";
+	const data = {
+		share_id: share_id,
+		user_id: user_id,
+		group_id: group_id,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1571,19 +1645,24 @@ function updateShareRight(token, sessionSecretKey, share_id, user_id, group_id, 
  *
  * @returns {Promise} promise
  */
-function deleteShareRight(token, sessionSecretKey, user_share_right_id, group_share_right_id) {
-    const endpoint = "/share/right/";
-    const method = "DELETE";
-    const data = {
-        user_share_right_id: user_share_right_id,
-        group_share_right_id: group_share_right_id,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+function deleteShareRight(
+	token,
+	sessionSecretKey,
+	user_share_right_id,
+	group_share_right_id,
+) {
+	const endpoint = "/share/right/";
+	const method = "DELETE";
+	const data = {
+		user_share_right_id: user_share_right_id,
+		group_share_right_id: group_share_right_id,
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1595,14 +1674,14 @@ function deleteShareRight(token, sessionSecretKey, user_share_right_id, group_sh
  * @returns {Promise} promise
  */
 function readShareRightsInheritOverview(token, sessionSecretKey) {
-    const endpoint = "/share/right/inherit/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/right/inherit/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1618,20 +1697,27 @@ function readShareRightsInheritOverview(token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-function acceptShareRight(token, sessionSecretKey, share_right_id, key, keyNonce, key_type) {
-    const endpoint = "/share/right/accept/";
-    const method = "POST";
-    const data = {
-        share_right_id: share_right_id,
-        key: key,
-        key_nonce: keyNonce,
-        key_type: key_type,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function acceptShareRight(
+	token,
+	sessionSecretKey,
+	share_right_id,
+	key,
+	keyNonce,
+	key_type,
+) {
+	const endpoint = "/share/right/accept/";
+	const method = "POST";
+	const data = {
+		share_right_id: share_right_id,
+		key: key,
+		key_nonce: keyNonce,
+		key_type: key_type,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1644,16 +1730,16 @@ function acceptShareRight(token, sessionSecretKey, share_right_id, key, keyNonce
  * @returns {Promise} promise
  */
 function declineShareRight(token, sessionSecretKey, share_right_id) {
-    const endpoint = "/share/right/decline/";
-    const method = "POST";
-    const data = {
-        share_right_id: share_right_id,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/share/right/decline/";
+	const method = "POST";
+	const data = {
+		share_right_id: share_right_id,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1667,19 +1753,25 @@ function declineShareRight(token, sessionSecretKey, share_right_id) {
  *
  * @returns {Promise} Returns a promise with the user information
  */
-function searchUser(token, sessionSecretKey, user_id, user_username, user_email) {
-    const endpoint = "/user/search/";
-    const method = "POST";
-    const data = {
-        user_id: user_id,
-        user_username: user_username,
-        user_email: user_email,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function searchUser(
+	token,
+	sessionSecretKey,
+	user_id,
+	user_username,
+	user_email,
+) {
+	const endpoint = "/user/search/";
+	const method = "POST";
+	const data = {
+		user_id: user_id,
+		user_username: user_username,
+		user_email: user_email,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1691,15 +1783,15 @@ function searchUser(token, sessionSecretKey, user_id, user_username, user_email)
  * @returns {Promise} Returns a promise with the user information
  */
 function readStatus(token, sessionSecretKey) {
-    const endpoint = "/user/status/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/user/status/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1711,15 +1803,15 @@ function readStatus(token, sessionSecretKey) {
  * @returns {Promise} Returns a promise with the open jobs
  */
 function readJob(token, sessionSecretKey) {
-    const endpoint = "/job/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/job/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1736,29 +1828,29 @@ function readJob(token, sessionSecretKey) {
  * @returns {Promise} Returns a promise with the open jobs
  */
 function createMembershipMissingGroupSecret(
-    token,
-    sessionSecretKey,
-    membershipId,
-    secretKey,
-    secretKeyNonce,
-    privateKey,
-    privateKeyNonce,
+	token,
+	sessionSecretKey,
+	membershipId,
+	secretKey,
+	secretKeyNonce,
+	privateKey,
+	privateKeyNonce,
 ) {
-    const endpoint = "/job/membership-missing-group-secret/";
-    const method = "POST";
-    const data = {
-        membership_id: membershipId,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-    };
+	const endpoint = "/job/membership-missing-group-secret/";
+	const method = "POST";
+	const data = {
+		membership_id: membershipId,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1776,31 +1868,31 @@ function createMembershipMissingGroupSecret(
  * @returns {Promise} Returns a promise with the open jobs
  */
 function createJobStaffMissingGroupSecret(
-    token,
-    sessionSecretKey,
-    userId,
-    groupId,
-    secretKey,
-    secretKeyNonce,
-    privateKey,
-    privateKeyNonce,
+	token,
+	sessionSecretKey,
+	userId,
+	groupId,
+	secretKey,
+	secretKeyNonce,
+	privateKey,
+	privateKeyNonce,
 ) {
-    const endpoint = "/job/staff-missing-group-secret/";
-    const method = "POST";
-    const data = {
-        user_id: userId,
-        group_id: groupId,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-    };
+	const endpoint = "/job/staff-missing-group-secret/";
+	const method = "POST";
+	const data = {
+		user_id: userId,
+		group_id: groupId,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1814,17 +1906,17 @@ function createJobStaffMissingGroupSecret(
  * @returns {Promise} Returns a promise with the secret
  */
 function createWebauthn(token, sessionSecretKey, title, origin) {
-    const endpoint = "/user/webauthn/";
-    const method = "PUT";
-    const data = {
-        title: title,
-        origin: origin,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/user/webauthn/";
+	const method = "PUT";
+	const data = {
+		title: title,
+		origin: origin,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1836,15 +1928,15 @@ function createWebauthn(token, sessionSecretKey, title, origin) {
  * @returns {Promise} Returns a promise with a list of all google authenticators
  */
 function readWebauthn(token, sessionSecretKey) {
-    const endpoint = "/user/webauthn/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/user/webauthn/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1857,18 +1949,18 @@ function readWebauthn(token, sessionSecretKey) {
  * @returns {Promise} Returns a promise which can succeed or fail
  */
 function deleteWebauthn(token, sessionSecretKey, webauthn_id) {
-    const endpoint = "/user/webauthn/";
-    const method = "DELETE";
-    const data = {
-        webauthn_id: webauthn_id,
-    };
+	const endpoint = "/user/webauthn/";
+	const method = "DELETE";
+	const data = {
+		webauthn_id: webauthn_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1882,18 +1974,18 @@ function deleteWebauthn(token, sessionSecretKey, webauthn_id) {
  * @returns {Promise} Returns weather it was successful or not
  */
 function activateWebauthn(token, sessionSecretKey, webauthnId, credential) {
-    const endpoint = "/user/webauthn/";
-    const method = "POST";
-    const data = {
-        webauthn_id: webauthnId,
-        credential: credential,
-    };
+	const endpoint = "/user/webauthn/";
+	const method = "POST";
+	const data = {
+		webauthn_id: webauthnId,
+		credential: credential,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1906,16 +1998,16 @@ function activateWebauthn(token, sessionSecretKey, webauthnId, credential) {
  * @returns {Promise} Returns a promise with the verification status
  */
 function webauthnVerifyInit(token, sessionSecretKey, origin) {
-    const endpoint = "/authentication/webauthn-verify/";
-    const method = "PUT";
-    const data = {
-        origin: origin,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/webauthn-verify/";
+	const method = "PUT";
+	const data = {
+		origin: origin,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1928,16 +2020,16 @@ function webauthnVerifyInit(token, sessionSecretKey, origin) {
  * @returns {Promise} Returns a promise with the verification status
  */
 function webauthnVerify(token, sessionSecretKey, credential) {
-    const endpoint = "/authentication/webauthn-verify/";
-    const method = "POST";
-    const data = {
-        credential: credential,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/authentication/webauthn-verify/";
+	const method = "POST";
+	const data = {
+		credential: credential,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1950,16 +2042,16 @@ function webauthnVerify(token, sessionSecretKey, credential) {
  * @returns {Promise} Returns a promise with the secret
  */
 function createGa(token, sessionSecretKey, title) {
-    const endpoint = "/user/ga/";
-    const method = "PUT";
-    const data = {
-        title: title,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/user/ga/";
+	const method = "PUT";
+	const data = {
+		title: title,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1971,15 +2063,15 @@ function createGa(token, sessionSecretKey, title) {
  * @returns {Promise} Returns a promise with a list of all google authenticators
  */
 function readGa(token, sessionSecretKey) {
-    const endpoint = "/user/ga/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/user/ga/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -1992,19 +2084,24 @@ function readGa(token, sessionSecretKey) {
  *
  * @returns {Promise} Returns weather it was successful or not
  */
-function activateGa(token, sessionSecretKey, google_authenticator_id, google_authenticator_token) {
-    const endpoint = "/user/ga/";
-    const method = "POST";
-    const data = {
-        google_authenticator_id: google_authenticator_id,
-        google_authenticator_token: google_authenticator_token,
-    };
+function activateGa(
+	token,
+	sessionSecretKey,
+	google_authenticator_id,
+	google_authenticator_token,
+) {
+	const endpoint = "/user/ga/";
+	const method = "POST";
+	const data = {
+		google_authenticator_id: google_authenticator_id,
+		google_authenticator_token: google_authenticator_token,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -2017,18 +2114,18 @@ function activateGa(token, sessionSecretKey, google_authenticator_id, google_aut
  * @returns {Promise} Returns a promise which can succeed or fail
  */
 function deleteGa(token, sessionSecretKey, google_authenticator_id) {
-    const endpoint = "/user/ga/";
-    const method = "DELETE";
-    const data = {
-        google_authenticator_id: google_authenticator_id,
-    };
+	const endpoint = "/user/ga/";
+	const method = "DELETE";
+	const data = {
+		google_authenticator_id: google_authenticator_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -2044,21 +2141,29 @@ function deleteGa(token, sessionSecretKey, google_authenticator_id) {
  *
  * @returns {Promise} Returns a promise with the secret
  */
-function createDuo(token, sessionSecretKey, use_system_wide_duo, title, integration_key, secretKey, host) {
-    const endpoint = "/user/duo/";
-    const method = "PUT";
-    const data = {
-        use_system_wide_duo: use_system_wide_duo,
-        title: title,
-        integration_key: integration_key,
-        secret_key: secretKey,
-        host: host,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function createDuo(
+	token,
+	sessionSecretKey,
+	use_system_wide_duo,
+	title,
+	integration_key,
+	secretKey,
+	host,
+) {
+	const endpoint = "/user/duo/";
+	const method = "PUT";
+	const data = {
+		use_system_wide_duo: use_system_wide_duo,
+		title: title,
+		integration_key: integration_key,
+		secret_key: secretKey,
+		host: host,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -2070,15 +2175,15 @@ function createDuo(token, sessionSecretKey, use_system_wide_duo, title, integrat
  * @returns {Promise} Returns a promise with a list of all duo
  */
 function readDuo(token, sessionSecretKey) {
-    const endpoint = "/user/duo/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/user/duo/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -2091,19 +2196,19 @@ function readDuo(token, sessionSecretKey) {
  *
  * @returns {Promise} Returns weather it was successful or not
  */
-const activateDuo = function (token, sessionSecretKey, duo_id, duo_token) {
-    const endpoint = "/user/duo/";
-    const method = "POST";
-    const data = {
-        duo_id: duo_id,
-        duo_token: duo_token,
-    };
+const activateDuo = (token, sessionSecretKey, duo_id, duo_token) => {
+	const endpoint = "/user/duo/";
+	const method = "POST";
+	const data = {
+		duo_id: duo_id,
+		duo_token: duo_token,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2115,19 +2220,19 @@ const activateDuo = function (token, sessionSecretKey, duo_id, duo_token) {
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteDuo = function (token, sessionSecretKey, duo_id) {
-    const endpoint = "/user/duo/";
-    const method = "DELETE";
-    const data = {
-        duo_id: duo_id,
-    };
+const deleteDuo = (token, sessionSecretKey, duo_id) => {
+	const endpoint = "/user/duo/";
+	const method = "DELETE";
+	const data = {
+		duo_id: duo_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2140,18 +2245,18 @@ const deleteDuo = function (token, sessionSecretKey, duo_id) {
  *
  * @returns {Promise} Returns a promise with the secret
  */
-const createYubikeyOtp = function (token, sessionSecretKey, title, yubikey_otp) {
-    const endpoint = "/user/yubikey-otp/";
-    const method = "PUT";
-    const data = {
-        title: title,
-        yubikey_otp: yubikey_otp,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createYubikeyOtp = (token, sessionSecretKey, title, yubikey_otp) => {
+	const endpoint = "/user/yubikey-otp/";
+	const method = "PUT";
+	const data = {
+		title: title,
+		yubikey_otp: yubikey_otp,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2162,16 +2267,16 @@ const createYubikeyOtp = function (token, sessionSecretKey, title, yubikey_otp) 
  *
  * @returns {Promise} Returns a promise with a list of all Yubikey OTP token
  */
-const readYubikeyOtp = function (token, sessionSecretKey) {
-    const endpoint = "/user/yubikey-otp/";
-    const method = "GET";
-    const data = null;
+const readYubikeyOtp = (token, sessionSecretKey) => {
+	const endpoint = "/user/yubikey-otp/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2184,19 +2289,24 @@ const readYubikeyOtp = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns weather it was successful or not
  */
-const activateYubikeyOtp = function (token, sessionSecretKey, yubikey_id, yubikey_otp) {
-    const endpoint = "/user/yubikey-otp/";
-    const method = "POST";
-    const data = {
-        yubikey_id: yubikey_id,
-        yubikey_otp: yubikey_otp,
-    };
+const activateYubikeyOtp = (
+	token,
+	sessionSecretKey,
+	yubikey_id,
+	yubikey_otp,
+) => {
+	const endpoint = "/user/yubikey-otp/";
+	const method = "POST";
+	const data = {
+		yubikey_id: yubikey_id,
+		yubikey_otp: yubikey_otp,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2208,19 +2318,19 @@ const activateYubikeyOtp = function (token, sessionSecretKey, yubikey_id, yubike
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteYubikeyOtp = function (token, sessionSecretKey, yubikey_otp_id) {
-    const endpoint = "/user/yubikey-otp/";
-    const method = "DELETE";
-    const data = {
-        yubikey_otp_id: yubikey_otp_id,
-    };
+const deleteYubikeyOtp = (token, sessionSecretKey, yubikey_otp_id) => {
+	const endpoint = "/user/yubikey-otp/";
+	const method = "DELETE";
+	const data = {
+		yubikey_otp_id: yubikey_otp_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2236,20 +2346,27 @@ const deleteYubikeyOtp = function (token, sessionSecretKey, yubikey_otp_id) {
  *
  * @returns {Promise} promise
  */
-const createShareLink = function (token, sessionSecretKey, linkId, share_id, parentShareId, parentDatastoreId) {
-    const endpoint = "/share/link/";
-    const method = "PUT";
-    const data = {
-        link_id: linkId,
-        share_id: share_id,
-        parent_share_id: parentShareId,
-        parent_datastore_id: parentDatastoreId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createShareLink = (
+	token,
+	sessionSecretKey,
+	linkId,
+	share_id,
+	parentShareId,
+	parentDatastoreId,
+) => {
+	const endpoint = "/share/link/";
+	const method = "PUT";
+	const data = {
+		link_id: linkId,
+		share_id: share_id,
+		parent_share_id: parentShareId,
+		parent_datastore_id: parentDatastoreId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2264,19 +2381,25 @@ const createShareLink = function (token, sessionSecretKey, linkId, share_id, par
  *
  * @returns {Promise} promise
  */
-const moveShareLink = function (token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId) {
-    const endpoint = "/share/link/";
-    const method = "POST";
-    const data = {
-        link_id: linkId,
-        new_parent_share_id: newParentShareId,
-        new_parent_datastore_id: newParentDatastoreId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const moveShareLink = (
+	token,
+	sessionSecretKey,
+	linkId,
+	newParentShareId,
+	newParentDatastoreId,
+) => {
+	const endpoint = "/share/link/";
+	const method = "POST";
+	const data = {
+		link_id: linkId,
+		new_parent_share_id: newParentShareId,
+		new_parent_datastore_id: newParentDatastoreId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2288,18 +2411,18 @@ const moveShareLink = function (token, sessionSecretKey, linkId, newParentShareI
  *
  * @returns {Promise} promise
  */
-const deleteShareLink = function (token, sessionSecretKey, linkId) {
-    const endpoint = "/share/link/";
-    const method = "DELETE";
-    const data = {
-        link_id: linkId,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+const deleteShareLink = (token, sessionSecretKey, linkId) => {
+	const endpoint = "/share/link/";
+	const method = "DELETE";
+	const data = {
+		link_id: linkId,
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2311,15 +2434,15 @@ const deleteShareLink = function (token, sessionSecretKey, linkId) {
  *
  * @returns {Promise} promise
  */
-const readApiKey = function (token, sessionSecretKey, api_key_id) {
-    const endpoint = "/api-key/" + (!api_key_id ? "" : api_key_id + "/");
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readApiKey = (token, sessionSecretKey, api_key_id) => {
+	const endpoint = "/api-key/" + (!api_key_id ? "" : api_key_id + "/");
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2331,15 +2454,15 @@ const readApiKey = function (token, sessionSecretKey, api_key_id) {
  *
  * @returns {Promise} promise
  */
-const readApiKeySecrets = function (token, sessionSecretKey, api_key_id) {
-    const endpoint = "/api-key/secret/" + api_key_id + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readApiKeySecrets = (token, sessionSecretKey, api_key_id) => {
+	const endpoint = "/api-key/secret/" + api_key_id + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2365,50 +2488,50 @@ const readApiKeySecrets = function (token, sessionSecretKey, api_key_id) {
  *
  * @returns {Promise} promise
  */
-const createApiKey = function (
-    token,
-    sessionSecretKey,
-    title,
-    public_key,
-    private_key,
-    privateKeyNonce,
-    secretKey,
-    secretKeyNonce,
-    userPrivateKey,
-    userPrivateKeyNonce,
-    userSecretKey,
-    userSecretKeyNonce,
-    restrict_to_secrets,
-    allow_insecure_access,
-    read,
-    write,
-    verify_key
-) {
-    const endpoint = "/api-key/";
-    const method = "PUT";
-    const data = {
-        title: title,
-        public_key: public_key,
-        private_key: private_key,
-        private_key_nonce: privateKeyNonce,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        user_private_key: userPrivateKey,
-        user_private_key_nonce: userPrivateKeyNonce,
-        user_secret_key: userSecretKey,
-        user_secret_key_nonce: userSecretKeyNonce,
-        restrict_to_secrets: restrict_to_secrets,
-        allow_insecure_access: allow_insecure_access,
-        read: read,
-        write: write,
-        verify_key: verify_key,
-    };
+const createApiKey = (
+	token,
+	sessionSecretKey,
+	title,
+	public_key,
+	private_key,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+	userPrivateKey,
+	userPrivateKeyNonce,
+	userSecretKey,
+	userSecretKeyNonce,
+	restrict_to_secrets,
+	allow_insecure_access,
+	read,
+	write,
+	verify_key,
+) => {
+	const endpoint = "/api-key/";
+	const method = "PUT";
+	const data = {
+		title: title,
+		public_key: public_key,
+		private_key: private_key,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		user_private_key: userPrivateKey,
+		user_private_key_nonce: userPrivateKeyNonce,
+		user_secret_key: userSecretKey,
+		user_secret_key_nonce: userSecretKeyNonce,
+		restrict_to_secrets: restrict_to_secrets,
+		allow_insecure_access: allow_insecure_access,
+		read: read,
+		write: write,
+		verify_key: verify_key,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2425,32 +2548,32 @@ const createApiKey = function (
  *
  * @returns {Promise} promise
  */
-const addSecretToApiKey = function (
-    token,
-    sessionSecretKey,
-    api_key_id,
-    secretId,
-    title,
-    title_nonce,
-    secretKey,
-    secretKeyNonce
-) {
-    const endpoint = "/api-key/secret/";
-    const method = "PUT";
-    const data = {
-        api_key_id: api_key_id,
-        secret_id: secretId,
-        title: title,
-        title_nonce: title_nonce,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-    };
+const addSecretToApiKey = (
+	token,
+	sessionSecretKey,
+	api_key_id,
+	secretId,
+	title,
+	title_nonce,
+	secretKey,
+	secretKeyNonce,
+) => {
+	const endpoint = "/api-key/secret/";
+	const method = "PUT";
+	const data = {
+		api_key_id: api_key_id,
+		secret_id: secretId,
+		title: title,
+		title_nonce: title_nonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2467,32 +2590,32 @@ const addSecretToApiKey = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateApiKey = function (
-    token,
-    sessionSecretKey,
-    api_key_id,
-    title,
-    restrict_to_secrets,
-    allow_insecure_access,
-    read,
-    write
-) {
-    const endpoint = "/api-key/";
-    const method = "POST";
-    const data = {
-        api_key_id: api_key_id,
-        title: title,
-        restrict_to_secrets: restrict_to_secrets,
-        read: read,
-        allow_insecure_access: allow_insecure_access,
-        write: write,
-    };
+const updateApiKey = (
+	token,
+	sessionSecretKey,
+	api_key_id,
+	title,
+	restrict_to_secrets,
+	allow_insecure_access,
+	read,
+	write,
+) => {
+	const endpoint = "/api-key/";
+	const method = "POST";
+	const data = {
+		api_key_id: api_key_id,
+		title: title,
+		restrict_to_secrets: restrict_to_secrets,
+		read: read,
+		allow_insecure_access: allow_insecure_access,
+		write: write,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2504,19 +2627,19 @@ const updateApiKey = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteApiKey = function (token, sessionSecretKey, api_key_id) {
-    const endpoint = "/api-key/";
-    const method = "DELETE";
-    const data = {
-        api_key_id: api_key_id,
-    };
+const deleteApiKey = (token, sessionSecretKey, api_key_id) => {
+	const endpoint = "/api-key/";
+	const method = "DELETE";
+	const data = {
+		api_key_id: api_key_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2528,19 +2651,19 @@ const deleteApiKey = function (token, sessionSecretKey, api_key_id) {
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteApiKeySecret = function (token, sessionSecretKey, api_key_secret_id) {
-    const endpoint = "/api-key/secret/";
-    const method = "DELETE";
-    const data = {
-        api_key_secret_id: api_key_secret_id,
-    };
+const deleteApiKeySecret = (token, sessionSecretKey, api_key_secret_id) => {
+	const endpoint = "/api-key/secret/";
+	const method = "DELETE";
+	const data = {
+		api_key_secret_id: api_key_secret_id,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2552,15 +2675,16 @@ const deleteApiKeySecret = function (token, sessionSecretKey, api_key_secret_id)
  *
  * @returns {Promise} promise
  */
-const readFileRepository = function (token, sessionSecretKey, fileRepositoryId) {
-    const endpoint = "/file-repository/" + (!fileRepositoryId ? "" : fileRepositoryId + "/");
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readFileRepository = (token, sessionSecretKey, fileRepositoryId) => {
+	const endpoint =
+		"/file-repository/" + (!fileRepositoryId ? "" : fileRepositoryId + "/");
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2595,68 +2719,70 @@ const readFileRepository = function (token, sessionSecretKey, fileRepositoryId) 
  *
  * @returns {Promise} promise
  */
-const createFileRepository = function (
-    token,
-    sessionSecretKey,
-    title,
-    type,
-    gcp_cloud_storage_bucket,
-    gcp_cloud_storage_json_key,
-    aws_s3_bucket,
-    aws_s3_region,
-    aws_s3_access_key_id,
-    aws_s3_secret_access_key,
-    azure_blob_storage_account_name,
-    azure_blob_storage_account_primary_key,
-    azure_blob_storage_account_container_name,
-    backblaze_bucket,
-    backblaze_region,
-    backblaze_access_key_id,
-    backblaze_secret_access_key,
-    other_s3_bucket,
-    other_s3_region,
-    other_s3_endpoint_url,
-    other_s3_access_key_id,
-    other_s3_secret_access_key,
-    do_space,
-    do_region,
-    do_key,
-    do_secret
-) {
-    const endpoint = "/file-repository/";
-    const method = "PUT";
-    const data = {
-        title: title,
-        type: type,
-        gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
-        gcp_cloud_storage_json_key: gcp_cloud_storage_json_key,
-        aws_s3_bucket: aws_s3_bucket,
-        aws_s3_region: aws_s3_region,
-        aws_s3_access_key_id: aws_s3_access_key_id,
-        aws_s3_secret_access_key: aws_s3_secret_access_key,
-        azure_blob_storage_account_name: azure_blob_storage_account_name,
-        azure_blob_storage_account_primary_key: azure_blob_storage_account_primary_key,
-        azure_blob_storage_account_container_name: azure_blob_storage_account_container_name,
-        backblaze_bucket: backblaze_bucket,
-        backblaze_region: backblaze_region,
-        backblaze_access_key_id: backblaze_access_key_id,
-        backblaze_secret_access_key: backblaze_secret_access_key,
-        other_s3_bucket: other_s3_bucket,
-        other_s3_region: other_s3_region,
-        other_s3_endpoint_url: other_s3_endpoint_url,
-        other_s3_access_key_id: other_s3_access_key_id,
-        other_s3_secret_access_key: other_s3_secret_access_key,
-        do_space: do_space,
-        do_region: do_region,
-        do_key: do_key,
-        do_secret: do_secret,
-    };
+const createFileRepository = (
+	token,
+	sessionSecretKey,
+	title,
+	type,
+	gcp_cloud_storage_bucket,
+	gcp_cloud_storage_json_key,
+	aws_s3_bucket,
+	aws_s3_region,
+	aws_s3_access_key_id,
+	aws_s3_secret_access_key,
+	azure_blob_storage_account_name,
+	azure_blob_storage_account_primary_key,
+	azure_blob_storage_account_container_name,
+	backblaze_bucket,
+	backblaze_region,
+	backblaze_access_key_id,
+	backblaze_secret_access_key,
+	other_s3_bucket,
+	other_s3_region,
+	other_s3_endpoint_url,
+	other_s3_access_key_id,
+	other_s3_secret_access_key,
+	do_space,
+	do_region,
+	do_key,
+	do_secret,
+) => {
+	const endpoint = "/file-repository/";
+	const method = "PUT";
+	const data = {
+		title: title,
+		type: type,
+		gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
+		gcp_cloud_storage_json_key: gcp_cloud_storage_json_key,
+		aws_s3_bucket: aws_s3_bucket,
+		aws_s3_region: aws_s3_region,
+		aws_s3_access_key_id: aws_s3_access_key_id,
+		aws_s3_secret_access_key: aws_s3_secret_access_key,
+		azure_blob_storage_account_name: azure_blob_storage_account_name,
+		azure_blob_storage_account_primary_key:
+			azure_blob_storage_account_primary_key,
+		azure_blob_storage_account_container_name:
+			azure_blob_storage_account_container_name,
+		backblaze_bucket: backblaze_bucket,
+		backblaze_region: backblaze_region,
+		backblaze_access_key_id: backblaze_access_key_id,
+		backblaze_secret_access_key: backblaze_secret_access_key,
+		other_s3_bucket: other_s3_bucket,
+		other_s3_region: other_s3_region,
+		other_s3_endpoint_url: other_s3_endpoint_url,
+		other_s3_access_key_id: other_s3_access_key_id,
+		other_s3_secret_access_key: other_s3_secret_access_key,
+		do_space: do_space,
+		do_region: do_region,
+		do_key: do_key,
+		do_secret: do_secret,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2693,72 +2819,74 @@ const createFileRepository = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateFileRepository = function (
-    token,
-    sessionSecretKey,
-    fileRepositoryId,
-    title,
-    type,
-    gcp_cloud_storage_bucket,
-    gcp_cloud_storage_json_key,
-    active,
-    aws_s3_bucket,
-    aws_s3_region,
-    aws_s3_access_key_id,
-    aws_s3_secret_access_key,
-    azure_blob_storage_account_name,
-    azure_blob_storage_account_primary_key,
-    azure_blob_storage_account_container_name,
-    backblaze_bucket,
-    backblaze_region,
-    backblaze_access_key_id,
-    backblaze_secret_access_key,
-    other_s3_bucket,
-    other_s3_region,
-    other_s3_endpoint_url,
-    other_s3_access_key_id,
-    other_s3_secret_access_key,
-    do_space,
-    do_region,
-    do_key,
-    do_secret
-) {
-    const endpoint = "/file-repository/";
-    const method = "POST";
-    const data = {
-        file_repository_id: fileRepositoryId,
-        title: title,
-        type: type,
-        gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
-        gcp_cloud_storage_json_key: gcp_cloud_storage_json_key,
-        active: active,
-        aws_s3_bucket: aws_s3_bucket,
-        aws_s3_region: aws_s3_region,
-        aws_s3_access_key_id: aws_s3_access_key_id,
-        aws_s3_secret_access_key: aws_s3_secret_access_key,
-        azure_blob_storage_account_name: azure_blob_storage_account_name,
-        azure_blob_storage_account_primary_key: azure_blob_storage_account_primary_key,
-        azure_blob_storage_account_container_name: azure_blob_storage_account_container_name,
-        backblaze_bucket: backblaze_bucket,
-        backblaze_region: backblaze_region,
-        backblaze_access_key_id: backblaze_access_key_id,
-        backblaze_secret_access_key: backblaze_secret_access_key,
-        other_s3_bucket: other_s3_bucket,
-        other_s3_region: other_s3_region,
-        other_s3_endpoint_url: other_s3_endpoint_url,
-        other_s3_access_key_id: other_s3_access_key_id,
-        other_s3_secret_access_key: other_s3_secret_access_key,
-        do_space: do_space,
-        do_region: do_region,
-        do_key: do_key,
-        do_secret: do_secret,
-    };
+const updateFileRepository = (
+	token,
+	sessionSecretKey,
+	fileRepositoryId,
+	title,
+	type,
+	gcp_cloud_storage_bucket,
+	gcp_cloud_storage_json_key,
+	active,
+	aws_s3_bucket,
+	aws_s3_region,
+	aws_s3_access_key_id,
+	aws_s3_secret_access_key,
+	azure_blob_storage_account_name,
+	azure_blob_storage_account_primary_key,
+	azure_blob_storage_account_container_name,
+	backblaze_bucket,
+	backblaze_region,
+	backblaze_access_key_id,
+	backblaze_secret_access_key,
+	other_s3_bucket,
+	other_s3_region,
+	other_s3_endpoint_url,
+	other_s3_access_key_id,
+	other_s3_secret_access_key,
+	do_space,
+	do_region,
+	do_key,
+	do_secret,
+) => {
+	const endpoint = "/file-repository/";
+	const method = "POST";
+	const data = {
+		file_repository_id: fileRepositoryId,
+		title: title,
+		type: type,
+		gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
+		gcp_cloud_storage_json_key: gcp_cloud_storage_json_key,
+		active: active,
+		aws_s3_bucket: aws_s3_bucket,
+		aws_s3_region: aws_s3_region,
+		aws_s3_access_key_id: aws_s3_access_key_id,
+		aws_s3_secret_access_key: aws_s3_secret_access_key,
+		azure_blob_storage_account_name: azure_blob_storage_account_name,
+		azure_blob_storage_account_primary_key:
+			azure_blob_storage_account_primary_key,
+		azure_blob_storage_account_container_name:
+			azure_blob_storage_account_container_name,
+		backblaze_bucket: backblaze_bucket,
+		backblaze_region: backblaze_region,
+		backblaze_access_key_id: backblaze_access_key_id,
+		backblaze_secret_access_key: backblaze_secret_access_key,
+		other_s3_bucket: other_s3_bucket,
+		other_s3_region: other_s3_region,
+		other_s3_endpoint_url: other_s3_endpoint_url,
+		other_s3_access_key_id: other_s3_access_key_id,
+		other_s3_secret_access_key: other_s3_secret_access_key,
+		do_space: do_space,
+		do_region: do_region,
+		do_key: do_key,
+		do_secret: do_secret,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2770,19 +2898,19 @@ const updateFileRepository = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteFileRepository = function (token, sessionSecretKey, fileRepositoryId) {
-    const endpoint = "/file-repository/";
-    const method = "DELETE";
-    const data = {
-        file_repository_id: fileRepositoryId,
-    };
+const deleteFileRepository = (token, sessionSecretKey, fileRepositoryId) => {
+	const endpoint = "/file-repository/";
+	const method = "DELETE";
+	const data = {
+		file_repository_id: fileRepositoryId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2798,21 +2926,29 @@ const deleteFileRepository = function (token, sessionSecretKey, fileRepositoryId
  *
  * @returns {Promise} promise
  */
-const createGroupFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryId, groupId, read, write, grant) {
-    const endpoint = "/group-file-repository-right/";
-    const method = "PUT";
-    const data = {
-        file_repository_id: fileRepositoryId,
-        group_id: groupId,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createGroupFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryId,
+	groupId,
+	read,
+	write,
+	grant,
+) => {
+	const endpoint = "/group-file-repository-right/";
+	const method = "PUT";
+	const data = {
+		file_repository_id: fileRepositoryId,
+		group_id: groupId,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2827,20 +2963,27 @@ const createGroupFileRepositoryRight = function (token, sessionSecretKey, fileRe
  *
  * @returns {Promise} promise
  */
-const updateGroupFileRepositoryRight = function (token, sessionSecretKey, groupFileRepositoryRightId, read, write, grant) {
-    const endpoint = "/group-file-repository-right/";
-    const method = "POST";
-    const data = {
-        group_file_repository_right_id: groupFileRepositoryRightId,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const updateGroupFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	groupFileRepositoryRightId,
+	read,
+	write,
+	grant,
+) => {
+	const endpoint = "/group-file-repository-right/";
+	const method = "POST";
+	const data = {
+		group_file_repository_right_id: groupFileRepositoryRightId,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2852,19 +2995,23 @@ const updateGroupFileRepositoryRight = function (token, sessionSecretKey, groupF
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteGroupFileRepositoryRight = function (token, sessionSecretKey, groupFileRepositoryRightId) {
-    const endpoint = "/group-file-repository-right/";
-    const method = "DELETE";
-    const data = {
-        group_file_repository_right_id: groupFileRepositoryRightId,
-    };
+const deleteGroupFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	groupFileRepositoryRightId,
+) => {
+	const endpoint = "/group-file-repository-right/";
+	const method = "DELETE";
+	const data = {
+		group_file_repository_right_id: groupFileRepositoryRightId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2880,21 +3027,29 @@ const deleteGroupFileRepositoryRight = function (token, sessionSecretKey, groupF
  *
  * @returns {Promise} promise
  */
-const createFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryId, user_id, read, write, grant) {
-    const endpoint = "/file-repository-right/";
-    const method = "PUT";
-    const data = {
-        file_repository_id: fileRepositoryId,
-        user_id: user_id,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryId,
+	user_id,
+	read,
+	write,
+	grant,
+) => {
+	const endpoint = "/file-repository-right/";
+	const method = "PUT";
+	const data = {
+		file_repository_id: fileRepositoryId,
+		user_id: user_id,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2909,20 +3064,27 @@ const createFileRepositoryRight = function (token, sessionSecretKey, fileReposit
  *
  * @returns {Promise} promise
  */
-const updateFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId, read, write, grant) {
-    const endpoint = "/file-repository-right/";
-    const method = "POST";
-    const data = {
-        file_repository_right_id: fileRepositoryRightId,
-        read: read,
-        write: write,
-        grant: grant,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const updateFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryRightId,
+	read,
+	write,
+	grant,
+) => {
+	const endpoint = "/file-repository-right/";
+	const method = "POST";
+	const data = {
+		file_repository_right_id: fileRepositoryRightId,
+		read: read,
+		write: write,
+		grant: grant,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2934,19 +3096,23 @@ const updateFileRepositoryRight = function (token, sessionSecretKey, fileReposit
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
-    const endpoint = "/file-repository-right/";
-    const method = "DELETE";
-    const data = {
-        file_repository_right_id: fileRepositoryRightId,
-    };
+const deleteFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryRightId,
+) => {
+	const endpoint = "/file-repository-right/";
+	const method = "DELETE";
+	const data = {
+		file_repository_right_id: fileRepositoryRightId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2958,18 +3124,22 @@ const deleteFileRepositoryRight = function (token, sessionSecretKey, fileReposit
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const acceptFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
-    const endpoint = "/file-repository-right/accept/";
-    const method = "POST";
-    const data = {
-        file_repository_right_id: fileRepositoryRightId,
-    };
+const acceptFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryRightId,
+) => {
+	const endpoint = "/file-repository-right/accept/";
+	const method = "POST";
+	const data = {
+		file_repository_right_id: fileRepositoryRightId,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -2981,18 +3151,22 @@ const acceptFileRepositoryRight = function (token, sessionSecretKey, fileReposit
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const declineFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
-    const endpoint = "/file-repository-right/decline/";
-    const method = "POST";
-    const data = {
-        file_repository_right_id: fileRepositoryRightId,
-    };
+const declineFileRepositoryRight = (
+	token,
+	sessionSecretKey,
+	fileRepositoryRightId,
+) => {
+	const endpoint = "/file-repository-right/decline/";
+	const method = "POST";
+	const data = {
+		file_repository_right_id: fileRepositoryRightId,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3006,26 +3180,26 @@ const declineFileRepositoryRight = function (token, sessionSecretKey, fileReposi
  *
  * @returns {Promise} promise
  */
-const fileRepositoryUpload = function (
-    fileTransferId,
-    fileTransferSecretKey,
-    chunkSize,
-    chunkPosition,
-    hashChecksum
-) {
-    const endpoint = "/file-repository/upload/";
-    const method = "PUT";
-    const data = {
-        chunk_size: chunkSize,
-        chunk_position: chunkPosition,
-        hash_checksum: hashChecksum,
-    };
+const fileRepositoryUpload = (
+	fileTransferId,
+	fileTransferSecretKey,
+	chunkSize,
+	chunkPosition,
+	hashChecksum,
+) => {
+	const endpoint = "/file-repository/upload/";
+	const method = "PUT";
+	const data = {
+		chunk_size: chunkSize,
+		chunk_position: chunkPosition,
+		hash_checksum: hashChecksum,
+	};
 
-    const headers = {
-        Authorization: "Filetransfer " + fileTransferId,
-    };
+	const headers = {
+		Authorization: "Filetransfer " + fileTransferId,
+	};
 
-    return call(method, endpoint, data, headers, fileTransferSecretKey);
+	return call(method, endpoint, data, headers, fileTransferSecretKey);
 };
 
 /**
@@ -3037,18 +3211,22 @@ const fileRepositoryUpload = function (
  *
  * @returns {Promise} promise
  */
-const fileRepositoryDownload = function (fileTransferId, fileTransferSecretKey, hashChecksum) {
-    const endpoint = "/file-repository/download/";
-    const method = "PUT";
-    const data = {
-        hash_checksum: hashChecksum,
-    };
+const fileRepositoryDownload = (
+	fileTransferId,
+	fileTransferSecretKey,
+	hashChecksum,
+) => {
+	const endpoint = "/file-repository/download/";
+	const method = "PUT";
+	const data = {
+		hash_checksum: hashChecksum,
+	};
 
-    const headers = {
-        Authorization: "Filetransfer " + fileTransferId,
-    };
+	const headers = {
+		Authorization: "Filetransfer " + fileTransferId,
+	};
 
-    return call(method, endpoint, data, headers, fileTransferSecretKey);
+	return call(method, endpoint, data, headers, fileTransferSecretKey);
 };
 
 /**
@@ -3060,15 +3238,15 @@ const fileRepositoryDownload = function (fileTransferId, fileTransferSecretKey, 
  *
  * @returns {Promise} promise
  */
-const readGroup = function (token, sessionSecretKey, groupId) {
-    const endpoint = "/group/" + (!groupId ? "" : groupId + "/");
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readGroup = (token, sessionSecretKey, groupId) => {
+	const endpoint = "/group/" + (!groupId ? "" : groupId + "/");
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3085,31 +3263,31 @@ const readGroup = function (token, sessionSecretKey, groupId) {
  *
  * @returns {Promise} promise
  */
-const createGroup = function (
-    token,
-    sessionSecretKey,
-    name,
-    secretKey,
-    secretKeyNonce,
-    privateKey,
-    privateKeyNonce,
-    publicKey
-) {
-    const endpoint = "/group/";
-    const method = "PUT";
-    const data = {
-        name: name,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-        public_key: publicKey,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createGroup = (
+	token,
+	sessionSecretKey,
+	name,
+	secretKey,
+	secretKeyNonce,
+	privateKey,
+	privateKeyNonce,
+	publicKey,
+) => {
+	const endpoint = "/group/";
+	const method = "PUT";
+	const data = {
+		name: name,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		public_key: publicKey,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3122,19 +3300,19 @@ const createGroup = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateGroup = function (token, sessionSecretKey, groupId, name) {
-    const endpoint = "/group/";
-    const method = "POST";
-    const data = {
-        group_id: groupId,
-        name: name,
-    };
+const updateGroup = (token, sessionSecretKey, groupId, name) => {
+	const endpoint = "/group/";
+	const method = "POST";
+	const data = {
+		group_id: groupId,
+		name: name,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3146,19 +3324,19 @@ const updateGroup = function (token, sessionSecretKey, groupId, name) {
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteGroup = function (token, sessionSecretKey, groupId) {
-    const endpoint = "/group/";
-    const method = "DELETE";
-    const data = {
-        group_id: groupId,
-    };
+const deleteGroup = (token, sessionSecretKey, groupId) => {
+	const endpoint = "/group/";
+	const method = "DELETE";
+	const data = {
+		group_id: groupId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3171,15 +3349,15 @@ const deleteGroup = function (token, sessionSecretKey, groupId) {
  *
  * @returns {Promise} promise
  */
-const readGroupRights = function (token, sessionSecretKey, groupId) {
-    const endpoint = "/group/rights/" + (!groupId ? "" : groupId + "/");
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readGroupRights = (token, sessionSecretKey, groupId) => {
+	const endpoint = "/group/rights/" + (!groupId ? "" : groupId + "/");
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3200,39 +3378,39 @@ const readGroupRights = function (token, sessionSecretKey, groupId) {
  *
  * @returns {Promise} promise
  */
-const createMembership = function (
-    token,
-    sessionSecretKey,
-    groupId,
-    userId,
-    secretKey,
-    secretKeyNonce,
-    secretKeyType,
-    privateKey,
-    privateKeyNonce,
-    privateKeyType,
-    groupAdmin,
-    shareAdmin
-) {
-    const endpoint = "/membership/";
-    const method = "PUT";
-    const data = {
-        group_id: groupId,
-        user_id: userId,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        secret_key_type: secretKeyType,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-        private_key_type: privateKeyType,
-        group_admin: groupAdmin,
-        share_admin: shareAdmin,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createMembership = (
+	token,
+	sessionSecretKey,
+	groupId,
+	userId,
+	secretKey,
+	secretKeyNonce,
+	secretKeyType,
+	privateKey,
+	privateKeyNonce,
+	privateKeyType,
+	groupAdmin,
+	shareAdmin,
+) => {
+	const endpoint = "/membership/";
+	const method = "PUT";
+	const data = {
+		group_id: groupId,
+		user_id: userId,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		secret_key_type: secretKeyType,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		private_key_type: privateKeyType,
+		group_admin: groupAdmin,
+		share_admin: shareAdmin,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3246,19 +3424,25 @@ const createMembership = function (
  *
  * @returns {Promise} promise
  */
-const updateMembership = function (token, sessionSecretKey, membershipId, groupAdmin, shareAdmin) {
-    const endpoint = "/membership/";
-    const method = "POST";
-    const data = {
-        membership_id: membershipId,
-        group_admin: groupAdmin,
-        share_admin: shareAdmin,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const updateMembership = (
+	token,
+	sessionSecretKey,
+	membershipId,
+	groupAdmin,
+	shareAdmin,
+) => {
+	const endpoint = "/membership/";
+	const method = "POST";
+	const data = {
+		membership_id: membershipId,
+		group_admin: groupAdmin,
+		share_admin: shareAdmin,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3270,19 +3454,19 @@ const updateMembership = function (token, sessionSecretKey, membershipId, groupA
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteMembership = function (token, sessionSecretKey, membershipId) {
-    const endpoint = "/membership/";
-    const method = "DELETE";
-    const data = {
-        membership_id: membershipId,
-    };
+const deleteMembership = (token, sessionSecretKey, membershipId) => {
+	const endpoint = "/membership/";
+	const method = "DELETE";
+	const data = {
+		membership_id: membershipId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3295,17 +3479,17 @@ const deleteMembership = function (token, sessionSecretKey, membershipId) {
  *
  * @returns {Promise} promise
  */
-const acceptMembership = function (token, sessionSecretKey, membership_id) {
-    const endpoint = "/membership/accept/";
-    const method = "POST";
-    const data = {
-        membership_id: membership_id,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const acceptMembership = (token, sessionSecretKey, membership_id) => {
+	const endpoint = "/membership/accept/";
+	const method = "POST";
+	const data = {
+		membership_id: membership_id,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3317,17 +3501,17 @@ const acceptMembership = function (token, sessionSecretKey, membership_id) {
  *
  * @returns {Promise} promise
  */
-const declineMembership = function (token, sessionSecretKey, membership_id) {
-    const endpoint = "/membership/decline/";
-    const method = "POST";
-    const data = {
-        membership_id: membership_id,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const declineMembership = (token, sessionSecretKey, membership_id) => {
+	const endpoint = "/membership/decline/";
+	const method = "POST";
+	const data = {
+		membership_id: membership_id,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3339,15 +3523,15 @@ const declineMembership = function (token, sessionSecretKey, membership_id) {
  *
  * @returns {Promise} Returns a promise with the new fileId and fileTransferId
  */
-const readFile = function (token, sessionSecretKey, fileId) {
-    const endpoint = "/file/" + fileId + "/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readFile = (token, sessionSecretKey, fileId) => {
+	const endpoint = "/file/" + fileId + "/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3366,35 +3550,35 @@ const readFile = function (token, sessionSecretKey, fileId) {
  *
  * @returns {Promise} Returns a promise with the new fileId and fileTransferId
  */
-const createFile = function (
-    token,
-    sessionSecretKey,
-    shard_id,
-    fileRepositoryId,
-    size,
-    chunkCount,
-    linkId,
-    parentDatastoreId,
-    parentShareId,
-    parentSecretId
-) {
-    const endpoint = "/file/";
-    const method = "PUT";
-    const data = {
-        shard_id: shard_id,
-        file_repository_id: fileRepositoryId,
-        size: size,
-        chunk_count: chunkCount,
-        link_id: linkId,
-        parent_datastore_id: parentDatastoreId,
-        parent_share_id: parentShareId,
-        parent_secret_id: parentSecretId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createFile = (
+	token,
+	sessionSecretKey,
+	shard_id,
+	fileRepositoryId,
+	size,
+	chunkCount,
+	linkId,
+	parentDatastoreId,
+	parentShareId,
+	parentSecretId,
+) => {
+	const endpoint = "/file/";
+	const method = "PUT";
+	const data = {
+		shard_id: shard_id,
+		file_repository_id: fileRepositoryId,
+		size: size,
+		chunk_count: chunkCount,
+		link_id: linkId,
+		parent_datastore_id: parentDatastoreId,
+		parent_share_id: parentShareId,
+		parent_secret_id: parentSecretId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3406,17 +3590,17 @@ const createFile = function (
  *
  * @returns {Promise} Returns a promise with success status
  */
-const deleteFile = function (token, sessionSecretKey, fileId) {
-    const endpoint = "/file/";
-    const method = "DELETE";
-    const data = {
-        file_id: fileId,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const deleteFile = (token, sessionSecretKey, fileId) => {
+	const endpoint = "/file/";
+	const method = "DELETE";
+	const data = {
+		file_id: fileId,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3429,19 +3613,19 @@ const deleteFile = function (token, sessionSecretKey, fileId) {
  *
  * @returns {Promise} promise
  */
-const deleteAccount = function (token, sessionSecretKey, authkey, password) {
-    const endpoint = "/user/delete/";
-    const method = "DELETE";
-    const data = {
-        authkey: authkey,
-        password: password,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+const deleteAccount = (token, sessionSecretKey, authkey, password) => {
+	const endpoint = "/user/delete/";
+	const method = "DELETE";
+	const data = {
+		authkey: authkey,
+		password: password,
+	};
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3452,15 +3636,15 @@ const deleteAccount = function (token, sessionSecretKey, authkey, password) {
  *
  * @returns {Promise} promise
  */
-const readShards = function (token, sessionSecretKey) {
-    const endpoint = "/shard/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readShards = (token, sessionSecretKey) => {
+	const endpoint = "/shard/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3480,37 +3664,37 @@ const readShards = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Promise with the new link_secret_id
  */
-const createLinkShare = function (
-    token,
-    sessionSecretKey,
-    secretId,
-    fileId,
-    node,
-    node_nonce,
-    publicTitle,
-    allowed_reads,
-    passphrase,
-    validTill,
-    allowWrite
-) {
-    const endpoint = "/link-share/";
-    const method = "PUT";
-    const data = {
-        secret_id: secretId,
-        file_id: fileId,
-        node: node,
-        node_nonce: node_nonce,
-        public_title: publicTitle,
-        allowed_reads: allowed_reads,
-        passphrase: passphrase,
-        valid_till: validTill,
-        allow_write: allowWrite,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createLinkShare = (
+	token,
+	sessionSecretKey,
+	secretId,
+	fileId,
+	node,
+	node_nonce,
+	publicTitle,
+	allowed_reads,
+	passphrase,
+	validTill,
+	allowWrite,
+) => {
+	const endpoint = "/link-share/";
+	const method = "PUT";
+	const data = {
+		secret_id: secretId,
+		file_id: fileId,
+		node: node,
+		node_nonce: node_nonce,
+		public_title: publicTitle,
+		allowed_reads: allowed_reads,
+		passphrase: passphrase,
+		valid_till: validTill,
+		allow_write: allowWrite,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3521,16 +3705,16 @@ const createLinkShare = function (
  *
  * @returns {Promise} Returns a promise with a list of all active link shares
  */
-const readLinkShare = function (token, sessionSecretKey) {
-    const endpoint = "/link-share/";
-    const method = "GET";
-    const data = null;
+const readLinkShare = (token, sessionSecretKey) => {
+	const endpoint = "/link-share/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3546,30 +3730,30 @@ const readLinkShare = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateLinkShare = function (
-    token,
-    sessionSecretKey,
-    linkShareId,
-    publicTitle,
-    allowedReads,
-    passphrase,
-    validTill
-) {
-    const endpoint = "/link-share/";
-    const method = "POST";
-    const data = {
-        link_share_id: linkShareId,
-        public_title: publicTitle,
-        allowed_reads: allowedReads,
-        passphrase: passphrase,
-        valid_till: validTill,
-    };
+const updateLinkShare = (
+	token,
+	sessionSecretKey,
+	linkShareId,
+	publicTitle,
+	allowedReads,
+	passphrase,
+	validTill,
+) => {
+	const endpoint = "/link-share/";
+	const method = "POST";
+	const data = {
+		link_share_id: linkShareId,
+		public_title: publicTitle,
+		allowed_reads: allowedReads,
+		passphrase: passphrase,
+		valid_till: validTill,
+	};
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3581,19 +3765,19 @@ const updateLinkShare = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteLinkShare = function (token, sessionSecretKey, linkShareId) {
-    const endpoint = "/link-share/";
-    const method = "DELETE";
-    const data = {
-        link_share_id: linkShareId,
-    };
+const deleteLinkShare = (token, sessionSecretKey, linkShareId) => {
+	const endpoint = "/link-share/";
+	const method = "DELETE";
+	const data = {
+		link_share_id: linkShareId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3604,16 +3788,16 @@ const deleteLinkShare = function (token, sessionSecretKey, linkShareId) {
  *
  * @returns {Promise} promise
  */
-const linkShareAccessRead = function (linkShareId, passphrase) {
-    const endpoint = "/link-share-access/";
-    const method = "POST";
-    const data = {
-        link_share_id: linkShareId,
-        passphrase: passphrase,
-    };
-    const headers = null;
+const linkShareAccessRead = (linkShareId, passphrase) => {
+	const endpoint = "/link-share-access/";
+	const method = "POST";
+	const data = {
+		link_share_id: linkShareId,
+		passphrase: passphrase,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 };
 
 /**
@@ -3626,18 +3810,23 @@ const linkShareAccessRead = function (linkShareId, passphrase) {
  *
  * @returns {Promise} promise
  */
-const linkShareAccessWrite = function (linkShareId, secretData, secretDataNonce, passphrase) {
-    const endpoint = "/link-share-access/";
-    const method = "PUT";
-    const data = {
-        link_share_id: linkShareId,
-        secret_data: secretData,
-        secret_data_nonce: secretDataNonce,
-        passphrase: passphrase,
-    };
-    const headers = null;
+const linkShareAccessWrite = (
+	linkShareId,
+	secretData,
+	secretDataNonce,
+	passphrase,
+) => {
+	const endpoint = "/link-share-access/";
+	const method = "PUT";
+	const data = {
+		link_share_id: linkShareId,
+		secret_data: secretData,
+		secret_data_nonce: secretDataNonce,
+		passphrase: passphrase,
+	};
+	const headers = null;
 
-    return call(method, endpoint, data, headers);
+	return call(method, endpoint, data, headers);
 };
 
 /**
@@ -3651,21 +3840,26 @@ const linkShareAccessWrite = function (linkShareId, secretData, secretDataNonce,
  *
  * @returns {Promise} promise
  */
-const sendSecurityReport = function (token, sessionSecretKey, entries, checkHaveibeenpwned, authkey) {
-    const endpoint = "/user/security-report/";
-    const method = "POST";
-    const data = {
-        entries: entries,
-        check_haveibeenpwned: checkHaveibeenpwned,
-        authkey: authkey,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const sendSecurityReport = (
+	token,
+	sessionSecretKey,
+	entries,
+	checkHaveibeenpwned,
+	authkey,
+) => {
+	const endpoint = "/user/security-report/";
+	const method = "POST";
+	const data = {
+		entries: entries,
+		check_haveibeenpwned: checkHaveibeenpwned,
+		authkey: authkey,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
-
 
 /**
  * Ajax GET request with the token as authentication to get the current user's avatars
@@ -3677,15 +3871,15 @@ const sendSecurityReport = function (token, sessionSecretKey, entries, checkHave
  *
  * @returns {Promise} promise
  */
-const readAvatar = function (token, sessionSecretKey) {
-    const endpoint = "/avatar/";
-    const method = "GET";
-    const data = null;
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const readAvatar = (token, sessionSecretKey) => {
+	const endpoint = "/avatar/";
+	const method = "GET";
+	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3697,21 +3891,17 @@ const readAvatar = function (token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const createAvatar = function (
-    token,
-    sessionSecretKey,
-    dataBase64,
-) {
-    const endpoint = "/avatar/";
-    const method = "POST";
-    const data = {
-        data_base64: dataBase64,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createAvatar = (token, sessionSecretKey, dataBase64) => {
+	const endpoint = "/avatar/";
+	const method = "POST";
+	const data = {
+		data_base64: dataBase64,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3723,19 +3913,19 @@ const createAvatar = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteAvatar = function (token, sessionSecretKey, avatarId) {
-    const endpoint = "/avatar/";
-    const method = "DELETE";
-    const data = {
-        avatar_id: avatarId,
-    };
+const deleteAvatar = (token, sessionSecretKey, avatarId) => {
+	const endpoint = "/avatar/";
+	const method = "DELETE";
+	const data = {
+		avatar_id: avatarId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3748,23 +3938,18 @@ const deleteAvatar = function (token, sessionSecretKey, avatarId) {
  *
  * @returns {Promise} promise
  */
-const createServerSecret = function (
-    token,
-    sessionSecretKey,
-    secretKey,
-    privateKey,
-) {
-    const endpoint = "/server-secret/";
-    const method = "POST";
-    const data = {
-        secret_key: secretKey,
-        private_key: privateKey,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+const createServerSecret = (token, sessionSecretKey, secretKey, privateKey) => {
+	const endpoint = "/server-secret/";
+	const method = "POST";
+	const data = {
+		secret_key: secretKey,
+		private_key: privateKey,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 /**
@@ -3783,114 +3968,114 @@ const createServerSecret = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteServerSecret = function (
-    token,
-    sessionSecretKey,
-    authkey,
-    privateKey,
-    privateKeyNonce,
-    secretKey,
-    secretKeyNonce,
-    userSauce,
-    hashingAlgorithm,
-    hashingParameters
-) {
-    const endpoint = "/server-secret/";
-    const method = "DELETE";
-    const data = {
-        authkey: authkey,
-        private_key: privateKey,
-        private_key_nonce: privateKeyNonce,
-        secret_key: secretKey,
-        secret_key_nonce: secretKeyNonce,
-        user_sauce: userSauce,
-        hashing_algorithm: hashingAlgorithm,
-        hashing_parameters: hashingParameters,
-    };
+const deleteServerSecret = (
+	token,
+	sessionSecretKey,
+	authkey,
+	privateKey,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+	userSauce,
+	hashingAlgorithm,
+	hashingParameters,
+) => {
+	const endpoint = "/server-secret/";
+	const method = "DELETE";
+	const data = {
+		authkey: authkey,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		user_sauce: userSauce,
+		hashing_algorithm: hashingAlgorithm,
+		hashing_parameters: hashingParameters,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
-const getIvaltApiToken = function (token, sessionSecretKey) {
-    const endpoint = "/user/ivalt-secret/"
-    const method = "GET";
-    const data = null;
+const getIvaltApiToken = (token, sessionSecretKey) => {
+	const endpoint = "/user/ivalt-secret/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
-const validateIvaltTwoFactor = function(token, sessionSecretKey, requestType){
-    const endpoint = "/authentication/ivalt-verify/"
-    const method = "POST"
-    const data = {
-        request_type: requestType
-    }
-    const headers = {
-        Authorization: "Token " + token
-    }
-    return call(method, endpoint, data, headers, sessionSecretKey)
-}
+const validateIvaltTwoFactor = (token, sessionSecretKey, requestType) => {
+	const endpoint = "/authentication/ivalt-verify/";
+	const method = "POST";
+	const data = {
+		request_type: requestType,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
+	return call(method, endpoint, data, headers, sessionSecretKey);
+};
 
 function readIvalt(token, sessionSecretKey) {
-    const endpoint = "/user/ivalt/";
-    const method = "GET";
-    const data = null;
+	const endpoint = "/user/ivalt/";
+	const method = "GET";
+	const data = null;
 
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
-const deleteIvalt = function (token, sessionSecretKey, ivaltId) {
-    const endpoint = "/user/ivalt/";
-    const method = "DELETE";
-    const data = {
-        ivalt_id: ivaltId,
-    };
+const deleteIvalt = (token, sessionSecretKey, ivaltId) => {
+	const endpoint = "/user/ivalt/";
+	const method = "DELETE";
+	const data = {
+		ivalt_id: ivaltId,
+	};
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Token " + token,
-    };
+	const headers = {
+		"Content-Type": "application/json",
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
 function createIvalt(token, sessionSecretKey, mobile) {
-    const endpoint = "/user/ivalt/";
-    const method = "PUT";
-    const data = {
-        mobile: mobile,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+	const endpoint = "/user/ivalt/";
+	const method = "PUT";
+	const data = {
+		mobile: mobile,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
-function validateIvalt(token, sessionSecretKey, mobile){
-    const endpoint = "/user/ivalt/";
-    const method = "POST";
-    const data = {
-        mobile: mobile,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function validateIvalt(token, sessionSecretKey, mobile) {
+	const endpoint = "/user/ivalt/";
+	const method = "POST";
+	const data = {
+		mobile: mobile,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**
@@ -3905,157 +4090,162 @@ function validateIvalt(token, sessionSecretKey, mobile){
  *
  * @returns {Promise} Returns a promise with the API response.
  */
-function claimDeviceCode(token, sessionSecretKey, deviceCodeId, encryptedCredentialsInput, encryptedCredentialsNonce) {
-    const endpoint = `/device-code/${deviceCodeId}/claim/`;
-    const method = "PUT";
-    const data = {
-        encrypted_credentials_input: encryptedCredentialsInput,
-        encrypted_credentials_nonce: encryptedCredentialsNonce,
-    };
-    const headers = {
-        Authorization: "Token " + token,
-    };
+function claimDeviceCode(
+	token,
+	sessionSecretKey,
+	deviceCodeId,
+	encryptedCredentialsInput,
+	encryptedCredentialsNonce,
+) {
+	const endpoint = `/device-code/${deviceCodeId}/claim/`;
+	const method = "PUT";
+	const data = {
+		encrypted_credentials_input: encryptedCredentialsInput,
+		encrypted_credentials_nonce: encryptedCredentialsNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
 
-   
-    return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 const apiClientService = {
-    info: info,
-    prelogin: prelogin,
-    login: login,
-    samlInitiateLogin: samlInitiateLogin,
-    oidcInitiateLogin: oidcInitiateLogin,
-    samlLogin: samlLogin,
-    oidcLogin: oidcLogin,
-    gaVerify: gaVerify,
-    duoVerify: duoVerify,
-    yubikeyOtpVerify: yubikeyOtpVerify,
-    activateToken: activateToken,
-    getSessions: getSessions,
-    readEmergencyCodes: readEmergencyCodes,
-    createEmergencyCode: createEmergencyCode,
-    deleteEmergencyCode: deleteEmergencyCode,
-    statelessLogout: statelessLogout,
-    logout: logout,
-    register: register,
-    unregister: unregister,
-    unregisterConfirm: unregisterConfirm,
-    verifyEmail: verifyEmail,
-    updateUser: updateUser,
-    writeRecoverycode: writeRecoverycode,
-    enableRecoverycode: enableRecoverycode,
-    armEmergencyCode: armEmergencyCode,
-    activateEmergencyCode: activateEmergencyCode,
-    setPassword: setPassword,
-    readSecretHistory: readSecretHistory,
-    readHistory: readHistory,
-    readDatastore: readDatastore,
-    writeDatastore: writeDatastore,
-    createDatastore: createDatastore,
-    deleteDatastore: deleteDatastore,
-    readSecret: readSecret,
-    writeSecret: writeSecret,
-    createSecret: createSecret,
-    createSecretBulk: createSecretBulk,
-    readSecretBulk: readSecretBulk,
-    moveSecretLink: moveSecretLink,
-    deleteSecretLink: deleteSecretLink,
-    moveFileLink: moveFileLink,
-    deleteFileLink: deleteFileLink,
-    readShare: readShare,
-    readShares: readShares,
-    writeShare: writeShare,
-    createShare: createShare,
-    readShareRights: readShareRights,
-    readShareRightsOverview: readShareRightsOverview,
-    createShareRight: createShareRight,
-    updateShareRight: updateShareRight,
-    deleteShareRight: deleteShareRight,
-    readShareRightsInheritOverview: readShareRightsInheritOverview,
-    acceptShareRight: acceptShareRight,
-    declineShareRight: declineShareRight,
-    searchUser: searchUser,
-    readGa: readGa,
-    activateGa: activateGa,
-    deleteGa: deleteGa,
-    readStatus: readStatus,
-    readJob: readJob,
-    createMembershipMissingGroupSecret: createMembershipMissingGroupSecret,
-    createJobStaffMissingGroupSecret: createJobStaffMissingGroupSecret,
-    createWebauthn: createWebauthn,
-    readWebauthn: readWebauthn,
-    deleteWebauthn: deleteWebauthn,
-    activateWebauthn: activateWebauthn,
-    webauthnVerifyInit: webauthnVerifyInit,
-    webauthnVerify: webauthnVerify,
-    createGa: createGa,
-    readDuo: readDuo,
-    activateDuo: activateDuo,
-    deleteDuo: deleteDuo,
-    createDuo: createDuo,
-    readYubikeyOtp: readYubikeyOtp,
-    activateYubikeyOtp: activateYubikeyOtp,
-    deleteYubikeyOtp: deleteYubikeyOtp,
-    createYubikeyOtp: createYubikeyOtp,
-    createShareLink: createShareLink,
-    moveShareLink: moveShareLink,
-    deleteShareLink: deleteShareLink,
-    readApiKey: readApiKey,
-    readApiKeySecrets: readApiKeySecrets,
-    createApiKey: createApiKey,
-    addSecretToApiKey: addSecretToApiKey,
-    updateApiKey: updateApiKey,
-    deleteApiKey: deleteApiKey,
-    deleteApiKeySecret: deleteApiKeySecret,
-    readFileRepository: readFileRepository,
-    createFileRepository: createFileRepository,
-    updateFileRepository: updateFileRepository,
-    deleteFileRepository: deleteFileRepository,
-    createGroupFileRepositoryRight: createGroupFileRepositoryRight,
-    updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
-    deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
-    createFileRepositoryRight: createFileRepositoryRight,
-    updateFileRepositoryRight: updateFileRepositoryRight,
-    deleteFileRepositoryRight: deleteFileRepositoryRight,
-    acceptFileRepositoryRight: acceptFileRepositoryRight,
-    declineFileRepositoryRight: declineFileRepositoryRight,
-    fileRepositoryUpload: fileRepositoryUpload,
-    fileRepositoryDownload: fileRepositoryDownload,
-    readGroup: readGroup,
-    createGroup: createGroup,
-    updateGroup: updateGroup,
-    deleteGroup: deleteGroup,
-    readGroupRights: readGroupRights,
-    createMembership: createMembership,
-    updateMembership: updateMembership,
-    deleteMembership: deleteMembership,
-    acceptMembership: acceptMembership,
-    declineMembership: declineMembership,
-    readFile: readFile,
-    createFile: createFile,
-    deleteFile: deleteFile,
-    deleteAccount: deleteAccount,
-    readShards: readShards,
-    createLinkShare: createLinkShare,
-    readLinkShare: readLinkShare,
-    updateLinkShare: updateLinkShare,
-    deleteLinkShare: deleteLinkShare,
-    linkShareAccessRead: linkShareAccessRead,
-    linkShareAccessWrite: linkShareAccessWrite,
-    sendSecurityReport: sendSecurityReport,
-    readAvatar: readAvatar,
-    createAvatar: createAvatar,
-    deleteAvatar: deleteAvatar,
-    createServerSecret: createServerSecret,
-    deleteServerSecret: deleteServerSecret,
-    validateIvaltTwoFactor: validateIvaltTwoFactor,
-    readIvalt: readIvalt,
-    deleteIvalt: deleteIvalt,
-    createIvalt: createIvalt,
-    validateIvalt: validateIvalt,
-    getIvaltApiToken: getIvaltApiToken,
-    claimDeviceCode: claimDeviceCode,
+	info: info,
+	prelogin: prelogin,
+	login: login,
+	samlInitiateLogin: samlInitiateLogin,
+	oidcInitiateLogin: oidcInitiateLogin,
+	samlLogin: samlLogin,
+	oidcLogin: oidcLogin,
+	gaVerify: gaVerify,
+	duoVerify: duoVerify,
+	yubikeyOtpVerify: yubikeyOtpVerify,
+	activateToken: activateToken,
+	getSessions: getSessions,
+	readEmergencyCodes: readEmergencyCodes,
+	createEmergencyCode: createEmergencyCode,
+	deleteEmergencyCode: deleteEmergencyCode,
+	statelessLogout: statelessLogout,
+	logout: logout,
+	register: register,
+	unregister: unregister,
+	unregisterConfirm: unregisterConfirm,
+	verifyEmail: verifyEmail,
+	updateUser: updateUser,
+	writeRecoverycode: writeRecoverycode,
+	enableRecoverycode: enableRecoverycode,
+	armEmergencyCode: armEmergencyCode,
+	activateEmergencyCode: activateEmergencyCode,
+	setPassword: setPassword,
+	readSecretHistory: readSecretHistory,
+	readHistory: readHistory,
+	readDatastore: readDatastore,
+	writeDatastore: writeDatastore,
+	createDatastore: createDatastore,
+	deleteDatastore: deleteDatastore,
+	readSecret: readSecret,
+	writeSecret: writeSecret,
+	createSecret: createSecret,
+	createSecretBulk: createSecretBulk,
+	readSecretBulk: readSecretBulk,
+	moveSecretLink: moveSecretLink,
+	deleteSecretLink: deleteSecretLink,
+	moveFileLink: moveFileLink,
+	deleteFileLink: deleteFileLink,
+	readShare: readShare,
+	readShares: readShares,
+	writeShare: writeShare,
+	createShare: createShare,
+	readShareRights: readShareRights,
+	readShareRightsOverview: readShareRightsOverview,
+	createShareRight: createShareRight,
+	updateShareRight: updateShareRight,
+	deleteShareRight: deleteShareRight,
+	readShareRightsInheritOverview: readShareRightsInheritOverview,
+	acceptShareRight: acceptShareRight,
+	declineShareRight: declineShareRight,
+	searchUser: searchUser,
+	readGa: readGa,
+	activateGa: activateGa,
+	deleteGa: deleteGa,
+	readStatus: readStatus,
+	readJob: readJob,
+	createMembershipMissingGroupSecret: createMembershipMissingGroupSecret,
+	createJobStaffMissingGroupSecret: createJobStaffMissingGroupSecret,
+	createWebauthn: createWebauthn,
+	readWebauthn: readWebauthn,
+	deleteWebauthn: deleteWebauthn,
+	activateWebauthn: activateWebauthn,
+	webauthnVerifyInit: webauthnVerifyInit,
+	webauthnVerify: webauthnVerify,
+	createGa: createGa,
+	readDuo: readDuo,
+	activateDuo: activateDuo,
+	deleteDuo: deleteDuo,
+	createDuo: createDuo,
+	readYubikeyOtp: readYubikeyOtp,
+	activateYubikeyOtp: activateYubikeyOtp,
+	deleteYubikeyOtp: deleteYubikeyOtp,
+	createYubikeyOtp: createYubikeyOtp,
+	createShareLink: createShareLink,
+	moveShareLink: moveShareLink,
+	deleteShareLink: deleteShareLink,
+	readApiKey: readApiKey,
+	readApiKeySecrets: readApiKeySecrets,
+	createApiKey: createApiKey,
+	addSecretToApiKey: addSecretToApiKey,
+	updateApiKey: updateApiKey,
+	deleteApiKey: deleteApiKey,
+	deleteApiKeySecret: deleteApiKeySecret,
+	readFileRepository: readFileRepository,
+	createFileRepository: createFileRepository,
+	updateFileRepository: updateFileRepository,
+	deleteFileRepository: deleteFileRepository,
+	createGroupFileRepositoryRight: createGroupFileRepositoryRight,
+	updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
+	deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
+	createFileRepositoryRight: createFileRepositoryRight,
+	updateFileRepositoryRight: updateFileRepositoryRight,
+	deleteFileRepositoryRight: deleteFileRepositoryRight,
+	acceptFileRepositoryRight: acceptFileRepositoryRight,
+	declineFileRepositoryRight: declineFileRepositoryRight,
+	fileRepositoryUpload: fileRepositoryUpload,
+	fileRepositoryDownload: fileRepositoryDownload,
+	readGroup: readGroup,
+	createGroup: createGroup,
+	updateGroup: updateGroup,
+	deleteGroup: deleteGroup,
+	readGroupRights: readGroupRights,
+	createMembership: createMembership,
+	updateMembership: updateMembership,
+	deleteMembership: deleteMembership,
+	acceptMembership: acceptMembership,
+	declineMembership: declineMembership,
+	readFile: readFile,
+	createFile: createFile,
+	deleteFile: deleteFile,
+	deleteAccount: deleteAccount,
+	readShards: readShards,
+	createLinkShare: createLinkShare,
+	readLinkShare: readLinkShare,
+	updateLinkShare: updateLinkShare,
+	deleteLinkShare: deleteLinkShare,
+	linkShareAccessRead: linkShareAccessRead,
+	linkShareAccessWrite: linkShareAccessWrite,
+	sendSecurityReport: sendSecurityReport,
+	readAvatar: readAvatar,
+	createAvatar: createAvatar,
+	deleteAvatar: deleteAvatar,
+	createServerSecret: createServerSecret,
+	deleteServerSecret: deleteServerSecret,
+	validateIvaltTwoFactor: validateIvaltTwoFactor,
+	readIvalt: readIvalt,
+	deleteIvalt: deleteIvalt,
+	createIvalt: createIvalt,
+	validateIvalt: validateIvalt,
+	getIvaltApiToken: getIvaltApiToken,
+	claimDeviceCode: claimDeviceCode,
 };
 
 export default apiClientService;

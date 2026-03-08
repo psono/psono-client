@@ -3,8 +3,8 @@
  */
 
 import apiClientService from "./api-client";
-import { getStore } from "./store";
 import secretService from "./secret";
+import { getStore } from "./store";
 
 let timeout = 0;
 
@@ -20,41 +20,71 @@ let timeout = 0;
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    let i;
+function moveSecretLinks(
+	datastore,
+	newParentShareId,
+	newParentDatastoreId,
+	onOpenRequest,
+	onClosedRequest,
+) {
+	let i;
 
-    function moveSecretLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
-        if (onOpenRequest) {
-            onOpenRequest();
-        }
-        timeout = timeout + 50;
-        setTimeout(function () {
-            moveSecretLink(linkId, newParentShareId, newParentDatastoreId, undefined, onClosedRequest);
-        }, timeout);
-    }
+	function moveSecretLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
+		if (onOpenRequest) {
+			onOpenRequest();
+		}
+		timeout = timeout + 50;
+		setTimeout(() => {
+			moveSecretLink(
+				linkId,
+				newParentShareId,
+				newParentDatastoreId,
+				undefined,
+				onClosedRequest,
+			);
+		}, timeout);
+	}
 
-    for (i = 0; datastore.hasOwnProperty("folders") && i < datastore["folders"].length; i++) {
-        if (datastore["folders"][i].hasOwnProperty("share_id")) {
-            continue;
-        }
-        moveSecretLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest);
-    }
-    for (i = 0; datastore.hasOwnProperty("items") && i < datastore["items"].length; i++) {
-        if (!datastore["items"][i].hasOwnProperty("secret_id")) {
-            continue;
-        }
-        if (datastore["items"][i].hasOwnProperty("share_id")) {
-            continue;
-        }
-        moveSecretLinkTimed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
-    }
+	for (
+		i = 0;
+		Object.hasOwn(datastore, "folders") && i < datastore["folders"].length;
+		i++
+	) {
+		if (Object.hasOwn(datastore["folders"][i], "share_id")) {
+			continue;
+		}
+		moveSecretLinks(
+			datastore["folders"][i],
+			newParentShareId,
+			newParentDatastoreId,
+			onOpenRequest,
+			onClosedRequest,
+		);
+	}
+	for (
+		i = 0;
+		Object.hasOwn(datastore, "items") && i < datastore["items"].length;
+		i++
+	) {
+		if (!Object.hasOwn(datastore["items"][i], "secret_id")) {
+			continue;
+		}
+		if (Object.hasOwn(datastore["items"][i], "share_id")) {
+			continue;
+		}
+		moveSecretLinkTimed(
+			datastore["items"][i]["id"],
+			newParentShareId,
+			newParentDatastoreId,
+		);
+	}
 }
 
 /**
  * Resets the timeout for secret links. need to be called before running moveSecretLinks
  */
 function resetSecretLinkTimeout() {
-    timeout = 0;
+	timeout = 0;
 }
 
 /**
@@ -68,29 +98,41 @@ function resetSecretLinkTimeout() {
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function moveSecretLink(
+	linkId,
+	newParentShareId,
+	newParentDatastoreId,
+	onOpenRequest,
+	onClosedRequest,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    if (onOpenRequest) {
-        onOpenRequest()
-    }
+	if (onOpenRequest) {
+		onOpenRequest();
+	}
 
-    const onError = function (result) {
-        if (onClosedRequest) {
-            onClosedRequest()
-        }
-    };
+	const onError = (result) => {
+		if (onClosedRequest) {
+			onClosedRequest();
+		}
+	};
 
-    const onSuccess = function (content) {
-        if (onClosedRequest) {
-            onClosedRequest()
-        }
-    };
+	const onSuccess = (content) => {
+		if (onClosedRequest) {
+			onClosedRequest();
+		}
+	};
 
-    return apiClientService
-        .moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
-        .then(onSuccess, onError);
+	return apiClientService
+		.moveSecretLink(
+			token,
+			sessionSecretKey,
+			linkId,
+			newParentShareId,
+			newParentDatastoreId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -102,18 +144,20 @@ function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRe
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteSecretLink(linkId, logAuditTitle) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onError = function (result) {
-        // pass
-    };
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        // pass
-    };
+	const onSuccess = (content) => {
+		// pass
+	};
 
-    return apiClientService.deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle).then(onSuccess, onError);
+	return apiClientService
+		.deleteSecretLink(token, sessionSecretKey, linkId, logAuditTitle)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -125,27 +169,27 @@ function deleteSecretLink(linkId, logAuditTitle) {
  * @returns {Promise} Returns promise with the status of the move
  */
 function onSecretMoved(linkId, parent) {
-    let new_parent_share_id, new_parent_datastore_id;
+	let new_parent_share_id, new_parent_datastore_id;
 
-    if (parent.hasOwnProperty("share_id")) {
-        new_parent_share_id = parent.share_id;
-    } else if (parent.hasOwnProperty("datastore_id")) {
-        new_parent_datastore_id = parent.datastore_id;
-    } else {
-        return Promise.reject({
-            response: "error",
-            error_data: "Could not determine if its a share or datastore parent",
-        });
-    }
+	if (Object.hasOwn(parent, "share_id")) {
+		new_parent_share_id = parent.share_id;
+	} else if (Object.hasOwn(parent, "datastore_id")) {
+		new_parent_datastore_id = parent.datastore_id;
+	} else {
+		return Promise.reject({
+			response: "error",
+			error_data: "Could not determine if its a share or datastore parent",
+		});
+	}
 
-    return moveSecretLink(linkId, new_parent_share_id, new_parent_datastore_id);
+	return moveSecretLink(linkId, new_parent_share_id, new_parent_datastore_id);
 }
 
 const secretLinkService = {
-    moveSecretLinks: moveSecretLinks,
-    resetSecretLinkTimeout: resetSecretLinkTimeout,
-    moveSecretLink: moveSecretLink,
-    deleteSecretLink: deleteSecretLink,
-    onSecretMoved: onSecretMoved,
+	moveSecretLinks: moveSecretLinks,
+	resetSecretLinkTimeout: resetSecretLinkTimeout,
+	moveSecretLink: moveSecretLink,
+	deleteSecretLink: deleteSecretLink,
+	onSecretMoved: onSecretMoved,
 };
 export default secretLinkService;

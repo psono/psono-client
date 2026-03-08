@@ -1,61 +1,62 @@
-import React from 'react';
-import importSafariCsv from './import-safari-csv';
+import React from "react";
 import cryptoLibrary from "./crypto-library";
+import importSafariCsv from "./import-safari-csv";
 
+describe("Service: importSafariCsv test suite", () => {
+	it("helper exists", () => {
+		expect(importSafariCsv).toBeDefined();
+	});
 
-describe('Service: importSafariCsv test suite', function () {
+	it("parse", () => {
+		const generic_uuid = "1fce01f4-6411-47a9-885c-a80bf4c654aa";
+		cryptoLibrary.generateUuid = jest.fn();
+		cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-    it('helper exists', function() {
-        expect(importSafariCsv).toBeDefined();
-    });
+		const input =
+			"Title,URL,Username,Password,Notes,OTPAuth\n" +
+			"www.amazon.com (jdoe13),https://www.amazon.com/ap/signin,jdoe13@gmail.com,asdfasdf,some note," +
+			"";
 
-    it('parse', function () {
+		const output = importSafariCsv.parser(input);
 
-        const generic_uuid = '1fce01f4-6411-47a9-885c-a80bf4c654aa'
-        cryptoLibrary.generateUuid = jest.fn();
-        cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
+		const expected_output = {
+			datastore: {
+				id: generic_uuid,
+				name: output.datastore.name,
+				folders: [],
+				items: [
+					{
+						id: generic_uuid,
+						type: "website_password",
+						name: "www.amazon.com (jdoe13)",
+						urlfilter: "www.amazon.com",
+						website_password_url_filter: "www.amazon.com",
+						website_password_password: "asdfasdf",
+						website_password_username: "jdoe13@gmail.com",
+						description: "jdoe13@gmail.com",
+						website_password_notes: "some note",
+						website_password_url: "https://www.amazon.com/ap/signin",
+						website_password_title: "www.amazon.com (jdoe13)",
+					},
+				],
+			},
+			secrets: [
+				{
+					id: generic_uuid,
+					type: "website_password",
+					name: "www.amazon.com (jdoe13)",
+					urlfilter: "www.amazon.com",
+					website_password_url_filter: "www.amazon.com",
+					website_password_password: "asdfasdf",
+					website_password_username: "jdoe13@gmail.com",
+					description: "jdoe13@gmail.com",
+					website_password_notes: "some note",
+					website_password_url: "https://www.amazon.com/ap/signin",
+					website_password_title: "www.amazon.com (jdoe13)",
+				},
+			],
+		};
 
-        const input = "Title,URL,Username,Password,Notes,OTPAuth\n" +
-            "www.amazon.com (jdoe13),https://www.amazon.com/ap/signin,jdoe13@gmail.com,asdfasdf,some note," +
-            "";
-
-        const output = importSafariCsv.parser(input);
-
-        const expected_output = {
-            "datastore": {
-                "id": generic_uuid,
-                "name": output.datastore.name,
-                "folders": [],
-                "items": [{
-                    "id": generic_uuid,
-                    "type": "website_password",
-                    "name": "www.amazon.com (jdoe13)",
-                    "urlfilter": "www.amazon.com",
-                    "website_password_url_filter": "www.amazon.com",
-                    "website_password_password": "asdfasdf",
-                    "website_password_username": "jdoe13@gmail.com",
-                    "description": "jdoe13@gmail.com",
-                    "website_password_notes": "some note",
-                    "website_password_url": "https://www.amazon.com/ap/signin",
-                    "website_password_title": "www.amazon.com (jdoe13)"
-                }]
-            },
-            "secrets": [{
-                "id": generic_uuid,
-                "type": "website_password",
-                "name": "www.amazon.com (jdoe13)",
-                "urlfilter": "www.amazon.com",
-                "website_password_url_filter": "www.amazon.com",
-                "website_password_password": "asdfasdf",
-                "website_password_username": "jdoe13@gmail.com",
-                "description": "jdoe13@gmail.com",
-                "website_password_notes": "some note",
-                "website_password_url": "https://www.amazon.com/ap/signin",
-                "website_password_title": "www.amazon.com (jdoe13)"
-            }]
-        };
-
-        expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
-    });
-
+		expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
+	});
 });

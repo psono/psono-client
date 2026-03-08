@@ -7,9 +7,9 @@ import i18n from "../i18n";
  * @returns {boolean} Returns the split up url
  */
 function is_ipv4_address(address) {
-    return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-        address
-    );
+	return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+		address,
+	);
 }
 
 // /**
@@ -67,49 +67,51 @@ function is_ipv4_address(address) {
  * @returns {object} Returns the split up url
  */
 function parseUrl(url) {
-    const empty = {
-        scheme: null,
-        authority: null,
-        authority_without_www: null,
-        base_url: null,
-        full_domain: null,
-        full_domain_without_www: null,
-        port: null,
-        path: null,
-        query: null,
-        fragment: null
-    };
-    if (!url) {
-        return empty;
-    }
+	const empty = {
+		scheme: null,
+		authority: null,
+		authority_without_www: null,
+		base_url: null,
+		full_domain: null,
+		full_domain_without_www: null,
+		port: null,
+		path: null,
+		query: null,
+		fragment: null,
+	};
+	if (!url) {
+		return empty;
+	}
 
-    if (!url.includes("://")) {
-        // Its supposed to be an url but doesn't include a schema so let's prefix it with http://
-        url = 'http://' + url;
-    }
+	if (!url.includes("://")) {
+		// Its supposed to be an url but doesn't include a schema so let's prefix it with http://
+		url = "http://" + url;
+	}
 
-    let parsedUrl;
-    try {
-        parsedUrl = new URL(url);
-    } catch (e) {
-        return empty;
-    }
+	let parsedUrl;
+	try {
+		parsedUrl = new URL(url);
+	} catch (e) {
+		return empty;
+	}
 
-    return {
-        scheme: parsedUrl.protocol.slice(0,-1),
-        base_url: parsedUrl.protocol + '//' + parsedUrl.host,
-        authority: parsedUrl.host,
-        authority_without_www: parsedUrl.host ? parsedUrl.host.replace(/^(www\.)/, ""): parsedUrl.host, //remove leading www.
-        full_domain: parsedUrl.hostname,
-        full_domain_without_www: parsedUrl.hostname ? parsedUrl.hostname.replace(/^(www\.)/, "") : parsedUrl.hostname,
-        port: parsedUrl.port || null,
-        path: parsedUrl.pathname,
-        query: parsedUrl.search || null,
-        fragment: parsedUrl.hash ? parsedUrl.hash.substring(1) : null,
-    };
+	return {
+		scheme: parsedUrl.protocol.slice(0, -1),
+		base_url: parsedUrl.protocol + "//" + parsedUrl.host,
+		authority: parsedUrl.host,
+		authority_without_www: parsedUrl.host
+			? parsedUrl.host.replace(/^(www\.)/, "")
+			: parsedUrl.host, //remove leading www.
+		full_domain: parsedUrl.hostname,
+		full_domain_without_www: parsedUrl.hostname
+			? parsedUrl.hostname.replace(/^(www\.)/, "")
+			: parsedUrl.hostname,
+		port: parsedUrl.port || null,
+		path: parsedUrl.pathname,
+		query: parsedUrl.search || null,
+		fragment: parsedUrl.hash ? parsedUrl.hash.substring(1) : null,
+	};
 }
-
-
 
 /**
  * Returns weather we have a valid url or not
@@ -118,13 +120,13 @@ function parseUrl(url) {
  * @returns {boolean}
  */
 function isValidUrl(url) {
-    let parsedUrl
-    try {
-        parsedUrl = new URL(url);
-    } catch (_) {
-        return false;
-    }
-    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+	let parsedUrl;
+	try {
+		parsedUrl = new URL(url);
+	} catch (_) {
+		return false;
+	}
+	return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
 }
 
 /**
@@ -134,14 +136,13 @@ function isValidUrl(url) {
  * @returns {boolean}
  */
 function isValidHostname(hostname) {
-    try {
-        const url = new URL("https://" + hostname);
-        return url.hostname.toLocaleString() === hostname.toLocaleString();
-    } catch (e) {
-        return false;
-    }
+	try {
+		const url = new URL("https://" + hostname);
+		return url.hostname.toLocaleString() === hostname.toLocaleString();
+	} catch (e) {
+		return false;
+	}
 }
-
 
 /**
  * Check if `hostname` is *probably* a valid ip addr (either ipv6 or ipv4).
@@ -155,80 +156,79 @@ function isValidHostname(hostname) {
  * @returns {boolean}
  */
 function _isIP(hostname) {
+	function isProbablyIpv4(hostname) {
+		// Cannot be shorted than 1.1.1.1
+		if (hostname.length < 7) {
+			return false;
+		}
 
-    function isProbablyIpv4(hostname) {
-        // Cannot be shorted than 1.1.1.1
-        if (hostname.length < 7) {
-            return false;
-        }
+		// Cannot be longer than: 255.255.255.255
+		if (hostname.length > 15) {
+			return false;
+		}
 
-        // Cannot be longer than: 255.255.255.255
-        if (hostname.length > 15) {
-            return false;
-        }
+		let numberOfDots = 0;
 
-        let numberOfDots = 0;
+		for (let i = 0; i < hostname.length; i += 1) {
+			const code = hostname.charCodeAt(i);
 
-        for (let i = 0; i < hostname.length; i += 1) {
-            const code = hostname.charCodeAt(i);
+			if (code === 46 /* '.' */) {
+				numberOfDots += 1;
+			} else if (code < 48 /* '0' */ || code > 57 /* '9' */) {
+				return false;
+			}
+		}
 
-            if (code === 46 /* '.' */) {
-                numberOfDots += 1;
-            } else if (code < 48 /* '0' */ || code > 57 /* '9' */) {
-                return false;
-            }
-        }
+		return (
+			numberOfDots === 3 &&
+			hostname.charCodeAt(0) !== 46 /* '.' */ &&
+			hostname.charCodeAt(hostname.length - 1) !== 46 /* '.' */
+		);
+	}
 
-        return (
-            numberOfDots === 3 &&
-            hostname.charCodeAt(0) !== 46 /* '.' */ &&
-            hostname.charCodeAt(hostname.length - 1) !== 46 /* '.' */
-        );
-    }
+	function isProbablyIpv6(hostname) {
+		if (hostname.length < 3) {
+			return false;
+		}
 
-    function isProbablyIpv6(hostname) {
-        if (hostname.length < 3) {
-            return false;
-        }
+		let start = hostname.startsWith("[") ? 1 : 0;
+		let end = hostname.length;
 
-        let start = hostname.startsWith('[') ? 1 : 0;
-        let end = hostname.length;
+		if (hostname[end - 1] === "]") {
+			end -= 1;
+		}
 
-        if (hostname[end - 1] === ']') {
-            end -= 1;
-        }
+		// We only consider the maximum size of a normal IPV6. Note that this will
+		// fail on so-called "IPv4 mapped IPv6 addresses" but this is a corner-case
+		// and a proper validation library should be used for these.
+		if (end - start > 39) {
+			return false;
+		}
 
-        // We only consider the maximum size of a normal IPV6. Note that this will
-        // fail on so-called "IPv4 mapped IPv6 addresses" but this is a corner-case
-        // and a proper validation library should be used for these.
-        if (end - start > 39) {
-            return false;
-        }
+		let hasColon = false;
 
-        let hasColon = false;
+		for (; start < end; start += 1) {
+			const code = hostname.charCodeAt(start);
 
-        for (; start < end; start += 1) {
-            const code = hostname.charCodeAt(start);
+			if (code === 58 /* ':' */) {
+				hasColon = true;
+			} else if (
+				!(
+					(
+						(code >= 48 && code <= 57) || // 0-9
+						(code >= 97 && code <= 102) || // a-f
+						(code >= 65 && code <= 90)
+					) // A-F
+				)
+			) {
+				return false;
+			}
+		}
 
-            if (code === 58 /* ':' */) {
-                hasColon = true;
-            } else if (
-                !(
-                    (
-                        (code >= 48 && code <= 57) || // 0-9
-                        (code >= 97 && code <= 102) || // a-f
-                        (code >= 65 && code <= 90)
-                    ) // A-F
-                )
-            ) {
-                return false;
-            }
-        }
+		return hasColon;
+	}
 
-        return hasColon;
-    }
-
-    return isProbablyIpv6(hostname) || isProbablyIpv4(hostname);
+	return isProbablyIpv6(hostname) || isProbablyIpv4(hostname);
 }
 
 /**
@@ -238,7 +238,7 @@ function _isIP(hostname) {
  * @returns {boolean}
  */
 function isValidDomain(hostname) {
-    return isValidHostname(hostname) && !_isIP(hostname);
+	return isValidHostname(hostname) && !_isIP(hostname);
 }
 
 /**
@@ -248,7 +248,7 @@ function isValidDomain(hostname) {
  * @returns {boolean}
  */
 function isValidIp(hostname) {
-    return isValidHostname(hostname) && _isIP(hostname);
+	return isValidHostname(hostname) && _isIP(hostname);
 }
 
 /**
@@ -258,12 +258,12 @@ function isValidIp(hostname) {
  * @returns {boolean}
  */
 function isValidJson(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
+	try {
+		JSON.parse(str);
+	} catch (e) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -273,12 +273,16 @@ function isValidJson(str) {
  * @returns {boolean}
  */
 function isValidEmail(email) {
-    const splitted = email.split("@");
-    if (splitted.length !== 2 || splitted[0].length === 0 || splitted[1].length === 0) {
-        return false;
-    }
+	const splitted = email.split("@");
+	if (
+		splitted.length !== 2 ||
+		splitted[0].length === 0 ||
+		splitted[1].length === 0
+	) {
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 /**
@@ -288,12 +292,12 @@ function isValidEmail(email) {
  * @returns {boolean}
  */
 function isValidTotpCode(b32str) {
-    return true;
-    const pattern = new RegExp("^[A-Z2-7=]+$");
-    if (b32str.length % 2 !== 0 || !pattern.test(b32str)) {
-        return false;
-    }
-    return true;
+	return true;
+	const pattern = /^[A-Z2-7=]+$/;
+	if (b32str.length % 2 !== 0 || !pattern.test(b32str)) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -304,8 +308,8 @@ function isValidTotpCode(b32str) {
  * @returns {string} The full domain of the url
  */
 function getDomainWithoutWww(url) {
-    const parsed_url = parseUrl(url);
-    return parsed_url.full_domain_without_www;
+	const parsed_url = parseUrl(url);
+	return parsed_url.full_domain_without_www;
 }
 
 /**
@@ -316,30 +320,30 @@ function getDomainWithoutWww(url) {
  * @returns {boolean} Returns if array1 starts with array2
  */
 function arrayStartsWith(array1, array2) {
-    if (!(array1 instanceof Array)) {
-        return false;
-    }
-    if (!(array2 instanceof Array)) {
-        return false;
-    }
+	if (!(array1 instanceof Array)) {
+		return false;
+	}
+	if (!(array2 instanceof Array)) {
+		return false;
+	}
 
-    if (array1.length < array2.length) {
-        return false;
-    }
+	if (array1.length < array2.length) {
+		return false;
+	}
 
-    for (let i = 0; i < array1.length; i++) {
-        if (i === array2.length) {
-            return true;
-        }
-        if (array1[i] instanceof Array && array2[i] instanceof Array) {
-            if (!array1[i].equals(array2[i])) {
-                return false;
-            }
-        } else if (array1[i] !== array2[i]) {
-            return false;
-        }
-    }
-    return true;
+	for (let i = 0; i < array1.length; i++) {
+		if (i === array2.length) {
+			return true;
+		}
+		if (array1[i] instanceof Array && array2[i] instanceof Array) {
+			if (!array1[i].equals(array2[i])) {
+				return false;
+			}
+		} else if (array1[i] !== array2[i]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
@@ -349,13 +353,13 @@ function arrayStartsWith(array1, array2) {
  * @param {array} list The list object we want to fill
  */
 function createList(obj, list) {
-    let i;
-    for (i = 0; obj.items && i < obj.items.length; i++) {
-        list.push(obj.items[i]);
-    }
-    for (i = 0; obj.folders && i < obj.folders.length; i++) {
-        createList(obj.folders[i], list);
-    }
+	let i;
+	for (i = 0; obj.items && i < obj.items.length; i++) {
+		list.push(obj.items[i]);
+	}
+	for (i = 0; obj.folders && i < obj.folders.length; i++) {
+		createList(obj.folders[i], list);
+	}
 }
 
 /**
@@ -366,7 +370,7 @@ function createList(obj, list) {
  * @returns {*} Returns a duplicate of object
  */
 function duplicateObject(obj) {
-    return JSON.parse(JSON.stringify(obj));
+	return JSON.parse(JSON.stringify(obj));
 }
 
 /**
@@ -377,11 +381,13 @@ function duplicateObject(obj) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameStart(username, forbidden_chars) {
-    for (let i = 0; i < forbidden_chars.length; i++) {
-        if (username.substring(0, forbidden_chars[i].length) === forbidden_chars[i]) {
-            return 'Usernames may not start with "' + forbidden_chars[i] + '"';
-        }
-    }
+	for (let i = 0; i < forbidden_chars.length; i++) {
+		if (
+			username.substring(0, forbidden_chars[i].length) === forbidden_chars[i]
+		) {
+			return 'Usernames may not start with "' + forbidden_chars[i] + '"';
+		}
+	}
 }
 
 /**
@@ -392,11 +398,14 @@ function validateUsernameStart(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameEnd(username, forbidden_chars) {
-    for (let i = 0; i < forbidden_chars.length; i++) {
-        if (username.substring(username.length - forbidden_chars[i].length) === forbidden_chars[i]) {
-            return 'Usernames may not end with "' + forbidden_chars[i] + '"';
-        }
-    }
+	for (let i = 0; i < forbidden_chars.length; i++) {
+		if (
+			username.substring(username.length - forbidden_chars[i].length) ===
+			forbidden_chars[i]
+		) {
+			return 'Usernames may not end with "' + forbidden_chars[i] + '"';
+		}
+	}
 }
 
 /**
@@ -407,11 +416,11 @@ function validateUsernameEnd(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameContain(username, forbidden_chars) {
-    for (let i = 0; i < forbidden_chars.length; i++) {
-        if (username.indexOf(forbidden_chars[i]) !== -1) {
-            return 'Usernames may not contain "' + forbidden_chars[i] + '"';
-        }
-    }
+	for (let i = 0; i < forbidden_chars.length; i++) {
+		if (username.indexOf(forbidden_chars[i]) !== -1) {
+			return 'Usernames may not contain "' + forbidden_chars[i] + '"';
+		}
+	}
 }
 
 /**
@@ -422,11 +431,11 @@ function validateUsernameContain(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateGroupNameContain(group_name, forbidden_chars) {
-    for (let i = 0; i < forbidden_chars.length; i++) {
-        if (group_name.indexOf(forbidden_chars[i]) !== -1) {
-            return 'Group name may not contain "' + forbidden_chars[i] + '"';
-        }
-    }
+	for (let i = 0; i < forbidden_chars.length; i++) {
+		if (group_name.indexOf(forbidden_chars[i]) !== -1) {
+			return 'Group name may not contain "' + forbidden_chars[i] + '"';
+		}
+	}
 }
 
 /**
@@ -437,11 +446,11 @@ function validateGroupNameContain(group_name, forbidden_chars) {
  * @returns {string} The full username
  */
 function formFullUsername(username, domain) {
-    if (username.indexOf("@") === -1) {
-        return username + "@" + domain;
-    } else {
-        return username;
-    }
+	if (username.indexOf("@") === -1) {
+		return username + "@" + domain;
+	} else {
+		return username;
+	}
 }
 
 /**
@@ -453,35 +462,35 @@ function formFullUsername(username, domain) {
  * @returns {null|string} Returns true or a string with the error
  */
 function isValidUsername(username) {
-    const res = username.split("@");
-    username = res[0];
+	const res = username.split("@");
+	username = res[0];
 
-    const USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
-    let error;
-    if (!USERNAME_REGEXP.test(username)) {
-        return "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS";
-    }
+	const USERNAME_REGEXP = /^[a-z0-9.-]*$/i;
+	let error;
+	if (!USERNAME_REGEXP.test(username)) {
+		return "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS";
+	}
 
-    if (username.length < 2) {
-        return "USERNAME_VALIDATION_NAME_TOO_SHORT";
-    }
+	if (username.length < 2) {
+		return "USERNAME_VALIDATION_NAME_TOO_SHORT";
+	}
 
-    error = validateUsernameStart(username, [".", "-"]);
-    if (error) {
-        return error;
-    }
+	error = validateUsernameStart(username, [".", "-"]);
+	if (error) {
+		return error;
+	}
 
-    error = validateUsernameEnd(username, [".", "-"]);
-    if (error) {
-        return error;
-    }
+	error = validateUsernameEnd(username, [".", "-"]);
+	if (error) {
+		return error;
+	}
 
-    error = validateUsernameContain(username, ["..", "--", ".-", "-."]);
-    if (error) {
-        return error;
-    }
+	error = validateUsernameContain(username, ["..", "--", ".-", "-."]);
+	if (error) {
+		return error;
+	}
 
-    return null;
+	return null;
 }
 
 /**
@@ -492,18 +501,18 @@ function isValidUsername(username) {
  * @returns {boolean|string} Returns true or a string with the error
  */
 function isValidGroupName(group_name) {
-    let error;
+	let error;
 
-    if (group_name.length < 3) {
-        return "GROUP_NAME_TOO_SHORT";
-    }
+	if (group_name.length < 3) {
+		return "GROUP_NAME_TOO_SHORT";
+	}
 
-    error = validateGroupNameContain(group_name, ["@"]);
-    if (error) {
-        return error;
-    }
+	error = validateGroupNameContain(group_name, ["@"]);
+	if (error) {
+		return error;
+	}
 
-    return true;
+	return true;
 }
 
 /**
@@ -512,7 +521,7 @@ function isValidGroupName(group_name) {
  * @param {string} some_string A string that could be a password
  */
 function hasNumber(some_string) {
-    return /\d/.test(some_string);
+	return /\d/.test(some_string);
 }
 
 /**
@@ -521,7 +530,7 @@ function hasNumber(some_string) {
  * @param {string} some_string A string that could be a password
  */
 function hasUppercaseLetter(some_string) {
-    return /[A-Z]/.test(some_string);
+	return /[A-Z]/.test(some_string);
 }
 
 /**
@@ -530,7 +539,7 @@ function hasUppercaseLetter(some_string) {
  * @param {string} some_string A string that could be a password
  */
 function hasLowercaseLetter(some_string) {
-    return /[a-z]/.test(some_string);
+	return /[a-z]/.test(some_string);
 }
 
 /**
@@ -539,7 +548,7 @@ function hasLowercaseLetter(some_string) {
  * @param {string} some_string A string that could be a password
  */
 function hasSpecialCharacter(some_string) {
-    return /[ !@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?]/.test(some_string);
+	return /[ !@#$%^&*§()_+\-=[\]{};':"\\|,.<>/?]/.test(some_string);
 }
 
 /**
@@ -554,43 +563,47 @@ function hasSpecialCharacter(some_string) {
  * @returns {string|null} Returns a string with the error or null
  */
 function isValidPassword(password, password2, min_length, min_complexity) {
-    if (typeof min_length === "undefined") {
-        min_length = 14;
-    }
-    if (typeof min_complexity === "undefined") {
-        min_complexity = 2;
-    }
+	if (typeof min_length === "undefined") {
+		min_length = 14;
+	}
+	if (typeof min_complexity === "undefined") {
+		min_complexity = 2;
+	}
 
-    if (password.length < min_length) {
-        return i18n.t("PASSWORD_TOO_SHORT_MIN_REQUIRED", {min_password_length: min_length});
-    }
+	if (password.length < min_length) {
+		return i18n.t("PASSWORD_TOO_SHORT_MIN_REQUIRED", {
+			min_password_length: min_length,
+		});
+	}
 
-    if (password !== password2) {
-        return i18n.t("PASSWORDS_DONT_MATCH");
-    }
+	if (password !== password2) {
+		return i18n.t("PASSWORDS_DONT_MATCH");
+	}
 
-    if (min_complexity > 0) {
-        let complexity = 0;
+	if (min_complexity > 0) {
+		let complexity = 0;
 
-        if (hasNumber(password)) {
-            complexity = complexity + 1;
-        }
-        if (hasUppercaseLetter(password)) {
-            complexity = complexity + 1;
-        }
-        if (hasLowercaseLetter(password)) {
-            complexity = complexity + 1;
-        }
-        if (hasSpecialCharacter(password)) {
-            complexity = complexity + 1;
-        }
+		if (hasNumber(password)) {
+			complexity = complexity + 1;
+		}
+		if (hasUppercaseLetter(password)) {
+			complexity = complexity + 1;
+		}
+		if (hasLowercaseLetter(password)) {
+			complexity = complexity + 1;
+		}
+		if (hasSpecialCharacter(password)) {
+			complexity = complexity + 1;
+		}
 
-        if (complexity < min_complexity) {
-            return i18n.t("PASSWORD_NOT_COMPLEX_ENOUGH_MIN_REQUIRED", {character_groups: min_complexity});
-        }
-    }
+		if (complexity < min_complexity) {
+			return i18n.t("PASSWORD_NOT_COMPLEX_ENOUGH_MIN_REQUIRED", {
+				character_groups: min_complexity,
+			});
+		}
+	}
 
-    return null;
+	return null;
 }
 
 /**
@@ -602,15 +615,15 @@ function isValidPassword(password, password2, min_length, min_complexity) {
  * @returns {Array} Returns the chunks with length "len" as array
  */
 function splitStringInChunks(str, len) {
-    const size = Math.ceil(str.length / len);
-    const chunks = new Array(size);
-    let offset = 0;
+	const size = Math.ceil(str.length / len);
+	const chunks = new Array(size);
+	let offset = 0;
 
-    for (let i = 0; i < size; ++i, offset += len) {
-        chunks[i] = str.substring(offset, offset + len);
-    }
+	for (let i = 0; i < size; ++i, offset += len) {
+		chunks[i] = str.substring(offset, offset + len);
+	}
 
-    return chunks;
+	return chunks;
 }
 
 /**
@@ -621,19 +634,17 @@ function splitStringInChunks(str, len) {
  * @param {function|undefined} [cmp_fct] (optional) Compare function
  */
 function removeFromArray(array, search, cmp_fct) {
-    if (!array) {
-        return;
-    }
-    if (typeof cmp_fct === "undefined") {
-        cmp_fct = function (a, b) {
-            return a === b;
-        };
-    }
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (cmp_fct(array[i], search)) {
-            array.splice(i, 1);
-        }
-    }
+	if (!array) {
+		return;
+	}
+	if (typeof cmp_fct === "undefined") {
+		cmp_fct = (a, b) => a === b;
+	}
+	for (let i = array.length - 1; i >= 0; i--) {
+		if (cmp_fct(array[i], search)) {
+			array.splice(i, 1);
+		}
+	}
 }
 
 /**
@@ -645,12 +656,12 @@ function removeFromArray(array, search, cmp_fct) {
  * @returns {boolean} Whether the string ends with the suffix or not
  */
 function endsWith(to_test, suffix) {
-    return (
-        typeof to_test !== "undefined" &&
-        typeof suffix !== "undefined" &&
-        suffix !== "" &&
-        to_test.indexOf(suffix, to_test.length - suffix.length) !== -1
-    );
+	return (
+		typeof to_test !== "undefined" &&
+		typeof suffix !== "undefined" &&
+		suffix !== "" &&
+		to_test.indexOf(suffix, to_test.length - suffix.length) !== -1
+	);
 }
 
 /**
@@ -662,40 +673,40 @@ function endsWith(to_test, suffix) {
  * @returns {boolean} Whether the filter matches the authority
  */
 function isUrlFilterMatch(authority, urlFilter) {
-    if (!authority || !urlFilter) {
-        return false
-    }
-    authority = authority.toLowerCase();
-    urlFilter = urlFilter.toLowerCase();
-    
-    // Direct exact match
-    if (authority === urlFilter) {
-        return true;
-    }
-    
-    // Handle port wildcard patterns (e.g., "blub.com:*" or "*.blub.com:*")
-    if (urlFilter.endsWith(':*')) {
-        const filterWithoutPortWildcard = urlFilter.slice(0, -2); // Remove ":*"
-        const authorityParts = authority.split(':');
-        const authorityHost = authorityParts[0];
-        
-        // Check if the host part matches the filter (with potential domain wildcard)
-        if (filterWithoutPortWildcard.startsWith('*.')) {
-            // Pattern like "*.blub.com:*" should match "sub.blub.com:1234"
-            const domainPattern = filterWithoutPortWildcard.substring(1); // Remove "*"
-            return authorityHost.endsWith(domainPattern);
-        } else {
-            // Pattern like "blub.com:*" should match "blub.com:1234"
-            return authorityHost === filterWithoutPortWildcard;
-        }
-    }
-    
-    // Handle domain wildcard patterns (existing logic for "*.example.com")
-    if (urlFilter.startsWith('*.')) {
-        return authority.endsWith(urlFilter.substring(1));
-    }
-    
-    return false;
+	if (!authority || !urlFilter) {
+		return false;
+	}
+	authority = authority.toLowerCase();
+	urlFilter = urlFilter.toLowerCase();
+
+	// Direct exact match
+	if (authority === urlFilter) {
+		return true;
+	}
+
+	// Handle port wildcard patterns (e.g., "blub.com:*" or "*.blub.com:*")
+	if (urlFilter.endsWith(":*")) {
+		const filterWithoutPortWildcard = urlFilter.slice(0, -2); // Remove ":*"
+		const authorityParts = authority.split(":");
+		const authorityHost = authorityParts[0];
+
+		// Check if the host part matches the filter (with potential domain wildcard)
+		if (filterWithoutPortWildcard.startsWith("*.")) {
+			// Pattern like "*.blub.com:*" should match "sub.blub.com:1234"
+			const domainPattern = filterWithoutPortWildcard.substring(1); // Remove "*"
+			return authorityHost.endsWith(domainPattern);
+		} else {
+			// Pattern like "blub.com:*" should match "blub.com:1234"
+			return authorityHost === filterWithoutPortWildcard;
+		}
+	}
+
+	// Handle domain wildcard patterns (existing logic for "*.example.com")
+	if (urlFilter.startsWith("*.")) {
+		return authority.endsWith(urlFilter.substring(1));
+	}
+
+	return false;
 }
 
 /**
@@ -704,80 +715,121 @@ function isUrlFilterMatch(authority, urlFilter) {
  * @param {string} test Testable string
  */
 function getPasswordFilter(test) {
-    const searchStrings = test.toLowerCase().split(" ");
+	const searchStrings = test.toLowerCase().split(" ");
 
-    function filter(datastore_entry, additionalInfo) {
-        let containCounter = 0;
-        for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
-            if (typeof datastore_entry.name === "undefined") {
-                continue;
-            }
-            if (datastore_entry.hasOwnProperty("deleted") && datastore_entry["deleted"]) {
-                continue;
-            }
-            if (
-                datastore_entry.hasOwnProperty("name") &&
-                datastore_entry["name"] &&
-                datastore_entry["name"].toLowerCase().indexOf(searchStrings[ii]) > -1
-            ) {
-                containCounter++;
-            } else if (
-                datastore_entry.hasOwnProperty("description") &&
-                datastore_entry["description"] &&
-                datastore_entry["description"].toLowerCase().indexOf(searchStrings[ii]) > -1
-            ) {
-                containCounter++;
-            } else  if (
-                additionalInfo &&
-                additionalInfo.toLowerCase().indexOf(searchStrings[ii]) > -1
-            ) {
-                containCounter++;
-            } else if (
-                datastore_entry.hasOwnProperty("tags") &&
-                datastore_entry["tags"] &&
-                datastore_entry["tags"].some(tag => tag.toLowerCase().includes(searchStrings[ii]))
-            ) {
-                containCounter++;
-            } else  if (
-                datastore_entry.hasOwnProperty("urlfilter") &&
-                datastore_entry["urlfilter"] &&
-                datastore_entry["urlfilter"].toLowerCase().indexOf(searchStrings[ii]) > -1
-            ) {
-                containCounter++;
-            } else if (datastore_entry.hasOwnProperty("id") && datastore_entry["id"] === searchStrings[ii]) {
-                containCounter++;
-            } else if (
-                datastore_entry.hasOwnProperty("secret_id") &&
-                datastore_entry["secret_id"] === searchStrings[ii]
-            ) {
-                containCounter++;
-            } else if (datastore_entry.hasOwnProperty("file_id") && datastore_entry["file_id"] === searchStrings[ii]) {
-                containCounter++;
-            } else if (
-                datastore_entry.hasOwnProperty("share_id") &&
-                datastore_entry["share_id"] === searchStrings[ii]
-            ) {
-                containCounter++;
-            }
-        }
-        return containCounter === searchStrings.length;
-    }
+	function filter(datastore_entry, additionalInfo) {
+		let containCounter = 0;
+		for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
+			if (typeof datastore_entry.name === "undefined") {
+				continue;
+			}
+			if (
+				Object.hasOwn(datastore_entry, "deleted") &&
+				datastore_entry["deleted"]
+			) {
+				continue;
+			}
+			if (
+				Object.hasOwn(datastore_entry, "name") &&
+				datastore_entry["name"] &&
+				datastore_entry["name"].toLowerCase().indexOf(searchStrings[ii]) > -1
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "description") &&
+				datastore_entry["description"] &&
+				datastore_entry["description"]
+					.toLowerCase()
+					.indexOf(searchStrings[ii]) > -1
+			) {
+				containCounter++;
+			} else if (
+				additionalInfo &&
+				additionalInfo.toLowerCase().indexOf(searchStrings[ii]) > -1
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "tags") &&
+				datastore_entry["tags"] &&
+				datastore_entry["tags"].some((tag) =>
+					tag.toLowerCase().includes(searchStrings[ii]),
+				)
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "urlfilter") &&
+				datastore_entry["urlfilter"] &&
+				datastore_entry["urlfilter"].toLowerCase().indexOf(searchStrings[ii]) >
+					-1
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "id") &&
+				datastore_entry["id"] === searchStrings[ii]
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "secret_id") &&
+				datastore_entry["secret_id"] === searchStrings[ii]
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "file_id") &&
+				datastore_entry["file_id"] === searchStrings[ii]
+			) {
+				containCounter++;
+			} else if (
+				Object.hasOwn(datastore_entry, "share_id") &&
+				datastore_entry["share_id"] === searchStrings[ii]
+			) {
+				containCounter++;
+			}
+		}
+		return containCounter === searchStrings.length;
+	}
 
-    return filter;
+	return filter;
 }
 
 /**
  * Hardcoded domain synonym groups for buildDomainSynonymMap
  */
 const HARDCODED_DOMAIN_SYNONYMS = [
-    ['microsoft.com', 'live.com', 'outlook.com', 'office.com', '*.live.com'],
-    ['google.com', 'youtube.com', 'gmail.com'],
-    ['*.ebay.com', '*.ebay.de', '*.ebay.co.uk', '*.ebay.com.au'],
-    ['amazon.com', 'amazon.ca', 'amazon.co.uk',  'amazon.co.jp', 'amazon.de', 'amazon.fr', 'amazon.it'],
-    ['apple.com', 'icloud.com', 'me.com', 'account.apple.com', '*.store.apple.com', '*.apple.com'],
-    ['steamcommunity.com', 'store.steampowered.com', 'help.steampowered.com'],
-    ['stackoverflow.com', 'stackexchange.com', 'serverfault.com', 'superuser.com', 'askubuntu.com'],
-    ['themeforest.net', 'codecanyon.net', 'videohive.net', 'audiojungle.net', 'graphicriver.net'],
+	["microsoft.com", "live.com", "outlook.com", "office.com", "*.live.com"],
+	["google.com", "youtube.com", "gmail.com"],
+	["*.ebay.com", "*.ebay.de", "*.ebay.co.uk", "*.ebay.com.au"],
+	[
+		"amazon.com",
+		"amazon.ca",
+		"amazon.co.uk",
+		"amazon.co.jp",
+		"amazon.de",
+		"amazon.fr",
+		"amazon.it",
+	],
+	[
+		"apple.com",
+		"icloud.com",
+		"me.com",
+		"account.apple.com",
+		"*.store.apple.com",
+		"*.apple.com",
+	],
+	["steamcommunity.com", "store.steampowered.com", "help.steampowered.com"],
+	[
+		"stackoverflow.com",
+		"stackexchange.com",
+		"serverfault.com",
+		"superuser.com",
+		"askubuntu.com",
+	],
+	[
+		"themeforest.net",
+		"codecanyon.net",
+		"videohive.net",
+		"audiojungle.net",
+		"graphicriver.net",
+	],
 ];
 
 /**
@@ -787,12 +839,14 @@ const HARDCODED_DOMAIN_SYNONYMS = [
  * @returns {Array<Array<string>>} Normalized groups
  */
 function normalizeSynonymGroups(groups) {
-    if (!Array.isArray(groups)) {
-        return [];
-    }
-    return groups
-        .filter(group => Array.isArray(group) && group.length > 0)
-        .map(group => group.map(domain => domain.toLowerCase().trim()).filter(d => d));
+	if (!Array.isArray(groups)) {
+		return [];
+	}
+	return groups
+		.filter((group) => Array.isArray(group) && group.length > 0)
+		.map((group) =>
+			group.map((domain) => domain.toLowerCase().trim()).filter((d) => d),
+		);
 }
 
 /**
@@ -804,57 +858,57 @@ function normalizeSynonymGroups(groups) {
  * @returns {Object} Plain object mapping domains to their synonym groups
  */
 function buildDomainSynonymMap(serverSynonyms = [], customSynonyms = []) {
-    const domainToGroupMap = {};
+	const domainToGroupMap = {};
 
-    const allGroups = [
-        ...HARDCODED_DOMAIN_SYNONYMS,
-        ...normalizeSynonymGroups(serverSynonyms),
-        ...normalizeSynonymGroups(customSynonyms)
-    ];
+	const allGroups = [
+		...HARDCODED_DOMAIN_SYNONYMS,
+		...normalizeSynonymGroups(serverSynonyms),
+		...normalizeSynonymGroups(customSynonyms),
+	];
 
-    allGroups.forEach(group => {
-        group.forEach(domain => {
-            const normalizedDomain = domain.toLowerCase();
+	allGroups.forEach((group) => {
+		group.forEach((domain) => {
+			const normalizedDomain = domain.toLowerCase();
 
-            if (domainToGroupMap[normalizedDomain]) {
-                const existingGroup = domainToGroupMap[normalizedDomain];
-                const mergedGroup = [...new Set([...existingGroup, ...group])];
-                mergedGroup.forEach(d => {
-                    domainToGroupMap[d.toLowerCase()] = mergedGroup;
-                });
-            } else {
-                domainToGroupMap[normalizedDomain] = group;
-            }
-        });
-    });
+			if (domainToGroupMap[normalizedDomain]) {
+				const existingGroup = domainToGroupMap[normalizedDomain];
+				const mergedGroup = [...new Set([...existingGroup, ...group])];
+				mergedGroup.forEach((d) => {
+					domainToGroupMap[d.toLowerCase()] = mergedGroup;
+				});
+			} else {
+				domainToGroupMap[normalizedDomain] = group;
+			}
+		});
+	});
 
-    return domainToGroupMap;
+	return domainToGroupMap;
 }
 
 const helperService = {
-    parseUrl: parseUrl,
-    isValidUrl: isValidUrl,
-    isValidJson: isValidJson,
-    isValidEmail: isValidEmail,
-    isValidTotpCode: isValidTotpCode,
-    getDomainWithoutWww: getDomainWithoutWww,
-    arrayStartsWith: arrayStartsWith,
-    createList: createList,
-    duplicateObject: duplicateObject,
-    formFullUsername: formFullUsername,
-    isValidUsername: isValidUsername,
-    isValidGroupName: isValidGroupName,
-    isValidPassword: isValidPassword,
-    splitStringInChunks: splitStringInChunks,
-    removeFromArray: removeFromArray,
-    endsWith: endsWith,
-    getPasswordFilter: getPasswordFilter,
-    isUrlFilterMatch: isUrlFilterMatch,
-    isValidHostname: isValidHostname,
-    isValidDomain: isValidDomain,
-    isValidIp: isValidIp,
-    buildDomainSynonymMap: buildDomainSynonymMap,
-    getHardcodedDomainSynonyms: () => HARDCODED_DOMAIN_SYNONYMS,
+	parseUrl: parseUrl,
+	isValidUrl: isValidUrl,
+	isValidJson: isValidJson,
+	isValidEmail: isValidEmail,
+	isValidTotpCode: isValidTotpCode,
+	getDomainWithoutWww: getDomainWithoutWww,
+	arrayStartsWith: arrayStartsWith,
+	createList: createList,
+	duplicateObject: duplicateObject,
+	formFullUsername: formFullUsername,
+	isValidUsername: isValidUsername,
+	isValidGroupName: isValidGroupName,
+	isValidPassword: isValidPassword,
+	splitStringInChunks: splitStringInChunks,
+	removeFromArray: removeFromArray,
+	endsWith: endsWith,
+	getPasswordFilter: getPasswordFilter,
+	isUrlFilterMatch: isUrlFilterMatch,
+	isValidHostname: isValidHostname,
+	isValidDomain: isValidDomain,
+	isValidIp: isValidIp,
+	buildDomainSynonymMap: buildDomainSynonymMap,
+	getHardcodedDomainSynonyms: () => HARDCODED_DOMAIN_SYNONYMS,
 };
 
 export default helperService;

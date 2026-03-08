@@ -2,11 +2,11 @@
  * linkShare collects all functions to edit / update / create link shares and to work with them.
  */
 
-import { getStore } from "./store";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import fileTransfer from "./file-transfer";
 import helper from "./helper";
+import { getStore } from "./store";
 
 // /**
 //  * Returns one link share of this user
@@ -40,17 +40,17 @@ import helper from "./helper";
  * @returns {Promise} Promise with the link shares
  */
 function readLinkShares() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient.readLinkShare(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient
+		.readLinkShare(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -62,27 +62,34 @@ function readLinkShares() {
  * @returns {Object} Promise with the secret
  */
 function readSecretWithLinkShare(encryptedSecret, item) {
-    // normal secret
-    const data = JSON.parse(
-        cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key)
-    );
+	// normal secret
+	const data = JSON.parse(
+		cryptoLibrary.decryptData(
+			encryptedSecret.secret_data,
+			encryptedSecret.secret_data_nonce,
+			item.secret_key,
+		),
+	);
 
-    const newItem = helper.duplicateObject(item);
+	const newItem = helper.duplicateObject(item);
 
-    let write = false;
-    if (encryptedSecret.hasOwnProperty('allow_write') && encryptedSecret.allow_write) {
-        write = true;
-    }
-    newItem["share_rights"] = {
-        read: true,
-        write: write,
-        grant: false,
-        delete: false,
-    };
-    return {
-        item: newItem,
-        data: data,
-    };
+	let write = false;
+	if (
+		Object.hasOwn(encryptedSecret, "allow_write") &&
+		encryptedSecret.allow_write
+	) {
+		write = true;
+	}
+	newItem["share_rights"] = {
+		read: true,
+		write: write,
+		grant: false,
+		delete: false,
+	};
+	return {
+		item: newItem,
+		data: data,
+	};
 }
 
 /**
@@ -94,7 +101,11 @@ function readSecretWithLinkShare(encryptedSecret, item) {
  * @returns {Promise} Promise with the secret
  */
 function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
-    return fileTransfer.downloadFile(shareLinkData, encryptedFileMeta["shards"], encryptedFileMeta);
+	return fileTransfer.downloadFile(
+		shareLinkData,
+		encryptedFileMeta["shards"],
+		encryptedFileMeta,
+	);
 }
 
 /**
@@ -107,24 +118,30 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  * @returns {Promise} Promise with the secret
  */
 function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
-    const onSuccess = function (result) {
-        const share_link_data = JSON.parse(
-            cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret)
-        );
+	const onSuccess = (result) => {
+		const share_link_data = JSON.parse(
+			cryptoLibrary.decryptData(
+				result.data.node,
+				result.data.node_nonce,
+				linkShareSecret,
+			),
+		);
 
-        if (share_link_data.type === "file") {
-            return readFileWithLinkShare(result.data, share_link_data);
-        } else {
-            // normal secret
-            return readSecretWithLinkShare(result.data, share_link_data);
-        }
-    };
-    const onError = function (result) {
-        console.log(result);
-        return Promise.reject(result.data);
-    };
+		if (share_link_data.type === "file") {
+			return readFileWithLinkShare(result.data, share_link_data);
+		} else {
+			// normal secret
+			return readSecretWithLinkShare(result.data, share_link_data);
+		}
+	};
+	const onError = (result) => {
+		console.log(result);
+		return Promise.reject(result.data);
+	};
 
-    return apiClient.linkShareAccessRead(linkShareId, passphrase).then(onSuccess, onError);
+	return apiClient
+		.linkShareAccessRead(linkShareId, passphrase)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -138,21 +155,26 @@ function linkShareAccessRead(linkShareId, linkShareSecret, passphrase) {
  *
  * @returns {Promise} Promise with the secret
  */
-function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, content, passphrase) {
+function linkShareAccessWrite(
+	linkShareId,
+	linkShareSecret,
+	secretKey,
+	content,
+	passphrase,
+) {
+	const jsonContent = JSON.stringify(content);
 
-    const jsonContent = JSON.stringify(content);
+	const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
-    const c = cryptoLibrary.encryptData(jsonContent, secretKey);
+	const onSuccess = (result) => result.data;
+	const onError = (result) => {
+		console.log(result);
+		return Promise.reject(result.data);
+	};
 
-    const onSuccess = function (result) {
-        return result.data
-    };
-    const onError = function (result) {
-        console.log(result);
-        return Promise.reject(result.data);
-    };
-
-    return apiClient.linkShareAccessWrite(linkShareId, c.text, c.nonce, passphrase).then(onSuccess, onError);
+	return apiClient
+		.linkShareAccessWrite(linkShareId, c.text, c.nonce, passphrase)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -170,32 +192,38 @@ function linkShareAccessWrite(linkShareId, linkShareSecret, secretKey, content, 
  *
  * @returns {Promise} Promise with the new link_secret_id
  */
-function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowedReads, passphrase, validTill, allowWrite) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function createLinkShare(
+	secretId,
+	fileId,
+	node,
+	nodeNonce,
+	publicTitle,
+	allowedReads,
+	passphrase,
+	validTill,
+	allowWrite,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        return Promise.reject(result);
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => Promise.reject(result);
 
-    return apiClient
-        .createLinkShare(
-            token,
-            sessionSecretKey,
-            secretId,
-            fileId,
-            node,
-            nodeNonce,
-            publicTitle,
-            allowedReads,
-            passphrase,
-            validTill,
-            allowWrite,
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createLinkShare(
+			token,
+			sessionSecretKey,
+			secretId,
+			fileId,
+			node,
+			nodeNonce,
+			publicTitle,
+			allowedReads,
+			passphrase,
+			validTill,
+			allowWrite,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -209,20 +237,30 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
  *
  * @returns {Promise} Promise with the new id
  */
-function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, validTill) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function updateLinkShare(
+	linkShareId,
+	publicTitle,
+	allowedReads,
+	passphrase,
+	validTill,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        return Promise.reject(result.data);
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => Promise.reject(result.data);
 
-    return apiClient
-        .updateLinkShare(token, sessionSecretKey, linkShareId, publicTitle, allowedReads, passphrase, validTill)
-        .then(onSuccess, onError);
+	return apiClient
+		.updateLinkShare(
+			token,
+			sessionSecretKey,
+			linkShareId,
+			publicTitle,
+			allowedReads,
+			passphrase,
+			validTill,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -233,26 +271,26 @@ function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, val
  * @returns {Promise} Promise
  */
 function deleteLinkShare(linkShareId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => {
+		// pass
+	};
 
-    return apiClient.deleteLinkShare(token, sessionSecretKey, linkShareId).then(onSuccess, onError);
+	return apiClient
+		.deleteLinkShare(token, sessionSecretKey, linkShareId)
+		.then(onSuccess, onError);
 }
 
 const linkShareService = {
-    //readLinkShare: readLinkShare,
-    readLinkShares: readLinkShares,
-    linkShareAccessRead: linkShareAccessRead,
-    linkShareAccessWrite: linkShareAccessWrite,
-    createLinkShare: createLinkShare,
-    updateLinkShare: updateLinkShare,
-    deleteLinkShare: deleteLinkShare,
+	//readLinkShare: readLinkShare,
+	readLinkShares: readLinkShares,
+	linkShareAccessRead: linkShareAccessRead,
+	linkShareAccessWrite: linkShareAccessWrite,
+	createLinkShare: createLinkShare,
+	updateLinkShare: updateLinkShare,
+	deleteLinkShare: deleteLinkShare,
 };
 export default linkShareService;

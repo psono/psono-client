@@ -3,27 +3,22 @@
  */
 
 function call(signedUrl, method, endpoint, data, headers) {
+	const req = {
+		method: method,
+		body: data,
+	};
 
-    const req = {
-        method: method,
-        body: data,
-    };
+	if (headers) {
+		req.headers = headers;
+	}
 
-    if (headers) {
-        req.headers = headers;
-    }
+	return new Promise((resolve, reject) => {
+		const onSuccess = (data) => resolve(data);
 
-    return new Promise(function (resolve, reject) {
-        const onSuccess = function (data) {
-            return resolve(data);
-        };
+		const onError = (data) => reject(data);
 
-        const onError = function (data) {
-            return reject(data);
-        };
-
-        fetch(signedUrl + endpoint, req).then(onSuccess, onError);
-    });
+		fetch(signedUrl + endpoint, req).then(onSuccess, onError);
+	});
 }
 
 /**
@@ -36,19 +31,19 @@ function call(signedUrl, method, endpoint, data, headers) {
  * @returns {Promise} promise
  */
 function upload(signedUrl, fields, chunk) {
-    const endpoint = ""; // the signed url already has everything
-    const method = "POST";
-    const data = new FormData();
-    for (let field_name in fields) {
-        if (!fields.hasOwnProperty(field_name)) {
-            continue;
-        }
-        data.append(field_name, fields[field_name]);
-    }
-    data.append("file", chunk);
-    const headers = {};
+	const endpoint = ""; // the signed url already has everything
+	const method = "POST";
+	const data = new FormData();
+	for (const field_name in fields) {
+		if (!Object.hasOwn(fields, field_name)) {
+			continue;
+		}
+		data.append(field_name, fields[field_name]);
+	}
+	data.append("file", chunk);
+	const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers);
+	return call(signedUrl, method, endpoint, data, headers);
 }
 
 /**
@@ -59,27 +54,23 @@ function upload(signedUrl, fields, chunk) {
  * @returns {Promise} promise with the data
  */
 function download(signedUrl) {
-    const endpoint = ""; // the signed url already has everything
-    const method = "GET";
-    const data = null;
+	const endpoint = ""; // the signed url already has everything
+	const method = "GET";
+	const data = null;
 
-    const headers = {};
+	const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers).then(
-        async function (data) {
-            return {
-                data: await data.arrayBuffer()
-            };
-        },
-        function (data) {
-            return Promise.reject(data);
-        }
-    );
+	return call(signedUrl, method, endpoint, data, headers).then(
+		async (data) => ({
+			data: await data.arrayBuffer(),
+		}),
+		(data) => Promise.reject(data),
+	);
 }
 
 const apiOtherS3Service = {
-    upload: upload,
-    download: download,
+	upload: upload,
+	download: download,
 };
 
 export default apiOtherS3Service;

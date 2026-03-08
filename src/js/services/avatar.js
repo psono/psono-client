@@ -4,8 +4,7 @@
 import apiClient from "./api-client";
 import { getStore } from "./store";
 
-
-let avatarSingleton = {};
+const avatarSingleton = {};
 
 /**
  * Helper function that acts as a singleton to load the avatar data url.
@@ -13,11 +12,11 @@ let avatarSingleton = {};
  * @private
  */
 function readAvatarCached() {
-    const userId = getStore().getState().user.userId;
-    if (!avatarSingleton.hasOwnProperty(userId) || !avatarSingleton[userId]) {
-        avatarSingleton[userId] = _readAvatarCached();
-    }
-    return avatarSingleton[userId];
+	const userId = getStore().getState().user.userId;
+	if (!Object.hasOwn(avatarSingleton, userId) || !avatarSingleton[userId]) {
+		avatarSingleton[userId] = _readAvatarCached();
+	}
+	return avatarSingleton[userId];
 }
 
 /**
@@ -27,29 +26,29 @@ function readAvatarCached() {
  * @returns {Promise<unknown>}
  */
 async function imageUrlToDataUrl(imageUrl) {
-    let response;
-    try {
-        response = await fetch(imageUrl);
-    } catch (error) {
-        return;
-    }
-    if (!response.ok) {
-        return;
-    }
+	let response;
+	try {
+		response = await fetch(imageUrl);
+	} catch (error) {
+		return;
+	}
+	if (!response.ok) {
+		return;
+	}
 
-    let blob;
-    try {
-        blob = await response.blob();
-    } catch (error) {
-        return;
-    }
+	let blob;
+	try {
+		blob = await response.blob();
+	} catch (error) {
+		return;
+	}
 
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = () => resolve();
-        reader.readAsDataURL(blob);
-    });
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onloadend = () => resolve(reader.result);
+		reader.onerror = () => resolve();
+		reader.readAsDataURL(blob);
+	});
 }
 
 /**
@@ -58,17 +57,22 @@ async function imageUrlToDataUrl(imageUrl) {
  * @returns {Promise} Returns a list of avatars
  */
 async function _readAvatarCached() {
-    let avatars;
-    try {
-        avatars = await avatarService.readAvatars();
-    } catch (error) {
-        return
-    }
-    if (!avatars || avatars.length <= 0) {
-        return;
-    }
-    const path = "/avatar-image/" + getStore().getState().user.userId + "/" + avatars[0].id + "/";
-    return imageUrlToDataUrl(getStore().getState().server.url + path);
+	let avatars;
+	try {
+		avatars = await avatarService.readAvatars();
+	} catch (error) {
+		return;
+	}
+	if (!avatars || avatars.length <= 0) {
+		return;
+	}
+	const path =
+		"/avatar-image/" +
+		getStore().getState().user.userId +
+		"/" +
+		avatars[0].id +
+		"/";
+	return imageUrlToDataUrl(getStore().getState().server.url + path);
 }
 
 /**
@@ -78,18 +82,14 @@ async function _readAvatarCached() {
  * @returns {Promise} Returns a list of avatars
  */
 function readAvatars() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data.avatars;
-    };
+	const onSuccess = (data) => data.data.avatars;
 
-    const onError = function (error) {
-        return Promise.reject();
-    };
+	const onError = (error) => Promise.reject();
 
-    return apiClient.readAvatar(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient.readAvatar(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -101,29 +101,25 @@ function readAvatars() {
  * @returns {Promise} Returns whether the creation was successful or not
  */
 function createAvatar(mimeType, dataBase64) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        const userId = getStore().getState().user.userId;
-        if (avatarSingleton.hasOwnProperty(userId)) {
-            delete avatarSingleton[userId];
-        }
+	const onSuccess = (data) => {
+		const userId = getStore().getState().user.userId;
+		if (Object.hasOwn(avatarSingleton, userId)) {
+			delete avatarSingleton[userId];
+		}
 
-        return data.data;
-    };
+		return data.data;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient
-        .createAvatar(
-            token,
-            sessionSecretKey,
-            dataBase64,
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createAvatar(token, sessionSecretKey, dataBase64)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -134,29 +130,30 @@ function createAvatar(mimeType, dataBase64) {
  * @returns {Promise} Returns whether the delete was successful or not
  */
 function deleteAvatar(avatarId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        const userId = getStore().getState().user.userId;
-        if (avatarSingleton.hasOwnProperty(userId)) {
-            delete avatarSingleton[userId];
-        }
-        return data.data;
-    };
+	const onSuccess = (data) => {
+		const userId = getStore().getState().user.userId;
+		if (Object.hasOwn(avatarSingleton, userId)) {
+			delete avatarSingleton[userId];
+		}
+		return data.data;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.deleteAvatar(token, sessionSecretKey, avatarId).then(onSuccess, onError);
+	return apiClient
+		.deleteAvatar(token, sessionSecretKey, avatarId)
+		.then(onSuccess, onError);
 }
 
-
 const avatarService = {
-    readAvatarCached: readAvatarCached,
-    readAvatars: readAvatars,
-    createAvatar: createAvatar,
-    deleteAvatar: deleteAvatar,
+	readAvatarCached: readAvatarCached,
+	readAvatars: readAvatars,
+	createAvatar: createAvatar,
+	deleteAvatar: deleteAvatar,
 };
 export default avatarService;

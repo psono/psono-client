@@ -1,89 +1,88 @@
 {
-  "manifest_version": 3,
+	"manifest_version": 3,
 
-  "name": "Psono - Free Password Manager",
-  "short_name": "Psono",
-  "author": "Psono",
-  "description": "__MSG_appDesc__",
-  "default_locale": "en",
-  "version": "1.0.0",
-  "homepage_url":"https://psono.com/",
+	"name": "Psono - Free Password Manager",
+	"short_name": "Psono",
+	"author": "Psono",
+	"description": "__MSG_appDesc__",
+	"default_locale": "en",
+	"version": "1.0.0",
+	"homepage_url": "https://psono.com/",
 
-  "action": {
-    "default_icon": "data/img/icon-32-disabled.png",
-    "default_popup": "data/default_popup.html"
-  },
-  "permissions": [
-    "identity",
-    "storage",
-    "contextMenus",
-    "unlimitedStorage",
-    "privacy",
-    "notifications",
-    "tabs",
-    "clipboardWrite",
-    "webRequest",
-    "webRequestAuthProvider",
-    "offscreen"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
-  "storage": {
-    "managed_schema": "managed_storage.json"
-  },
-  "icons": {
-    "16": "data/img/icon-16.png",
-    "32": "data/img/icon-32.png",
-    "48": "data/img/icon-48.png",
-    "64": "data/img/icon-64.png",
-    "128": "data/img/icon-128.png"
-  },
-  "omnibox": {
-    "keyword": "pp"
-  },
-  "background": {
-    "service_worker": "data/js/background-chrome.js"
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "css": [
-        "data/css/contentscript.css",
-        "data/css/lib/cssreset-context-min.css"
-      ],
-      "js": [
-        "data/js/lib/uuid.js",
-        "data/js/extension/worker-content-script-base.js",
-        "data/js/extension/worker-content-script.js",
-        "data/js/extension/worker-content-script-oidc-saml.js",
-        "data/js/extension/worker-content-script-elster.js",
-        "data/js/extension/worker-content-script-fido2.js",
-        "data/js/extension/worker-content-script-pgp.js",
-        "data/js/extension/worker-content-script-notification-bar.js",
-        "data/js/content-script.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": true
-    }
-  ],
-  "options_page": "data/index.html#!/settings",
-  "web_accessible_resources": [{
-    "resources": [
-      "data/fonts/*.woff2",
-      "data/img/psono-encrypt.png",
-      "data/img/psono-decrypt.png",
-      "data/notification-bar.html",
-      "data/js/web-accessible.js"
-    ],
-    "matches": ["*://*/*"]
-  }],
-  "commands": {
-    "_execute_action": {
-      "suggested_key": {
-        "default": "Alt+P"
-      }
-    }
-  }
+	"action": {
+		"default_icon": "data/img/icon-32-disabled.png",
+		"default_popup": "data/default_popup.html"
+	},
+	"permissions": [
+		"identity",
+		"storage",
+		"contextMenus",
+		"unlimitedStorage",
+		"privacy",
+		"notifications",
+		"tabs",
+		"clipboardWrite",
+		"webRequest",
+		"webRequestAuthProvider",
+		"offscreen"
+	],
+	"host_permissions": ["http://*/*", "https://*/*"],
+	"storage": {
+		"managed_schema": "managed_storage.json"
+	},
+	"icons": {
+		"16": "data/img/icon-16.png",
+		"32": "data/img/icon-32.png",
+		"48": "data/img/icon-48.png",
+		"64": "data/img/icon-64.png",
+		"128": "data/img/icon-128.png"
+	},
+	"omnibox": {
+		"keyword": "pp"
+	},
+	"background": {
+		"service_worker": "data/js/background-chrome.js"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://*/*"],
+			"css": [
+				"data/css/contentscript.css",
+				"data/css/lib/cssreset-context-min.css"
+			],
+			"js": [
+				"data/js/lib/uuid.js",
+				"data/js/extension/worker-content-script-base.js",
+				"data/js/extension/worker-content-script.js",
+				"data/js/extension/worker-content-script-oidc-saml.js",
+				"data/js/extension/worker-content-script-elster.js",
+				"data/js/extension/worker-content-script-fido2.js",
+				"data/js/extension/worker-content-script-pgp.js",
+				"data/js/extension/worker-content-script-notification-bar.js",
+				"data/js/content-script.js"
+			],
+			"run_at": "document_start",
+			"all_frames": true
+		}
+	],
+	"options_page": "data/index.html#!/settings",
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"data/fonts/*.woff2",
+				"data/img/psono-encrypt.png",
+				"data/img/psono-decrypt.png",
+				"data/notification-bar.html",
+				"data/js/web-accessible.js"
+			],
+			"matches": ["*://*/*"]
+		}
+	],
+	"commands": {
+		"_execute_action": {
+			"suggested_key": {
+				"default": "Alt+P"
+			}
+		}
+	}
 }
