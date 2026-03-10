@@ -2,9 +2,10 @@
  * Service which handles the actual parsing of the exported JSON
  */
 
-const Papa = require('papaparse');
-import helperService from './helper';
-import cryptoLibrary from './crypto-library';
+const Papa = require("papaparse");
+
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
 
 let INDEX_URL = 0;
 let INDEX_USERNAME = 1;
@@ -21,22 +22,22 @@ let INDEX_TYPE = 5;
  * @returns {*} The secrets object
  */
 function identifyRows(line) {
-    for (let i = 0; i < line.length; i++) {
-        const column_description = line[i].toLowerCase();
-        if (column_description === "notes") {
-            INDEX_NOTES = i;
-        } else if(column_description === "password") {
-            INDEX_PASSWORD = i;
-        } else if(column_description === "title") {
-            INDEX_NAME = i;
-        } else if(column_description === "type") {
-            INDEX_TYPE = i;
-        } else if(column_description === "url") {
-            INDEX_URL = i;
-        } else if(column_description === "username") {
-            INDEX_USERNAME = i;
-        }
-    }
+	for (let i = 0; i < line.length; i++) {
+		const column_description = line[i].toLowerCase();
+		if (column_description === "notes") {
+			INDEX_NOTES = i;
+		} else if (column_description === "password") {
+			INDEX_PASSWORD = i;
+		} else if (column_description === "title") {
+			INDEX_NAME = i;
+		} else if (column_description === "type") {
+			INDEX_TYPE = i;
+		} else if (column_description === "url") {
+			INDEX_URL = i;
+		} else if (column_description === "username") {
+			INDEX_USERNAME = i;
+		}
+	}
 }
 
 /**
@@ -55,29 +56,29 @@ function identifyRows(line) {
  * @returns {string} Returns the appropriate type (note or website_password)
  */
 function getType(line) {
-    const type = line[INDEX_TYPE].toLowerCase();
-    if (type === 'secure note') {
-        return 'note'
-    }
-    if (type === 'identity') {
-        // we currently don't have "identities" with address and so on, so we map it to a note
-        return 'note';
-    }
-    if (type === 'password') {
-        return 'website_password';
-    }
-    if (type === 'login') {
-        return 'website_password';
-    }
-    if (type === 'credit card') {
-        // we currently don't have "credit cards", so we map it to a note
-        return 'note';
-    }
-    if (type === 'server') {
-        return 'application_password';
-    }
+	const type = line[INDEX_TYPE].toLowerCase();
+	if (type === "secure note") {
+		return "note";
+	}
+	if (type === "identity") {
+		// we currently don't have "identities" with address and so on, so we map it to a note
+		return "note";
+	}
+	if (type === "password") {
+		return "website_password";
+	}
+	if (type === "login") {
+		return "website_password";
+	}
+	if (type === "credit card") {
+		// we currently don't have "credit cards", so we map it to a note
+		return "note";
+	}
+	if (type === "server") {
+		return "application_password";
+	}
 
-    return 'note';
+	return "note";
 }
 
 /**
@@ -88,32 +89,31 @@ function getType(line) {
  * @returns {*} The note secret object
  */
 function transferIntoNote(line) {
+	let note_notes = "";
+	if (line[INDEX_USERNAME]) {
+		note_notes = note_notes + line[INDEX_USERNAME] + "\n";
+	}
+	if (line[INDEX_PASSWORD]) {
+		note_notes = note_notes + line[INDEX_PASSWORD] + "\n";
+	}
+	if (line[INDEX_URL]) {
+		note_notes = note_notes + line[INDEX_URL] + "\n";
+	}
+	if (line[INDEX_NOTES]) {
+		note_notes = note_notes + line[INDEX_NOTES] + "\n";
+	}
 
-    let note_notes = '';
-    if (line[INDEX_USERNAME]) {
-        note_notes = note_notes + line[INDEX_USERNAME] + "\n";
-    }
-    if (line[INDEX_PASSWORD]) {
-        note_notes = note_notes + line[INDEX_PASSWORD] + "\n";
-    }
-    if (line[INDEX_URL]) {
-        note_notes = note_notes + line[INDEX_URL] + "\n";
-    }
-    if (line[INDEX_NOTES]) {
-        note_notes = note_notes + line[INDEX_NOTES] + "\n";
-    }
+	if (!line[INDEX_NAME] && !note_notes) {
+		return null;
+	}
 
-    if (! line[INDEX_NAME] && ! note_notes) {
-        return null
-    }
-
-    return {
-        id : cryptoLibrary.generateUuid(),
-        type : "note",
-        name : line[INDEX_NAME],
-        note_title: line[INDEX_NAME],
-        note_notes: note_notes
-    }
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "note",
+		name: line[INDEX_NAME],
+		note_title: line[INDEX_NAME],
+		note_notes: note_notes,
+	};
 }
 
 /**
@@ -124,22 +124,21 @@ function transferIntoNote(line) {
  * @returns {*} The website_password secret object
  */
 function transferIntoWebsitePassword(line) {
+	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
-
-    return {
-        id : cryptoLibrary.generateUuid(),
-        type : "website_password",
-        name : line[INDEX_NAME],
-        "description" : line[INDEX_USERNAME],
-        "urlfilter" : parsed_url.authority || undefined,
-        "website_password_url_filter" : parsed_url.authority || undefined,
-        "website_password_password" : line[INDEX_PASSWORD],
-        "website_password_username" : line[INDEX_USERNAME],
-        "website_password_notes" : line[INDEX_NOTES],
-        "website_password_url" : line[INDEX_URL],
-        "website_password_title" : line[INDEX_NAME]
-    }
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "website_password",
+		name: line[INDEX_NAME],
+		description: line[INDEX_USERNAME],
+		urlfilter: parsed_url.authority || undefined,
+		website_password_url_filter: parsed_url.authority || undefined,
+		website_password_password: line[INDEX_PASSWORD],
+		website_password_username: line[INDEX_USERNAME],
+		website_password_notes: line[INDEX_NOTES],
+		website_password_url: line[INDEX_URL],
+		website_password_title: line[INDEX_NAME],
+	};
 }
 
 /**
@@ -150,17 +149,16 @@ function transferIntoWebsitePassword(line) {
  * @returns {*} The application_password secret object
  */
 function transferIntoApplicationPassword(line) {
-
-    return {
-        id : cryptoLibrary.generateUuid(),
-        type : "application_password",
-        name : line[INDEX_NAME],
-        "description" : line[INDEX_USERNAME],
-        "application_password_password" : line[INDEX_PASSWORD],
-        "application_password_username" : line[INDEX_USERNAME],
-        "application_password_notes" : line[INDEX_NOTES],
-        "application_password_title" : line[INDEX_NAME]
-    }
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "application_password",
+		name: line[INDEX_NAME],
+		description: line[INDEX_USERNAME],
+		application_password_password: line[INDEX_PASSWORD],
+		application_password_username: line[INDEX_USERNAME],
+		application_password_notes: line[INDEX_NOTES],
+		application_password_title: line[INDEX_NAME],
+	};
 }
 
 /**
@@ -171,16 +169,15 @@ function transferIntoApplicationPassword(line) {
  * @returns {*} The secrets object
  */
 function transformToSecret(line) {
-    const type = getType(line);
-    if (type === 'note') {
-        return transferIntoNote(line);
-    } else if (type === 'website_password') {
-        return transferIntoWebsitePassword(line);
-    } else if (type === 'application_password') {
-        return transferIntoApplicationPassword(line);
-    }
+	const type = getType(line);
+	if (type === "note") {
+		return transferIntoNote(line);
+	} else if (type === "website_password") {
+		return transferIntoWebsitePassword(line);
+	} else if (type === "application_password") {
+		return transferIntoApplicationPassword(line);
+	}
 }
-
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -190,30 +187,29 @@ function transformToSecret(line) {
  * @param {[]} csv The array containing all the found secrets
  */
 function gather_secrets(datastore, secrets, csv) {
+	let line;
 
-    let line;
+	for (let i = 0; i < csv.length; i++) {
+		line = csv[i];
 
-    for (let i = 0; i < csv.length; i++) {
-        line = csv[i];
+		if (i === 0) {
+			identifyRows(line);
+			continue;
+		}
 
-        if (i === 0) {
-            identifyRows(line);
-            continue;
-        }
+		if (line.length < 2) {
+			continue;
+		}
 
-        if (line.length < 2) {
-            continue
-        }
+		const secret = transformToSecret(line);
 
-        const secret = transformToSecret(line);
-
-        if (secret === null) {
-            //empty line
-            continue;
-        }
-        secrets.push(secret);
-        datastore['items'].push(secret);
-    }
+		if (secret === null) {
+			//empty line
+			continue;
+		}
+		secrets.push(secret);
+		datastore["items"].push(secret);
+	}
 }
 
 /**
@@ -223,13 +219,13 @@ function gather_secrets(datastore, secrets, csv) {
  * @returns {Array} The array of arrays representing the CSV
  */
 function parse_csv(data) {
-    const csv = Papa.parse(data);
+	const csv = Papa.parse(data);
 
-    if (csv['errors'].length > 0) {
-        throw new Error(csv['errors'][0]['message']);
-    }
+	if (csv["errors"].length > 0) {
+		throw new Error(csv["errors"][0]["message"]);
+	}
 
-    return csv['data'];
+	return csv["data"];
 }
 
 /**
@@ -247,34 +243,33 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
+	const d = new Date();
+	const n = d.toISOString();
 
-    const d = new Date();
-    const n = d.toISOString();
+	const secrets = [];
+	const datastore = {
+		id: cryptoLibrary.generateUuid(),
+		name: "Import " + n,
+		items: [],
+	};
 
-    const secrets = [];
-    const datastore = {
-        'id': cryptoLibrary.generateUuid(),
-        'name': 'Import ' + n,
-        'items': []
-    };
+	let csv;
+	try {
+		csv = parse_csv(data);
+	} catch (err) {
+		return null;
+	}
 
-    let csv;
-    try {
-        csv = parse_csv(data);
-    } catch(err) {
-        return null;
-    }
+	gather_secrets(datastore, secrets, csv);
 
-    gather_secrets(datastore, secrets, csv);
-
-    return {
-        datastore: datastore,
-        secrets: secrets
-    }
+	return {
+		datastore: datastore,
+		secrets: secrets,
+	};
 }
 
 const import1passwordCsvService = {
-    parser,
+	parser,
 };
 
 export default import1passwordCsvService;

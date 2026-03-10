@@ -2,36 +2,36 @@
  * Service that handles local storage access
  */
 
+import { openDB } from "idb";
 import localforage from "localforage";
-import {openDB} from 'idb';
 
 const registrations = {};
 
 const dbConfig = {
-    "state": localforage.createInstance({
-        name: "state", // that's redux persist storage.
-    }),
-    "file-downloads": localforage.createInstance({
-        name: "file-downloads",
-    }),
-    "datastore-password-leafs": localforage.createInstance({
-        name: "datastore-password-leafs",
-    }),
-    "datastore-file-leafs": localforage.createInstance({
-        name: "datastore-file-leafs",
-    }),
-    "offline-cache": localforage.createInstance({
-        name: "offline-cache",
-    }),
-    various: localforage.createInstance({
-        name: "various",
-    }),
+	state: localforage.createInstance({
+		name: "state", // that's redux persist storage.
+	}),
+	"file-downloads": localforage.createInstance({
+		name: "file-downloads",
+	}),
+	"datastore-password-leafs": localforage.createInstance({
+		name: "datastore-password-leafs",
+	}),
+	"datastore-file-leafs": localforage.createInstance({
+		name: "datastore-file-leafs",
+	}),
+	"offline-cache": localforage.createInstance({
+		name: "offline-cache",
+	}),
+	various: localforage.createInstance({
+		name: "various",
+	}),
 };
 
 activate();
 
 function activate() {
-    reload();
+	reload();
 }
 
 /**
@@ -41,7 +41,7 @@ function activate() {
  * @param {object|Array} items One or multiple items to put into the database
  */
 function insert(db, items) {
-    dbConfig[db].setItem(items["key"], items["value"]);
+	dbConfig[db].setItem(items["key"], items["value"]);
 }
 
 /**
@@ -51,7 +51,7 @@ function insert(db, items) {
  * @param {object|Array} items One or multiple items to update in the database
  */
 function update(db, items) {
-    //return dbs[db].update(items);
+	//return dbs[db].update(items);
 }
 
 /**
@@ -62,16 +62,16 @@ function update(db, items) {
  * @param {object|Array} items One or multiple items to update in the database
  */
 function upsert(db, items) {
-    let localItems;
+	let localItems;
 
-    if (!(items instanceof Array)) {
-        localItems = [items];
-    } else {
-        localItems = items;
-    }
-    for (let i = 0; i < localItems.length; i++) {
-        dbConfig[db].setItem(localItems[i]["key"], localItems[i]);
-    }
+	if (!(items instanceof Array)) {
+		localItems = [items];
+	} else {
+		localItems = items;
+	}
+	for (let i = 0; i < localItems.length; i++) {
+		dbConfig[db].setItem(localItems[i]["key"], localItems[i]);
+	}
 }
 
 /**
@@ -81,25 +81,26 @@ function upsert(db, items) {
  * @param {function} filterFunction The filter function
  */
 function where(db, filterFunction) {
-    const result = [];
-    return new Promise(async (resolve, reject) => {
+	const result = [];
+	return new Promise(async (resolve, reject) => {
+		const conn = await openDB(db);
 
-        const conn = await openDB(db);
+		if (
+			conn.objectStoreNames &&
+			Object.values(conn.objectStoreNames).includes("keyvaluepairs")
+		) {
+			const allValues = await conn.getAll("keyvaluepairs");
 
-        if(conn.objectStoreNames && Object.values(conn.objectStoreNames).includes('keyvaluepairs')) {
-            const allValues = await conn.getAll('keyvaluepairs');
+			for (const value of allValues) {
+				const filterRes = await filterFunction(value);
+				if (filterRes) {
+					result.push(value);
+				}
+			}
+		}
 
-            for (const value of allValues) {
-                const filterRes = await filterFunction(value);
-                if (filterRes) {
-                    result.push(value);
-                }
-            }
-        }
-
-
-        resolve(result);
-    })
+		resolve(result);
+	});
 }
 
 /**
@@ -110,7 +111,7 @@ function where(db, filterFunction) {
  * @returns {Promise} Returns the list of all keys
  */
 function keys(db) {
-    return dbConfig[db].keys();
+	return dbConfig[db].keys();
 }
 
 /**
@@ -122,7 +123,7 @@ function keys(db) {
  * @returns {Promise} Returns the data object
  */
 function findKey(db, key) {
-    return dbConfig[db].getItem(key);
+	return dbConfig[db].getItem(key);
 }
 
 /**
@@ -132,7 +133,7 @@ function findKey(db, key) {
  * @param {string} key
  */
 function remove(db, key) {
-    return dbConfig[db].removeItem(key);
+	return dbConfig[db].removeItem(key);
 }
 
 /**
@@ -141,20 +142,20 @@ function remove(db, key) {
  * @param {string} [db] (optional) The database
  */
 async function removeAll(db) {
-    if (typeof db !== "undefined") {
-        await dbConfig[db].clear();
-    } else {
-        for (let dbName in dbConfig) {
-            if (!dbConfig.hasOwnProperty(dbName)) {
-                continue;
-            }
-            if (dbName === "state") {
-                //state contains data that potentially be persisted
-                continue;
-            }
-            await dbConfig[dbName].clear();
-        }
-    }
+	if (typeof db !== "undefined") {
+		await dbConfig[db].clear();
+	} else {
+		for (const dbName in dbConfig) {
+			if (!Object.hasOwn(dbConfig, dbName)) {
+				continue;
+			}
+			if (dbName === "state") {
+				//state contains data that potentially be persisted
+				continue;
+			}
+			await dbConfig[dbName].clear();
+		}
+	}
 }
 
 /**
@@ -163,7 +164,7 @@ async function removeAll(db) {
  * @param {string} [db] (optional) The database
  */
 function get(db) {
-    return dbConfig[db]
+	return dbConfig[db];
 }
 
 /**
@@ -174,50 +175,50 @@ function get(db) {
  * @param {function} callback The callback function
  */
 function on(db, event, callback) {
-    // if (!db_config.hasOwnProperty(db)) {
-    //     return;
-    // }
-    // if (db_config[db].hasOwnProperty('subscribers') &&
-    //     db_config[db]['subscribers'].hasOwnProperty(event) &&
-    //     db_config[db]['subscribers'] &&
-    //     db_config[db]['subscribers']['current'] >= db_config[db]['subscribers']['max']) {
-    //
-    //     console.log("already reached maximum subscribers");
-    //     return;
-    // }
-    //
-    // dbs[db].on(event, callback);
+	// if (!db_config.hasOwnProperty(db)) {
+	//     return;
+	// }
+	// if (db_config[db].hasOwnProperty('subscribers') &&
+	//     db_config[db]['subscribers'].hasOwnProperty(event) &&
+	//     db_config[db]['subscribers'] &&
+	//     db_config[db]['subscribers']['current'] >= db_config[db]['subscribers']['max']) {
+	//
+	//     console.log("already reached maximum subscribers");
+	//     return;
+	// }
+	//
+	// dbs[db].on(event, callback);
 }
 
 /**
  * saves the database, needs to be triggered once some changes are meant to be made persistent
  */
 function save() {
-    //loki_storage.save();
-    emit("storage-reload", null);
+	//loki_storage.save();
+	emit("storage-reload", null);
 }
 
 /**
  * Reloads the storage
  */
 function reload() {
-    // loki_storage.loadDatabase({}, function () {
-    //
-    //     for (let db_name in db_config) {
-    //         if (!db_config.hasOwnProperty(db_name)) {
-    //             continue;
-    //         }
-    //
-    //         dbs[db_name] = loki_storage.getCollection(db_name);
-    //
-    //         if (dbs[db_name] === null) {
-    //             dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
-    //             for (let t = 0; t < db_config[db_name].uniques.length; t++) {
-    //                 dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
-    //             }
-    //         }
-    //     }
-    // });
+	// loki_storage.loadDatabase({}, function () {
+	//
+	//     for (let db_name in db_config) {
+	//         if (!db_config.hasOwnProperty(db_name)) {
+	//             continue;
+	//         }
+	//
+	//         dbs[db_name] = loki_storage.getCollection(db_name);
+	//
+	//         if (dbs[db_name] === null) {
+	//             dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
+	//             for (let t = 0; t < db_config[db_name].uniques.length; t++) {
+	//                 dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
+	//             }
+	//         }
+	//     }
+	// });
 }
 
 /**
@@ -227,10 +228,10 @@ function reload() {
  * @param {function} func The call back function
  */
 function register(key, func) {
-    if (!registrations.hasOwnProperty(key)) {
-        registrations[key] = [];
-    }
-    registrations[key].push(func);
+	if (!Object.hasOwn(registrations, key)) {
+		registrations[key] = [];
+	}
+	registrations[key].push(func);
 }
 
 /**
@@ -240,27 +241,27 @@ function register(key, func) {
  * @param {*} payload The payload of the event
  */
 function emit(key, payload) {
-    if (registrations.hasOwnProperty(key)) {
-        for (let i = 0; i < registrations[key].length; i++) {
-            registrations[key][i](payload);
-        }
-    }
+	if (Object.hasOwn(registrations, key)) {
+		for (let i = 0; i < registrations[key].length; i++) {
+			registrations[key][i](payload);
+		}
+	}
 }
 
 const storageService = {
-    insert: insert,
-    update: update,
-    upsert: upsert,
-    where: where,
-    keys: keys,
-    findKey: findKey,
-    remove: remove,
-    removeAll: removeAll,
-    get: get,
-    on: on,
-    save: save,
-    reload: reload,
-    register: register,
-    emit: emit,
+	insert: insert,
+	update: update,
+	upsert: upsert,
+	where: where,
+	keys: keys,
+	findKey: findKey,
+	remove: remove,
+	removeAll: removeAll,
+	get: get,
+	on: on,
+	save: save,
+	reload: reload,
+	register: register,
+	emit: emit,
 };
 export default storageService;

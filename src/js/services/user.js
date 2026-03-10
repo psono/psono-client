@@ -3,20 +3,19 @@
  */
 
 import action from "../actions/bound-action-creators";
+import i18n from "../i18n";
+import accountService from "./account";
+import apiClient from "./api-client";
+import avatarService from "./avatar";
 import browserClient from "./browser-client";
+import browserClientService from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import device from "./device";
 import helperService from "./helper";
 import host from "./host";
 import notification from "./notification";
-import { getStore } from "./store";
-import device from "./device";
 import storage from "./storage";
-import apiClient from "./api-client";
-import browserClientService from "./browser-client";
-
-import i18n from "../i18n";
-import accountService from "./account";
-import avatarService from "./avatar";
+import { getStore } from "./store";
 
 let sessionPassword = "";
 let verification = {};
@@ -31,25 +30,18 @@ let redirectOnTwoFaMissing;
  * @returns {Promise} Returns a promise with the activation status
  */
 function activateCode(activationCode, server) {
+	action().setServerUrl(server);
 
-    action().setServerUrl(server);
+	const onSuccess = () => ({
+		response: "success",
+	});
 
-    const onSuccess = function () {
-        return {
-            response:"success"
-        };
-    };
+	const onError = (response) => ({
+		response: "error",
+		error_data: response.data,
+	});
 
-    const onError = function(response){
-
-        return {
-            response:"error",
-            error_data: response.data
-        };
-    };
-
-    return apiClient.verifyEmail(activationCode)
-        .then(onSuccess, onError);
+	return apiClient.verifyEmail(activationCode).then(onSuccess, onError);
 }
 
 /**
@@ -64,21 +56,28 @@ function activateCode(activationCode, server) {
  *
  * @returns {Promise}
  */
-function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect) {
-    redirectOnTwoFaMissing = twoFaRedirect;
-    action().setServerUrl(server);
-    let parsedUrl = helperService.parseUrl(server);
+function initiateLogin(
+	username,
+	server,
+	rememberMe,
+	trustDevice,
+	twoFaRedirect,
+) {
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	const parsedUrl = helperService.parseUrl(server);
 
-    username = helperService.formFullUsername(username, parsedUrl["full_domain_without_www"]);
-    action().setUserUsername(username);
-    action().setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
+	username = helperService.formFullUsername(
+		username,
+		parsedUrl["full_domain_without_www"],
+	);
+	action().setUserUsername(username);
+	action().setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
 
-    return host.checkHost(server).then((response) => {
-        return response;
-    });
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
 }
-
-
 
 /**
  * Triggered once someone comes back from a redirect to a index.html#!/saml/token/... url
@@ -89,39 +88,51 @@ function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect)
  * @returns {Promise}
  */
 function samlLogin(samlTokenId) {
-    const serverPublicKey = getStore().getState().server.publicKey;
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
-    const password = '';
+	const serverPublicKey = getStore().getState().server.publicKey;
+	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+	const password = "";
 
-    const onSuccess = function (response) {
-        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'SAML');
-    };
+	const onSuccess = (response) =>
+		handleLoginResponse(
+			response,
+			password,
+			sessionKeys,
+			serverPublicKey,
+			"SAML",
+		);
 
-    const onError = function (response) {
-        return Promise.reject(response.data.non_field_errors);
-    };
+	const onError = (response) => Promise.reject(response.data.non_field_errors);
 
-    let login_info = {
-        saml_token_id: samlTokenId,
-        device_time: new Date().toISOString(),
-        device_fingerprint: device.getDeviceFingerprint(),
-        device_description: device.getDeviceDescription(),
-    };
+	let login_info = {
+		saml_token_id: samlTokenId,
+		device_time: new Date().toISOString(),
+		device_fingerprint: device.getDeviceFingerprint(),
+		device_description: device.getDeviceDescription(),
+	};
 
-    login_info = JSON.stringify(login_info);
+	login_info = JSON.stringify(login_info);
 
-    // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
+	// encrypt the login infos
+	const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+		login_info,
+		serverPublicKey,
+		sessionKeys.private_key,
+	);
 
-    let sessionDuration = 24 * 60 * 60;
-    const trustDevice = getStore().getState().user.trustDevice;
-    if (trustDevice) {
-        sessionDuration = 24 * 60 * 60 * 30;
-    }
+	let sessionDuration = 24 * 60 * 60;
+	const trustDevice = getStore().getState().user.trustDevice;
+	if (trustDevice) {
+		sessionDuration = 24 * 60 * 60 * 30;
+	}
 
-    return apiClient
-        .samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
-        .then(onSuccess, onError);
+	return apiClient
+		.samlLogin(
+			loginInfoEnc["text"],
+			loginInfoEnc["nonce"],
+			sessionKeys.public_key,
+			sessionDuration,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -136,13 +147,13 @@ function samlLogin(samlTokenId) {
  * @returns {Promise}
  */
 function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
-    redirectOnTwoFaMissing = twoFaRedirect;
-    action().setServerUrl(server);
-    action().setUserInfo1(rememberMe, trustDevice, "SAML");
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	action().setUserInfo1(rememberMe, trustDevice, "SAML");
 
-    return host.checkHost(server).then((response) => {
-        return response;
-    });
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
 }
 
 /**
@@ -153,11 +164,11 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getSamlRedirectUrl(providerId) {
-    const returnToUrl = browserClient.getSamlReturnToUrl();
+	const returnToUrl = browserClient.getSamlReturnToUrl();
 
-    return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
-        return result.data;
-    });
+	return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
+		return result.data;
+	});
 }
 
 /**
@@ -169,39 +180,51 @@ function getSamlRedirectUrl(providerId) {
  * @returns {Promise}
  */
 function oidcLogin(oidcTokenId) {
-    const serverPublicKey = getStore().getState().server.publicKey;
-    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
-    const password = '';
+	const serverPublicKey = getStore().getState().server.publicKey;
+	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+	const password = "";
 
-    const onSuccess = function (response) {
-        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'OIDC');
-    };
+	const onSuccess = (response) =>
+		handleLoginResponse(
+			response,
+			password,
+			sessionKeys,
+			serverPublicKey,
+			"OIDC",
+		);
 
-    const onError = function (response) {
-        return Promise.reject(response.data.non_field_errors);
-    };
+	const onError = (response) => Promise.reject(response.data.non_field_errors);
 
-    let login_info = {
-        oidc_token_id: oidcTokenId,
-        device_time: new Date().toISOString(),
-        device_fingerprint: device.getDeviceFingerprint(),
-        device_description: device.getDeviceDescription(),
-    };
+	let login_info = {
+		oidc_token_id: oidcTokenId,
+		device_time: new Date().toISOString(),
+		device_fingerprint: device.getDeviceFingerprint(),
+		device_description: device.getDeviceDescription(),
+	};
 
-    login_info = JSON.stringify(login_info);
+	login_info = JSON.stringify(login_info);
 
-    // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
+	// encrypt the login infos
+	const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+		login_info,
+		serverPublicKey,
+		sessionKeys.private_key,
+	);
 
-    let sessionDuration = 24 * 60 * 60;
-    const trustDevice = getStore().getState().user.trustDevice;
-    if (trustDevice) {
-        sessionDuration = 24 * 60 * 60 * 30;
-    }
+	let sessionDuration = 24 * 60 * 60;
+	const trustDevice = getStore().getState().user.trustDevice;
+	if (trustDevice) {
+		sessionDuration = 24 * 60 * 60 * 30;
+	}
 
-    return apiClient
-        .oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
-        .then(onSuccess, onError);
+	return apiClient
+		.oidcLogin(
+			loginInfoEnc["text"],
+			loginInfoEnc["nonce"],
+			sessionKeys.public_key,
+			sessionDuration,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -216,13 +239,13 @@ function oidcLogin(oidcTokenId) {
  * @returns {Promise}
  */
 function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
-    redirectOnTwoFaMissing = twoFaRedirect;
-    action().setServerUrl(server);
-    action().setUserInfo1(rememberMe, trustDevice, "OIDC");
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	action().setUserInfo1(rememberMe, trustDevice, "OIDC");
 
-    return host.checkHost(server).then((response) => {
-        return response;
-    });
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
 }
 
 /**
@@ -233,11 +256,11 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getOidcRedirectUrl(providerId) {
-    const returnToUrl = browserClient.getOidcReturnToUrl();
+	const returnToUrl = browserClient.getOidcReturnToUrl();
 
-    return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
-        return result.data;
-    });
+	return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
+		return result.data;
+	});
 }
 
 /**
@@ -248,18 +271,26 @@ function getOidcRedirectUrl(providerId) {
  * @returns Promise Returns a promise with the login status
  */
 function gaVerify(gaToken) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
-        if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
-            return Promise.reject(response.data.non_field_errors);
-        } else if (response.hasOwnProperty("data") && response.data.hasOwnProperty("ga_token")) {
-            return Promise.reject(response.data.ga_token);
-        } else {
-            return Promise.reject(response);
-        }
-    });
+	return apiClient
+		.gaVerify(token, gaToken, sessionSecretKey)
+		.catch((response) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "ga_token")
+			) {
+				return Promise.reject(response.data.ga_token);
+			} else {
+				return Promise.reject(response);
+			}
+		});
 }
 
 /**
@@ -270,16 +301,21 @@ function gaVerify(gaToken) {
  * @returns Promise Returns a promise with the login status
  */
 function duoVerify(duoToken) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
-        if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
-            return Promise.reject(response.data.non_field_errors);
-        } else {
-            return Promise.reject(response);
-        }
-    });
+	return apiClient
+		.duoVerify(token, duoToken, sessionSecretKey)
+		.catch((response) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		});
 }
 
 /**
@@ -290,16 +326,21 @@ function duoVerify(duoToken) {
  * @returns Promise Returns a promise with the login status
  */
 function yubikeyOtpVerify(yubikeyOtp) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
-        if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
-            return Promise.reject(response.data.non_field_errors);
-        } else {
-            return Promise.reject(response);
-        }
-    });
+	return apiClient
+		.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey)
+		.catch((response) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		});
 }
 
 /**
@@ -308,46 +349,59 @@ function yubikeyOtpVerify(yubikeyOtp) {
  * @returns Promise Returns a promise with the the final activate token was successful or not
  */
 function activateToken() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const userSauce = getStore().getState().user.userSauce;
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const userSauce = getStore().getState().user.userSauce;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const onSuccess = function (activationData) {
-        // decrypt user secret key
-        const userSecretKey = cryptoLibrary.decryptSecret(
-            activationData.data.user.secret_key,
-            activationData.data.user.secret_key_nonce,
-            sessionPassword,
-            userSauce,
-            hashingAlgorithm,
-            hashingParameters,
-        );
+	const onSuccess = (activationData) => {
+		// decrypt user secret key
+		const userSecretKey = cryptoLibrary.decryptSecret(
+			activationData.data.user.secret_key,
+			activationData.data.user.secret_key_nonce,
+			sessionPassword,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
 
-        let serverSecretExists = ['SAML', 'OIDC', 'LDAP'].includes(activationData.data.user.authentication)
-        if (activationData.data.user.hasOwnProperty('server_secret_exists')) {
-            serverSecretExists = activationData.data.user.server_secret_exists;
-        }
+		let serverSecretExists = ["SAML", "OIDC", "LDAP"].includes(
+			activationData.data.user.authentication,
+		);
+		if (Object.hasOwn(activationData.data.user, "server_secret_exists")) {
+			serverSecretExists = activationData.data.user.server_secret_exists;
+		}
 
-        action().setUserInfo3(activationData.data.user.id, activationData.data.user.email, userSecretKey, serverSecretExists);
+		action().setUserInfo3(
+			activationData.data.user.id,
+			activationData.data.user.email,
+			userSecretKey,
+			serverSecretExists,
+		);
 
-        // no need anymore for the public / private session keys
-        sessionPassword = "";
-        verification = {};
+		// no need anymore for the public / private session keys
+		sessionPassword = "";
+		verification = {};
 
-        browserClient.emit("login", null);
+		browserClient.emit("login", null);
 
-        return {
-            response: "success",
-        };
-    };
+		return {
+			response: "success",
+		};
+	};
 
-    const zoneinfo = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const zoneinfo = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    return apiClient
-        .activateToken(token, verification.text, verification.nonce, sessionSecretKey, zoneinfo)
-        .then(onSuccess);
+	return apiClient
+		.activateToken(
+			token,
+			verification.text,
+			verification.nonce,
+			sessionSecretKey,
+			zoneinfo,
+		)
+		.then(onSuccess);
 }
 
 /**
@@ -361,197 +415,249 @@ function activateToken() {
  *
  * @returns {Array} The list of required multifactor challenges to solve
  */
-function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
+function handleLoginResponse(
+	response,
+	password,
+	sessionKeys,
+	serverPublicKey,
+	defaultAuthentication,
+) {
+	let decrypted_response_data = JSON.parse(
+		cryptoLibrary.decryptDataPublicKey(
+			response.data.login_info,
+			response.data.login_info_nonce,
+			serverPublicKey,
+			sessionKeys.private_key,
+		),
+	);
 
-    let decrypted_response_data = JSON.parse(
-        cryptoLibrary.decryptDataPublicKey(
-            response.data.login_info,
-            response.data.login_info_nonce,
-            serverPublicKey,
-            sessionKeys.private_key
-        )
-    );
+	const server_session_public_key =
+		decrypted_response_data.server_session_public_key ||
+		decrypted_response_data.session_public_key;
 
-    const server_session_public_key = decrypted_response_data.server_session_public_key || decrypted_response_data.session_public_key;
+	if (
+		Object.hasOwn(decrypted_response_data, "data") &&
+		Object.hasOwn(decrypted_response_data, "data_nonce")
+	) {
+		decrypted_response_data = JSON.parse(
+			cryptoLibrary.decryptDataPublicKey(
+				decrypted_response_data.data,
+				decrypted_response_data.data_nonce,
+				server_session_public_key,
+				sessionKeys.private_key,
+			),
+		);
+	}
 
-    if (decrypted_response_data.hasOwnProperty('data') && decrypted_response_data.hasOwnProperty('data_nonce')) {
-        decrypted_response_data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
-                decrypted_response_data.data,
-                decrypted_response_data.data_nonce,
-                server_session_public_key,
-                sessionKeys.private_key
-            )
-        );
-    }
+	if (!Object.hasOwn(decrypted_response_data.user, "hashing_algorithm")) {
+		decrypted_response_data.user["hashing_algorithm"] =
+			getStore().getState().user.hashingAlgorithm;
+	}
+	if (!Object.hasOwn(decrypted_response_data.user, "hashing_parameters")) {
+		decrypted_response_data.user["hashing_parameters"] =
+			getStore().getState().user.hashingParameters;
+	}
+	action().sethashingParameters(
+		decrypted_response_data.user["hashing_algorithm"],
+		decrypted_response_data.user["hashing_parameters"],
+	);
 
-    if (!decrypted_response_data.user.hasOwnProperty('hashing_algorithm')) {
-        decrypted_response_data.user['hashing_algorithm'] = getStore().getState().user.hashingAlgorithm
-    }
-    if (!decrypted_response_data.user.hasOwnProperty('hashing_parameters')) {
-        decrypted_response_data.user['hashing_parameters'] = getStore().getState().user.hashingParameters
+	sessionPassword =
+		password || !Object.hasOwn(decrypted_response_data, "password")
+			? password
+			: decrypted_response_data.password;
 
-    }
-    action().sethashingParameters(decrypted_response_data.user['hashing_algorithm'], decrypted_response_data.user['hashing_parameters'])
+	// decrypt the session key
+	let sessionSecretKey = decrypted_response_data.session_secret_key;
+	if (Object.hasOwn(decrypted_response_data, "session_secret_key_nonce")) {
+		sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
+			decrypted_response_data.session_secret_key,
+			decrypted_response_data.session_secret_key_nonce,
+			decrypted_response_data.session_public_key,
+			sessionKeys.private_key,
+		);
+	}
 
-    sessionPassword = (password || !decrypted_response_data.hasOwnProperty("password")) ? password : decrypted_response_data.password;
+	const authentication = decrypted_response_data.user.authentication
+		? decrypted_response_data.user.authentication
+		: defaultAuthentication;
 
-    // decrypt the session key
-    let sessionSecretKey = decrypted_response_data.session_secret_key;
-    if (decrypted_response_data.hasOwnProperty('session_secret_key_nonce')) {
-        sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
-            decrypted_response_data.session_secret_key,
-            decrypted_response_data.session_secret_key_nonce,
-            decrypted_response_data.session_public_key,
-            sessionKeys.private_key
-        );
-    }
+	let user_private_key;
+	try {
+		// decrypt user private key which may fail if the user server's password isn't correct and the user
+		// needs to enter one
+		user_private_key = cryptoLibrary.decryptSecret(
+			decrypted_response_data.user.private_key,
+			decrypted_response_data.user.private_key_nonce,
+			sessionPassword,
+			decrypted_response_data.user.user_sauce,
+			decrypted_response_data.user.hashing_algorithm,
+			decrypted_response_data.user.hashing_parameters,
+		);
+	} catch (error) {
+		return {
+			require_password: (password) =>
+				handleLoginResponse(
+					response,
+					password,
+					sessionKeys,
+					serverPublicKey,
+					defaultAuthentication,
+				),
+		};
+	}
 
-    const authentication = decrypted_response_data.user.authentication ? decrypted_response_data.user.authentication : defaultAuthentication;
+	// decrypt the user_validator
+	const user_validator = cryptoLibrary.decryptDataPublicKey(
+		decrypted_response_data.user_validator,
+		decrypted_response_data.user_validator_nonce,
+		server_session_public_key,
+		user_private_key,
+	);
 
-    let user_private_key;
-    try {
-        // decrypt user private key which may fail if the user server's password isn't correct and the user
-        // needs to enter one
-        user_private_key = cryptoLibrary.decryptSecret(
-            decrypted_response_data.user.private_key,
-            decrypted_response_data.user.private_key_nonce,
-            sessionPassword,
-            decrypted_response_data.user.user_sauce,
-            decrypted_response_data.user.hashing_algorithm,
-            decrypted_response_data.user.hashing_parameters,
-        );
-    } catch (error) {
-        return {
-            'require_password': (password) => handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication)
-        }
-    }
+	// encrypt the validator as verification
+	verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
-    // decrypt the user_validator
-    const user_validator = cryptoLibrary.decryptDataPublicKey(
-        decrypted_response_data.user_validator,
-        decrypted_response_data.user_validator_nonce,
-        server_session_public_key,
-        user_private_key
-    );
+	action().setUserUsername(decrypted_response_data.user.username);
 
-    // encrypt the validator as verification
-    verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
+	action().setUserInfo2(
+		user_private_key,
+		decrypted_response_data.user.public_key,
+		sessionSecretKey,
+		decrypted_response_data.token,
+		decrypted_response_data.user.user_sauce,
+		authentication,
+	);
 
-    action().setUserUsername(decrypted_response_data.user.username);
+	if (
+		Object.hasOwn(decrypted_response_data.user, "language") &&
+		i18n.options.supportedLngs.includes(decrypted_response_data.user.language)
+	) {
+		i18n.changeLanguage(decrypted_response_data.user.language).then(() => {
+			browserClientService.emitSec(
+				"language-changed",
+				decrypted_response_data.user.language,
+				() => {},
+			);
+		});
+	}
 
-    action().setUserInfo2(
-        user_private_key,
-        decrypted_response_data.user.public_key,
-        sessionSecretKey,
-        decrypted_response_data.token,
-        decrypted_response_data.user.user_sauce,
-        authentication
-    );
+	if (decrypted_response_data.user.policies) {
+		action().setServerPolicy(decrypted_response_data.user.policies);
+	}
 
-    if (decrypted_response_data.user.hasOwnProperty('language') && i18n.options.supportedLngs.includes(decrypted_response_data.user.language)) {
-        i18n.changeLanguage(decrypted_response_data.user.language).then(() => {
-            browserClientService.emitSec("language-changed", decrypted_response_data.user.language, function () {});
-        });
-    }
+	action().setHasTwoFactor(decrypted_response_data.required_multifactors > 0);
 
-    if (decrypted_response_data.user.policies) {
-        action().setServerPolicy(decrypted_response_data.user.policies);
-    }
-
-    action().setHasTwoFactor(decrypted_response_data.required_multifactors > 0);
-
-    return decrypted_response_data;
+	return decrypted_response_data;
 }
 
 function prelogin(username) {
+	const onSuccess = (response) => {
+		if (
+			!Object.hasOwn(response.data, "hashing_algorithm") ||
+			response.data.hashing_algorithm !== "scrypt"
+		) {
+			return Promise.reject("UNSUPPORTED_ALGORITHM_UPDATE_CLIENT");
+		}
 
-    const onSuccess = function (response) {
+		if (!Object.hasOwn(response.data, "hashing_parameters")) {
+			return Promise.reject("UNSUPPORTED_ALGORITHM_UPDATE_CLIENT");
+		}
 
-        if (!response.data.hasOwnProperty('hashing_algorithm') || response.data.hashing_algorithm !== 'scrypt') {
-            return Promise.reject('UNSUPPORTED_ALGORITHM_UPDATE_CLIENT');
-        }
+		return response;
+	};
 
-        if (!response.data.hasOwnProperty('hashing_parameters')) {
-            return Promise.reject('UNSUPPORTED_ALGORITHM_UPDATE_CLIENT');
-        }
+	const onError = (response) => {
+		if (
+			Object.hasOwn(response, "data") &&
+			Object.hasOwn(response.data, "non_field_errors")
+		) {
+			return Promise.reject(response.data.non_field_errors);
+		} else {
+			return Promise.reject(response);
+		}
+	};
 
-        return response
-    };
-
-    const onError = function (response) {
-        if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
-            return Promise.reject(response.data.non_field_errors);
-        } else {
-            return Promise.reject(response);
-        }
-    };
-
-    return apiClient
-        .prelogin(username)
-        .then(onSuccess, onError);
+	return apiClient.prelogin(username).then(onSuccess, onError);
 }
 
 function login(password, serverInfo, sendPlain) {
-    const username = getStore().getState().user.username;
-    const trustDevice = getStore().getState().user.trustDevice;
-    const serverPublicKey = serverInfo.info.public_key;
+	const username = getStore().getState().user.username;
+	const trustDevice = getStore().getState().user.trustDevice;
+	const serverPublicKey = serverInfo.info.public_key;
 
+	const onSuccess = (response) => {
+		action().sethashingParameters(
+			response.data.hashing_algorithm,
+			response.data.hashing_parameters,
+		);
+		const authkey = cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			response.data.hashing_algorithm,
+			response.data.hashing_parameters,
+		);
+		const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 
-    const onSuccess = function (response) {
+		const onSuccess = (response) =>
+			handleLoginResponse(
+				response,
+				password,
+				sessionKeys,
+				serverPublicKey,
+				"AUTHKEY",
+			);
 
-        action().sethashingParameters(response.data.hashing_algorithm, response.data.hashing_parameters)
-        const authkey = cryptoLibrary.generateAuthkey(username, password, response.data.hashing_algorithm, response.data.hashing_parameters);
-        const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+		const onError = (response) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		};
 
-        const onSuccess = function (response) {
-            return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
-        };
+		let loginInfo = {
+			username: username,
+			authkey: authkey,
+			device_time: new Date().toISOString(),
+			device_fingerprint: device.getDeviceFingerprint(),
+			device_description: device.getDeviceDescription(),
+		};
 
-        const onError = function (response) {
-            if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
-                return Promise.reject(response.data.non_field_errors);
-            } else {
-                return Promise.reject(response);
-            }
-        };
+		if (sendPlain) {
+			loginInfo["password"] = password;
+		}
 
-        let loginInfo = {
-            username: username,
-            authkey: authkey,
-            device_time: new Date().toISOString(),
-            device_fingerprint: device.getDeviceFingerprint(),
-            device_description: device.getDeviceDescription(),
-        };
+		loginInfo = JSON.stringify(loginInfo);
 
-        if (sendPlain) {
-            loginInfo["password"] = password;
-        }
+		// encrypt the login infos
+		const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+			loginInfo,
+			serverPublicKey,
+			sessionKeys.private_key,
+		);
 
-        loginInfo = JSON.stringify(loginInfo);
+		let sessionDuration = 24 * 60 * 60;
+		if (trustDevice) {
+			sessionDuration = 24 * 60 * 60 * 30;
+		}
 
-        // encrypt the login infos
-        const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
+		return apiClient
+			.login(
+				loginInfoEnc["text"],
+				loginInfoEnc["nonce"],
+				sessionKeys.public_key,
+				sessionDuration,
+			)
+			.then(onSuccess, onError);
+	};
 
-        let sessionDuration = 24 * 60 * 60;
-        if (trustDevice) {
-            sessionDuration = 24 * 60 * 60 * 30;
-        }
+	const onError = (response) => Promise.reject(response);
 
-        return apiClient
-            .login(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
-            .then(onSuccess, onError);
-    };
-
-    const onError = function (response) {
-        return Promise.reject(response);
-    };
-
-
-    return prelogin(username)
-        .then(onSuccess, onError);
-
-
+	return prelogin(username).then(onSuccess, onError);
 }
 
 /**
@@ -562,62 +668,67 @@ function login(password, serverInfo, sendPlain) {
  * @returns {Promise} Returns a promise with the result
  */
 function logout(msg = "", postLogoutRedirectUri = undefined) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    async function logoutLocal() {
-        await accountService.updateInfoCurrent({
-            'username': "",
-            'isLoggedIn': false,
-            'server': "",
-            'avatar': '',
-        });
-        await accountService.logoutAll()
-        action().disableOfflineMode();
-        storage.removeAll();
-        storage.save();
-        action().logout(getStore().getState().user.rememberMe);
-        if (msg) {
-            notification.infoSend(msg);
-        }
-    }
+	async function logoutLocal() {
+		await accountService.updateInfoCurrent({
+			username: "",
+			isLoggedIn: false,
+			server: "",
+			avatar: "",
+		});
+		await accountService.logoutAll();
+		action().disableOfflineMode();
+		storage.removeAll();
+		storage.save();
+		action().logout(getStore().getState().user.rememberMe);
+		if (msg) {
+			notification.infoSend(msg);
+		}
+	}
 
-    const onSuccess = async function (result) {
-        await logoutLocal();
+	const onSuccess = async (result) => {
+		await logoutLocal();
 
-        accountService.broadcastReinitializeAppEvent();
-        accountService.broadcastReinitializeBackgroundEvent();
+		accountService.broadcastReinitializeAppEvent();
+		accountService.broadcastReinitializeBackgroundEvent();
 
-        const response = {
-            "response": "success",
-        }
+		const response = {
+			response: "success",
+		};
 
-        if (result.data.hasOwnProperty('redirect_url')) {
-            response['redirect_url'] = result.data['redirect_url']
-            // Store redirect_url in sessionStorage so it survives the logout and can be used by logout-success.html
-            // even if the session is already terminated and a subsequent logout call returns 401
-            if (result.data['redirect_url']) {
-                try {
-                    sessionStorage.setItem('psono_logout_redirect_url', result.data['redirect_url']);
-                } catch (e) {
-                    console.error('Failed to store redirect_url in sessionStorage:', e);
-                }
-            }
-        }
+		if (Object.hasOwn(result.data, "redirect_url")) {
+			response["redirect_url"] = result.data["redirect_url"];
+			// Store redirect_url in sessionStorage so it survives the logout and can be used by logout-success.html
+			// even if the session is already terminated and a subsequent logout call returns 401
+			if (result.data["redirect_url"]) {
+				try {
+					sessionStorage.setItem(
+						"psono_logout_redirect_url",
+						result.data["redirect_url"],
+					);
+				} catch (e) {
+					console.error("Failed to store redirect_url in sessionStorage:", e);
+				}
+			}
+		}
 
-        return response;
-    };
+		return response;
+	};
 
-    const onError = async function () {
-        //session expired, so let's delete the local data
-        await logoutLocal();
+	const onError = async () => {
+		//session expired, so let's delete the local data
+		await logoutLocal();
 
-        return {
-            "response": "success",
-        };
-    };
+		return {
+			response: "success",
+		};
+	};
 
-    return apiClient.logout(token, sessionSecretKey, undefined, postLogoutRedirectUri).then(onSuccess, onError);
+	return apiClient
+		.logout(token, sessionSecretKey, undefined, postLogoutRedirectUri)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -626,7 +737,7 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
  * @returns {boolean} Returns whether a user is logged in
  */
 function isLoggedIn() {
-    return getStore().getState().user.isLoggedIn;
+	return getStore().getState().user.isLoggedIn;
 }
 
 /**
@@ -637,33 +748,33 @@ function isLoggedIn() {
  * @returns {Promise} Returns a promise with the result
  */
 function deleteAccount(password) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const username = getStore().getState().user.username;
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const authkey = cryptoLibrary.generateAuthkey(
-        username,
-        password,
-        hashingAlgorithm,
-        hashingParameters,
-    );
+	const authkey = cryptoLibrary.generateAuthkey(
+		username,
+		password,
+		hashingAlgorithm,
+		hashingParameters,
+	);
 
-    const onSuccess = function () {
-        logout();
-    };
+	const onSuccess = () => {
+		logout();
+	};
 
-    const onError = function (data) {
-        return Promise.reject(data.data);
-    };
+	const onError = (data) => Promise.reject(data.data);
 
-    let pass;
-    if (getStore().getState().user.authentication === "LDAP") {
-        pass = password;
-    }
+	let pass;
+	if (getStore().getState().user.authentication === "LDAP") {
+		pass = password;
+	}
 
-    return apiClient.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
+	return apiClient
+		.deleteAccount(token, sessionSecretKey, authkey, pass)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -682,23 +793,34 @@ function deleteAccount(password) {
  *
  * @returns {Promise} Returns a promise with the update status
  */
-function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce, language, hashingAlgorithm, hashingParameters) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    return apiClient.updateUser(
-        token,
-        sessionSecretKey,
-        email,
-        authkey,
-        authkeyOld,
-        privateKey,
-        privateKeyNonce,
-        secretKey,
-        secretKeyNonce,
-        language,
-        hashingAlgorithm,
-        hashingParameters,
-    );
+function updateUser(
+	email,
+	authkey,
+	authkeyOld,
+	privateKey,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+	language,
+	hashingAlgorithm,
+	hashingParameters,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	return apiClient.updateUser(
+		token,
+		sessionSecretKey,
+		email,
+		authkey,
+		authkeyOld,
+		privateKey,
+		privateKeyNonce,
+		secretKey,
+		secretKeyNonce,
+		language,
+		hashingAlgorithm,
+		hashingParameters,
+	);
 }
 
 /**
@@ -711,69 +833,87 @@ function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, sec
  * @returns {Promise} Returns a promise with the result
  */
 function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
-    return host.info().then(
-        function (info) {
-            let authkeyOld,
-                newAuthkey,
-                userPrivateKey,
-                userSecretKey,
-                userSauce,
-                privKeyEnc,
-                secretKeyEnc,
-                onSuccess,
-                onError;
-            const username = getStore().getState().user.username;
-            const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-            const hashingParameters = getStore().getState().user.hashingParameters;
-            const test_error = helperService.isValidPassword(
-                newPassword,
-                newPasswordRepeat,
-                info.data["decoded_info"]["compliance_min_master_password_length"],
-                info.data["decoded_info"]["compliance_min_master_password_complexity"]
-            );
-            if (test_error) {
-                return Promise.reject({ errors: [test_error] });
-            }
+	return host.info().then(
+		(info) => {
+			let authkeyOld,
+				newAuthkey,
+				userPrivateKey,
+				userSecretKey,
+				userSauce,
+				privKeyEnc,
+				secretKeyEnc,
+				onSuccess,
+				onError;
+			const username = getStore().getState().user.username;
+			const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+			const hashingParameters = getStore().getState().user.hashingParameters;
+			const test_error = helperService.isValidPassword(
+				newPassword,
+				newPasswordRepeat,
+				info.data["decoded_info"]["compliance_min_master_password_length"],
+				info.data["decoded_info"]["compliance_min_master_password_complexity"],
+			);
+			if (test_error) {
+				return Promise.reject({ errors: [test_error] });
+			}
 
-            if (oldPassword === null || oldPassword.length === 0) {
-                return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
-            }
+			if (oldPassword === null || oldPassword.length === 0) {
+				return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+			}
 
-            authkeyOld = cryptoLibrary.generateAuthkey(username, oldPassword, hashingAlgorithm, hashingParameters);
-            newAuthkey = cryptoLibrary.generateAuthkey(username, newPassword, hashingAlgorithm, hashingParameters);
-            userPrivateKey = getStore().getState().user.userPrivateKey;
-            userSecretKey = getStore().getState().user.userSecretKey;
-            userSauce = getStore().getState().user.userSauce;
+			authkeyOld = cryptoLibrary.generateAuthkey(
+				username,
+				oldPassword,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			newAuthkey = cryptoLibrary.generateAuthkey(
+				username,
+				newPassword,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			userPrivateKey = getStore().getState().user.userPrivateKey;
+			userSecretKey = getStore().getState().user.userSecretKey;
+			userSauce = getStore().getState().user.userSauce;
 
-            privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce, hashingAlgorithm, hashingParameters);
-            secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce, hashingAlgorithm, hashingParameters);
+			privKeyEnc = cryptoLibrary.encryptSecret(
+				userPrivateKey,
+				newPassword,
+				userSauce,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			secretKeyEnc = cryptoLibrary.encryptSecret(
+				userSecretKey,
+				newPassword,
+				userSauce,
+				hashingAlgorithm,
+				hashingParameters,
+			);
 
-            onSuccess = function (data) {
-                return { msgs: ["SAVE_SUCCESS"] };
-            };
-            onError = function () {
-                return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
-            };
+			onSuccess = (data) => ({ msgs: ["SAVE_SUCCESS"] });
+			onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
 
-            return updateUser(
-                null,
-                newAuthkey,
-                authkeyOld,
-                privKeyEnc.text,
-                privKeyEnc.nonce,
-                secretKeyEnc.text,
-                secretKeyEnc.nonce,
-                undefined,
-                hashingAlgorithm,
-                hashingParameters,
-            ).then(onSuccess, onError);
-        },
-        function (data) {
-            console.log(data);
-            // handle server is offline
-            return Promise.reject({ errors: ["SERVER_OFFLINE"] });
-        }
-    );
+			return updateUser(
+				null,
+				newAuthkey,
+				authkeyOld,
+				privKeyEnc.text,
+				privKeyEnc.nonce,
+				secretKeyEnc.text,
+				secretKeyEnc.nonce,
+				undefined,
+				hashingAlgorithm,
+				hashingParameters,
+			).then(onSuccess, onError);
+		},
+		(data) => {
+			console.log(data);
+			// handle server is offline
+			return Promise.reject({ errors: ["SERVER_OFFLINE"] });
+		},
+	);
 }
 
 /**
@@ -785,34 +925,37 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
  * @returns {Promise} Returns a promise with the result
  */
 function saveNewEmail(newEmail, verificationPassword) {
-    const username = getStore().getState().user.username;
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
-    if (verificationPassword === null || verificationPassword.length === 0) {
-        return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
-    }
+	const username = getStore().getState().user.username;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+	if (verificationPassword === null || verificationPassword.length === 0) {
+		return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+	}
 
-    const authkeyOld = cryptoLibrary.generateAuthkey(username, verificationPassword, hashingAlgorithm, hashingParameters);
+	const authkeyOld = cryptoLibrary.generateAuthkey(
+		username,
+		verificationPassword,
+		hashingAlgorithm,
+		hashingParameters,
+	);
 
-    const onSuccess = function (data) {
-        action().setEmail(newEmail);
-        return { msgs: ["SAVE_SUCCESS"] };
-    };
-    const onError = function () {
-        return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
-    };
-    return updateUser(
-        newEmail,
-        null,
-        authkeyOld,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        ).then(onSuccess, onError);
+	const onSuccess = (data) => {
+		action().setEmail(newEmail);
+		return { msgs: ["SAVE_SUCCESS"] };
+	};
+	const onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+	return updateUser(
+		newEmail,
+		null,
+		authkeyOld,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+	).then(onSuccess, onError);
 }
 
 /**
@@ -823,24 +966,20 @@ function saveNewEmail(newEmail, verificationPassword) {
  * @returns {Promise} Returns a promise with the result
  */
 function saveNewLanguage(language) {
-    const onSuccess = function (data) {
-        return { msgs: ["SAVE_SUCCESS"] };
-    };
-    const onError = function (result) {
-        return Promise.reject(result);
-    };
-    return updateUser(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        language,
-        undefined,
-        undefined,
-    ).then(onSuccess, onError);
+	const onSuccess = (data) => ({ msgs: ["SAVE_SUCCESS"] });
+	const onError = (result) => Promise.reject(result);
+	return updateUser(
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		language,
+		undefined,
+		undefined,
+	).then(onSuccess, onError);
 }
 
 /**
@@ -853,44 +992,46 @@ function saveNewLanguage(language) {
  * @returns {Promise} Returns a promise with the recovery_enable status
  */
 function recoveryEnable(username, recoveryCode, server) {
-    action().setUserUsername(username);
-    action().setServerUrl(server);
+	action().setUserUsername(username);
+	action().setServerUrl(server);
 
-    const onSuccess = function (data) {
-        const recovery_data = JSON.parse(
-            cryptoLibrary.decryptSecret(
-                data.data.recovery_data,
-                data.data.recovery_data_nonce,
-                recoveryCode,
-                data.data.recovery_sauce
-            )
-        );
+	const onSuccess = (data) => {
+		const recovery_data = JSON.parse(
+			cryptoLibrary.decryptSecret(
+				data.data.recovery_data,
+				data.data.recovery_data_nonce,
+				recoveryCode,
+				data.data.recovery_sauce,
+			),
+		);
 
-        if (data.data.policies) {
-            action().setServerPolicy(data.data.policies);
-        }
+		if (data.data.policies) {
+			action().setServerPolicy(data.data.policies);
+		}
 
-        return {
-            user_private_key: recovery_data.user_private_key,
-            user_secret_key: recovery_data.user_secret_key,
-            user_sauce: data.data.user_sauce,
-            verifier_public_key: data.data.verifier_public_key,
-            verifier_time_valid: data.data.verifier_time_valid,
-        };
-    };
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(
-        username,
-        recoveryCode,
-        'scrypt',
-        {
-            "u": 14,
-            "r": 8,
-            "p": 1,
-            "l": 64
-        },
-    );
+		return {
+			user_private_key: recovery_data.user_private_key,
+			user_secret_key: recovery_data.user_secret_key,
+			user_sauce: data.data.user_sauce,
+			verifier_public_key: data.data.verifier_public_key,
+			verifier_time_valid: data.data.verifier_time_valid,
+		};
+	};
+	const recoveryAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		recoveryCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
 
-    return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
+	return apiClient
+		.enableRecoverycode(username, recoveryAuthkey)
+		.then(onSuccess);
 }
 
 /**
@@ -906,46 +1047,78 @@ function recoveryEnable(username, recoveryCode, server) {
  *
  * @returns {Promise} Returns a promise with the set_password status
  */
-function setPassword(username, recoveryCode, password, userPrivateKey, userSecretKey, userSauce, verifierPublicKey) {
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
+function setPassword(
+	username,
+	recoveryCode,
+	password,
+	userPrivateKey,
+	userSecretKey,
+	userSauce,
+	verifierPublicKey,
+) {
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
 
-    const privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce, hashingAlgorithm, hashingParameters);
-    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce, hashingAlgorithm, hashingParameters);
+	const privKeyEnc = cryptoLibrary.encryptSecret(
+		userPrivateKey,
+		password,
+		userSauce,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+	const secretKeyEnc = cryptoLibrary.encryptSecret(
+		userSecretKey,
+		password,
+		userSauce,
+		hashingAlgorithm,
+		hashingParameters,
+	);
 
-    const updateRequest = JSON.stringify({
-        authkey: cryptoLibrary.generateAuthkey(username, password, hashingAlgorithm, hashingParameters),
-        private_key: privKeyEnc.text,
-        private_key_nonce: privKeyEnc.nonce,
-        secret_key: secretKeyEnc.text,
-        secret_key_nonce: secretKeyEnc.nonce,
-    });
+	const updateRequest = JSON.stringify({
+		authkey: cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			hashingAlgorithm,
+			hashingParameters,
+		),
+		private_key: privKeyEnc.text,
+		private_key_nonce: privKeyEnc.nonce,
+		secret_key: secretKeyEnc.text,
+		secret_key_nonce: secretKeyEnc.nonce,
+	});
 
-    const updateRequestEnc = cryptoLibrary.encryptDataPublicKey(updateRequest, verifierPublicKey, userPrivateKey);
+	const updateRequestEnc = cryptoLibrary.encryptDataPublicKey(
+		updateRequest,
+		verifierPublicKey,
+		userPrivateKey,
+	);
 
-    const onSuccess = function (data) {
-        return data;
-    };
+	const onSuccess = (data) => data;
 
-    const onError = function (data) {
-        return data;
-    };
+	const onError = (data) => data;
 
-    const recovery_authkey = cryptoLibrary.generateAuthkey(
-        username,
-        recoveryCode,
-        'scrypt',
-        {
-            "u": 14,
-            "r": 8,
-            "p": 1,
-            "l": 64
-        },
-    );
+	const recovery_authkey = cryptoLibrary.generateAuthkey(
+		username,
+		recoveryCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
 
-    return apiClient
-        .setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce, hashingAlgorithm, hashingParameters)
-        .then(onSuccess, onError);
+	return apiClient
+		.setPassword(
+			username,
+			recovery_authkey,
+			updateRequestEnc.text,
+			updateRequestEnc.nonce,
+			hashingAlgorithm,
+			hashingParameters,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -959,107 +1132,125 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
  *
  * @returns {Promise} Returns a promise with the emergency code activation status
  */
-function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey) {
-    action().setUserUsername(username);
-    action().setServerUrl(server);
+function armEmergencyCode(
+	username,
+	emergencyCode,
+	server,
+	serverInfo,
+	verifyKey,
+) {
+	action().setUserUsername(username);
+	action().setServerUrl(server);
 
-    let userSauce;
-    let policies;
-    let userSecretKey;
+	let userSauce;
+	let policies;
+	let userSecretKey;
 
-    const emergencyAuthkey = cryptoLibrary.generateAuthkey(
-        username,
-        emergencyCode,
-        'scrypt',
-        {
-            "u": 14,
-            "r": 8,
-            "p": 1,
-            "l": 64
-        },
-    );
+	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		emergencyCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
 
-    const onSuccess = function (data) {
-        if (data.data.status === "started" || data.data.status === "waiting") {
-            return data.data;
-        }
+	const onSuccess = (data) => {
+		if (data.data.status === "started" || data.data.status === "waiting") {
+			return data.data;
+		}
 
-        const emergency_data = JSON.parse(
-            cryptoLibrary.decryptSecret(
-                data.data.emergency_data,
-                data.data.emergency_data_nonce,
-                emergencyCode,
-                data.data.emergency_sauce
-            )
-        );
+		const emergency_data = JSON.parse(
+			cryptoLibrary.decryptSecret(
+				data.data.emergency_data,
+				data.data.emergency_data_nonce,
+				emergencyCode,
+				data.data.emergency_sauce,
+			),
+		);
 
-        userSauce = data.data.user_sauce;
-        userSecretKey = emergency_data.user_secret_key;
-        policies = data.data.policies;
-        const authentication = data.data.authentication ? data.data.authentication : 'AUTHKEY';
+		userSauce = data.data.user_sauce;
+		userSecretKey = emergency_data.user_secret_key;
+		policies = data.data.policies;
+		const authentication = data.data.authentication
+			? data.data.authentication
+			: "AUTHKEY";
 
-        const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
+		const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
 
-        const loginInfo = JSON.stringify({
-            device_time: new Date().toISOString(),
-            device_fingerprint: device.getDeviceFingerprint(),
-            device_description: device.getDeviceDescription(),
-            session_public_key: sessionKey.public_key,
-        });
+		const loginInfo = JSON.stringify({
+			device_time: new Date().toISOString(),
+			device_fingerprint: device.getDeviceFingerprint(),
+			device_description: device.getDeviceDescription(),
+			session_public_key: sessionKey.public_key,
+		});
 
-        const update_request_enc = cryptoLibrary.encryptDataPublicKey(
-            loginInfo,
-            data.data.verifier_public_key,
-            emergency_data.user_private_key
-        );
+		const update_request_enc = cryptoLibrary.encryptDataPublicKey(
+			loginInfo,
+			data.data.verifier_public_key,
+			emergency_data.user_private_key,
+		);
 
-        const onSuccess = function (data) {
-            const loginInfo = JSON.parse(
-                cryptoLibrary.decryptDataPublicKey(
-                    data.data.login_info,
-                    data.data.login_info_nonce,
-                    serverInfo["public_key"],
-                    sessionKey.private_key
-                )
-            );
+		const onSuccess = (data) => {
+			const loginInfo = JSON.parse(
+				cryptoLibrary.decryptDataPublicKey(
+					data.data.login_info,
+					data.data.login_info_nonce,
+					serverInfo["public_key"],
+					sessionKey.private_key,
+				),
+			);
 
-            action().setUserInfo2(
-                emergency_data.user_private_key,
-                loginInfo.user_public_key,
-                loginInfo.session_secret_key,
-                loginInfo.token,
-                userSauce,
-                authentication,
-            );
-            if (policies) {
-                action().setServerPolicy(policies);
-            }
+			action().setUserInfo2(
+				emergency_data.user_private_key,
+				loginInfo.user_public_key,
+				loginInfo.session_secret_key,
+				loginInfo.token,
+				userSauce,
+				authentication,
+			);
+			if (policies) {
+				action().setServerPolicy(policies);
+			}
 
-            let serverSecretExists = false;
-            if (loginInfo.hasOwnProperty('authentication')) {
-                serverSecretExists = ['SAML', 'OIDC', 'LDAP'].includes(loginInfo.authentication)
-                if (loginInfo.hasOwnProperty('server_secret_exists')) {
-                    serverSecretExists = loginInfo.server_secret_exists;
-                }
-            }
+			let serverSecretExists = false;
+			if (Object.hasOwn(loginInfo, "authentication")) {
+				serverSecretExists = ["SAML", "OIDC", "LDAP"].includes(
+					loginInfo.authentication,
+				);
+				if (Object.hasOwn(loginInfo, "server_secret_exists")) {
+					serverSecretExists = loginInfo.server_secret_exists;
+				}
+			}
 
-            action().setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey, serverSecretExists);
+			action().setUserInfo3(
+				loginInfo.user_id,
+				loginInfo.user_email,
+				userSecretKey,
+				serverSecretExists,
+			);
 
-            return {
-                status: "active",
-            };
-        };
+			return {
+				status: "active",
+			};
+		};
 
-        const onError = function (data) {
-            return Promise.reject(data);
-        };
+		const onError = (data) => Promise.reject(data);
 
-        return apiClient
-            .activateEmergencyCode(username, emergencyAuthkey, update_request_enc.text, update_request_enc.nonce)
-            .then(onSuccess, onError);
-    };
+		return apiClient
+			.activateEmergencyCode(
+				username,
+				emergencyAuthkey,
+				update_request_enc.text,
+				update_request_enc.nonce,
+			)
+			.then(onSuccess, onError);
+	};
 
-    return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
+	return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
 }
 
 /**
@@ -1068,9 +1259,11 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
  * @return {boolean} Returns whether the user should be forced to setup two factor
  */
 function requireTwoFaSetup() {
-    return !getStore().getState().user.hasTwoFactor
-        && getStore().getState().server.complianceEnforce2fa
-        && getStore().getState().server.allowedSecondFactors.length > 0;
+	return (
+		!getStore().getState().user.hasTwoFactor &&
+		getStore().getState().server.complianceEnforce2fa &&
+		getStore().getState().server.allowedSecondFactors.length > 0
+	);
 }
 
 /**
@@ -1079,39 +1272,41 @@ function requireTwoFaSetup() {
  * @return {boolean} Returns whether the user should be forced to configure a server secret or not
  */
 function requireServerSecret() {
-    const authentication = getStore().getState().user.authentication;
-    const complianceServerSecrets = getStore().getState().server.complianceServerSecrets.toLowerCase();
+	const authentication = getStore().getState().user.authentication;
+	const complianceServerSecrets = getStore()
+		.getState()
+		.server.complianceServerSecrets.toLowerCase();
 
-    const lookupTable = {
-        'auto': {
-            'LDAP': true,
-            'SAML': true,
-            'OIDC': true,
-            'AUTHKEY': false,
-        },
-        'noone': {
-            'LDAP': false,
-            'SAML': false,
-            'OIDC': false,
-            'AUTHKEY': false,
-        },
-        'all': {
-            'LDAP': true,
-            'SAML': true,
-            'OIDC': true,
-            'AUTHKEY': true,
-        }
-    }
+	const lookupTable = {
+		auto: {
+			LDAP: true,
+			SAML: true,
+			OIDC: true,
+			AUTHKEY: false,
+		},
+		noone: {
+			LDAP: false,
+			SAML: false,
+			OIDC: false,
+			AUTHKEY: false,
+		},
+		all: {
+			LDAP: true,
+			SAML: true,
+			OIDC: true,
+			AUTHKEY: true,
+		},
+	};
 
-    if (!lookupTable.hasOwnProperty(complianceServerSecrets)) {
-        return false;
-    }
+	if (!Object.hasOwn(lookupTable, complianceServerSecrets)) {
+		return false;
+	}
 
-    if (!lookupTable[complianceServerSecrets].hasOwnProperty(authentication)) {
-        return false;
-    }
+	if (!Object.hasOwn(lookupTable[complianceServerSecrets], authentication)) {
+		return false;
+	}
 
-    return lookupTable[complianceServerSecrets][authentication];
+	return lookupTable[complianceServerSecrets][authentication];
 }
 
 /**
@@ -1120,10 +1315,9 @@ function requireServerSecret() {
  * @return {boolean} Returns whether the user should be forced to setup two factor
  */
 function requireServerSecretModification() {
-    const serverSecretExists = getStore().getState().user.serverSecretExists;
-    return requireServerSecret() !== serverSecretExists;
+	const serverSecretExists = getStore().getState().user.serverSecretExists;
+	return requireServerSecret() !== serverSecretExists;
 }
-
 
 /**
  * loads the sessions
@@ -1131,16 +1325,16 @@ function requireServerSecretModification() {
  * @returns {Promise} Returns a promise with the sessions
  */
 function getSessions() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        return request.data["sessions"];
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.getSessions(token, sessionSecretKey).then(onSuccess, onError);
+	const onSuccess = (request) => request.data["sessions"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.getSessions(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -1151,16 +1345,18 @@ function getSessions() {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteSession(sessionId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (request) {
-        // pass
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.logout(token, sessionSecretKey, sessionId, '').then(onSuccess, onError);
+	const onSuccess = (request) => {
+		// pass
+	};
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.logout(token, sessionSecretKey, sessionId, "")
+		.then(onSuccess, onError);
 }
 
 /**
@@ -1175,71 +1371,80 @@ function deleteSession(sessionId) {
  * @returns {Promise} promise
  */
 function register(email, username, password, server) {
+	const onSuccess = (baseUrl) => {
+		//managerBase.delete_local_data();
 
-    const onSuccess = function(baseUrl){
+		// storage.upsert('config', {key: 'user_email', value: email});
+		// storage.upsert('config', {key: 'user_username', value: username});
+		// storage.upsert('config', {key: 'server', value: server});
 
-        //managerBase.delete_local_data();
+		const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+		const hashingParameters = getStore().getState().user.hashingParameters;
 
-        // storage.upsert('config', {key: 'user_email', value: email});
-        // storage.upsert('config', {key: 'user_username', value: username});
-        // storage.upsert('config', {key: 'server', value: server});
+		const pair = cryptoLibrary.generatePublicPrivateKeypair();
+		const userSauce = cryptoLibrary.generateUserSauce();
 
-        const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-        const hashingParameters = getStore().getState().user.hashingParameters;
+		const privateKeyEncrypted = cryptoLibrary.encryptSecret(
+			pair.private_key,
+			password,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+		const secretKeyEncrypted = cryptoLibrary.encryptSecret(
+			cryptoLibrary.generateSecretKey(),
+			password,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
 
-        const pair = cryptoLibrary.generatePublicPrivateKeypair();
-        const userSauce = cryptoLibrary.generateUserSauce();
+		const onSuccess = () => {
+			storage.save();
 
-        const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce, hashingAlgorithm, hashingParameters);
-        const secretKeyEncrypted = cryptoLibrary
-            .encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce, hashingAlgorithm, hashingParameters);
+			return {
+				response: "success",
+			};
+		};
 
-        const onSuccess = function () {
+		const onError = (response) => {
+			// storage.remove('config', storage.find_key('config', 'user_email'));
+			// storage.remove('config', storage.find_key('config', 'server'));
+			storage.save();
 
-            storage.save();
+			return {
+				response: "error",
+				error_data: response.data,
+			};
+		};
 
-            return {
-                response:"success"
-            };
-        };
+		const authkey = cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+		return apiClient
+			.register(
+				email,
+				username,
+				authkey,
+				pair.public_key,
+				privateKeyEncrypted.text,
+				privateKeyEncrypted.nonce,
+				secretKeyEncrypted.text,
+				secretKeyEncrypted.nonce,
+				userSauce,
+				baseUrl,
+				hashingAlgorithm,
+				hashingParameters,
+			)
+			.then(onSuccess, onError);
+	};
 
-        const onError = function(response){
+	const onError = () => {};
 
-            // storage.remove('config', storage.find_key('config', 'user_email'));
-            // storage.remove('config', storage.find_key('config', 'server'));
-            storage.save();
-
-            return {
-                response:"error",
-                error_data: response.data
-            };
-        };
-
-        const authkey = cryptoLibrary.generateAuthkey(username, password, hashingAlgorithm, hashingParameters);
-        return apiClient.register(
-            email,
-            username,
-            authkey,
-            pair.public_key,
-            privateKeyEncrypted.text,
-            privateKeyEncrypted.nonce,
-            secretKeyEncrypted.text,
-            secretKeyEncrypted.nonce,
-            userSauce,
-            baseUrl,
-            hashingAlgorithm,
-            hashingParameters,
-        )
-            .then(onSuccess, onError);
-
-    };
-
-    const onError = function(){
-
-    };
-
-    return browserClient.getBaseUrl().then(onSuccess, onError)
-
+	return browserClient.getBaseUrl().then(onSuccess, onError);
 }
 
 /**
@@ -1251,30 +1456,21 @@ function register(email, username, password, server) {
  * @returns {Promise} promise
  */
 function unregister(username, email) {
+	const onSuccess = (baseUrl) => {
+		const onSuccess = () => ({
+			response: "success",
+		});
 
-    const onSuccess = function(baseUrl){
+		const onError = (response) => Promise.reject(response);
 
-        const onSuccess = function () {
-            return {
-                response:"success"
-            };
-        };
+		return apiClient
+			.unregister(username, email, baseUrl)
+			.then(onSuccess, onError);
+	};
 
-        const onError = function(response){
-            return Promise.reject(response)
-        };
+	const onError = (response) => Promise.reject(response);
 
-        return apiClient.unregister(username, email, baseUrl)
-            .then(onSuccess, onError);
-
-    };
-
-    const onError = function(response){
-        return Promise.reject(response)
-    };
-
-    return browserClient.getBaseUrl().then(onSuccess, onError)
-
+	return browserClient.getBaseUrl().then(onSuccess, onError);
 }
 
 /**
@@ -1286,65 +1482,54 @@ function unregister(username, email) {
  @returns {Promise} Returns a promise with the unregistration status
  */
 function unregisterConfirm(unregisterCode, server) {
+	action().setServerUrl(server);
 
-    action().setServerUrl(server);
+	const onSuccess = (baseUrl) => {
+		const onSuccess = () => ({
+			response: "success",
+		});
 
-    const onSuccess = function(baseUrl){
+		const onError = (response) => Promise.reject(response);
 
-        const onSuccess = function () {
-            return {
-                response:"success"
-            };
-        };
+		return apiClient.unregisterConfirm(unregisterCode).then(onSuccess, onError);
+	};
 
-        const onError = function(response){
-            return Promise.reject(response)
-        };
+	const onError = (response) => Promise.reject(response);
 
-        return apiClient.unregisterConfirm(unregisterCode)
-            .then(onSuccess, onError);
-
-    };
-
-    const onError = function(response){
-        return Promise.reject(response)
-    };
-
-    return browserClient.getBaseUrl().then(onSuccess, onError)
-
+	return browserClient.getBaseUrl().then(onSuccess, onError);
 }
 
 const userService = {
-    activateCode,
-    initiateLogin,
-    samlLogin,
-    initiateSamlLogin,
-    getSamlRedirectUrl,
-    oidcLogin,
-    initiateOidcLogin,
-    getOidcRedirectUrl,
-    login,
-    activateToken,
-    gaVerify,
-    duoVerify,
-    yubikeyOtpVerify,
-    logout,
-    isLoggedIn,
-    deleteAccount,
-    saveNewPassword,
-    saveNewEmail,
-    saveNewLanguage,
-    recoveryEnable,
-    setPassword,
-    armEmergencyCode,
-    requireTwoFaSetup,
-    requireServerSecret,
-    requireServerSecretModification,
-    getSessions,
-    deleteSession,
-    register,
-    unregister,
-    unregisterConfirm,
+	activateCode,
+	initiateLogin,
+	samlLogin,
+	initiateSamlLogin,
+	getSamlRedirectUrl,
+	oidcLogin,
+	initiateOidcLogin,
+	getOidcRedirectUrl,
+	login,
+	activateToken,
+	gaVerify,
+	duoVerify,
+	yubikeyOtpVerify,
+	logout,
+	isLoggedIn,
+	deleteAccount,
+	saveNewPassword,
+	saveNewEmail,
+	saveNewLanguage,
+	recoveryEnable,
+	setPassword,
+	armEmergencyCode,
+	requireTwoFaSetup,
+	requireServerSecret,
+	requireServerSecretModification,
+	getSessions,
+	deleteSession,
+	register,
+	unregister,
+	unregisterConfirm,
 };
 
 export default userService;

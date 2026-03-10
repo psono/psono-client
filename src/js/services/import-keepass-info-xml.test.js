@@ -1,11 +1,9 @@
-import React from 'react';
-import importKeePassXml from './import-keepass-info-xml';
+import React from "react";
 import cryptoLibrary from "../services/crypto-library";
+import importKeePassXml from "./import-keepass-info-xml";
 
-describe('Service: importKeePassXml test suite', function () {
-
-    it('importKeePassXml exists', function () {
-        expect(importKeePassXml).toBeDefined();
-    });
-
+describe("Service: importKeePassXml test suite", () => {
+	it("importKeePassXml exists", () => {
+		expect(importKeePassXml).toBeDefined();
+	});
 });

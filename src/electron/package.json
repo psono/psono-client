@@ -1,126 +1,144 @@
 {
-  "name": "psono",
-  "productName": "Psono",
-  "version": "1.1.0",
-  "description": "Psono Password manager",
-  "homepage": "https://psono.com",
-  "main": "index.js",
-  "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
-    "publish": "electron-builder --publish=always",
-    "lint": "echo \"No linting configured\""
-  },
-  "keywords": [],
-  "author": {
-    "name": "esaqa GmbH",
-    "email": "support@esaqa.com"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "electron-log": "^5.0.0-beta.16",
-    "electron-squirrel-startup": "^1.0.0",
-    "update-electron-app": "^2.0.1"
-  },
-  "devDependencies": {
-    "electron": "23.0.0",
-    "electron-builder": "^26.0.12"
-  },
-  "build": {
-    "appId": "com.esaqa.psono",
-    "productName": "Psono",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "**/*",
-      "!node_modules",
-      "!dist",
-      "!forge.config.js"
-    ],
-    "mac": {
-      "icon": "images/icon.icns",
-      "category": "public.app-category.productivity",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "zip",
-          "arch": ["x64", "arm64"]
-        }
-      ],
-      "notarize": true
-    },
-    "win": {
-      "icon": "images/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64", "ia32"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64", "ia32"]
-        }
-      ]
-    },
-    "linux": {
-      "icon": "images/icon.png",
-      "category": "Utility",
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        },
-        {
-          "target": "rpm",
-          "arch": ["x64"]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Psono"
-    },
-    "dmg": {
-      "background": "installer/mac/background.png",
-      "iconSize": 100,
-      "contents": [
-        {
-          "x": 380,
-          "y": 280,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 110,
-          "y": 280,
-          "type": "file"
-        }
-      ]
-    },
-    "deb": {
-      "maintainer": "esaqa GmbH <support@esaqa.com>"
-    },
-    "rpm": {},
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "psono",
-        "repo": "psono-client"
-      }
-    ]
-  }
+	"name": "psono",
+	"productName": "Psono",
+	"version": "1.1.0",
+	"description": "Psono Password manager",
+	"homepage": "https://psono.com",
+	"main": "index.js",
+	"scripts": {
+		"start": "electron .",
+		"build": "electron-builder",
+		"build:win": "electron-builder --win",
+		"build:mac": "electron-builder --mac",
+		"build:linux": "electron-builder --linux",
+		"publish": "electron-builder --publish=always",
+		"lint": "echo \"No linting configured\""
+	},
+	"keywords": [],
+	"author": {
+		"name": "esaqa GmbH",
+		"email": "support@esaqa.com"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"electron-log": "^5.0.0-beta.16",
+		"electron-squirrel-startup": "^1.0.0",
+		"update-electron-app": "^2.0.1"
+	},
+	"devDependencies": {
+		"electron": "23.0.0",
+		"electron-builder": "^26.0.12"
+	},
+	"build": {
+		"appId": "com.esaqa.psono",
+		"productName": "Psono",
+		"directories": {
+			"output": "dist"
+		},
+		"files": [
+			"**/*",
+			"!node_modules",
+			"!dist",
+			"!forge.config.js"
+		],
+		"mac": {
+			"icon": "images/icon.icns",
+			"category": "public.app-category.productivity",
+			"target": [
+				{
+					"target": "dmg",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				},
+				{
+					"target": "zip",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				}
+			],
+			"notarize": true
+		},
+		"win": {
+			"icon": "images/icon.ico",
+			"target": [
+				{
+					"target": "nsis",
+					"arch": [
+						"x64",
+						"ia32"
+					]
+				},
+				{
+					"target": "portable",
+					"arch": [
+						"x64",
+						"ia32"
+					]
+				}
+			]
+		},
+		"linux": {
+			"icon": "images/icon.png",
+			"category": "Utility",
+			"target": [
+				{
+					"target": "AppImage",
+					"arch": [
+						"x64"
+					]
+				},
+				{
+					"target": "deb",
+					"arch": [
+						"x64"
+					]
+				},
+				{
+					"target": "rpm",
+					"arch": [
+						"x64"
+					]
+				}
+			]
+		},
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true,
+			"createDesktopShortcut": true,
+			"createStartMenuShortcut": true,
+			"shortcutName": "Psono"
+		},
+		"dmg": {
+			"background": "installer/mac/background.png",
+			"iconSize": 100,
+			"contents": [
+				{
+					"x": 380,
+					"y": 280,
+					"type": "link",
+					"path": "/Applications"
+				},
+				{
+					"x": 110,
+					"y": 280,
+					"type": "file"
+				}
+			]
+		},
+		"deb": {
+			"maintainer": "esaqa GmbH <support@esaqa.com>"
+		},
+		"rpm": {},
+		"publish": [
+			{
+				"provider": "github",
+				"owner": "psono",
+				"repo": "psono-client"
+			}
+		]
+	}
 }

@@ -17,36 +17,66 @@ let timeout = 0;
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLinks(datastore, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    let i;
-    function moveFileLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
-        onOpenRequest()
-        timeout = timeout + 50;
-        setTimeout(function () {
-            moveFileLink(linkId, newParentShareId, newParentDatastoreId, undefined, onClosedRequest);
-        }, timeout);
-    }
-    for (i = 0; datastore.hasOwnProperty("folders") && i < datastore["folders"].length; i++) {
-        if (datastore["folders"][i].hasOwnProperty("share_id")) {
-            continue;
-        }
-        moveFileLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest);
-    }
-    for (i = 0; datastore.hasOwnProperty("items") && i < datastore["items"].length; i++) {
-        if (datastore["items"][i].hasOwnProperty("share_id")) {
-            continue;
-        }
-        if (datastore["items"][i].hasOwnProperty("file_id")) {
-            moveFileLinkTimed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
-        }
-    }
+function moveFileLinks(
+	datastore,
+	newParentShareId,
+	newParentDatastoreId,
+	onOpenRequest,
+	onClosedRequest,
+) {
+	let i;
+	function moveFileLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
+		onOpenRequest();
+		timeout = timeout + 50;
+		setTimeout(() => {
+			moveFileLink(
+				linkId,
+				newParentShareId,
+				newParentDatastoreId,
+				undefined,
+				onClosedRequest,
+			);
+		}, timeout);
+	}
+	for (
+		i = 0;
+		Object.hasOwn(datastore, "folders") && i < datastore["folders"].length;
+		i++
+	) {
+		if (Object.hasOwn(datastore["folders"][i], "share_id")) {
+			continue;
+		}
+		moveFileLinks(
+			datastore["folders"][i],
+			newParentShareId,
+			newParentDatastoreId,
+			onOpenRequest,
+			onClosedRequest,
+		);
+	}
+	for (
+		i = 0;
+		Object.hasOwn(datastore, "items") && i < datastore["items"].length;
+		i++
+	) {
+		if (Object.hasOwn(datastore["items"][i], "share_id")) {
+			continue;
+		}
+		if (Object.hasOwn(datastore["items"][i], "file_id")) {
+			moveFileLinkTimed(
+				datastore["items"][i]["id"],
+				newParentShareId,
+				newParentDatastoreId,
+			);
+		}
+	}
 }
 
 /**
  * Resets the timeout for file links. need to be called before running moveFileLinks
  */
 function resetFileLinkTimeout() {
-    timeout = 0;
+	timeout = 0;
 }
 
 /**
@@ -60,29 +90,41 @@ function resetFileLinkTimeout() {
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function moveFileLink(
+	linkId,
+	newParentShareId,
+	newParentDatastoreId,
+	onOpenRequest,
+	onClosedRequest,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    if (onOpenRequest) {
-        onOpenRequest()
-    }
+	if (onOpenRequest) {
+		onOpenRequest();
+	}
 
-    const onError = function (result) {
-        if (onClosedRequest) {
-            onClosedRequest()
-        }
-    };
+	const onError = (result) => {
+		if (onClosedRequest) {
+			onClosedRequest();
+		}
+	};
 
-    const onSuccess = function (content) {
-        if (onClosedRequest) {
-            onClosedRequest()
-        }
-    };
+	const onSuccess = (content) => {
+		if (onClosedRequest) {
+			onClosedRequest();
+		}
+	};
 
-    return apiClient
-        .moveFileLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
-        .then(onSuccess, onError);
+	return apiClient
+		.moveFileLink(
+			token,
+			sessionSecretKey,
+			linkId,
+			newParentShareId,
+			newParentDatastoreId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -93,17 +135,19 @@ function moveFileLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequ
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteFileLink(linkId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onError = function (result) {
-        // pass
-    };
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onError = (result) => {
+		// pass
+	};
 
-    const onSuccess = function (content) {
-        // pass
-    };
+	const onSuccess = (content) => {
+		// pass
+	};
 
-    return apiClient.deleteFileLink(token, sessionSecretKey, linkId).then(onSuccess, onError);
+	return apiClient
+		.deleteFileLink(token, sessionSecretKey, linkId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -115,20 +159,20 @@ function deleteFileLink(linkId) {
  * @returns {Promise} Returns promise with the status of the move
  */
 function onFileMoved(linkId, parent) {
-    let new_parent_share_id, new_parent_datastore_id;
+	let new_parent_share_id, new_parent_datastore_id;
 
-    if (parent.hasOwnProperty("share_id")) {
-        new_parent_share_id = parent.share_id;
-    } else if (parent.hasOwnProperty("datastore_id")) {
-        new_parent_datastore_id = parent.datastore_id;
-    } else {
-        return Promise.reject({
-            response: "error",
-            error_data: "Could not determine if its a share or datastore parent",
-        });
-    }
+	if (Object.hasOwn(parent, "share_id")) {
+		new_parent_share_id = parent.share_id;
+	} else if (Object.hasOwn(parent, "datastore_id")) {
+		new_parent_datastore_id = parent.datastore_id;
+	} else {
+		return Promise.reject({
+			response: "error",
+			error_data: "Could not determine if its a share or datastore parent",
+		});
+	}
 
-    return moveFileLink(linkId, new_parent_share_id, new_parent_datastore_id);
+	return moveFileLink(linkId, new_parent_share_id, new_parent_datastore_id);
 }
 
 /**
@@ -139,15 +183,15 @@ function onFileMoved(linkId, parent) {
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function onFileDeleted(linkId) {
-    return deleteFileLink(linkId);
+	return deleteFileLink(linkId);
 }
 
 const fileLinkService = {
-    moveFileLinks: moveFileLinks,
-    resetFileLinkTimeout: resetFileLinkTimeout,
-    moveFileLink: moveFileLink,
-    deleteFileLink: deleteFileLink,
-    onFileMoved: onFileMoved,
-    onFileDeleted: onFileDeleted,
+	moveFileLinks: moveFileLinks,
+	resetFileLinkTimeout: resetFileLinkTimeout,
+	moveFileLink: moveFileLink,
+	deleteFileLink: deleteFileLink,
+	onFileMoved: onFileMoved,
+	onFileDeleted: onFileDeleted,
 };
 export default fileLinkService;

@@ -2,9 +2,9 @@
  * Service to manage the history of a secret
  */
 
-import { getStore } from "./store";
 import apiClient from "./api-client";
 import cryptoLibraryService from "./crypto-library";
+import { getStore } from "./store";
 
 /**
  * Reads the history of a secret from the server
@@ -14,18 +14,18 @@ import cryptoLibraryService from "./crypto-library";
  * @returns {Promise} Returns a list of history items
  */
 function readSecretHistory(secretId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data.history;
-    };
+	const onSuccess = (data) => data.data.history;
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.readSecretHistory(token, sessionSecretKey, secretId).then(onSuccess, onError);
+	return apiClient
+		.readSecretHistory(token, sessionSecretKey, secretId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -37,30 +37,36 @@ function readSecretHistory(secretId) {
  * @returns {Promise} Returns a list of history items
  */
 function readHistory(secretHistoryId, secretKey) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (content) {
-        const secret = JSON.parse(
-            cryptoLibraryService.decryptData(content.data.data, content.data.data_nonce, secretKey)
-        );
-        secret["create_date"] = content.data["create_date"];
-        secret["write_date"] = content.data["write_date"];
-        secret["callback_url"] = content.data["callback_url"];
-        secret["callback_user"] = content.data["callback_user"];
-        secret["callback_pass"] = content.data["callback_pass"];
-        return secret;
-    };
+	const onSuccess = (content) => {
+		const secret = JSON.parse(
+			cryptoLibraryService.decryptData(
+				content.data.data,
+				content.data.data_nonce,
+				secretKey,
+			),
+		);
+		secret["create_date"] = content.data["create_date"];
+		secret["write_date"] = content.data["write_date"];
+		secret["callback_url"] = content.data["callback_url"];
+		secret["callback_user"] = content.data["callback_user"];
+		secret["callback_pass"] = content.data["callback_pass"];
+		return secret;
+	};
 
-    const onError = function () {
-        //pass
-    };
+	const onError = () => {
+		//pass
+	};
 
-    return apiClient.readHistory(token, sessionSecretKey, secretHistoryId).then(onSuccess, onError);
+	return apiClient
+		.readHistory(token, sessionSecretKey, secretHistoryId)
+		.then(onSuccess, onError);
 }
 
 const historyService = {
-    readSecretHistory: readSecretHistory,
-    readHistory: readHistory,
+	readSecretHistory: readSecretHistory,
+	readHistory: readHistory,
 };
 export default historyService;

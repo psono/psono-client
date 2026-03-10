@@ -3,8 +3,8 @@
  */
 
 import * as openpgp from "openpgp";
-import datastoreService from "./datastore";
 import converter from "./converter";
+import datastoreService from "./datastore";
 import helper from "./helper";
 
 /**
@@ -13,18 +13,18 @@ import helper from "./helper";
  * @returns {Promise} Returns the settings datastore
  */
 function getGpgUserDatastore() {
-    const type = "gpg-user";
-    const description = "default";
+	const type = "gpg-user";
+	const description = "default";
 
-    const onSuccess = function (datastore) {
-        datastoreService.updatePathsRecursive(datastore, []);
-        return datastore;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (datastore) => {
+		datastoreService.updatePathsRecursive(datastore, []);
+		return datastore;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return datastoreService.getDatastore(type).then(onSuccess, onError);
+	return datastoreService.getDatastore(type).then(onSuccess, onError);
 }
 
 /**
@@ -33,7 +33,7 @@ function getGpgUserDatastore() {
  * @param {TreeObject} datastore The datastore tree
  */
 function handleDatastoreContentChanged(datastore) {
-    // don't do anything
+	// don't do anything
 }
 
 /**
@@ -43,22 +43,22 @@ function handleDatastoreContentChanged(datastore) {
  * @returns {Promise} Promise with the status of the save
  */
 function saveDatastoreContent(content) {
-    const type = "gpg-user";
-    const description = "default";
+	const type = "gpg-user";
+	const description = "default";
 
-    return datastoreService.saveDatastoreContent(type, description, content);
+	return datastoreService.saveDatastoreContent(type, description, content);
 }
 
 function _searchForEmail(datastore, email) {
-    let searched_user;
+	let searched_user;
 
-    datastoreService.filter(datastore, function (user) {
-        if (user.email === email) {
-            searched_user = user;
-        }
-    });
+	datastoreService.filter(datastore, (user) => {
+		if (user.email === email) {
+			searched_user = user;
+		}
+	});
 
-    return searched_user;
+	return searched_user;
 }
 
 /**
@@ -69,62 +69,62 @@ function _searchForEmail(datastore, email) {
  * @returns {Promise} Promise with the status of the save
  */
 async function addUser(user) {
-    if (!user.hasOwnProperty("email")) {
-        return Promise.reject({
-            error: "User has no email address.",
-        });
-    }
+	if (!Object.hasOwn(user, "email")) {
+		return Promise.reject({
+			error: "User has no email address.",
+		});
+	}
 
-    if (!user.hasOwnProperty("id")) {
-        return Promise.reject({
-            error: "User has no id.",
-        });
-    }
-    for (let i = 0; i < user.public_keys.length; i++) {
-        try {
-            await openpgp.readKey({ armoredKey: user.public_keys[i] });
-        } catch (e) {
-            return Promise.reject({
-                error: "Invalid Fingerprint.",
-            });
-        }
-    }
+	if (!Object.hasOwn(user, "id")) {
+		return Promise.reject({
+			error: "User has no id.",
+		});
+	}
+	for (let i = 0; i < user.public_keys.length; i++) {
+		try {
+			await openpgp.readKey({ armoredKey: user.public_keys[i] });
+		} catch (e) {
+			return Promise.reject({
+				error: "Invalid Fingerprint.",
+			});
+		}
+	}
 
-    user.email = user.email.toLowerCase();
+	user.email = user.email.toLowerCase();
 
-    const onSuccess = async function (datastore) {
-        let need_write = false;
-        let ds_user = _searchForEmail(datastore, user.email);
-        if (ds_user) {
-            need_write = await _addPublicKey(ds_user, user.public_keys);
-        } else {
-            if (!datastore.hasOwnProperty("items")) {
-                datastore["items"] = [];
-            }
-            need_write = true;
+	const onSuccess = async (datastore) => {
+		let need_write = false;
+		let ds_user = _searchForEmail(datastore, user.email);
+		if (ds_user) {
+			need_write = await _addPublicKey(ds_user, user.public_keys);
+		} else {
+			if (!Object.hasOwn(datastore, "items")) {
+				datastore["items"] = [];
+			}
+			need_write = true;
 
-            ds_user = {
-                id: user.id,
-                email: user.email,
-                public_keys: user.public_keys,
-                default_public_key: user.default_public_key || "",
-            };
+			ds_user = {
+				id: user.id,
+				email: user.email,
+				public_keys: user.public_keys,
+				default_public_key: user.default_public_key || "",
+			};
 
-            datastore["items"].push(ds_user);
-        }
+			datastore["items"].push(ds_user);
+		}
 
-        if (need_write) {
-            _updateDefaultPublicKey(ds_user);
-            saveDatastoreContent(datastore);
-        }
+		if (need_write) {
+			_updateDefaultPublicKey(ds_user);
+			saveDatastoreContent(datastore);
+		}
 
-        return ds_user;
-    };
-    const onError = function () {
-        // pass
-    };
+		return ds_user;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getGpgUserDatastore().then(onSuccess, onError);
+	return getGpgUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -135,25 +135,30 @@ async function addUser(user) {
  * @returns {boolean} whether the user was changed or not
  */
 async function _updateDefaultPublicKey(user) {
-    if (user.public_keys.length > 0) {
-        if (user.default_public_key) {
-            const key1 = await openpgp.readKey({ armoredKey: user.default_public_key });
-            let found = false;
-            for (let k = 0; k < user.public_keys.length; k++) {
-                const key2 = await openpgp.readKey({ armoredKey: user.public_keys[k] });
-                if (converter.toHex(key1.keyPacket.fingerprint) !== converter.toHex(key2.keyPacket.fingerprint)) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                user.default_public_key = user.public_keys[0];
-            }
-        } else {
-            user.default_public_key = user.public_keys[0];
-        }
-    } else {
-        user.default_public_key = "";
-    }
+	if (user.public_keys.length > 0) {
+		if (user.default_public_key) {
+			const key1 = await openpgp.readKey({
+				armoredKey: user.default_public_key,
+			});
+			let found = false;
+			for (let k = 0; k < user.public_keys.length; k++) {
+				const key2 = await openpgp.readKey({ armoredKey: user.public_keys[k] });
+				if (
+					converter.toHex(key1.keyPacket.fingerprint) !==
+					converter.toHex(key2.keyPacket.fingerprint)
+				) {
+					found = true;
+				}
+			}
+			if (!found) {
+				user.default_public_key = user.public_keys[0];
+			}
+		} else {
+			user.default_public_key = user.public_keys[0];
+		}
+	} else {
+		user.default_public_key = "";
+	}
 }
 
 /**
@@ -165,30 +170,33 @@ async function _updateDefaultPublicKey(user) {
  * @returns {Promise} whether the user was changed or not
  */
 async function _addPublicKey(user, public_keys) {
-    let need_write = false;
+	let need_write = false;
 
-    for (let j = 0; j < public_keys.length; j++) {
-        let found = false;
-        const key = await openpgp.readKey({ armoredKey: public_keys[j] });
-        for (let i = 0; i < user.public_keys.length; i++) {
-            const ds_key = await openpgp.readKey({ armoredKey: user.public_keys[i] });
-            if (converter.toHex(ds_key.keyPacket.fingerprint) !== converter.toHex(key.keyPacket.fingerprint)) {
-                continue;
-            }
-            found = true;
-            break;
-        }
-        if (!found) {
-            need_write = true;
-            user.public_keys.push(public_keys[j]);
-        }
-    }
+	for (let j = 0; j < public_keys.length; j++) {
+		let found = false;
+		const key = await openpgp.readKey({ armoredKey: public_keys[j] });
+		for (let i = 0; i < user.public_keys.length; i++) {
+			const ds_key = await openpgp.readKey({ armoredKey: user.public_keys[i] });
+			if (
+				converter.toHex(ds_key.keyPacket.fingerprint) !==
+				converter.toHex(key.keyPacket.fingerprint)
+			) {
+				continue;
+			}
+			found = true;
+			break;
+		}
+		if (!found) {
+			need_write = true;
+			user.public_keys.push(public_keys[j]);
+		}
+	}
 
-    if (need_write) {
-        _updateDefaultPublicKey(user);
-    }
+	if (need_write) {
+		_updateDefaultPublicKey(user);
+	}
 
-    return need_write;
+	return need_write;
 }
 
 /**
@@ -200,27 +208,27 @@ async function _addPublicKey(user, public_keys) {
  * @returns {Promise} Promise weather the user object has been modified or not
  */
 function addPublicKey(user, public_keys) {
-    const onSuccess = async function (datastore) {
-        const ds_user = _searchForEmail(datastore, user.email);
+	const onSuccess = async (datastore) => {
+		const ds_user = _searchForEmail(datastore, user.email);
 
-        if (!ds_user) {
-            return {
-                error: "User not found.",
-            };
-        }
+		if (!ds_user) {
+			return {
+				error: "User not found.",
+			};
+		}
 
-        const need_write = await _addPublicKey(ds_user, public_keys);
+		const need_write = await _addPublicKey(ds_user, public_keys);
 
-        if (need_write) {
-            saveDatastoreContent(datastore);
-        }
-        return ds_user;
-    };
-    const onError = function () {
-        // pass
-    };
+		if (need_write) {
+			saveDatastoreContent(datastore);
+		}
+		return ds_user;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getGpgUserDatastore().then(onSuccess, onError);
+	return getGpgUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -232,25 +240,28 @@ function addPublicKey(user, public_keys) {
  * @returns {Promise} whether the user was changed or not
  */
 async function _removePublicKey(user, public_keys) {
-    let need_write = false;
+	let need_write = false;
 
-    for (let j = 0; j < public_keys.length; j++) {
-        const key = await openpgp.readKey({ armoredKey: public_keys[j] });
-        for (let i = user.public_keys.length - 1; i >= 0; i--) {
-            const ds_key = await openpgp.readKey({ armoredKey: user.public_keys[i] });
-            if (converter.toHex(ds_key.keyPacket.fingerprint) !== converter.toHex(key.keyPacket.fingerprint)) {
-                continue;
-            }
-            user.public_keys.splice(i, 1);
-            need_write = true;
-        }
-    }
+	for (let j = 0; j < public_keys.length; j++) {
+		const key = await openpgp.readKey({ armoredKey: public_keys[j] });
+		for (let i = user.public_keys.length - 1; i >= 0; i--) {
+			const ds_key = await openpgp.readKey({ armoredKey: user.public_keys[i] });
+			if (
+				converter.toHex(ds_key.keyPacket.fingerprint) !==
+				converter.toHex(key.keyPacket.fingerprint)
+			) {
+				continue;
+			}
+			user.public_keys.splice(i, 1);
+			need_write = true;
+		}
+	}
 
-    if (need_write) {
-        _updateDefaultPublicKey(user);
-    }
+	if (need_write) {
+		_updateDefaultPublicKey(user);
+	}
 
-    return need_write;
+	return need_write;
 }
 
 /**
@@ -262,26 +273,26 @@ async function _removePublicKey(user, public_keys) {
  * @returns {Promise} Promise weather the user object has been modified or not
  */
 function removePublicKey(user, publicKeys) {
-    const onSuccess = async function (datastore) {
-        const ds_user = _searchForEmail(datastore, user.email);
+	const onSuccess = async (datastore) => {
+		const ds_user = _searchForEmail(datastore, user.email);
 
-        if (!ds_user) {
-            return Promise.reject({
-                error: "User not found.",
-            });
-        }
+		if (!ds_user) {
+			return Promise.reject({
+				error: "User not found.",
+			});
+		}
 
-        const need_write = await _removePublicKey(ds_user, publicKeys);
-        if (need_write) {
-            saveDatastoreContent(datastore);
-        }
-        return ds_user;
-    };
-    const onError = function () {
-        // pass
-    };
+		const need_write = await _removePublicKey(ds_user, publicKeys);
+		if (need_write) {
+			saveDatastoreContent(datastore);
+		}
+		return ds_user;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getGpgUserDatastore().then(onSuccess, onError);
+	return getGpgUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -292,30 +303,28 @@ function removePublicKey(user, publicKeys) {
  * @returns {Promise} Promise with the status of the save
  */
 function deleteUser(user) {
-    const onSuccess = function (datastore) {
-        function deleteItemRecursive(datastore, id) {
-            let n, l;
-            if (datastore.hasOwnProperty("items")) {
-                helper.removeFromArray(datastore.items, id, function (a, b) {
-                    return a.id === id;
-                });
-            }
+	const onSuccess = (datastore) => {
+		function deleteItemRecursive(datastore, id) {
+			let n, l;
+			if (Object.hasOwn(datastore, "items")) {
+				helper.removeFromArray(datastore.items, id, (a, b) => a.id === id);
+			}
 
-            if (datastore.hasOwnProperty("folders")) {
-                for (n = 0, l = datastore.folders.length; n < l; n++) {
-                    deleteItemRecursive(datastore.folders[n], id);
-                }
-            }
-        }
+			if (Object.hasOwn(datastore, "folders")) {
+				for (n = 0, l = datastore.folders.length; n < l; n++) {
+					deleteItemRecursive(datastore.folders[n], id);
+				}
+			}
+		}
 
-        deleteItemRecursive(datastore, user.id);
-        return saveDatastoreContent(datastore);
-    };
-    const onError = function () {
-        // pass
-    };
+		deleteItemRecursive(datastore, user.id);
+		return saveDatastoreContent(datastore);
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getGpgUserDatastore().then(onSuccess, onError);
+	return getGpgUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -327,20 +336,20 @@ function deleteUser(user) {
  * @returns {Promise} Promise with the status of the save
  */
 function chooseAsDefaultKey(user, public_key) {
-    const onSuccess = async function (datastore) {
-        const ds_user = _searchForEmail(datastore, user.email);
+	const onSuccess = async (datastore) => {
+		const ds_user = _searchForEmail(datastore, user.email);
 
-        await _addPublicKey(ds_user, [public_key]);
-        ds_user.default_public_key = public_key;
+		await _addPublicKey(ds_user, [public_key]);
+		ds_user.default_public_key = public_key;
 
-        saveDatastoreContent(datastore);
-        return ds_user;
-    };
-    const onError = function () {
-        // pass
-    };
+		saveDatastoreContent(datastore);
+		return ds_user;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return getGpgUserDatastore().then(onSuccess, onError);
+	return getGpgUserDatastore().then(onSuccess, onError);
 }
 
 /**
@@ -351,41 +360,41 @@ function chooseAsDefaultKey(user, public_key) {
  * @returns {Promise} Promise with the status of the save
  */
 async function getGpgFingerprint(publicKeyArmored) {
-    let fingerprint = "";
+	let fingerprint = "";
 
-    if (!publicKeyArmored) {
-        return fingerprint;
-    }
+	if (!publicKeyArmored) {
+		return fingerprint;
+	}
 
-    if (publicKeyArmored.indexOf("-----") !== -1) {
-        let key;
-        try {
-            key = await openpgp.readKey({ armoredKey: publicKeyArmored });
-        } catch (e) {
-            return fingerprint;
-        }
-        fingerprint = converter.toHex(key.keyPacket.fingerprint);
-    }
+	if (publicKeyArmored.indexOf("-----") !== -1) {
+		let key;
+		try {
+			key = await openpgp.readKey({ armoredKey: publicKeyArmored });
+		} catch (e) {
+			return fingerprint;
+		}
+		fingerprint = converter.toHex(key.keyPacket.fingerprint);
+	}
 
-    const cleaned = fingerprint.toUpperCase().replace(/\s/g, "");
-    const parts = [];
+	const cleaned = fingerprint.toUpperCase().replace(/\s/g, "");
+	const parts = [];
 
-    for (let i = 0; i < cleaned.length; i += 4) {
-        parts.push(cleaned.substr(i, 4));
-    }
+	for (let i = 0; i < cleaned.length; i += 4) {
+		parts.push(cleaned.substr(i, 4));
+	}
 
-    return parts.join(" ");
+	return parts.join(" ");
 }
 
 const datastoreGpgUserService = {
-    getGpgUserDatastore: getGpgUserDatastore,
-    handleDatastoreContentChanged: handleDatastoreContentChanged,
-    saveDatastoreContent: saveDatastoreContent,
-    addUser: addUser,
-    deleteUser: deleteUser,
-    addPublicKey: addPublicKey,
-    removePublicKey: removePublicKey,
-    chooseAsDefaultKey: chooseAsDefaultKey,
-    getGpgFingerprint: getGpgFingerprint,
+	getGpgUserDatastore: getGpgUserDatastore,
+	handleDatastoreContentChanged: handleDatastoreContentChanged,
+	saveDatastoreContent: saveDatastoreContent,
+	addUser: addUser,
+	deleteUser: deleteUser,
+	addPublicKey: addPublicKey,
+	removePublicKey: removePublicKey,
+	chooseAsDefaultKey: chooseAsDefaultKey,
+	getGpgFingerprint: getGpgFingerprint,
 };
 export default datastoreGpgUserService;

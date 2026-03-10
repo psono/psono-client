@@ -1,450 +1,509 @@
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import { Grid } from "@mui/material";
-import { makeStyles } from '@mui/styles';
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import MuiAlert from '@mui/material/Alert'
-import Button from "@mui/material/Button";
-
-import browserClient from "../../services/browser-client";
-import helperService from "../../services/helper";
-import user from "../../services/user";
-import converterService from "../../services/converter";
-import host from "../../services/host";
-import cryptoLibrary from "../../services/crypto-library";
-import GridContainerErrors from "../../components/grid-container-errors";
-import { getStore } from "../../services/store";
 import FooterLinks from "../../components/footer-links";
+import GridContainerErrors from "../../components/grid-container-errors";
+import browserClient from "../../services/browser-client";
+import converterService from "../../services/converter";
+import cryptoLibrary from "../../services/crypto-library";
+import helperService from "../../services/helper";
+import host from "../../services/host";
+import { getStore } from "../../services/store";
+import user from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-        "& .MuiInputBase-root": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
-            color: theme.palette.greyText.main,
-        },
-        "& MuiFormControl-root": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& label": {
-            color: theme.palette.lightGreyText.main,
-        },
-        "& .MuiInput-underline:after": {
-            borderBottomColor: "green",
-        },
-        "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-                borderColor: theme.palette.greyText.main,
-            },
-        },
-    },
-    button: {
-        color: "white !important",
-    },
-    inputAdornment: {
-        color: theme.palette.lightGreyText.main,
-    },
-    regularButtonText: {
-        color: theme.palette.lightGreyText.main,
-    },
+	textField: {
+		width: "100%",
+		"& .MuiInputBase-root": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& .MuiInputAdornment-root .MuiTypography-colorTextSecondary": {
+			color: theme.palette.greyText.main,
+		},
+		"& MuiFormControl-root": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& label": {
+			color: theme.palette.lightGreyText.main,
+		},
+		"& .MuiInput-underline:after": {
+			borderBottomColor: "green",
+		},
+		"& .MuiOutlinedInput-root": {
+			"& fieldset": {
+				borderColor: theme.palette.greyText.main,
+			},
+		},
+	},
+	button: {
+		color: "white !important",
+	},
+	inputAdornment: {
+		color: theme.palette.lightGreyText.main,
+	},
+	regularButtonText: {
+		color: theme.palette.lightGreyText.main,
+	},
 }));
 
 const LostPasswordViewForm = (props) => {
-    const classes = useStyles();
-    const { t } = useTranslation();
+	const classes = useStyles();
+	const { t } = useTranslation();
 
-    const [view, setView] = useState("default");
-    const [username, setUsername] = useState(getStore().getState().user.username);
-    const [code1, setCode1] = useState("");
-    const [code2, setCode2] = useState("");
-    const [words, setWords] = useState("");
-    const [server, setServer] = useState(getStore().getState().server.url);
-    const [password, setPassword] = useState("");
-    const [passwordRepeat, setPasswordRepeat] = useState("");
-    const [domain, setDomain] = useState("");
-    const [errors, setErrors] = useState([]);
-    const [recoveryData, setRecoveryData] = useState({});
-    const [recoveryCode, setRecoveryCode] = useState({});
-    const [allowLostPassword, setAllowLostPassword] = useState(false);
-    const [allowCustomServer, setAllowCustomServer] = useState(true);
+	const [view, setView] = useState("default");
+	const [username, setUsername] = useState(getStore().getState().user.username);
+	const [code1, setCode1] = useState("");
+	const [code2, setCode2] = useState("");
+	const [words, setWords] = useState("");
+	const [server, setServer] = useState(getStore().getState().server.url);
+	const [password, setPassword] = useState("");
+	const [passwordRepeat, setPasswordRepeat] = useState("");
+	const [domain, setDomain] = useState("");
+	const [errors, setErrors] = useState([]);
+	const [recoveryData, setRecoveryData] = useState({});
+	const [recoveryCode, setRecoveryCode] = useState({});
+	const [allowLostPassword, setAllowLostPassword] = useState(false);
+	const [allowCustomServer, setAllowCustomServer] = useState(true);
 
-    let isSubscribed = true;
-    React.useEffect(() => {
-        browserClient.getConfig().then(onNewConfigLoaded);
-        return () => (isSubscribed = false);
-    }, []);
+	let isSubscribed = true;
+	React.useEffect(() => {
+		browserClient.getConfig().then(onNewConfigLoaded);
+		return () => (isSubscribed = false);
+	}, []);
 
-    const cancel = (e) => {
-        setView("default");
-        setErrors([]);
-    };
+	const cancel = (e) => {
+		setView("default");
+		setErrors([]);
+	};
 
-    const setNewPassword = (e) => {
-        setErrors([]);
+	const setNewPassword = (e) => {
+		setErrors([]);
 
-        host.info().then(
-            function (info) {
-                const test_error = helperService.isValidPassword(
-                    password,
-                    passwordRepeat,
-                    info.data["decoded_info"]["compliance_min_master_password_length"],
-                    info.data["decoded_info"]["compliance_min_master_password_complexity"]
-                );
+		host.info().then(
+			(info) => {
+				const test_error = helperService.isValidPassword(
+					password,
+					passwordRepeat,
+					info.data["decoded_info"]["compliance_min_master_password_length"],
+					info.data["decoded_info"][
+						"compliance_min_master_password_complexity"
+					],
+				);
 
-                if (test_error) {
-                    setErrors([test_error]);
-                    return;
-                }
+				if (test_error) {
+					setErrors([test_error]);
+					return;
+				}
 
-                function onError() {
-                    alert("Error, should not happen.");
-                }
+				function onError() {
+					alert("Error, should not happen.");
+				}
 
-                function onSuccess() {
-                    setView("success");
-                }
-                let parsedUrl = helperService.parseUrl(server);
-                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
+				function onSuccess() {
+					setView("success");
+				}
+				const parsedUrl = helperService.parseUrl(server);
+				const fullUsername = helperService.formFullUsername(
+					username,
+					domain || parsedUrl["full_domain_without_www"],
+				);
 
-                // Validate now the username
-                user.setPassword(
-                    fullUsername,
-                    recoveryCode,
-                    password,
-                    recoveryData.user_private_key,
-                    recoveryData.user_secret_key,
-                    recoveryData.user_sauce,
-                    recoveryData.verifier_public_key
-                ).then(onSuccess, onError);
-            },
-            function (data) {
-                console.log(data);
-                // handle server is offline
-                setErrors(["SERVER_OFFLINE"]);
-            }
-        );
-    };
+				// Validate now the username
+				user
+					.setPassword(
+						fullUsername,
+						recoveryCode,
+						password,
+						recoveryData.user_private_key,
+						recoveryData.user_secret_key,
+						recoveryData.user_sauce,
+						recoveryData.verifier_public_key,
+					)
+					.then(onSuccess, onError);
+			},
+			(data) => {
+				console.log(data);
+				// handle server is offline
+				setErrors(["SERVER_OFFLINE"]);
+			},
+		);
+	};
 
-    const onNewConfigLoaded = (configJson) => {
-        if (!isSubscribed) {
-            return;
-        }
-        const serverUrl = configJson["backend_servers"][0]["url"];
-        const domain = configJson["backend_servers"][0]["domain"];
-        const allowLostPassword = configJson.allow_lost_password;
-        const allowCustomServer = configJson.allow_custom_server;
+	const onNewConfigLoaded = (configJson) => {
+		if (!isSubscribed) {
+			return;
+		}
+		const serverUrl = configJson["backend_servers"][0]["url"];
+		const domain = configJson["backend_servers"][0]["domain"];
+		const allowLostPassword = configJson.allow_lost_password;
+		const allowCustomServer = configJson.allow_custom_server;
 
-        setAllowLostPassword(allowLostPassword);
-        setServer(serverUrl);
-        setDomain(domain);
-        setAllowCustomServer(allowCustomServer);
-    };
+		setAllowLostPassword(allowLostPassword);
+		setServer(serverUrl);
+		setDomain(domain);
+		setAllowCustomServer(allowCustomServer);
+	};
 
-    const recoveryEnable = () => {
-        setErrors([]);
-        let parsedUrl = helperService.parseUrl(server);
+	const recoveryEnable = () => {
+		setErrors([]);
+		const parsedUrl = helperService.parseUrl(server);
 
-        // Validate now the username
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
-        const testResult = helperService.isValidUsername(fullUsername);
-        if (testResult) {
-            setErrors([testResult]);
-            return;
-        }
+		// Validate now the username
+		const fullUsername = helperService.formFullUsername(
+			username,
+			domain || parsedUrl["full_domain_without_www"],
+		);
+		const testResult = helperService.isValidUsername(fullUsername);
+		if (testResult) {
+			setErrors([testResult]);
+			return;
+		}
 
-        // Validate now the recovery code information (words and codes)
-        let recoveryCode;
-        if (typeof words !== "undefined" && words !== "") {
-            recoveryCode = converterService.hexToBase58(converterService.wordsToHex(words.split(" ")));
-        } else if (typeof code1 !== "undefined" && code1 !== "" && typeof code2 !== "undefined" && code2 !== "") {
-            if (
-                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
-                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
-            ) {
-                setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
-                return;
-            }
-            recoveryCode = cryptoLibrary.recoveryCodeStripChecksums(code1 + code2);
-        } else {
-            setErrors(["SOMETHING_STRANGE_HAPPENED"]);
-            return;
-        }
+		// Validate now the recovery code information (words and codes)
+		let recoveryCode;
+		if (typeof words !== "undefined" && words !== "") {
+			recoveryCode = converterService.hexToBase58(
+				converterService.wordsToHex(words.split(" ")),
+			);
+		} else if (
+			typeof code1 !== "undefined" &&
+			code1 !== "" &&
+			typeof code2 !== "undefined" &&
+			code2 !== ""
+		) {
+			if (
+				!cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
+				!cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
+			) {
+				setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
+				return;
+			}
+			recoveryCode = cryptoLibrary.recoveryCodeStripChecksums(code1 + code2);
+		} else {
+			setErrors(["SOMETHING_STRANGE_HAPPENED"]);
+			return;
+		}
 
-        function onError(data) {
-            if (data.hasOwnProperty("data") && data.data.hasOwnProperty("non_field_errors")) {
-                setErrors(data.data.non_field_errors);
-            } else if (data.hasOwnProperty("errors")) {
-                let errors = data.errors;
-                setErrors(errors);
-            } else if (typeof (data) === 'object') {
-                console.log(data);
-                setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
-            } else  {
-                console.log(data);
-                setErrors([data]);
-            }
-        }
+		function onError(data) {
+			if (
+				Object.hasOwn(data, "data") &&
+				Object.hasOwn(data.data, "non_field_errors")
+			) {
+				setErrors(data.data.non_field_errors);
+			} else if (Object.hasOwn(data, "errors")) {
+				const errors = data.errors;
+				setErrors(errors);
+			} else if (typeof data === "object") {
+				console.log(data);
+				setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
+			} else {
+				console.log(data);
+				setErrors([data]);
+			}
+		}
 
-        function onSuccess(data) {
-            if (data.hasOwnProperty("message")) {
-                setErrors([data.message]);
-            } else {
-                setView("set_password");
-                setRecoveryCode(recoveryCode);
-                setRecoveryData(data);
+		function onSuccess(data) {
+			if (Object.hasOwn(data, "message")) {
+				setErrors([data.message]);
+			} else {
+				setView("set_password");
+				setRecoveryCode(recoveryCode);
+				setRecoveryData(data);
 
-                // TODO start timer with data.verifier_time_valid seconds
-            }
-        }
+				// TODO start timer with data.verifier_time_valid seconds
+			}
+		}
 
-        user.recoveryEnable(fullUsername, recoveryCode, server).then(onSuccess, onError);
-    };
+		user
+			.recoveryEnable(fullUsername, recoveryCode, server)
+			.then(onSuccess, onError);
+	};
 
-    let formContent;
+	let formContent;
 
-    if (view === "default") {
-        formContent = (
-            <>
-                {!allowLostPassword && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <MuiAlert
-                                severity="info"
-                                style={{
-                                    marginBottom: "5px",
-                                    marginTop: "5px",
-                                }}
-                            >
-                                {t("PASSWORD_RESET_HAS_BEEN_DISABLED")}
-                            </MuiAlert>
-                        </Grid>
-                        <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                type="submit"
-                                href={"index.html"}
-                                className={classes.button}
-                            >
-                                {t("BACK_TO_HOME")}
-                            </Button>
-                        </Grid>
-                    </Grid>
-                )}
-                {allowLostPassword && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="username"
-                                label={t("USERNAME")}
-                                InputProps={{
-                                    endAdornment:
-                                        domain && !username.includes("@") ? (
-                                            <InputAdornment position="end"><span className={classes.inputAdornment}>{"@" + domain}</span></InputAdornment>
-                                        ) : null,
-                                }}
-                                name="username"
-                                autoComplete="off"
-                                value={username}
-                                onChange={(event) => {
-                                    setUsername(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={6} md={6}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="code1"
-                                placeholder="DdSLuiDcPuY2F"
-                                name="code1"
-                                autoComplete="off"
-                                value={code1}
-                                onChange={(event) => {
-                                    setCode1(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={6} md={6}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="code2"
-                                placeholder="Dsxf82sKQdqPs"
-                                name="code2"
-                                autoComplete="off"
-                                value={code2}
-                                onChange={(event) => {
-                                    setCode2(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="words"
-                                placeholder={t("OR_WORDLIST")}
-                                name="words"
-                                autoComplete="off"
-                                value={words}
-                                onChange={(event) => {
-                                    setWords(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
+	if (view === "default") {
+		formContent = (
+			<>
+				{!allowLostPassword && (
+					<Grid container>
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="info"
+								style={{
+									marginBottom: "5px",
+									marginTop: "5px",
+								}}
+							>
+								{t("PASSWORD_RESET_HAS_BEEN_DISABLED")}
+							</MuiAlert>
+						</Grid>
+						<Grid
+							item
+							xs={6}
+							sm={6}
+							md={6}
+							style={{ marginTop: "5px", marginBottom: "5px" }}
+						>
+							<Button
+								variant="contained"
+								color="primary"
+								type="submit"
+								href={"index.html"}
+								className={classes.button}
+							>
+								{t("BACK_TO_HOME")}
+							</Button>
+						</Grid>
+					</Grid>
+				)}
+				{allowLostPassword && (
+					<Grid container>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="username"
+								label={t("USERNAME")}
+								InputProps={{
+									endAdornment:
+										domain && !username.includes("@") ? (
+											<InputAdornment position="end">
+												<span className={classes.inputAdornment}>
+													{"@" + domain}
+												</span>
+											</InputAdornment>
+										) : null,
+								}}
+								name="username"
+								autoComplete="off"
+								value={username}
+								onChange={(event) => {
+									setUsername(event.target.value);
+								}}
+							/>
+						</Grid>
+						<Grid item xs={6} sm={6} md={6}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="code1"
+								placeholder="DdSLuiDcPuY2F"
+								name="code1"
+								autoComplete="off"
+								value={code1}
+								onChange={(event) => {
+									setCode1(event.target.value);
+								}}
+							/>
+						</Grid>
+						<Grid item xs={6} sm={6} md={6}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="code2"
+								placeholder="Dsxf82sKQdqPs"
+								name="code2"
+								autoComplete="off"
+								value={code2}
+								onChange={(event) => {
+									setCode2(event.target.value);
+								}}
+							/>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="words"
+								placeholder={t("OR_WORDLIST")}
+								name="words"
+								autoComplete="off"
+								value={words}
+								onChange={(event) => {
+									setWords(event.target.value);
+								}}
+							/>
+						</Grid>
+					</Grid>
+				)}
 
-                {allowLostPassword && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={recoveryEnable}
-                                type="submit"
-                                disabled={(!words && (!code1 || !code2)) || !username}
-                            >
-                                {t("REQUEST_PASSWORD_RESET")}
-                            </Button>
-                            <Button href={"index.html"}>
-                                <span className={classes.regularButtonText}>{t("ABORT")}</span>
-                            </Button>
-                        </Grid>
-                    </Grid>
-                )}
-                <GridContainerErrors errors={errors} setErrors={setErrors} />
-                {allowCustomServer && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="server"
-                                label={t("SERVER")}
-                                name="server"
-                                autoComplete="off"
-                                value={server}
-                                onChange={(event) => {
-                                    setServer(event.target.value.trim());
-                                    setDomain(helperService.getDomainWithoutWww(event.target.value.trim()));
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
-            </>
-        );
-    }
+				{allowLostPassword && (
+					<Grid container>
+						<Grid
+							item
+							xs={12}
+							sm={12}
+							md={12}
+							style={{ marginTop: "5px", marginBottom: "5px" }}
+						>
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={recoveryEnable}
+								type="submit"
+								disabled={(!words && (!code1 || !code2)) || !username}
+							>
+								{t("REQUEST_PASSWORD_RESET")}
+							</Button>
+							<Button href={"index.html"}>
+								<span className={classes.regularButtonText}>{t("ABORT")}</span>
+							</Button>
+						</Grid>
+					</Grid>
+				)}
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+				{allowCustomServer && (
+					<Grid container>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="server"
+								label={t("SERVER")}
+								name="server"
+								autoComplete="off"
+								value={server}
+								onChange={(event) => {
+									setServer(event.target.value.trim());
+									setDomain(
+										helperService.getDomainWithoutWww(
+											event.target.value.trim(),
+										),
+									);
+								}}
+							/>
+						</Grid>
+					</Grid>
+				)}
+			</>
+		);
+	}
 
-    if (view === "success") {
-        formContent = (
-            <Grid container>
-                <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                    <ThumbUpIcon style={{ fontSize: 160 }} />
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        href={"index.html"}
-                        className={classes.button}
-                    >
-                        {t("BACK_TO_HOME")}
-                    </Button>
-                </Grid>
-            </Grid>
-        );
-    }
+	if (view === "success") {
+		formContent = (
+			<Grid container>
+				<Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
+					<ThumbUpIcon style={{ fontSize: 160 }} />
+				</Grid>
+				<Grid
+					item
+					xs={6}
+					sm={6}
+					md={6}
+					style={{ marginTop: "5px", marginBottom: "5px" }}
+				>
+					<Button
+						variant="contained"
+						color="primary"
+						type="submit"
+						href={"index.html"}
+						className={classes.button}
+					>
+						{t("BACK_TO_HOME")}
+					</Button>
+				</Grid>
+			</Grid>
+		);
+	}
 
-    if (view === "set_password") {
-        formContent = (
-            <>
-                <Grid item xs={12} sm={12} md={12}>
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="password"
-                        label={t("NEW_PASSWORD")}
-                        InputProps={{
-                            type: "password",
-                        }}
-                        name="password"
-                        autoComplete="off"
-                        value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value);
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <TextField
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense" size="small"
-                        id="passwordRepeat"
-                        label={t("NEW_PASSWORD_REPEAT")}
-                        InputProps={{
-                            type: "password",
-                        }}
-                        name="passwordRepeat"
-                        autoComplete="off"
-                        value={passwordRepeat}
-                        onChange={(event) => {
-                            setPasswordRepeat(event.target.value);
-                        }}
-                    />
-                </Grid>
-                <Grid container>
-                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={setNewPassword}
-                            type="submit"
-                            style={{ marginRight: "10px" }}
-                        >
-                            {t("SET_NEW_PASSWORD")}
-                        </Button>
-                        <Button onClick={cancel}>
-                            <span className={classes.regularButtonText}>{t("CANCEL")}</span>
-                        </Button>
-                    </Grid>
-                </Grid>
-                <GridContainerErrors errors={errors} setErrors={setErrors} />
-            </>
-        );
-    }
+	if (view === "set_password") {
+		formContent = (
+			<>
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="password"
+						label={t("NEW_PASSWORD")}
+						InputProps={{
+							type: "password",
+						}}
+						name="password"
+						autoComplete="off"
+						value={password}
+						onChange={(event) => {
+							setPassword(event.target.value);
+						}}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="passwordRepeat"
+						label={t("NEW_PASSWORD_REPEAT")}
+						InputProps={{
+							type: "password",
+						}}
+						name="passwordRepeat"
+						autoComplete="off"
+						value={passwordRepeat}
+						onChange={(event) => {
+							setPasswordRepeat(event.target.value);
+						}}
+					/>
+				</Grid>
+				<Grid container>
+					<Grid
+						item
+						xs={12}
+						sm={12}
+						md={12}
+						style={{ marginTop: "5px", marginBottom: "5px" }}
+					>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={setNewPassword}
+							type="submit"
+							style={{ marginRight: "10px" }}
+						>
+							{t("SET_NEW_PASSWORD")}
+						</Button>
+						<Button onClick={cancel}>
+							<span className={classes.regularButtonText}>{t("CANCEL")}</span>
+						</Button>
+					</Grid>
+				</Grid>
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+			</>
+		);
+	}
 
-    return (
-        <form
-            onSubmit={(e) => {
-                e.preventDefault();
-            }}
-            name="lostpasswordForm"
-            autoComplete="off"
-        >
-            {formContent}
-            <div className="box-footer">
-                <FooterLinks />
-            </div>
-        </form>
-    );
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+			}}
+			name="lostpasswordForm"
+			autoComplete="off"
+		>
+			{formContent}
+			<div className="box-footer">
+				<FooterLinks />
+			</div>
+		</form>
+	);
 };
 
 export default LostPasswordViewForm;

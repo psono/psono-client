@@ -2,10 +2,10 @@
  * Recovery codes and all the functions to create / edit / delete them ...
  */
 
-import { getStore } from "./store";
-import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+import { getStore } from "./store";
 
 /**
  * Encrypts the recovery data and sends it to the server.
@@ -13,57 +13,57 @@ import cryptoLibrary from "./crypto-library";
  * @returns {promise} Returns a promise with the username, recovery_code_id and private_key to decrypt the saved data
  */
 function recoveryGenerateInformation() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const username = getStore().getState().user.username;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
 
-    const recoveryPassword = cryptoLibrary.generateRecoveryCode();
-    const recoveryAuthkey = cryptoLibrary.generateAuthkey(
-        username,
-        recoveryPassword["base58"],
-        'scrypt',
-        {
-            "u": 14,
-            "r": 8,
-            "p": 1,
-            "l": 64
-        },
-    );
-    const recoverySauce = cryptoLibrary.generateUserSauce();
+	const recoveryPassword = cryptoLibrary.generateRecoveryCode();
+	const recoveryAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		recoveryPassword["base58"],
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+	const recoverySauce = cryptoLibrary.generateUserSauce();
 
-    const recovery_data_dec = {
-        user_private_key: getStore().getState().user.userPrivateKey,
-        user_secret_key: getStore().getState().user.userSecretKey,
-    };
+	const recovery_data_dec = {
+		user_private_key: getStore().getState().user.userPrivateKey,
+		user_secret_key: getStore().getState().user.userSecretKey,
+	};
 
-    const recovery_data = cryptoLibrary.encryptSecret(
-        JSON.stringify(recovery_data_dec),
-        recoveryPassword["base58"],
-        recoverySauce
-    );
+	const recovery_data = cryptoLibrary.encryptSecret(
+		JSON.stringify(recovery_data_dec),
+		recoveryPassword["base58"],
+		recoverySauce,
+	);
 
-    const onSuccess = function () {
-        return {
-            username: username,
-            recovery_password: helperService.splitStringInChunks(recoveryPassword["base58_checksums"], 13).join("-"),
-            recovery_words: recoveryPassword["words"].join(" "),
-        };
-    };
+	const onSuccess = () => ({
+		username: username,
+		recovery_password: helperService
+			.splitStringInChunks(recoveryPassword["base58_checksums"], 13)
+			.join("-"),
+		recovery_words: recoveryPassword["words"].join(" "),
+	});
 
-    return apiClient
-        .writeRecoverycode(
-            token,
-            sessionSecretKey,
-            recoveryAuthkey,
-            recovery_data.text,
-            recovery_data.nonce,
-            recoverySauce
-        )
-        .then(onSuccess);
+	return apiClient
+		.writeRecoverycode(
+			token,
+			sessionSecretKey,
+			recoveryAuthkey,
+			recovery_data.text,
+			recovery_data.nonce,
+			recoverySauce,
+		)
+		.then(onSuccess);
 }
 
 const passwordRecoveryCodeService = {
-    recoveryGenerateInformation,
+	recoveryGenerateInformation,
 };
 
 export default passwordRecoveryCodeService;

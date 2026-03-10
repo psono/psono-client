@@ -3,8 +3,9 @@
  */
 
 const Papa = require("papaparse");
-import helperService from "./helper";
+
 import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
 
 const INDEX_NAME = 0;
 const INDEX_URL = 1;
@@ -19,21 +20,21 @@ const INDEX_PASSWORD = 3;
  * @returns {*} The secrets object
  */
 function transformToSecret(line) {
-    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
+	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-    return {
-        id: cryptoLibrary.generateUuid(),
-        type: "website_password",
-        name: line[INDEX_NAME],
-        description : line[INDEX_USERNAME],
-        urlfilter: parsed_url.authority || undefined,
-        website_password_url_filter: parsed_url.authority || undefined,
-        website_password_password: line[INDEX_PASSWORD],
-        website_password_username: line[INDEX_USERNAME],
-        website_password_notes: "",
-        website_password_url: line[INDEX_URL],
-        website_password_title: line[INDEX_NAME],
-    };
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "website_password",
+		name: line[INDEX_NAME],
+		description: line[INDEX_USERNAME],
+		urlfilter: parsed_url.authority || undefined,
+		website_password_url_filter: parsed_url.authority || undefined,
+		website_password_password: line[INDEX_PASSWORD],
+		website_password_username: line[INDEX_USERNAME],
+		website_password_notes: "",
+		website_password_url: line[INDEX_URL],
+		website_password_title: line[INDEX_NAME],
+	};
 }
 
 /**
@@ -44,24 +45,24 @@ function transformToSecret(line) {
  * @param {[]} csv The array containing all the found secrets
  */
 function gatherSecrets(datastore, secrets, csv) {
-    let line;
-    for (let i = 0; i < csv.length; i++) {
-        line = csv[i];
-        if (i === 0) {
-            continue;
-        }
-        if (line.length < 4) {
-            continue;
-        }
+	let line;
+	for (let i = 0; i < csv.length; i++) {
+		line = csv[i];
+		if (i === 0) {
+			continue;
+		}
+		if (line.length < 4) {
+			continue;
+		}
 
-        const secret = transformToSecret(line);
-        if (secret === null) {
-            //empty line
-            continue;
-        }
-        datastore["items"].push(secret);
-        secrets.push(secret);
-    }
+		const secret = transformToSecret(line);
+		if (secret === null) {
+			//empty line
+			continue;
+		}
+		datastore["items"].push(secret);
+		secrets.push(secret);
+	}
 }
 
 /**
@@ -71,13 +72,13 @@ function gatherSecrets(datastore, secrets, csv) {
  * @returns {Array} The array of arrays representing the CSV
  */
 function parseCsv(data) {
-    const csv = Papa.parse(data);
+	const csv = Papa.parse(data);
 
-    if (csv["errors"].length > 0) {
-        throw new Error(csv["errors"][0]["message"]);
-    }
+	if (csv["errors"].length > 0) {
+		throw new Error(csv["errors"][0]["message"]);
+	}
 
-    return csv["data"];
+	return csv["data"];
 }
 
 /**
@@ -95,34 +96,34 @@ function parseCsv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    const d = new Date();
-    const n = d.toISOString();
+	const d = new Date();
+	const n = d.toISOString();
 
-    const secrets = [];
-    const datastore = {
-        id: cryptoLibrary.generateUuid(),
-        name: "Import " + n,
-        folders: [],
-        items: [],
-    };
+	const secrets = [];
+	const datastore = {
+		id: cryptoLibrary.generateUuid(),
+		name: "Import " + n,
+		folders: [],
+		items: [],
+	};
 
-    let csv;
-    try {
-        csv = parseCsv(data);
-    } catch (err) {
-        return null;
-    }
+	let csv;
+	try {
+		csv = parseCsv(data);
+	} catch (err) {
+		return null;
+	}
 
-    gatherSecrets(datastore, secrets, csv);
+	gatherSecrets(datastore, secrets, csv);
 
-    return {
-        datastore: datastore,
-        secrets: secrets,
-    };
+	return {
+		datastore: datastore,
+		secrets: secrets,
+	};
 }
 
 const importChromeCsvService = {
-    parser,
+	parser,
 };
 
 export default importChromeCsvService;

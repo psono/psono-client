@@ -3,27 +3,22 @@
  */
 
 function call(signedUrl, method, endpoint, data, headers) {
+	const req = {
+		method: method,
+		body: data,
+	};
 
-    const req = {
-        method: method,
-        body: data,
-    };
+	if (headers) {
+		req.headers = headers;
+	}
 
-    if (headers) {
-        req.headers = headers;
-    }
+	return new Promise((resolve, reject) => {
+		const onSuccess = (data) => resolve(data);
 
-    return new Promise(function (resolve, reject) {
-        const onSuccess = function (data) {
-            return resolve(data);
-        };
+		const onError = (data) => reject(data);
 
-        const onError = function (data) {
-            return reject(data);
-        };
-
-        fetch(signedUrl + endpoint, req).then(onSuccess, onError);
-    });
+		fetch(signedUrl + endpoint, req).then(onSuccess, onError);
+	});
 }
 
 /**
@@ -35,14 +30,14 @@ function call(signedUrl, method, endpoint, data, headers) {
  * @returns {Promise} promise
  */
 function upload(signedUrl, chunk) {
-    const endpoint = ""; // the signed url already has everything
-    const method = "PUT";
+	const endpoint = ""; // the signed url already has everything
+	const method = "PUT";
 
-    const headers = {
-        "Content-Type": "application/octet-stream",
-    };
+	const headers = {
+		"Content-Type": "application/octet-stream",
+	};
 
-    return call(signedUrl, method, endpoint, chunk, headers);
+	return call(signedUrl, method, endpoint, chunk, headers);
 }
 
 /**
@@ -53,27 +48,23 @@ function upload(signedUrl, chunk) {
  * @returns {Promise} promise with the data
  */
 function download(signedUrl) {
-    const endpoint = ""; // the signed url already has everything
-    const method = "GET";
-    const data = null;
+	const endpoint = ""; // the signed url already has everything
+	const method = "GET";
+	const data = null;
 
-    const headers = {};
+	const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers).then(
-        async function (data) {
-            return {
-                data: await data.arrayBuffer()
-            };
-        },
-        function (data) {
-            return Promise.reject(data);
-        }
-    );
+	return call(signedUrl, method, endpoint, data, headers).then(
+		async (data) => ({
+			data: await data.arrayBuffer(),
+		}),
+		(data) => Promise.reject(data),
+	);
 }
 
 const apiGcpService = {
-    upload: upload,
-    download: download,
+	upload: upload,
+	download: download,
 };
 
 export default apiGcpService;

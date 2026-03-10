@@ -2,13 +2,13 @@
  * Service to handle the offline cache
  */
 
-import cryptoLibrary from "./crypto-library";
-import browserClient from "./browser-client";
-import offscreenDocument from "./offscreen-document";
-import storage from "./storage";
 import action from "../actions/bound-action-creators";
-import { getStore } from "./store";
+import browserClient from "./browser-client";
+import cryptoLibrary from "./crypto-library";
+import offscreenDocument from "./offscreen-document";
 import secretService from "./secret";
+import storage from "./storage";
+import { getStore } from "./store";
 
 let timeout = 0;
 let encryptionKey = "";
@@ -19,12 +19,15 @@ const registrations = {};
 activate();
 
 function activate() {
-    if (typeof window !== "undefined" && window.psono_offline_cache_encryption_key) {
-        setEncryptionKey(window.psono_offline_cache_encryption_key);
-    }
-    offscreenDocument.getOfflineCacheEncryptionKey(function (newEncryptionKey) {
-        setEncryptionKey(newEncryptionKey);
-    });
+	if (
+		typeof window !== "undefined" &&
+		window.psono_offline_cache_encryption_key
+	) {
+		setEncryptionKey(window.psono_offline_cache_encryption_key);
+	}
+	offscreenDocument.getOfflineCacheEncryptionKey((newEncryptionKey) => {
+		setEncryptionKey(newEncryptionKey);
+	});
 }
 
 /**
@@ -34,11 +37,11 @@ function activate() {
  * @param {function} func The callback function to subscribe
  */
 function on(event, func) {
-    if (!registrations.hasOwnProperty(event)) {
-        registrations[event] = [];
-    }
+	if (!Object.hasOwn(registrations, event)) {
+		registrations[event] = [];
+	}
 
-    registrations[event].push(func);
+	registrations[event].push(func);
 }
 
 /**
@@ -48,12 +51,12 @@ function on(event, func) {
  * @param {*} data The payload data to send to the subscribed callback functions
  */
 function emit(event, data) {
-    if (!registrations.hasOwnProperty(event)) {
-        return;
-    }
-    for (let i = registrations[event].length - 1; i >= 0; i--) {
-        registrations[event][i](data);
-    }
+	if (!Object.hasOwn(registrations, event)) {
+		return;
+	}
+	for (let i = registrations[event].length - 1; i >= 0; i--) {
+		registrations[event][i](data);
+	}
 }
 
 /**
@@ -62,13 +65,13 @@ function emit(event, data) {
  * @returns {boolean} promise
  */
 function isActive() {
-    const offline_mode = getStore().getState().client.offlineMode;
+	const offline_mode = getStore().getState().client.offlineMode;
 
-    if (offline_mode === null) {
-        return false;
-    }
+	if (offline_mode === null) {
+		return false;
+	}
 
-    return offline_mode;
+	return offline_mode;
 }
 
 /**
@@ -77,7 +80,7 @@ function isActive() {
  * @returns {boolean} promise
  */
 function isEncrypted() {
-    return getStore().getState().client.offlineCacheEncryptionKey !== null;
+	return getStore().getState().client.offlineCacheEncryptionKey !== null;
 }
 
 /**
@@ -86,7 +89,7 @@ function isEncrypted() {
  * @returns {string} The hex representation of the encryption key
  */
 function getEncryptionKey() {
-    return encryptionKey;
+	return encryptionKey;
 }
 
 /**
@@ -95,7 +98,7 @@ function getEncryptionKey() {
  * @returns {boolean} locked status
  */
 function isLocked() {
-    return isEncrypted() && !encryptionKey;
+	return isEncrypted() && !encryptionKey;
 }
 
 /**
@@ -104,33 +107,37 @@ function isLocked() {
  * @returns {boolean} locked status
  */
 function unlock(password) {
-    if (typeof password === "undefined") {
-        password = "";
-    }
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
-    const encryptionKeyEncrypted = getStore().getState().client.offlineCacheEncryptionKey;
-    const encryptionKeySalt = getStore().getState().client.offlineCacheEncryptionSalt;
-    if (!encryptionKeyEncrypted || !encryptionKeySalt) {
-        return true;
-    }
-    let newEncryptionKey;
-    try {
-        newEncryptionKey = cryptoLibrary.decryptSecret(
-            encryptionKeyEncrypted.text,
-            encryptionKeyEncrypted.nonce,
-            password,
-            encryptionKeySalt,
-            hashingAlgorithm,
-            hashingParameters,
-        );
-    } catch (e) {
-        return false;
-    }
-    setEncryptionKey(newEncryptionKey);
-    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: newEncryptionKey });
+	if (typeof password === "undefined") {
+		password = "";
+	}
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+	const encryptionKeyEncrypted =
+		getStore().getState().client.offlineCacheEncryptionKey;
+	const encryptionKeySalt =
+		getStore().getState().client.offlineCacheEncryptionSalt;
+	if (!encryptionKeyEncrypted || !encryptionKeySalt) {
+		return true;
+	}
+	let newEncryptionKey;
+	try {
+		newEncryptionKey = cryptoLibrary.decryptSecret(
+			encryptionKeyEncrypted.text,
+			encryptionKeyEncrypted.nonce,
+			password,
+			encryptionKeySalt,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+	} catch (e) {
+		return false;
+	}
+	setEncryptionKey(newEncryptionKey);
+	browserClient.emitSec("set-offline-cache-encryption-key", {
+		encryption_key: newEncryptionKey,
+	});
 
-    return true;
+	return true;
 }
 
 /**
@@ -139,19 +146,19 @@ function unlock(password) {
  * @param {string} newEncryptionKey The new key
  */
 function setEncryptionKey(newEncryptionKey) {
-    if (typeof newEncryptionKey === "undefined") {
-        return;
-    }
-    encryptionKey = newEncryptionKey;
-    if (typeof window !== "undefined") {
-        window.psono_offline_cache_encryption_key = newEncryptionKey;
-    } else {
-        // we are in a chrome extension in background service worker, so we store it in offscreen document
-        offscreenDocument.setOfflineCacheEncryptionKey(newEncryptionKey);
-    }
-    for (let i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
-        onSetEncryptionKeyRegistrations[i]();
-    }
+	if (typeof newEncryptionKey === "undefined") {
+		return;
+	}
+	encryptionKey = newEncryptionKey;
+	if (typeof window !== "undefined") {
+		window.psono_offline_cache_encryption_key = newEncryptionKey;
+	} else {
+		// we are in a chrome extension in background service worker, so we store it in offscreen document
+		offscreenDocument.setOfflineCacheEncryptionKey(newEncryptionKey);
+	}
+	for (let i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
+		onSetEncryptionKeyRegistrations[i]();
+	}
 }
 
 /**
@@ -160,20 +167,25 @@ function setEncryptionKey(newEncryptionKey) {
  * @param {string} password The password
  */
 function setEncryptionPassword(password) {
-    const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-    const hashingParameters = getStore().getState().user.hashingParameters;
-    const new_encryption_key = cryptoLibrary.generateSecretKey();
-    setEncryptionKey(new_encryption_key);
-    const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
-    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
-        new_encryption_key,
-        password,
-        offlineCacheEncryptionSalt,
-        hashingAlgorithm,
-        hashingParameters,
-    );
-    action().setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
-    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+	const new_encryption_key = cryptoLibrary.generateSecretKey();
+	setEncryptionKey(new_encryption_key);
+	const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
+	const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
+		new_encryption_key,
+		password,
+		offlineCacheEncryptionSalt,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+	action().setOfflineCacheEncryptionInfo(
+		offlineCacheEncryptionKey,
+		offlineCacheEncryptionSalt,
+	);
+	browserClient.emitSec("set-offline-cache-encryption-key", {
+		encryption_key: new_encryption_key,
+	});
 }
 
 /**
@@ -186,19 +198,18 @@ function setEncryptionPassword(password) {
  * @returns {Promise} promise
  */
 function set(url, method, data) {
-    if (method !== "GET" || !isActive()) {
-        return;
-    }
+	if (method !== "GET" || !isActive()) {
+		return;
+	}
 
-    let value = JSON.stringify(data);
+	let value = JSON.stringify(data);
 
-    if (encryptionKey) {
-        value = cryptoLibrary.encryptData(value, encryptionKey);
-    }
+	if (encryptionKey) {
+		value = cryptoLibrary.encryptData(value, encryptionKey);
+	}
 
-    storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
+	storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
 }
-
 
 /**
  * Requests all secrets in our datastore and fills the datastore with the content
@@ -210,83 +221,92 @@ function set(url, method, data) {
  * @returns {*} The datastore structure where all secrets have been filled
  */
 function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
-    let open_secret_requests = 0;
+	let open_secret_requests = 0;
 
-    let resolver;
+	let resolver;
 
-    const handle_items = function (items) {
-        const fill_secret = function (item, secret_id, secret_key) {
-            const onSuccess = function (data) {
-                for (let property in data) {
-                    if (!data.hasOwnProperty(property)) {
-                        continue;
-                    }
-                    item[property] = data[property];
-                }
+	const handle_items = (items) => {
+		const fill_secret = (item, secret_id, secret_key) => {
+			const onSuccess = (data) => {
+				for (const property in data) {
+					if (!Object.hasOwn(data, property)) {
+						continue;
+					}
+					item[property] = data[property];
+				}
 
-                open_secret_requests = open_secret_requests - 1;
-                emit("get-secret-complete", {});
-                if (open_secret_requests === 0) {
-                    resolver(datastore);
-                }
-            };
+				open_secret_requests = open_secret_requests - 1;
+				emit("get-secret-complete", {});
+				if (open_secret_requests === 0) {
+					resolver(datastore);
+				}
+			};
 
-            const onError = function () {
-                open_secret_requests = open_secret_requests - 1;
-            };
+			const onError = () => {
+				open_secret_requests = open_secret_requests - 1;
+			};
 
-            open_secret_requests = open_secret_requests + 1;
-            emit("get-secret-started", {});
+			open_secret_requests = open_secret_requests + 1;
+			emit("get-secret-started", {});
 
-            timeout = timeout + 100;
-            setTimeout(function () {
-                secretService.readSecret(secret_id, secret_key).then(onSuccess, onError);
-            }, timeout);
-        };
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].hasOwnProperty("share_id") && !includeSharedItems) {
-                continue
-            }
-            if (items[i].hasOwnProperty("secret_id") && items[i].hasOwnProperty("secret_key")) {
-                if (!includeTrashBinItems && items[i].hasOwnProperty('deleted') && items[i]['deleted']) {
-                    continue
-                }
-                fill_secret(items[i], items[i]["secret_id"], items[i]["secret_key"]);
-            }
-        }
-    };
+			timeout = timeout + 100;
+			setTimeout(() => {
+				secretService
+					.readSecret(secret_id, secret_key)
+					.then(onSuccess, onError);
+			}, timeout);
+		};
+		for (let i = 0; i < items.length; i++) {
+			if (Object.hasOwn(items[i], "share_id") && !includeSharedItems) {
+				continue;
+			}
+			if (
+				Object.hasOwn(items[i], "secret_id") &&
+				Object.hasOwn(items[i], "secret_key")
+			) {
+				if (
+					!includeTrashBinItems &&
+					Object.hasOwn(items[i], "deleted") &&
+					items[i]["deleted"]
+				) {
+					continue;
+				}
+				fill_secret(items[i], items[i]["secret_id"], items[i]["secret_key"]);
+			}
+		}
+	};
 
-    const handle_folders = function (folders) {
-        for (let i = 0; i < folders.length; i++) {
-            if (folders[i].hasOwnProperty("share_id") && !includeSharedItems) {
-                continue
-            }
-            if (folders[i].hasOwnProperty("folders")) {
-                handle_folders(folders[i]["folders"]);
-            }
+	const handle_folders = (folders) => {
+		for (let i = 0; i < folders.length; i++) {
+			if (Object.hasOwn(folders[i], "share_id") && !includeSharedItems) {
+				continue;
+			}
+			if (Object.hasOwn(folders[i], "folders")) {
+				handle_folders(folders[i]["folders"]);
+			}
 
-            if (folders[i].hasOwnProperty("items")) {
-                handle_items(folders[i]["items"]);
-            }
-        }
-    };
+			if (Object.hasOwn(folders[i], "items")) {
+				handle_items(folders[i]["items"]);
+			}
+		}
+	};
 
-    return new Promise(function (resolve, reject) {
-        resolver = resolve;
-        timeout = 0;
+	return new Promise((resolve, reject) => {
+		resolver = resolve;
+		timeout = 0;
 
-        if (datastore.hasOwnProperty("folders")) {
-            handle_folders(datastore["folders"]);
-        }
+		if (Object.hasOwn(datastore, "folders")) {
+			handle_folders(datastore["folders"]);
+		}
 
-        if (datastore.hasOwnProperty("items")) {
-            handle_items(datastore["items"]);
-        }
+		if (Object.hasOwn(datastore, "items")) {
+			handle_items(datastore["items"]);
+		}
 
-        if (open_secret_requests === 0) {
-            resolve(datastore);
-        }
-    });
+		if (open_secret_requests === 0) {
+			resolve(datastore);
+		}
+	});
 }
 
 /**
@@ -298,52 +318,60 @@ function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
  * @returns {Promise} our original request
  */
 function get(url, method) {
-    if (!isActive()) {
-        return Promise.resolve(null);
-    }
-    if (method !== "GET") {
-        return Promise.resolve({
-            data: {
-                error: ["Leave the offline mode before creating / modifying any content."],
-            },
-        });
-    }
+	if (!isActive()) {
+		return Promise.resolve(null);
+	}
+	if (method !== "GET") {
+		return Promise.resolve({
+			data: {
+				error: [
+					"Leave the offline mode before creating / modifying any content.",
+				],
+			},
+		});
+	}
 
-    return storage.findKey("offline-cache", url.toLowerCase()).then((storageEntry) => {
-        if (storageEntry === null) {
-            return null;
-        }
+	return storage
+		.findKey("offline-cache", url.toLowerCase())
+		.then((storageEntry) => {
+			if (storageEntry === null) {
+				return null;
+			}
 
-        let value = storageEntry.value;
+			let value = storageEntry.value;
 
-        if (encryptionKey) {
-            value = cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
-        }
+			if (encryptionKey) {
+				value = cryptoLibrary.decryptData(
+					value.text,
+					value.nonce,
+					encryptionKey,
+				);
+			}
 
-        return JSON.parse(value);
-    });
+			return JSON.parse(value);
+		});
 }
 
 /**
  * Enables the offline cache
  */
 function enable() {
-    action().enableOfflineMode();
+	action().enableOfflineMode();
 }
 
 /**
  * Disables the offline cache
  */
 function disable() {
-    action().disableOfflineMode();
+	action().disableOfflineMode();
 }
 
 /**
  * Clears the cache
  */
 function clear() {
-    storage.removeAll("offline-cache");
-    storage.save();
+	storage.removeAll("offline-cache");
+	storage.save();
 }
 
 /**
@@ -352,8 +380,8 @@ function clear() {
  * @returns {Promise} promise
  */
 function save() {
-    // TODO
-    storage.save();
+	// TODO
+	storage.save();
 }
 
 /**
@@ -362,25 +390,25 @@ function save() {
  * @param {function} fnc The callback function
  */
 function onSetEncryptionKey(fnc) {
-    onSetEncryptionKeyRegistrations.push(fnc);
+	onSetEncryptionKeyRegistrations.push(fnc);
 }
 
 const offlineCacheService = {
-    on: on,
-    emit: emit,
-    isActive: isActive,
-    getAllSecrets: getAllSecrets,
-    get: get,
-    set: set,
-    getEncryptionKey: getEncryptionKey,
-    isLocked: isLocked,
-    unlock: unlock,
-    setEncryptionKey: setEncryptionKey,
-    setEncryptionPassword: setEncryptionPassword,
-    enable: enable,
-    disable: disable,
-    clear: clear,
-    save: save,
-    onSetEncryptionKey: onSetEncryptionKey,
+	on: on,
+	emit: emit,
+	isActive: isActive,
+	getAllSecrets: getAllSecrets,
+	get: get,
+	set: set,
+	getEncryptionKey: getEncryptionKey,
+	isLocked: isLocked,
+	unlock: unlock,
+	setEncryptionKey: setEncryptionKey,
+	setEncryptionPassword: setEncryptionPassword,
+	enable: enable,
+	disable: disable,
+	clear: clear,
+	save: save,
+	onSetEncryptionKey: onSetEncryptionKey,
 };
 export default offlineCacheService;

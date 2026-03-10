@@ -1,284 +1,299 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { useTranslation } from "react-i18next";
-import { makeStyles } from '@mui/styles';
-import InputAdornment from '@mui/material/InputAdornment';
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
-
+import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import ContentCopy from "../../components/icons/ContentCopy";
 import Table from "../../components/table";
 import emergencyCode from "../../services/emmergency-code";
 import { getStore } from "../../services/store";
-import MuiAlert from '@mui/material/Alert'
-import Divider from "@mui/material/Divider";
-import ContentCopy from "../../components/icons/ContentCopy";
 
 const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-    },
-    code: {
-        fontFamily: "'Fira Code', monospace",
-        textAlign: "center",
-    },
+	textField: {
+		width: "100%",
+	},
+	code: {
+		fontFamily: "'Fira Code', monospace",
+		textAlign: "center",
+	},
 }));
 
 const LEAD_TIME_MIN = 0;
-const LEAD_TIME_MAX = Math.floor(2147483647/3600);
+const LEAD_TIME_MAX = Math.floor(2147483647 / 3600);
 
 const EmergencyCodesDialog = (props) => {
-    const { open, onClose } = props;
-    const { t } = useTranslation();
-    const classes = useStyles();
-    const [value, setValue] = React.useState(0);
-    const [person, setPerson] = React.useState("");
-    const [leadTime, setLeadTime] = React.useState(24);
-    const [newEmergencyCode, setNewEmergencyCode] = React.useState({});
-    const [view, setView] = React.useState("default");
-    const [emergencyCodes, setEmergencyCodes] = React.useState([]);
-    const [errors, setErrors] = useState([]);
+	const { open, onClose } = props;
+	const { t } = useTranslation();
+	const classes = useStyles();
+	const [value, setValue] = React.useState(0);
+	const [person, setPerson] = React.useState("");
+	const [leadTime, setLeadTime] = React.useState(24);
+	const [newEmergencyCode, setNewEmergencyCode] = React.useState({});
+	const [view, setView] = React.useState("default");
+	const [emergencyCodes, setEmergencyCodes] = React.useState([]);
+	const [errors, setErrors] = useState([]);
 
-    React.useEffect(() => {
-        loadEmergencyCodes();
-    }, []);
+	React.useEffect(() => {
+		loadEmergencyCodes();
+	}, []);
 
-    const loadEmergencyCodes = () => {
-        emergencyCode.readEmergencyCodes().then(
-            function (codes) {
-                setEmergencyCodes(
-                    codes.map((code, index) => {
-                        return [
-                            code.id,
-                            code.description,
-                            code.activation_delay / 3600,
-                            code.activation_date === null ? t("NO") : code.activation_date,
-                        ];
-                    })
-                );
-            },
-            function (error) {
-                console.log(error);
-            }
-        );
-    };
+	const loadEmergencyCodes = () => {
+		emergencyCode.readEmergencyCodes().then(
+			(codes) => {
+				setEmergencyCodes(
+					codes.map((code, index) => {
+						return [
+							code.id,
+							code.description,
+							code.activation_delay / 3600,
+							code.activation_date === null ? t("NO") : code.activation_date,
+						];
+					}),
+				);
+			},
+			(error) => {
+				console.log(error);
+			},
+		);
+	};
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-    const generate = () => {
-        emergencyCode.createEmergencyCode(person, leadTime * 3600).then(
-            function (createdEmergencyCode) {
-                createdEmergencyCode["url"] = getStore().getState().server.webClient + "/emergency-code.html";
-                setNewEmergencyCode(createdEmergencyCode);
-                setView("step2");
-                setPerson("");
-                setLeadTime(24);
-            },
-            function (error) {
-                console.log(error);
-            }
-        );
-    };
+	const handleChange = (event, newValue) => {
+		setValue(newValue);
+	};
+	const generate = () => {
+		emergencyCode.createEmergencyCode(person, leadTime * 3600).then(
+			(createdEmergencyCode) => {
+				createdEmergencyCode["url"] =
+					getStore().getState().server.webClient + "/emergency-code.html";
+				setNewEmergencyCode(createdEmergencyCode);
+				setView("step2");
+				setPerson("");
+				setLeadTime(24);
+			},
+			(error) => {
+				console.log(error);
+			},
+		);
+	};
 
-    const onDelete = (rowData) => {
-        setErrors([]);
+	const onDelete = (rowData) => {
+		setErrors([]);
 
-        const onSuccess = function (successful) {
-            loadEmergencyCodes();
-        };
+		const onSuccess = (successful) => {
+			loadEmergencyCodes();
+		};
 
-        const onError = function (error) {
-            console.log(error);
-        };
+		const onError = (error) => {
+			console.log(error);
+		};
 
-        return emergencyCode.deleteEmergencyCode(rowData[0]).then(onSuccess, onError);
-    };
-    const onCreate = () => {
-        setView("create_step0");
-    };
+		return emergencyCode
+			.deleteEmergencyCode(rowData[0])
+			.then(onSuccess, onError);
+	};
+	const onCreate = () => {
+		setView("create_step0");
+	};
 
-    const columns = [
-        { name: t("ID"), options: { display: false } },
-        { name: t("PERSON") },
-        { name: t("LEAD_TIME_IN_HOURS") },
-        { name: t("ACTIVATED") },
-        {
-            name: t("DELETE"),
-            options: {
-                filter: true,
-                sort: false,
-                empty: false,
-                customHeadLabelRender: () => null,
-                customBodyRender: (value, tableMeta, updateValue) => {
-                    return (
-                        <IconButton
-                            onClick={() => {
-                                onDelete(tableMeta.rowData);
-                            }}
-                            size="large">
-                            <DeleteIcon />
-                        </IconButton>
-                    );
-                },
-            },
-        },
-    ];
+	const columns = [
+		{ name: t("ID"), options: { display: false } },
+		{ name: t("PERSON") },
+		{ name: t("LEAD_TIME_IN_HOURS") },
+		{ name: t("ACTIVATED") },
+		{
+			name: t("DELETE"),
+			options: {
+				filter: true,
+				sort: false,
+				empty: false,
+				customHeadLabelRender: () => null,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => {
+								onDelete(tableMeta.rowData);
+							}}
+							size="large"
+						>
+							<DeleteIcon />
+						</IconButton>
+					);
+				},
+			},
+		},
+	];
 
-    const options = {
-        filterType: "checkbox",
-    };
+	const options = {
+		filterType: "checkbox",
+	};
 
-    return (
-        <Dialog
-            fullWidth
-            maxWidth={"sm"}
-            open={open}
-            onClose={() => {
-                setView("default");
-                onClose();
-            }}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            <DialogTitle id="alert-dialog-title">{t("EMERGENCY_CODES")}</DialogTitle>
-            {view === "default" && (
-                <DialogContent>
-                    <Table data={emergencyCodes} columns={columns} options={options} onCreate={onCreate} />
-                </DialogContent>
-            )}
-            {view === "create_step0" && (
-                <DialogContent>
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="person"
-                                label={t("PERSON")}
-                                name="person"
-                                autoComplete="off"
-                                required
-                                value={person}
-                                onChange={(event) => {
-                                    setPerson(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense" size="small"
-                                id="leadTime"
-                                label={t("LEAD_TIME_IN_HOURS")}
-                                helperText={t("LEAD_TIME_IN_HOURS_PLACEHOLDER")}
-                                name="leadTime"
-                                autoComplete="off"
-                                required
-                                value={leadTime}
-                                InputProps={{
-                                    inputProps: {
-                                        min: LEAD_TIME_MIN,
-                                        max: LEAD_TIME_MAX,
-                                        step: 12,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">{t('hours')}</InputAdornment>
-                                    ),
-                                }}
-                                type="number"
-                                onChange={(event) => {
-                                    let value = event.target.value;
-                                    if (value > LEAD_TIME_MAX) value = LEAD_TIME_MAX;
-                                    if (value < LEAD_TIME_MIN) value = LEAD_TIME_MIN;
-                                    setLeadTime(value);
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={generate} disabled={!person}>
-                                {t("CREATE")}
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-            )}
-            {view === "step2" && (
-                <DialogContent>
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <p>{t("SEND_THIS_EMERGENCY_INFORMATION_INFO")}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <Divider />
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <p>{t("INFO_FOR_EMERGENCY_CODE")}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <strong>{t("URL")}</strong>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
-                            <p>{newEmergencyCode.url}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <strong>{t("USERNAME")}</strong>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
-                            <p>{newEmergencyCode.username}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <strong>{t("CODE")}</strong>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
-                            <p>{newEmergencyCode.emergency_password}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <strong>{t("OR")}</strong>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
-                            <p>{newEmergencyCode.emergency_words}</p>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <MuiAlert
-                                severity="warning"
-                                style={{
-                                    marginBottom: "5px",
-                                    marginTop: "5px",
-                                }}
-                            >
-                                {t("WARNING_OF_EMERGENCY_CODE")}
-                            </MuiAlert>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-            )}
-            <DialogActions>
-                <Button
-                    onClick={() => {
-                        setView("default");
-                        onClose();
-                    }}
-                    autoFocus
-                >
-                    {t("CLOSE")}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+	return (
+		<Dialog
+			fullWidth
+			maxWidth={"sm"}
+			open={open}
+			onClose={() => {
+				setView("default");
+				onClose();
+			}}
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+		>
+			<DialogTitle id="alert-dialog-title">{t("EMERGENCY_CODES")}</DialogTitle>
+			{view === "default" && (
+				<DialogContent>
+					<Table
+						data={emergencyCodes}
+						columns={columns}
+						options={options}
+						onCreate={onCreate}
+					/>
+				</DialogContent>
+			)}
+			{view === "create_step0" && (
+				<DialogContent>
+					<Grid container>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="person"
+								label={t("PERSON")}
+								name="person"
+								autoComplete="off"
+								required
+								value={person}
+								onChange={(event) => {
+									setPerson(event.target.value);
+								}}
+							/>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="leadTime"
+								label={t("LEAD_TIME_IN_HOURS")}
+								helperText={t("LEAD_TIME_IN_HOURS_PLACEHOLDER")}
+								name="leadTime"
+								autoComplete="off"
+								required
+								value={leadTime}
+								InputProps={{
+									inputProps: {
+										min: LEAD_TIME_MIN,
+										max: LEAD_TIME_MAX,
+										step: 12,
+									},
+									endAdornment: (
+										<InputAdornment position="end">{t("hours")}</InputAdornment>
+									),
+								}}
+								type="number"
+								onChange={(event) => {
+									let value = event.target.value;
+									if (value > LEAD_TIME_MAX) value = LEAD_TIME_MAX;
+									if (value < LEAD_TIME_MIN) value = LEAD_TIME_MIN;
+									setLeadTime(value);
+								}}
+							/>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={generate}
+								disabled={!person}
+							>
+								{t("CREATE")}
+							</Button>
+						</Grid>
+					</Grid>
+				</DialogContent>
+			)}
+			{view === "step2" && (
+				<DialogContent>
+					<Grid container>
+						<Grid item xs={12} sm={12} md={12}>
+							<p>{t("SEND_THIS_EMERGENCY_INFORMATION_INFO")}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<Divider />
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<p>{t("INFO_FOR_EMERGENCY_CODE")}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<strong>{t("URL")}</strong>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12} className={classes.code}>
+							<p>{newEmergencyCode.url}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<strong>{t("USERNAME")}</strong>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12} className={classes.code}>
+							<p>{newEmergencyCode.username}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<strong>{t("CODE")}</strong>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12} className={classes.code}>
+							<p>{newEmergencyCode.emergency_password}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<strong>{t("OR")}</strong>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12} className={classes.code}>
+							<p>{newEmergencyCode.emergency_words}</p>
+						</Grid>
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{
+									marginBottom: "5px",
+									marginTop: "5px",
+								}}
+							>
+								{t("WARNING_OF_EMERGENCY_CODE")}
+							</MuiAlert>
+						</Grid>
+					</Grid>
+				</DialogContent>
+			)}
+			<DialogActions>
+				<Button
+					onClick={() => {
+						setView("default");
+						onClose();
+					}}
+					autoFocus
+				>
+					{t("CLOSE")}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
 };
 
 EmergencyCodesDialog.propTypes = {
-    onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired,
+	onClose: PropTypes.func.isRequired,
+	open: PropTypes.bool.isRequired,
 };
 
 export default EmergencyCodesDialog;

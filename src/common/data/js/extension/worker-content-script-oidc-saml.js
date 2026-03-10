@@ -2,28 +2,29 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScriptOIDCSAML = function (base, browser, setTimeout) {
-    "use strict";
+var ClassWorkerContentScriptOIDCSAML = (base, browser, setTimeout) => {
+	base.ready(() => {
+		activate();
+	});
 
-    base.ready(function() {
-        activate();
-    });
+	function activate() {
+		base.registerObserver(observer);
+	}
 
-    function activate() {
-        base.registerObserver(observer);
-    }
-
-    /**
-     * Analyse a document and adds a listener
-     *
-     * @param document
-     */
-    function observer(document) {
-        if (document.defaultView.location.href.startsWith('https://psono.com/redirect')) {
-            base.emit("oidc-saml-redirect-detected", {
-                url: document.defaultView.location.href
-            });
-        }
-    }
-
+	/**
+	 * Analyse a document and adds a listener
+	 *
+	 * @param document
+	 */
+	function observer(document) {
+		if (
+			document.defaultView.location.href.startsWith(
+				"https://psono.com/redirect",
+			)
+		) {
+			base.emit("oidc-saml-redirect-detected", {
+				url: document.defaultView.location.href,
+			});
+		}
+	}
 };

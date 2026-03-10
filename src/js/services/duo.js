@@ -2,9 +2,9 @@
  * Duo and all the functions to create / edit / delete it ...
  */
 
+import action from "../actions/bound-action-creators";
 import apiClient from "./api-client";
 import { getStore } from "./store";
-import action from "../actions/bound-action-creators";
 
 /**
  * creates a duo
@@ -18,20 +18,24 @@ import action from "../actions/bound-action-creators";
  * @returns {Promise} Returns a promise with the user information
  */
 function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function (request) {
-        return {
-            id: request.data["id"],
-            uri: request.data["activation_code"],
-        };
-    };
-    const onError = function (request) {
-        return Promise.reject(request.data);
-    };
-    return apiClient
-        .createDuo(token, sessionSecretKey, useSystemWideDuo, title, integration_key, secret_key, host)
-        .then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = (request) => ({
+		id: request.data["id"],
+		uri: request.data["activation_code"],
+	});
+	const onError = (request) => Promise.reject(request.data);
+	return apiClient
+		.createDuo(
+			token,
+			sessionSecretKey,
+			useSystemWideDuo,
+			title,
+			integration_key,
+			secret_key,
+			host,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -40,15 +44,13 @@ function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
  * @returns {Promise} Returns a promise with a list of all duos
  */
 function readDuo() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function (request) {
-        return request.data["duos"];
-    };
-    const onError = function () {
-        // pass
-    };
-    return apiClient.readDuo(token, sessionSecretKey).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = (request) => request.data["duos"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient.readDuo(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -60,16 +62,16 @@ function readDuo() {
  * @returns {Promise} Returns a promise with true or false
  */
 function activateDuo(duoId, duoToken) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function () {
-        action().setHasTwoFactor(true);
-        return true;
-    };
-    const onError = function () {
-        return false;
-    };
-    return apiClient.activateDuo(token, sessionSecretKey, duoId, duoToken).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = () => {
+		action().setHasTwoFactor(true);
+		return true;
+	};
+	const onError = () => false;
+	return apiClient
+		.activateDuo(token, sessionSecretKey, duoId, duoToken)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -80,22 +82,20 @@ function activateDuo(duoId, duoToken) {
  * @returns {Promise} Returns a promise with true or false
  */
 function deleteDuo(duoId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-    const onSuccess = function () {
-        return true;
-    };
-    const onError = function (data) {
-        return Promise.reject(data.data);
-    };
-    return apiClient.deleteDuo(token, sessionSecretKey, duoId).then(onSuccess, onError);
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const onSuccess = () => true;
+	const onError = (data) => Promise.reject(data.data);
+	return apiClient
+		.deleteDuo(token, sessionSecretKey, duoId)
+		.then(onSuccess, onError);
 }
 
 const duoService = {
-    createDuo,
-    readDuo,
-    activateDuo,
-    deleteDuo,
+	createDuo,
+	readDuo,
+	activateDuo,
+	deleteDuo,
 };
 
 export default duoService;

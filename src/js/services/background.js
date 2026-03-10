@@ -1,22 +1,23 @@
 /**
  * Service that handles the complete background process
  */
-import browserClient from "./browser-client";
-import browser from "./browser";
-import i18n from "../i18n";
-import { getStore } from "./store";
-import datastorePasswordService from "./datastore-password";
-import offlineCache from "./offline-cache";
-import helper from "./helper";
-import notificationBarService from "./notification-bar";
-import passkeyService from "./passkey";
-import user from "./user";
-import secretService from "./secret";
-import cryptoLibrary from "./crypto-library";
+
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
+import i18n from "../i18n";
+import browser from "./browser";
+import browserClient from "./browser-client";
+import cryptoLibrary from "./crypto-library";
+import datastorePasswordService from "./datastore-password";
+import helper from "./helper";
+import notificationBarService from "./notification-bar";
+import offlineCache from "./offline-cache";
+import passkeyService from "./passkey";
+import secretService from "./secret";
 import storage from "./storage";
+import { getStore } from "./store";
 import urlSynonymsService from "./url-synonyms";
+import user from "./user";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -39,348 +40,340 @@ const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
 const CM_AUTOFILL_IDENTITY_ID = "psono-autofill-identity";
 const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
-
 function activate() {
+	if (typeof browser.runtime.setUninstallURL !== "undefined") {
+		// set url to open if someone uninstalls our extension
+		browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
+	}
 
-    if (typeof browser.runtime.setUninstallURL !== "undefined") {
-        // set url to open if someone uninstalls our extension
-        browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
-    }
+	if (typeof browser.runtime.onInstalled !== "undefined") {
+		// set url to open if someone installs our extension
+		browser.runtime.onInstalled.addListener((details) => {
+			if (details.reason !== "install") {
+				return;
+			}
 
-    if (typeof browser.runtime.onInstalled !== "undefined") {
-        // set url to open if someone installs our extension
-        browser.runtime.onInstalled.addListener(function (details) {
-            if (details.reason !== "install") {
-                return;
-            }
-
-            browser.tabs.create({
-                url: "/data/install-successful.html",
-            });
-        });
-    }
+			browser.tabs.create({
+				url: "/data/install-successful.html",
+			});
+		});
+	}
 }
 
 function activateAfterStore() {
-    browserClient.disableBrowserPasswordSaving();
+	browserClient.disableBrowserPasswordSaving();
 
-    if (typeof chrome.tabs !== "undefined") {
-        chrome.tabs.onActivated.addListener(function (activeInfo) {
-            activeTabId = activeInfo.tabId;
-            chrome.tabs.get(activeInfo.tabId, function (tabInfo) {
-                activeTabUrl = tabInfo.url;
-                updateContextMenu();
-                updateBadgeCounter();
-            });
-        });
-        chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tabInfo) {
-            if (changeInfo.status !== 'complete') {
-                return;
-            }
-            activeTabUrl = tabInfo.url;
-            updateContextMenu();
-            updateBadgeCounter();
-        });
-    }
+	if (typeof chrome.tabs !== "undefined") {
+		chrome.tabs.onActivated.addListener((activeInfo) => {
+			activeTabId = activeInfo.tabId;
+			chrome.tabs.get(activeInfo.tabId, (tabInfo) => {
+				activeTabUrl = tabInfo.url;
+				updateContextMenu();
+				updateBadgeCounter();
+			});
+		});
+		chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
+			if (changeInfo.status !== "complete") {
+				return;
+			}
+			activeTabUrl = tabInfo.url;
+			updateContextMenu();
+			updateBadgeCounter();
+		});
+	}
 
-    if (typeof chrome.omnibox !== "undefined") {
-        chrome.omnibox.onInputChanged.addListener(onInputChanged);
-        chrome.omnibox.onInputEntered.addListener(onInputEntered);
-        if (TARGET === "firefox") {
-            chrome.omnibox.setDefaultSuggestion({
-                description: i18n.t("SEARCH_DATASTORE"),
-            });
-        } else {
-            chrome.omnibox.setDefaultSuggestion({
-                description: i18n.t("SEARCH_DATASTORE_IDENTIFIER", {'identifier': '<match>%s</match>'}),
-            });
-        }
-    }
-    if (typeof browser.runtime.onMessage !== "undefined") {
-        browser.runtime.onMessage.addListener(onMessage);
-    }
-    browserClient.registerAuthRequiredListener(onAuthRequired);
-    // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
-    // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
+	if (typeof chrome.omnibox !== "undefined") {
+		chrome.omnibox.onInputChanged.addListener(onInputChanged);
+		chrome.omnibox.onInputEntered.addListener(onInputEntered);
+		if (TARGET === "firefox") {
+			chrome.omnibox.setDefaultSuggestion({
+				description: i18n.t("SEARCH_DATASTORE"),
+			});
+		} else {
+			chrome.omnibox.setDefaultSuggestion({
+				description: i18n.t("SEARCH_DATASTORE_IDENTIFIER", {
+					identifier: "<match>%s</match>",
+				}),
+			});
+		}
+	}
+	if (typeof browser.runtime.onMessage !== "undefined") {
+		browser.runtime.onMessage.addListener(onMessage);
+	}
+	browserClient.registerAuthRequiredListener(onAuthRequired);
+	// browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
+	// browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
 
-    if (typeof browser.tabs !== "undefined") {
-        // count tabs to logout on browser close
-        browser.tabs.query({ currentWindow: true }, function (tabs) {
-            numTabs = tabs.length;
-        });
-        browser.tabs.onCreated.addListener(function (tab) {
-            numTabs++;
-        });
-        browser.tabs.onRemoved.addListener(function (tabId) {
-            numTabs--;
-            if (numTabs === 0 && !getStore().getState().user.trustDevice) {
-                user.logout();
-            }
-        });
-    }
+	if (typeof browser.tabs !== "undefined") {
+		// count tabs to logout on browser close
+		browser.tabs.query({ currentWindow: true }, (tabs) => {
+			numTabs = tabs.length;
+		});
+		browser.tabs.onCreated.addListener((tab) => {
+			numTabs++;
+		});
+		browser.tabs.onRemoved.addListener((tabId) => {
+			numTabs--;
+			if (numTabs === 0 && !getStore().getState().user.trustDevice) {
+				user.logout();
+			}
+		});
+	}
 
-    // create the context menu once the translations are loaded
-    i18n.on("loaded", function (loaded) {
-        updateContextMenu();
-    });
+	// create the context menu once the translations are loaded
+	i18n.on("loaded", (loaded) => {
+		updateContextMenu();
+	});
 
-    if (chrome.contextMenus) {
-        chrome.contextMenus.onClicked.addListener((info, tab) => {
-            switch (info.menuItemId) {
-                case CM_DATASTORE_ID:
-                    openDatastore()
-                    break;
-                case CM_RECHECK_PAGE_ID:
-                    recheckPage()
-                    break;
-                default:
-                    fillSecretTab(info.menuItemId, tab)
+	if (chrome.contextMenus) {
+		chrome.contextMenus.onClicked.addListener((info, tab) => {
+			switch (info.menuItemId) {
+				case CM_DATASTORE_ID:
+					openDatastore();
+					break;
+				case CM_RECHECK_PAGE_ID:
+					recheckPage();
+					break;
+				default:
+					fillSecretTab(info.menuItemId, tab);
+			}
+		});
+	}
 
-            }
-        });
-    }
-
-    // set the correct icon on start
-    if (user.isLoggedIn()) {
-        browserClient.setIcon({
-            path : "/data/img/icon-32.png"
-        });
-        updateBadgeCounter();
-    } else {
-        browserClient.setIcon({
-            path : "/data/img/icon-32-disabled.png"
-        });
-        updateBadgeCounter();
-    }
+	// set the correct icon on start
+	if (user.isLoggedIn()) {
+		browserClient.setIcon({
+			path: "/data/img/icon-32.png",
+		});
+		updateBadgeCounter();
+	} else {
+		browserClient.setIcon({
+			path: "/data/img/icon-32-disabled.png",
+		});
+		updateBadgeCounter();
+	}
 }
 
 /**
  * Updates the badge counter at the top
  */
-function  updateBadgeCounter() {
-    if (!getStore().getState().user.isLoggedIn || !activeTabUrl) {
-        browserClient.setBadgeText("");
-    } else {
-        searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
-            if (leafs.length === 0) {
-                browserClient.setBadgeText("");
-            } else if (leafs.length < 9) {
-                browserClient.setBadgeText(leafs.length.toString());
-            } else {
-                browserClient.setBadgeText("9+");
-            }
-        });
-    }
+function updateBadgeCounter() {
+	if (!getStore().getState().user.isLoggedIn || !activeTabUrl) {
+		browserClient.setBadgeText("");
+	} else {
+		searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then((leafs) => {
+			if (leafs.length === 0) {
+				browserClient.setBadgeText("");
+			} else if (leafs.length < 9) {
+				browserClient.setBadgeText(leafs.length.toString());
+			} else {
+				browserClient.setBadgeText("9+");
+			}
+		});
+	}
 }
-
 
 /**
  * Updates the context menu, usually called when the language changes or new tab loads or url changes.
  */
 function updateContextMenu() {
-    if (!chrome.contextMenus) {
-        return;
-    }
-    chrome.contextMenus.removeAll(function() {
-        const contextMenu = chrome.contextMenus.create({
-            id: CM_PSONO_ID,
-            title: "Psono",
-            contexts: ["all"],
-        });
-        chrome.contextMenus.create({
-            id: CM_DATASTORE_ID,
-            title: i18n.t("OPEN_DATASTORE"),
-            contexts: ["all"],
-            parentId: contextMenu,
-        });
-        const contextMenuChildAutofillCredential = chrome.contextMenus.create({
-            id: CM_AUTOFILL_CREDENTIAL_ID,
-            title: i18n.t("AUTOFILL_CREDENTIAL"),
-            contexts: ["all"],
-            visible: false,
-            parentId: contextMenu,
-        });
-        const contextMenuChildAutofillCreditCard = chrome.contextMenus.create({
-            id: CM_AUTOFILL_CREDIT_CARD_ID,
-            title: i18n.t("AUTOFILL_CREDIT_CARD"),
-            contexts: ["all"],
-            visible: false,
-            parentId: contextMenu,
-        });
-        const contextMenuChildAutofillIdentity = chrome.contextMenus.create({
-            id: CM_AUTOFILL_IDENTITY_ID,
-            title: i18n.t("AUTOFILL_IDENTITY"),
-            contexts: ["all"],
-            visible: false,
-            parentId: contextMenu,
-        });
-        chrome.contextMenus.create({
-            id: CM_RECHECK_PAGE_ID,
-            title: i18n.t("RECHECK_PAGE"),
-            contexts: ["all"],
-            parentId: contextMenu,
-        });
+	if (!chrome.contextMenus) {
+		return;
+	}
+	chrome.contextMenus.removeAll(() => {
+		const contextMenu = chrome.contextMenus.create({
+			id: CM_PSONO_ID,
+			title: "Psono",
+			contexts: ["all"],
+		});
+		chrome.contextMenus.create({
+			id: CM_DATASTORE_ID,
+			title: i18n.t("OPEN_DATASTORE"),
+			contexts: ["all"],
+			parentId: contextMenu,
+		});
+		const contextMenuChildAutofillCredential = chrome.contextMenus.create({
+			id: CM_AUTOFILL_CREDENTIAL_ID,
+			title: i18n.t("AUTOFILL_CREDENTIAL"),
+			contexts: ["all"],
+			visible: false,
+			parentId: contextMenu,
+		});
+		const contextMenuChildAutofillCreditCard = chrome.contextMenus.create({
+			id: CM_AUTOFILL_CREDIT_CARD_ID,
+			title: i18n.t("AUTOFILL_CREDIT_CARD"),
+			contexts: ["all"],
+			visible: false,
+			parentId: contextMenu,
+		});
+		const contextMenuChildAutofillIdentity = chrome.contextMenus.create({
+			id: CM_AUTOFILL_IDENTITY_ID,
+			title: i18n.t("AUTOFILL_IDENTITY"),
+			contexts: ["all"],
+			visible: false,
+			parentId: contextMenu,
+		});
+		chrome.contextMenus.create({
+			id: CM_RECHECK_PAGE_ID,
+			title: i18n.t("RECHECK_PAGE"),
+			contexts: ["all"],
+			parentId: contextMenu,
+		});
 
-        function addAutofillCredentials (leafs) {
+		function addAutofillCredentials(leafs) {
+			const entries = [];
 
-            const entries = [];
+			for (let ii = 0; ii < leafs.length; ii++) {
+				let name = leafs[ii].name;
 
-            for (let ii = 0; ii < leafs.length; ii++) {
-                let name = leafs[ii].name;
+				// Add description (username) in brackets if available and not already in the name
+				if (leafs[ii].description && leafs[ii].description.trim() !== "") {
+					const description = leafs[ii].description.trim();
+					const nameLower = name.toLowerCase();
+					const descriptionLower = description.toLowerCase();
 
-                // Add description (username) in brackets if available and not already in the name
-                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
-                    const description = leafs[ii].description.trim();
-                    const nameLower = name.toLowerCase();
-                    const descriptionLower = description.toLowerCase();
+					// Only add description if it's not already part of the name
+					if (nameLower.indexOf(descriptionLower) === -1) {
+						name = name + " (" + description + ")";
+					}
+				}
 
-                    // Only add description if it's not already part of the name
-                    if (nameLower.indexOf(descriptionLower) === -1) {
-                        name = name + ' (' + description + ')';
-                    }
-                }
+				entries.push({
+					secret_id: leafs[ii].secret_id,
+					name: name,
+				});
+			}
 
-                entries.push({
-                    secret_id: leafs[ii].secret_id,
-                    name: name,
-                });
-            }
+			entries.sort((a, b) => {
+				const a_name = a.name ? a.name : "";
+				const b_name = b.name ? b.name : "";
+				if (a_name.toLowerCase() < b_name.toLowerCase()) return -1;
+				if (a_name.toLowerCase() > b_name.toLowerCase()) return 1;
+				return 0;
+			});
 
-            entries.sort(function(a, b){
-                let a_name = a.name ? a.name : '';
-                let b_name = b.name ? b.name : '';
-                if (a_name.toLowerCase() < b_name.toLowerCase())
-                    return -1;
-                if (a_name.toLowerCase() > b_name.toLowerCase())
-                    return 1;
-                return 0;
-            })
+			entries.forEach((entry) => {
+				chrome.contextMenus.create({
+					id: entry.secret_id,
+					title: entry.name,
+					contexts: ["all"],
+					parentId: contextMenuChildAutofillCredential,
+				});
+			});
 
-            entries.forEach(function(entry) {
-                chrome.contextMenus.create({
-                    id: entry.secret_id,
-                    title: entry.name,
-                    contexts: ["all"],
-                    parentId: contextMenuChildAutofillCredential,
-                });
-            })
+			if (entries.length > 0) {
+				chrome.contextMenus.update(CM_AUTOFILL_CREDENTIAL_ID, {
+					visible: true,
+				});
+			}
+		}
 
-            if (entries.length > 0) {
-                chrome.contextMenus.update(CM_AUTOFILL_CREDENTIAL_ID, {
-                    visible: true,
-                });
-            }
+		function addAutofillCreditCards(leafs) {
+			const entries = [];
 
-        }
+			for (let ii = 0; ii < leafs.length; ii++) {
+				let name = leafs[ii].name;
 
-        function addAutofillCreditCards (leafs) {
-            const entries = [];
+				// Add description in brackets if available and not already in the name
+				if (leafs[ii].description && leafs[ii].description.trim() !== "") {
+					const description = leafs[ii].description.trim();
+					const nameLower = name.toLowerCase();
+					const descriptionLower = description.toLowerCase();
 
-            for (let ii = 0; ii < leafs.length; ii++) {
-                let name = leafs[ii].name;
+					// Only add description if it's not already part of the name
+					if (nameLower.indexOf(descriptionLower) === -1) {
+						name = name + " (" + description + ")";
+					}
+				}
 
-                // Add description in brackets if available and not already in the name
-                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
-                    const description = leafs[ii].description.trim();
-                    const nameLower = name.toLowerCase();
-                    const descriptionLower = description.toLowerCase();
+				entries.push({
+					secret_id: leafs[ii].secret_id,
+					name: name,
+				});
+			}
 
-                    // Only add description if it's not already part of the name
-                    if (nameLower.indexOf(descriptionLower) === -1) {
-                        name = name + ' (' + description + ')';
-                    }
-                }
+			entries.sort((a, b) => {
+				const a_name = a.name ? a.name : "";
+				const b_name = b.name ? b.name : "";
+				if (a_name.toLowerCase() < b_name.toLowerCase()) return -1;
+				if (a_name.toLowerCase() > b_name.toLowerCase()) return 1;
+				return 0;
+			});
 
-                entries.push({
-                    secret_id: leafs[ii].secret_id,
-                    name: name,
-                });
-            }
+			entries.forEach((entry) => {
+				chrome.contextMenus.create({
+					id: entry.secret_id,
+					title: entry.name,
+					contexts: ["all"],
+					parentId: contextMenuChildAutofillCreditCard,
+				});
+			});
 
-            entries.sort(function(a, b){
-                let a_name = a.name ? a.name : '';
-                let b_name = b.name ? b.name : '';
-                if (a_name.toLowerCase() < b_name.toLowerCase())
-                    return -1;
-                if (a_name.toLowerCase() > b_name.toLowerCase())
-                    return 1;
-                return 0;
-            })
+			if (entries.length > 0) {
+				chrome.contextMenus.update(CM_AUTOFILL_CREDIT_CARD_ID, {
+					visible: true,
+				});
+			}
+		}
 
-            entries.forEach(function(entry) {
-                chrome.contextMenus.create({
-                    id: entry.secret_id,
-                    title: entry.name,
-                    contexts: ["all"],
-                    parentId: contextMenuChildAutofillCreditCard,
-                });
-            })
+		function addAutofillIdentities(leafs) {
+			const entries = [];
 
-            if (entries.length > 0) {
-                chrome.contextMenus.update(CM_AUTOFILL_CREDIT_CARD_ID, {
-                    visible: true,
-                });
-            }
-        }
-        
-        function addAutofillIdentities (leafs) {
-            const entries = [];
+			for (let ii = 0; ii < leafs.length; ii++) {
+				let name = leafs[ii].name;
 
-            for (let ii = 0; ii < leafs.length; ii++) {
-                let name = leafs[ii].name;
+				// Add description in brackets if available and not already in the name
+				if (leafs[ii].description && leafs[ii].description.trim() !== "") {
+					const description = leafs[ii].description.trim();
+					const nameLower = name.toLowerCase();
+					const descriptionLower = description.toLowerCase();
 
-                // Add description in brackets if available and not already in the name
-                if (leafs[ii].description && leafs[ii].description.trim() !== '') {
-                    const description = leafs[ii].description.trim();
-                    const nameLower = name.toLowerCase();
-                    const descriptionLower = description.toLowerCase();
+					// Only add description if it's not already part of the name
+					if (nameLower.indexOf(descriptionLower) === -1) {
+						name = name + " (" + description + ")";
+					}
+				}
 
-                    // Only add description if it's not already part of the name
-                    if (nameLower.indexOf(descriptionLower) === -1) {
-                        name = name + ' (' + description + ')';
-                    }
-                }
+				entries.push({
+					secret_id: leafs[ii].secret_id,
+					name: name,
+				});
+			}
 
-                entries.push({
-                    secret_id: leafs[ii].secret_id,
-                    name: name,
-                });
-            }
+			entries.sort((a, b) => {
+				const a_name = a.name ? a.name : "";
+				const b_name = b.name ? b.name : "";
+				if (a_name.toLowerCase() < b_name.toLowerCase()) return -1;
+				if (a_name.toLowerCase() > b_name.toLowerCase()) return 1;
+				return 0;
+			});
 
-            entries.sort(function(a, b){
-                let a_name = a.name ? a.name : '';
-                let b_name = b.name ? b.name : '';
-                if (a_name.toLowerCase() < b_name.toLowerCase())
-                    return -1;
-                if (a_name.toLowerCase() > b_name.toLowerCase())
-                    return 1;
-                return 0;
-            })
+			entries.forEach((entry) => {
+				chrome.contextMenus.create({
+					id: entry.secret_id,
+					title: entry.name,
+					contexts: ["all"],
+					parentId: contextMenuChildAutofillIdentity,
+				});
+			});
 
-            entries.forEach(function(entry) {
-                chrome.contextMenus.create({
-                    id: entry.secret_id,
-                    title: entry.name,
-                    contexts: ["all"],
-                    parentId: contextMenuChildAutofillIdentity,
-                });
-            })
+			if (entries.length > 0) {
+				chrome.contextMenus.update(CM_AUTOFILL_IDENTITY_ID, {
+					visible: true,
+				});
+			}
+		}
 
-            if (entries.length > 0) {
-                chrome.contextMenus.update(CM_AUTOFILL_IDENTITY_ID, {
-                    visible: true,
-                });
-            }
-        }
-
-        if (!activeTabUrl) {
-            addAutofillCredentials([])
-        } else {
-            searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofillCredentials);
-        }
-        searchCreditCard().then(addAutofillCreditCards);
-        searchIdentity().then(addAutofillIdentities);
-    })
+		if (!activeTabUrl) {
+			addAutofillCredentials([]);
+		} else {
+			searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(
+				addAutofillCredentials,
+			);
+		}
+		searchCreditCard().then(addAutofillCreditCards);
+		searchIdentity().then(addAutofillIdentities);
+	});
 }
 
 /**
@@ -390,9 +383,9 @@ function updateContextMenu() {
  * @param tab
  */
 function openDatastore(info, tab) {
-    browser.tabs.create({
-        url: "/data/index.html",
-    });
+	browser.tabs.create({
+		url: "/data/index.html",
+	});
 }
 
 /**
@@ -402,7 +395,7 @@ function openDatastore(info, tab) {
  * @param tab
  */
 function recheckPage(info, tab) {
-    // TODO implement
+	// TODO implement
 }
 
 /**
@@ -412,60 +405,59 @@ function recheckPage(info, tab) {
  * @param tab The tab info
  */
 function fillSecretTab(secretId, tab) {
-    return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
-        const onError = function (result) {
-            // pass
-        };
+	return storage.findKey("datastore-password-leafs", secretId).then((leaf) => {
+		const onError = (result) => {
+			// pass
+		};
 
-        const onSuccess = function (content) {
-            if (leaf.type === 'website_password') {
+		const onSuccess = (content) => {
+			if (leaf.type === "website_password") {
+				browserClient.emitTab(tab.id, "fillpassword", {
+					username: content.website_password_username,
+					password: content.website_password_password,
+					totp_token: content.website_password_totp_code
+						? cryptoLibrary.getTotpToken(
+								content.website_password_totp_code,
+								content.website_password_totp_period,
+								content.website_password_totp_algorithm,
+								content.website_password_totp_digits,
+							)
+						: "",
+					url_filter: content.website_password_url_filter,
+					auto_submit: content.website_password_auto_submit,
+					custom_fields: content.custom_fields || [],
+				});
+			}
+			if (leaf.type === "credit_card") {
+				browserClient.emitTab(tab.id, "fillcreditcard", {
+					credit_card_number: content.credit_card_number,
+					credit_card_cvc: content.credit_card_cvc,
+					credit_card_name: content.credit_card_name,
+					credit_card_valid_through: content.credit_card_valid_through,
+					custom_fields: content.custom_fields || [],
+				});
+			}
+			if (leaf.type === "identity") {
+				browserClient.emitTab(tab.id, "fillidentity", {
+					identity_first_name: content.identity_first_name,
+					identity_last_name: content.identity_last_name,
+					identity_company: content.identity_company,
+					identity_address: content.identity_address,
+					identity_postal_code: content.identity_postal_code,
+					identity_city: content.identity_city,
+					identity_state: content.identity_state,
+					identity_country: content.identity_country,
+					identity_phone_number: content.identity_phone_number,
+					identity_email: content.identity_email,
+					custom_fields: content.custom_fields || [],
+				});
+			}
+		};
 
-                browserClient.emitTab(tab.id, "fillpassword", {
-                        username: content.website_password_username,
-                        password: content.website_password_password,
-                        totp_token: content.website_password_totp_code ? cryptoLibrary.getTotpToken(
-                            content.website_password_totp_code,
-                            content.website_password_totp_period,
-                            content.website_password_totp_algorithm,
-                            content.website_password_totp_digits,
-                        ): "",
-                        url_filter: content.website_password_url_filter,
-                        auto_submit: content.website_password_auto_submit,
-                        custom_fields: content.custom_fields || [],
-                    }
-                )
-            }
-            if (leaf.type === 'credit_card') {
-                browserClient.emitTab(tab.id, "fillcreditcard", {
-                        credit_card_number: content.credit_card_number,
-                        credit_card_cvc: content.credit_card_cvc,
-                        credit_card_name: content.credit_card_name,
-                        credit_card_valid_through: content.credit_card_valid_through,
-                        custom_fields: content.custom_fields || [],
-                    }
-                )
-            }
-            if (leaf.type === 'identity') {
-                browserClient.emitTab(tab.id, "fillidentity", {
-                        identity_first_name: content.identity_first_name,
-                        identity_last_name: content.identity_last_name,
-                        identity_company: content.identity_company,
-                        identity_address: content.identity_address,
-                        identity_postal_code: content.identity_postal_code,
-                        identity_city: content.identity_city,
-                        identity_state: content.identity_state,
-                        identity_country: content.identity_country,
-                        identity_phone_number: content.identity_phone_number,
-                        identity_email: content.identity_email,
-                        custom_fields: content.custom_fields || [],
-                    }
-                )
-            }
-        };
-
-        return secretService.readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
-    });
-
+		return secretService
+			.readSecret(secretId, leaf.secret_key)
+			.then(onSuccess, onError);
+	});
 }
 
 // Start helper functions
@@ -478,66 +470,73 @@ function fillSecretTab(secretId, tab) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onMessage(request, sender, sendResponse) {
-    const eventFunctions = {
-        fillpassword: onFillpassword,
-        fillelstercertificate: onFillElsterCertificate,
-        ready: onReady,
-        "notification-bar-close": notificationBarService.onNotificationBarClose,
-        "notification-bar-ready": notificationBarService.onNotificationBarReady,
-        "notification-bar-loaded": notificationBarService.onNotificationBarLoaded,
-        "notification-bar-button-click": notificationBarService.onNotificationBarButtonClick,
-        "fillpassword-active-tab": onFillpasswordActiveTab,
-        "save-password-active-tab": savePasswordActiveTab,
-        "bookmark-active-tab": bookmarkActiveTab,
-        login: onLogin,
-        logout: onLogout,
-        "is-logged-in": onIsLoggedIn,
-        "storage-reload": onStorageReload,
-        "website-password-refresh": onWebsitePasswordRefresh,
-        "elster-certificate-refresh": onElsterCertificateRefresh,
-        "request-secret": onRequestSecret,
-        "open-tab": onOpenTab,
-        "generate-password": onGeneratePassword,
-        "approve-iframe-login": approveIframeLogin,
-        "login-form-submit": loginFormSubmit,
-        "oidc-saml-redirect-detected": oidcSamlRedirectDetected,
-        "decrypt-gpg": decryptPgp,
-        "encrypt-gpg": encryptPgp,
-        "read-gpg": readGpg,
-        "write-gpg": writeGpg,
-        "write-gpg-complete": writeGpgComplete,
-        "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
-        "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
-        "language-changed": languageChanged,
-        "clear-clipboard": clearClipboard,
-        "navigator-credentials-get": passkeyService.onNavigatorCredentialsGet,
-        "navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
-        "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
-        "set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
-    };
-    try {
-        if (eventFunctions.hasOwnProperty(request.event)) {
-            // Wrap the handler call in try-catch to handle errors properly
-            try {
-                const result = eventFunctions[request.event](request, sender, sendResponse);
-                // If the handler returns true, it means it will respond asynchronously
-                return result === true;
-            } catch (handlerError) {
-                console.error("Error in message handler:", handlerError);
-                sendResponse({ error: handlerError.message });
-                return false;
-            }
-        } else {
-            // not catchable event
-            console.log(sender.tab);
-            console.log("background script received (uncaptured)    " + request.event);
-            return false;
-        }
-    } catch (error) {
-        console.error("Error in onMessage:", error);
-        sendResponse({ error: error.message });
-        return false;
-    }
+	const eventFunctions = {
+		fillpassword: onFillpassword,
+		fillelstercertificate: onFillElsterCertificate,
+		ready: onReady,
+		"notification-bar-close": notificationBarService.onNotificationBarClose,
+		"notification-bar-ready": notificationBarService.onNotificationBarReady,
+		"notification-bar-loaded": notificationBarService.onNotificationBarLoaded,
+		"notification-bar-button-click":
+			notificationBarService.onNotificationBarButtonClick,
+		"fillpassword-active-tab": onFillpasswordActiveTab,
+		"save-password-active-tab": savePasswordActiveTab,
+		"bookmark-active-tab": bookmarkActiveTab,
+		login: onLogin,
+		logout: onLogout,
+		"is-logged-in": onIsLoggedIn,
+		"storage-reload": onStorageReload,
+		"website-password-refresh": onWebsitePasswordRefresh,
+		"elster-certificate-refresh": onElsterCertificateRefresh,
+		"request-secret": onRequestSecret,
+		"open-tab": onOpenTab,
+		"generate-password": onGeneratePassword,
+		"approve-iframe-login": approveIframeLogin,
+		"login-form-submit": loginFormSubmit,
+		"oidc-saml-redirect-detected": oidcSamlRedirectDetected,
+		"decrypt-gpg": decryptPgp,
+		"encrypt-gpg": encryptPgp,
+		"read-gpg": readGpg,
+		"write-gpg": writeGpg,
+		"write-gpg-complete": writeGpgComplete,
+		"set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
+		"launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
+		"language-changed": languageChanged,
+		"clear-clipboard": clearClipboard,
+		"navigator-credentials-get": passkeyService.onNavigatorCredentialsGet,
+		"navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
+		"get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
+		"set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
+	};
+	try {
+		if (Object.hasOwn(eventFunctions, request.event)) {
+			// Wrap the handler call in try-catch to handle errors properly
+			try {
+				const result = eventFunctions[request.event](
+					request,
+					sender,
+					sendResponse,
+				);
+				// If the handler returns true, it means it will respond asynchronously
+				return result === true;
+			} catch (handlerError) {
+				console.error("Error in message handler:", handlerError);
+				sendResponse({ error: handlerError.message });
+				return false;
+			}
+		} else {
+			// not catchable event
+			console.log(sender.tab);
+			console.log(
+				"background script received (uncaptured)    " + request.event,
+			);
+			return false;
+		}
+	} catch (error) {
+		console.error("Error in onMessage:", error);
+		sendResponse({ error: error.message });
+		return false;
+	}
 }
 
 /**
@@ -549,50 +548,57 @@ function onMessage(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onReady(request, sender, sendResponse) {
-    if (sender.tab) {
-        const url = sender.url;
-        const parsedUrl = helper.parseUrl(url);
-        let sentResponse = false;
-        let found = false;
+	if (sender.tab) {
+		const url = sender.url;
+		const parsedUrl = helper.parseUrl(url);
+		let sentResponse = false;
+		let found = false;
 
-        for (let i = fillpassword.length - 1; i >= 0; i--) {
+		for (let i = fillpassword.length - 1; i >= 0; i--) {
+			if (fillpassword[i].url_filter) {
+				const urlFilters = fillpassword[i].url_filter.split(/\s+|,|;/);
+				for (let i = 0; i < urlFilters.length; i++) {
+					if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
+						fillpassword[i].submit = parsedUrl.scheme === "https";
+						sentResponse = true;
+						sendResponse({ event: "fillpassword", data: fillpassword[i] });
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				break;
+			}
+		}
 
-            if (fillpassword[i].url_filter) {
-                const urlFilters = fillpassword[i].url_filter.split(/\s+|,|;/);
-                for (let i = 0; i < urlFilters.length; i++) {
-                    if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
-                        fillpassword[i].submit = parsedUrl.scheme === "https";
-                        sentResponse = true;
-                        sendResponse({ event: "fillpassword", data: fillpassword[i] });
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (found) {
-                break;
-            }
-        }
+		if (
+			parsedUrl.base_url === "https://www.elster.de" &&
+			parsedUrl.path &&
+			(parsedUrl.path.startsWith("/eportal/login/") ||
+				parsedUrl.path.startsWith("/ekona/login/"))
+		) {
+			for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
+				sentResponse = true;
+				sendResponse({
+					event: "fillelstercertificate",
+					data: fillelstercertificate[i],
+				});
+				found = true;
+				break;
+			}
+		}
+		clearFillPasswordTimeout = setTimeout(() => {
+			fillpassword = [];
+		}, 3000);
+		clearFillElsterCertificateTimeout = setTimeout(() => {
+			fillelstercertificate = [];
+		}, 3000);
 
-        if (parsedUrl.base_url === 'https://www.elster.de' && parsedUrl.path && (parsedUrl.path.startsWith('/eportal/login/') || parsedUrl.path.startsWith('/ekona/login/') )) {
-            for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
-                sentResponse = true;
-                sendResponse({ event: "fillelstercertificate", data: fillelstercertificate[i] });
-                found = true;
-                break;
-            }
-        }
-        clearFillPasswordTimeout = setTimeout(function () {
-            fillpassword = [];
-        }, 3000);
-        clearFillElsterCertificateTimeout = setTimeout(function () {
-            fillelstercertificate = [];
-        }, 3000);
-
-        if (!sentResponse) {
-            sendResponse({ event: "status", data: "ok" });
-        }
-    }
+		if (!sentResponse) {
+			sendResponse({ event: "status", data: "ok" });
+		}
+	}
 }
 
 /**
@@ -604,8 +610,8 @@ function onReady(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onFillElsterCertificate(request, sender, sendResponse) {
-    clearTimeout(clearFillElsterCertificateTimeout)
-    fillelstercertificate.push(request.data);
+	clearTimeout(clearFillElsterCertificateTimeout);
+	fillelstercertificate.push(request.data);
 }
 
 /**
@@ -617,8 +623,8 @@ function onFillElsterCertificate(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onFillpassword(request, sender, sendResponse) {
-    clearTimeout(clearFillPasswordTimeout)
-    fillpassword.push(request.data);
+	clearTimeout(clearFillPasswordTimeout);
+	fillpassword.push(request.data);
 }
 
 /**
@@ -630,10 +636,10 @@ function onFillpassword(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onFillpasswordActiveTab(request, sender, sendResponse) {
-    if (typeof activeTabId === "undefined") {
-        return;
-    }
-    browserClient.emitTab(activeTabId, "fillpassword", request.data);
+	if (typeof activeTabId === "undefined") {
+		return;
+	}
+	browserClient.emitTab(activeTabId, "fillpassword", request.data);
 }
 
 /**
@@ -645,22 +651,27 @@ function onFillpasswordActiveTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function savePasswordActiveTab(request, sender, sendResponse) {
-    if (typeof activeTabId === "undefined") {
-        return;
-    }
-    browserClient.emitTab(activeTabId, "get-username", {}, function (response) {
-        const onError = function (data) {
-            console.log(data);
-        };
+	if (typeof activeTabId === "undefined") {
+		return;
+	}
+	browserClient.emitTab(activeTabId, "get-username", {}, (response) => {
+		const onError = (data) => {
+			console.log(data);
+		};
 
-        const onSuccess = function (datastore_object) {
-            browserClient.openTabBg(
-                "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
-            );
-        };
+		const onSuccess = (datastore_object) => {
+			browserClient.openTabBg(
+				"/data/index.html#!/datastore/edit/" +
+					datastore_object.type +
+					"/" +
+					datastore_object.secret_id,
+			);
+		};
 
-        datastorePasswordService.savePasswordActiveTab(response.username, request.data.password).then(onSuccess, onError);
-    });
+		datastorePasswordService
+			.savePasswordActiveTab(response.username, request.data.password)
+			.then(onSuccess, onError);
+	});
 }
 
 /**
@@ -672,21 +683,23 @@ function savePasswordActiveTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function bookmarkActiveTab(request, sender, sendResponse) {
-    if (typeof activeTabId === "undefined") {
-        return;
-    }
+	if (typeof activeTabId === "undefined") {
+		return;
+	}
 
-    const onError = function (data) {
-        console.log(data);
-    };
+	const onError = (data) => {
+		console.log(data);
+	};
 
-    const onSuccess = function (datastore_object) {
-
-        browserClient.openTabBg(
-            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
-        );
-    };
-    datastorePasswordService.bookmarkActiveTab().then(onSuccess, onError);
+	const onSuccess = (datastore_object) => {
+		browserClient.openTabBg(
+			"/data/index.html#!/datastore/edit/" +
+				datastore_object.type +
+				"/" +
+				datastore_object.secret_id,
+		);
+	};
+	datastorePasswordService.bookmarkActiveTab().then(onSuccess, onError);
 }
 
 /**
@@ -698,33 +711,32 @@ function bookmarkActiveTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onLogout(request, sender, sendResponse) {
-    // chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
-    //     const tabids = [];
-    //
-    //     if (typeof tabs !== "undefined") {
-    //         for (let i = 0; i < tabs.length; i++) {
-    //             tabids.push(tabs[i].id);
-    //         }
-    //     }
-    //
-    //     chrome.tabs.remove(tabids);
-    // });
-    browserClient.setIcon({
-        path : "/data/img/icon-32-disabled.png"
-    });
-    updateBadgeCounter();
+	// chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
+	//     const tabids = [];
+	//
+	//     if (typeof tabs !== "undefined") {
+	//         for (let i = 0; i < tabs.length; i++) {
+	//             tabids.push(tabs[i].id);
+	//         }
+	//     }
+	//
+	//     chrome.tabs.remove(tabids);
+	// });
+	browserClient.setIcon({
+		path: "/data/img/icon-32-disabled.png",
+	});
+	updateBadgeCounter();
 }
 
 /**
  * check whether the user is logged in or not
- * 
+ *
  * @param {object} request The message sent by the calling script.
  * @param {object} sender The sender of the message
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
-function
-    onIsLoggedIn(request, sender, sendResponse) {
-    sendResponse(getStore().getState().user.isLoggedIn);
+function onIsLoggedIn(request, sender, sendResponse) {
+	sendResponse(getStore().getState().user.isLoggedIn);
 }
 
 /**
@@ -735,7 +747,7 @@ function
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onStorageReload(request, sender, sendResponse) {
-    storage.reload();
+	storage.reload();
 }
 
 /**
@@ -746,15 +758,15 @@ function onStorageReload(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onLogin(request, sender, sendResponse) {
-    // pass
-    browserClient.setIcon({
-        path : "/data/img/icon-32.png"
-    });
+	// pass
+	browserClient.setIcon({
+		path: "/data/img/icon-32.png",
+	});
 
-    // Wait two second for the storage to be loaded.
-    setTimeout(function () {
-        updateBadgeCounter();
-    }, 2000);
+	// Wait two second for the storage to be loaded.
+	setTimeout(() => {
+		updateBadgeCounter();
+	}, 2000);
 }
 
 /**
@@ -766,38 +778,44 @@ function onLogin(request, sender, sendResponse) {
  *
  * @returns {(function(*): (boolean|*))|*}
  */
-const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
-    const parsedUrl = helper.parseUrl(url);
+const getSearchWebsitePasswordsByUrlfilter = (url, onlyAutoSubmit) => {
+	const parsedUrl = helper.parseUrl(url);
 
-    const filter = function (leaf) {
-        if (leaf.type !== "website_password") {
-            return false;
-        }
+	const filter = (leaf) => {
+		if (leaf.type !== "website_password") {
+			return false;
+		}
 
-        if (typeof leaf.urlfilter === "undefined") {
-            return false;
-        }
+		if (typeof leaf.urlfilter === "undefined") {
+			return false;
+		}
 
-        if (leaf.urlfilter) {
-            const urlFilters = leaf.urlfilter.split(/\s+|,|;/);
-            for (let i = 0; i < urlFilters.length; i++) {
-                if (!helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
-                    continue;
-                }
-                if (onlyAutoSubmit) {
-                    return leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"] && parsedUrl.scheme === 'https';
-                } else {
-                    return parsedUrl.scheme === 'https' || (leaf.hasOwnProperty("allow_http") && leaf["allow_http"]);
-                }
-            }
-        }
+		if (leaf.urlfilter) {
+			const urlFilters = leaf.urlfilter.split(/\s+|,|;/);
+			for (let i = 0; i < urlFilters.length; i++) {
+				if (!helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
+					continue;
+				}
+				if (onlyAutoSubmit) {
+					return (
+						Object.hasOwn(leaf, "autosubmit") &&
+						leaf["autosubmit"] &&
+						parsedUrl.scheme === "https"
+					);
+				} else {
+					return (
+						parsedUrl.scheme === "https" ||
+						(Object.hasOwn(leaf, "allow_http") && leaf["allow_http"])
+					);
+				}
+			}
+		}
 
-        return false;
-    };
+		return false;
+	};
 
-    return filter;
+	return filter;
 };
-
 
 /**
  * Returns all website passwords where the specified url matches the url filter
@@ -808,9 +826,11 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
  * @returns {Promise} The database objects where the url filter match the url
  */
 async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
-    const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
+	const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
-    return storage.where("datastore-password-leafs", (value, key) => filter(value));
+	return storage.where("datastore-password-leafs", (value, key) =>
+		filter(value),
+	);
 }
 
 /**
@@ -819,9 +839,9 @@ async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  * @returns {Promise} The database objects
  */
 function searchCreditCard() {
-    const filter = (leaf, key) => leaf.type === "credit_card";
+	const filter = (leaf, key) => leaf.type === "credit_card";
 
-    return storage.where("datastore-password-leafs", filter);
+	return storage.where("datastore-password-leafs", filter);
 }
 
 /**
@@ -830,9 +850,9 @@ function searchCreditCard() {
  * @returns {Promise} The database objects
  */
 function searchIdentity() {
-    const filter = (leaf, key) => leaf.type === "identity";
+	const filter = (leaf, key) => leaf.type === "identity";
 
-    return storage.where("datastore-password-leafs", filter);
+	return storage.where("datastore-password-leafs", filter);
 }
 
 /**
@@ -844,47 +864,54 @@ function searchIdentity() {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onElsterCertificateRefresh(request, sender, sendResponse) {
-    if (!sender.tab) {
-        sendResponse({ event: "status", data: "ok" });
-        return;
-    }
+	if (!sender.tab) {
+		sendResponse({ event: "status", data: "ok" });
+		return;
+	}
 
-    let senderUrl;
-    try {
-        senderUrl = new URL(sender.url);
-    } catch (err) {
-        return;
-    }
-    const fullOrigin = senderUrl.origin + senderUrl.pathname;
-    if (fullOrigin !== 'https://www.elster.de/eportal/login/softpse' && fullOrigin !== 'https://www.elster.de/ekona/login/softpse' && fullOrigin !== 'https://www.elster.de/bportal/login/softpse') {
-        sendResponse({ event: "status", data: "ok" });
-        return;
-    }
+	let senderUrl;
+	try {
+		senderUrl = new URL(sender.url);
+	} catch (err) {
+		return;
+	}
+	const fullOrigin = senderUrl.origin + senderUrl.pathname;
+	if (
+		fullOrigin !== "https://www.elster.de/eportal/login/softpse" &&
+		fullOrigin !== "https://www.elster.de/ekona/login/softpse" &&
+		fullOrigin !== "https://www.elster.de/bportal/login/softpse"
+	) {
+		sendResponse({ event: "status", data: "ok" });
+		return;
+	}
 
-    storage.where("datastore-password-leafs", (leaf, key) => leaf.type === "elster_certificate").then(function (leafs) {
-        const update = [];
+	storage
+		.where(
+			"datastore-password-leafs",
+			(leaf, key) => leaf.type === "elster_certificate",
+		)
+		.then((leafs) => {
+			const update = [];
 
-        for (let ii = 0; ii < leafs.length; ii++) {
-            update.push({
-                secret_id: leafs[ii].secret_id,
-                name: leafs[ii].name,
-            });
-        }
+			for (let ii = 0; ii < leafs.length; ii++) {
+				update.push({
+					secret_id: leafs[ii].secret_id,
+					name: leafs[ii].name,
+				});
+			}
 
-        update.sort(function(a, b){
-            let a_name = a.name ? a.name : '';
-            let b_name = b.name ? b.name : '';
-            if (a_name.toLowerCase() < b_name.toLowerCase())
-                return -1;
-            if (a_name.toLowerCase() > b_name.toLowerCase())
-                return 1;
-            return 0;
-        })
+			update.sort((a, b) => {
+				const a_name = a.name ? a.name : "";
+				const b_name = b.name ? b.name : "";
+				if (a_name.toLowerCase() < b_name.toLowerCase()) return -1;
+				if (a_name.toLowerCase() > b_name.toLowerCase()) return 1;
+				return 0;
+			});
 
-        sendResponse({ event: "elster-certificate-update", data: update });
-    });
+			sendResponse({ event: "elster-certificate-update", data: update });
+		});
 
-    return true; // Important, do not remove! Otherwise Async return wont work
+	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
@@ -896,36 +923,34 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onWebsitePasswordRefresh(request, sender, sendResponse) {
-    if (!sender.tab) {
-        sendResponse({ event: "status", data: "ok" });
-        return;
-    }
+	if (!sender.tab) {
+		sendResponse({ event: "status", data: "ok" });
+		return;
+	}
 
-    searchWebsitePasswordsByUrlfilter(sender.tab.url, false).then(function (leafs) {
-        const update = [];
+	searchWebsitePasswordsByUrlfilter(sender.tab.url, false).then((leafs) => {
+		const update = [];
 
-        for (let ii = 0; ii < leafs.length; ii++) {
-            update.push({
-                secret_id: leafs[ii].secret_id,
-                name: leafs[ii].name,
-                description: leafs[ii].description ? leafs[ii].description : '',
-            });
-        }
+		for (let ii = 0; ii < leafs.length; ii++) {
+			update.push({
+				secret_id: leafs[ii].secret_id,
+				name: leafs[ii].name,
+				description: leafs[ii].description ? leafs[ii].description : "",
+			});
+		}
 
-        update.sort(function(a, b){
-            let a_name = a.name ? a.name : '';
-            let b_name = b.name ? b.name : '';
-            if (a_name.toLowerCase() < b_name.toLowerCase())
-                return -1;
-            if (a_name.toLowerCase() > b_name.toLowerCase())
-                return 1;
-            return 0;
-        })
+		update.sort((a, b) => {
+			const a_name = a.name ? a.name : "";
+			const b_name = b.name ? b.name : "";
+			if (a_name.toLowerCase() < b_name.toLowerCase()) return -1;
+			if (a_name.toLowerCase() > b_name.toLowerCase()) return 1;
+			return 0;
+		});
 
-        sendResponse({ event: "website-password-update", data: update });
-    });
+		sendResponse({ event: "website-password-update", data: update });
+	});
 
-    return true; // Important, do not remove! Otherwise Async return wont work
+	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
@@ -936,9 +961,9 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
  * @returns {promise} Returns a promise with the decrypted secret content
  */
 function requestSecret(secretId) {
-    return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
-        return secretService.readSecret(secretId, leaf.secret_key);
-    });
+	return storage
+		.findKey("datastore-password-leafs", secretId)
+		.then((leaf) => secretService.readSecret(secretId, leaf.secret_key));
 }
 
 /**
@@ -956,18 +981,18 @@ function requestSecret(secretId) {
  * @returns {boolean} Returns true, to indicate the async sendResponse to happen.
  */
 function onRequestSecret(request, sender, sendResponse) {
-    requestSecret(request.data.secret_id).then(
-        function (data) {
-            sendResponse({ event: "return-secret", data: data });
-        },
-        function (value) {
-            console.log(value);
-            // failed
-            sendResponse({ event: "return-secret", data: "fail" });
-        }
-    );
+	requestSecret(request.data.secret_id).then(
+		(data) => {
+			sendResponse({ event: "return-secret", data: data });
+		},
+		(value) => {
+			console.log(value);
+			// failed
+			sendResponse({ event: "return-secret", data: "fail" });
+		},
+	);
 
-    return true; // Important, do not remove! Otherwise Async password fill will not work.
+	return true; // Important, do not remove! Otherwise Async password fill will not work.
 }
 
 /**
@@ -978,9 +1003,9 @@ function onRequestSecret(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onOpenTab(request, sender, sendResponse) {
-    browser.tabs.create({
-        url: request.data.url,
-    });
+	browser.tabs.create({
+		url: request.data.url,
+	});
 }
 
 /**
@@ -991,26 +1016,34 @@ function onOpenTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onGeneratePassword(request, sender, sendResponse) {
-    let password = datastorePasswordService.generate();
+	const password = datastorePasswordService.generate();
 
-    const onError = function (data) {
-        console.log(data);
-    };
+	const onError = (data) => {
+		console.log(data);
+	};
 
-    const onSuccess = function (datastore_object) {
-        browserClient.openTabBg(
-            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
-        );
-    };
+	const onSuccess = (datastore_object) => {
+		browserClient.openTabBg(
+			"/data/index.html#!/datastore/edit/" +
+				datastore_object.type +
+				"/" +
+				datastore_object.secret_id,
+		);
+	};
 
-    // Resolve URL synonym to canonical form
-    const url = urlSynonymsService.resolveUrlSynonym(request.data.url);
+	// Resolve URL synonym to canonical form
+	const url = urlSynonymsService.resolveUrlSynonym(request.data.url);
 
-    datastorePasswordService.savePassword(url, request.data.username, password).then(onSuccess, onError);
+	datastorePasswordService
+		.savePassword(url, request.data.username, password)
+		.then(onSuccess, onError);
 
-    sendResponse({ event: "return-secret", data: {
-            website_password_password: password
-    }});
+	sendResponse({
+		event: "return-secret",
+		data: {
+			website_password_password: password,
+		},
+	});
 }
 
 /**
@@ -1021,18 +1054,18 @@ function onGeneratePassword(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function decryptPgp(request, sender, sendResponse) {
-    const messageId = cryptoLibrary.generateUuid();
-    gpgMessages[messageId] = {
-        message: request.data.message,
-        sender: request.data.sender,
-    };
+	const messageId = cryptoLibrary.generateUuid();
+	gpgMessages[messageId] = {
+		message: request.data.message,
+		sender: request.data.sender,
+	};
 
-    // Delete the message after 60 minutes
-    setTimeout(function () {
-        delete gpgMessages[messageId];
-    }, 60000);
+	// Delete the message after 60 minutes
+	setTimeout(() => {
+		delete gpgMessages[messageId];
+	}, 60000);
 
-    browserClient.openPopup("/data/popup_pgp.html#!/gpg/read/" + messageId);
+	browserClient.openPopup("/data/popup_pgp.html#!/gpg/read/" + messageId);
 }
 
 /**
@@ -1043,16 +1076,19 @@ function decryptPgp(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function encryptPgp(request, sender, sendResponse) {
-    const messageId = cryptoLibrary.generateUuid();
-    gpgMessages[messageId] = {
-        receiver: request.data.receiver,
-        sendResponse: sendResponse,
-    };
-    browserClient.openPopup("/data/popup_pgp.html#!/gpg/write/" + messageId, function (window) {
-        gpgMessages[messageId]["window_id"] = window.id;
-    });
+	const messageId = cryptoLibrary.generateUuid();
+	gpgMessages[messageId] = {
+		receiver: request.data.receiver,
+		sendResponse: sendResponse,
+	};
+	browserClient.openPopup(
+		"/data/popup_pgp.html#!/gpg/write/" + messageId,
+		(window) => {
+			gpgMessages[messageId]["window_id"] = window.id;
+		},
+	);
 
-    return true; // Important, do not remove! Otherwise Async return wont work
+	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
@@ -1063,85 +1099,90 @@ function encryptPgp(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function readGpg(request, sender, sendResponse) {
-    const messageId = request.data;
-    if (!gpgMessages.hasOwnProperty(messageId)) {
-        return sendResponse({
-            error: "Message not found",
-        });
-    }
+	const messageId = request.data;
+	if (!Object.hasOwn(gpgMessages, messageId)) {
+		return sendResponse({
+			error: "Message not found",
+		});
+	}
 
-    const pgpMessage = gpgMessages[messageId]["message"];
-    const pgpSender = gpgMessages[messageId]["sender"];
+	const pgpMessage = gpgMessages[messageId]["message"];
+	const pgpSender = gpgMessages[messageId]["sender"];
 
-    function decrypt(publicKey) {
-        return datastorePasswordService.getAllOwnPgpKeys().then(async function (privateKeys) {
-            const privateKeysArray = [];
+	function decrypt(publicKey) {
+		return datastorePasswordService
+			.getAllOwnPgpKeys()
+			.then(async (privateKeys) => {
+				const privateKeysArray = [];
 
-            for (let i = 0; i < privateKeys.length; i++) {
-                const privateKey = await openpgp.readPrivateKey({ armoredKey: privateKeys[i] });
-                privateKeysArray.push(privateKey);
-            }
+				for (let i = 0; i < privateKeys.length; i++) {
+					const privateKey = await openpgp.readPrivateKey({
+						armoredKey: privateKeys[i],
+					});
+					privateKeysArray.push(privateKey);
+				}
 
-            const message = await openpgp.readMessage({
-                armoredMessage: pgpMessage, // parse armored message
-            });
+				const message = await openpgp.readMessage({
+					armoredMessage: pgpMessage, // parse armored message
+				});
 
-            let options;
-            if (publicKey) {
-                options = {
-                    message: message, // parse armored message
-                    verificationKeys: await openpgp.readKey({ armoredKey: publicKey }),
-                    decryptionKeys: privateKeysArray,
-                };
-            } else {
-                options = {
-                    message: message, // parse armored message
-                    decryptionKeys: privateKeysArray,
-                };
-            }
+				let options;
+				if (publicKey) {
+					options = {
+						message: message, // parse armored message
+						verificationKeys: await openpgp.readKey({ armoredKey: publicKey }),
+						decryptionKeys: privateKeysArray,
+					};
+				} else {
+					options = {
+						message: message, // parse armored message
+						decryptionKeys: privateKeysArray,
+					};
+				}
 
-            openpgp.decrypt(options).then(
-                function (plaintext) {
-                    return sendResponse({
-                        public_key: publicKey,
-                        sender: pgpSender,
-                        plaintext: plaintext,
-                    });
-                },
-                function (error) {
-                    console.log(error);
-                    return sendResponse({
-                        public_key: publicKey,
-                        sender: pgpSender,
-                        message: error.message,
-                    });
-                }
-            );
-        });
-    }
+				openpgp.decrypt(options).then(
+					(plaintext) =>
+						sendResponse({
+							public_key: publicKey,
+							sender: pgpSender,
+							plaintext: plaintext,
+						}),
+					(error) => {
+						console.log(error);
+						return sendResponse({
+							public_key: publicKey,
+							sender: pgpSender,
+							message: error.message,
+						});
+					},
+				);
+			});
+	}
 
-    const gpgHkpSearch = getStore().getState().settingsDatastore.gpgHkpSearch;
+	const gpgHkpSearch = getStore().getState().settingsDatastore.gpgHkpSearch;
 
-    if (gpgHkpSearch && pgpSender && pgpSender.length) {
-        const hkp = new HKP(getStore().getState().settingsDatastore.gpgHkpKeyServer);
-        const options = {
-            query: pgpSender,
-        };
-        hkp.lookup(options).then(
-            function (public_key) {
-                decrypt(public_key);
-            },
-            function (error) {
-                console.log(error);
-                console.log(error.message);
-                decrypt();
-            }
-        );
-    } else {
-        decrypt();
-    }
+	if (gpgHkpSearch && pgpSender && pgpSender.length) {
+		const hkp = new HKP(
+			getStore().getState().settingsDatastore.gpgHkpKeyServer,
+		);
+		const options = {
+			query: pgpSender,
+		};
+		hkp.lookup(options).then(
+			(public_key) => {
+				decrypt(public_key);
+			},
+			(error) => {
+				console.log(error);
+				console.log(error.message);
+				decrypt();
+			},
+		);
+	} else {
+		decrypt();
+	}
 
-    return true; // Important, do not remove! Otherwise Async return wont work
+	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
@@ -1152,19 +1193,18 @@ function readGpg(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function writeGpg(request, sender, sendResponse) {
-    const messageId = request.data;
-    if (!gpgMessages.hasOwnProperty(messageId)) {
-        return sendResponse({
-            error: "Message not found",
-        });
-    }
-    const pgp_receiver = gpgMessages[messageId]["receiver"];
+	const messageId = request.data;
+	if (!Object.hasOwn(gpgMessages, messageId)) {
+		return sendResponse({
+			error: "Message not found",
+		});
+	}
+	const pgp_receiver = gpgMessages[messageId]["receiver"];
 
-    return sendResponse({
-        receiver: pgp_receiver,
-    });
+	return sendResponse({
+		receiver: pgp_receiver,
+	});
 }
-
 
 /**
  * Triggered from the encryption popup once a user clicks "encrypt". Contains the encrypted message and the
@@ -1175,79 +1215,91 @@ function writeGpg(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function writeGpgComplete(request, sender, sendResponse) {
-    const messageId = request.data.message_id;
-    const decryptedMessage = request.data.message;
-    const receivers = request.data.receivers;
-    const publicKeys = request.data.public_keys;
-    const privateKey = request.data.private_key;
-    const signMessage = request.data.sign_message;
+	const messageId = request.data.message_id;
+	const decryptedMessage = request.data.message;
+	const receivers = request.data.receivers;
+	const publicKeys = request.data.public_keys;
+	const privateKey = request.data.private_key;
+	const signMessage = request.data.sign_message;
 
-    if (!gpgMessages.hasOwnProperty(messageId)) {
-        sendResponse({
-            error: "Message not found",
-        });
-        return false;
-    }
+	if (!Object.hasOwn(gpgMessages, messageId)) {
+		sendResponse({
+			error: "Message not found",
+		});
+		return false;
+	}
 
-    // Perform async work inside, return true to keep channel open
-    Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })))
-        .then(function(publicKeysArray) {
-            function finaliseEncryption(options) {
-                openpgp.encrypt(options).then(function (ciphertext) {
-                    const originalSendResponse = gpgMessages[messageId]["sendResponse"];
-                    const windowId = gpgMessages[messageId]["window_id"];
+	// Perform async work inside, return true to keep channel open
+	Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })))
+		.then((publicKeysArray) => {
+			function finaliseEncryption(options) {
+				openpgp
+					.encrypt(options)
+					.then((ciphertext) => {
+						const originalSendResponse = gpgMessages[messageId]["sendResponse"];
+						const windowId = gpgMessages[messageId]["window_id"];
 
-                    delete gpgMessages[messageId];
+						delete gpgMessages[messageId];
 
-                    browserClient.closeOpenedPopup(windowId);
-                    return originalSendResponse({
-                        message: ciphertext,
-                        receivers: receivers,
-                    });
-                }).catch(function(error) {
-                    console.error("Error encrypting message:", error);
-                });
-            }
+						browserClient.closeOpenedPopup(windowId);
+						return originalSendResponse({
+							message: ciphertext,
+							receivers: receivers,
+						});
+					})
+					.catch((error) => {
+						console.error("Error encrypting message:", error);
+					});
+			}
 
-            if (signMessage) {
-                const onSuccess = function (data) {
-                    Promise.all([
-                        openpgp.createMessage({ text: decryptedMessage }),
-                        openpgp.readPrivateKey({ armoredKey: data["mail_gpg_own_key_private"] })
-                    ]).then(function([message, signingKeys]) {
-                        const options = {
-                            message: message,
-                            encryptionKeys: publicKeysArray,
-                            signingKeys: signingKeys,
-                        };
-                        finaliseEncryption(options);
-                    }).catch(function(error) {
-                        console.error("Error preparing signed message:", error);
-                    });
-                };
+			if (signMessage) {
+				const onSuccess = (data) => {
+					Promise.all([
+						openpgp.createMessage({ text: decryptedMessage }),
+						openpgp.readPrivateKey({
+							armoredKey: data["mail_gpg_own_key_private"],
+						}),
+					])
+						.then(([message, signingKeys]) => {
+							const options = {
+								message: message,
+								encryptionKeys: publicKeysArray,
+								signingKeys: signingKeys,
+							};
+							finaliseEncryption(options);
+						})
+						.catch((error) => {
+							console.error("Error preparing signed message:", error);
+						});
+				};
 
-                const onError = function (error) {
-                    console.error("Error reading secret for GPG signing:", error);
-                };
+				const onError = (error) => {
+					console.error("Error reading secret for GPG signing:", error);
+				};
 
-                secretService.readSecret(privateKey.secret_id, privateKey.secret_key).then(onSuccess, onError);
-            } else {
-                openpgp.createMessage({ text: decryptedMessage }).then(function(message) {
-                    const options = {
-                        message: message,
-                        encryptionKeys: publicKeysArray,
-                    };
-                    finaliseEncryption(options);
-                }).catch(function(error) {
-                    console.error("Error creating message:", error);
-                });
-            }
-        })
-        .catch(function(error) {
-            console.error("Error reading public keys:", error);
-        });
+				secretService
+					.readSecret(privateKey.secret_id, privateKey.secret_key)
+					.then(onSuccess, onError);
+			} else {
+				openpgp
+					.createMessage({ text: decryptedMessage })
+					.then((message) => {
+						const options = {
+							message: message,
+							encryptionKeys: publicKeysArray,
+						};
+						finaliseEncryption(options);
+					})
+					.catch((error) => {
+						console.error("Error creating message:", error);
+					});
+			}
+		})
+		.catch((error) => {
+			console.error("Error reading public keys:", error);
+		});
 
-    return true; // Important: keep channel open for async operations
+	return true; // Important: keep channel open for async operations
 }
 
 /**
@@ -1258,8 +1310,8 @@ function writeGpgComplete(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function setOfflineCacheEncryptionKey(request, sender, sendResponse) {
-    const encryptionKey = request.data.encryption_key;
-    offlineCache.setEncryptionKey(encryptionKey);
+	const encryptionKey = request.data.encryption_key;
+	offlineCache.setEncryptionKey(encryptionKey);
 }
 
 /**
@@ -1272,7 +1324,7 @@ function setOfflineCacheEncryptionKey(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function launchWebAuthFlowInBackground(request, sender, sendResponse) {
-    browserClient.openTabBg(request.data.url);
+	browserClient.openTabBg(request.data.url);
 }
 
 /**
@@ -1283,9 +1335,9 @@ function launchWebAuthFlowInBackground(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function languageChanged(request, sender, sendResponse) {
-    i18n.changeLanguage(request.data).then(() => {
-        updateContextMenu();
-    });
+	i18n.changeLanguage(request.data).then(() => {
+		updateContextMenu();
+	});
 }
 
 /**
@@ -1296,9 +1348,13 @@ function languageChanged(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function clearClipboard(request, sender, sendResponse) {
-    setTimeout(function () {
-        browserClient.emitTab(activeTabId, "clear-clipboard-content-script", request.data);
-    }, request.data.delay*1000)
+	setTimeout(() => {
+		browserClient.emitTab(
+			activeTabId,
+			"clear-clipboard-content-script",
+			request.data,
+		);
+	}, request.data.delay * 1000);
 }
 
 /**
@@ -1309,75 +1365,87 @@ function clearClipboard(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function loginFormSubmit(request, sender, sendResponse) {
-    lastLoginCredentials = request.data;
-    lastLoginCredentials["url"] = sender.url;
+	lastLoginCredentials = request.data;
+	lastLoginCredentials["url"] = sender.url;
 
-    if (!user.isLoggedIn()) {
-        return false;
-    }
+	if (!user.isLoggedIn()) {
+		return false;
+	}
 
-    // Perform async work inside, return true to keep channel open
-    searchWebsitePasswordsByUrlfilter(sender.url, false).then(function (existingPasswords) {
-        if (existingPasswords.length === 0) {
-            notificationBarService.create(
-                i18n.t("NEW_PASSWORD_DETECTED"),
-                i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD") + " " + i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
-                [
-                    {
-                        title: i18n.t("YES"),
-                        onClick: saveLastLoginCredentials,
-                        color: "primary",
-                    },
-                    {
-                        title: i18n.t("NO"),
-                        onClick: function() {},
-                    },
-                ],
-                12 * 1000,
-            )
-        } else if (existingPasswords.length === 1) {
+	// Perform async work inside, return true to keep channel open
+	searchWebsitePasswordsByUrlfilter(sender.url, false)
+		.then((existingPasswords) => {
+			if (existingPasswords.length === 0) {
+				notificationBarService.create(
+					i18n.t("NEW_PASSWORD_DETECTED"),
+					i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD") +
+						" " +
+						i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
+					[
+						{
+							title: i18n.t("YES"),
+							onClick: saveLastLoginCredentials,
+							color: "primary",
+						},
+						{
+							title: i18n.t("NO"),
+							onClick: () => {},
+						},
+					],
+					12 * 1000,
+				);
+			} else if (existingPasswords.length === 1) {
+				if (
+					!Object.hasOwn(request.data, "password") ||
+					!request.data["password"]
+				) {
+					return;
+				}
 
-            if (!request.data.hasOwnProperty("password") || !request.data["password"]) {
-                return;
-            }
+				if (
+					Object.hasOwn(existingPasswords[0], "password_hash") &&
+					!existingPasswords[0]["password_hash"] &&
+					existingPasswords[0]["password_hash"] !== ""
+				) {
+					return;
+				}
 
-            if (existingPasswords[0].hasOwnProperty("password_hash") && !existingPasswords[0]["password_hash"] && existingPasswords[0]["password_hash"] !== '') {
-                return;
-            }
+				const passwordSha1 = cryptoLibrary.sha1(request.data["password"]);
+				if (
+					passwordSha1.substring(0, 5).toLowerCase() ===
+					existingPasswords[0]["password_hash"]
+				) {
+					return;
+				}
 
-            const passwordSha1 = cryptoLibrary.sha1(request.data["password"]);
-            if (passwordSha1.substring(0, 5).toLowerCase() === existingPasswords[0]["password_hash"]) {
-                return;
-            }
+				notificationBarService.create(
+					i18n.t("DIFFERENT_PASSWORD_DETECTED"),
+					i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD_OR_UPDATE_EXISTING_ONE"),
+					[
+						{
+							title: i18n.t("UPDATE_EXISTING"),
+							onClick: updateLastLoginCredentials,
+							color: "primary",
+						},
+						{
+							title: i18n.t("CREATE_NEW"),
+							onClick: saveLastLoginCredentials,
+							color: "primary",
+						},
+						{
+							title: i18n.t("NO"),
+							onClick: () => {},
+						},
+					],
+					12 * 1000,
+				);
+			}
+		})
+		.catch((error) => {
+			console.error("Error in loginFormSubmit:", error);
+		});
 
-            notificationBarService.create(
-                i18n.t("DIFFERENT_PASSWORD_DETECTED"),
-                i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD_OR_UPDATE_EXISTING_ONE"),
-                [
-                    {
-                        title: i18n.t("UPDATE_EXISTING"),
-                        onClick: updateLastLoginCredentials,
-                        color: "primary",
-                    },
-                    {
-                        title: i18n.t("CREATE_NEW"),
-                        onClick: saveLastLoginCredentials,
-                        color: "primary",
-                    },
-                    {
-                        title: i18n.t("NO"),
-                        onClick: function() {},
-                    },
-                ],
-                12 * 1000,
-            )
-
-        }
-    }).catch(function(error) {
-        console.error("Error in loginFormSubmit:", error);
-    });
-
-    return true; // Important: keep channel open for async operations
+	return true; // Important: keep channel open for async operations
 }
 
 /**
@@ -1388,11 +1456,10 @@ function loginFormSubmit(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function oidcSamlRedirectDetected(request, sender, sendResponse) {
-    if (request.data.url.indexOf("#") !== -1) {
-        const split = request.data.url.split("#");
-        browserClient.replaceTabUrl("/data/index.html#" + split[1]);
-    }
-
+	if (request.data.url.indexOf("#") !== -1) {
+		const split = request.data.url.split("#");
+		browserClient.replaceTabUrl("/data/index.html#" + split[1]);
+	}
 }
 
 /**
@@ -1408,31 +1475,35 @@ function oidcSamlRedirectDetected(request, sender, sendResponse) {
  * @returns {Promise} The entries found
  */
 function searchDatastore(text) {
-    const password_filter = helper.getPasswordFilter(text);
-    return storage.where("datastore-password-leafs", (value, key) => password_filter(value)).then(function (leafs) {
-        const entries = [];
-        let datastore_entry;
-        for (let i = 0; i < leafs.length; i++) {
-            datastore_entry = leafs[i];
+	const password_filter = helper.getPasswordFilter(text);
+	return storage
+		.where("datastore-password-leafs", (value, key) => password_filter(value))
+		.then((leafs) => {
+			const entries = [];
+			let datastore_entry;
+			for (let i = 0; i < leafs.length; i++) {
+				datastore_entry = leafs[i];
 
-            let description = datastore_entry.name;
-            if (TARGET === "chrome") {
-                description = description.replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;')
-            }
-            entries.push({
-                content: datastore_entry.name + " [Secret: " + datastore_entry.key + "]",
-                description: description,
-            });
+				let description = datastore_entry.name;
+				if (TARGET === "chrome") {
+					description = description
+						.replace(/&/g, "&amp;")
+						.replace(/</g, "&lt;")
+						.replace(/>/g, "&gt;")
+						.replace(/"/g, "&quot;")
+						.replace(/'/g, "&apos;");
+				}
+				entries.push({
+					content:
+						datastore_entry.name + " [Secret: " + datastore_entry.key + "]",
+					description: description,
+				});
 
-            entryExtraInfo[datastore_entry.key] = { type: datastore_entry.type };
-        }
+				entryExtraInfo[datastore_entry.key] = { type: datastore_entry.type };
+			}
 
-        return entries;
-    });
+			return entries;
+		});
 }
 
 /**
@@ -1443,7 +1514,7 @@ function searchDatastore(text) {
  * @param {function} suggest The callback function to execute with the suggestions
  */
 function onInputChanged(text, suggest) {
-    searchDatastore(text).then(suggest);
+	searchDatastore(text).then(suggest);
 }
 
 /**
@@ -1453,22 +1524,33 @@ function onInputChanged(text, suggest) {
  * @param {string} text The text entered
  */
 function onInputEntered(text) {
-    let toOpen = "";
+	let toOpen = "";
 
-    try {
-        toOpen = text
-            .split(/Secret: /)
-            .pop()
-            .split("]")[0];
-    } catch (err) {
-        return;
-    }
+	try {
+		toOpen = text
+			.split(/Secret: /)
+			.pop()
+			.split("]")[0];
+	} catch (err) {
+		return;
+	}
 
-    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(toOpen)) {
-        browserClient.openTabBg("/data/open-secret.html#!/secret/" + entryExtraInfo[toOpen]["type"] + "/" + toOpen);
-    } else {
-        browserClient.openTabBg("/data/index.html#!/datastore/search/" + encodeURIComponent(toOpen));
-    }
+	if (
+		/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+			toOpen,
+		)
+	) {
+		browserClient.openTabBg(
+			"/data/open-secret.html#!/secret/" +
+				entryExtraInfo[toOpen]["type"] +
+				"/" +
+				toOpen,
+		);
+	} else {
+		browserClient.openTabBg(
+			"/data/index.html#!/datastore/search/" + encodeURIComponent(toOpen),
+		);
+	}
 }
 
 // const fp_nonces = {
@@ -1553,44 +1635,51 @@ function onInputEntered(text) {
  * @param {function} callbackFn The callback function to call once the secret has been returned
  */
 function onAuthRequired(details, callbackFn) {
-    return searchWebsitePasswordsByUrlfilter(details.url, true).then(function (entries) {
-        let returnValue = {};
+	return searchWebsitePasswordsByUrlfilter(details.url, true).then(
+		(entries) => {
+			let returnValue = {};
 
-        if (entries.length < 1) {
-            callbackFn(returnValue);
-            return;
-        }
+			if (entries.length < 1) {
+				callbackFn(returnValue);
+				return;
+			}
 
-        if (
-            alreadyFilledMaxAllowed.hasOwnProperty(details.requestId) &&
-            alreadyFilledMaxAllowed[details.requestId] < 1
-        ) {
-            callbackFn(returnValue);
-            return;
-        }
+			if (
+				Object.hasOwn(alreadyFilledMaxAllowed, details.requestId) &&
+				alreadyFilledMaxAllowed[details.requestId] < 1
+			) {
+				callbackFn(returnValue);
+				return;
+			}
 
-        if (!alreadyFilledMaxAllowed.hasOwnProperty(details.requestId)) {
-            alreadyFilledMaxAllowed[details.requestId] = Math.min(entries.length, 2);
-        }
+			if (!Object.hasOwn(alreadyFilledMaxAllowed, details.requestId)) {
+				alreadyFilledMaxAllowed[details.requestId] = Math.min(
+					entries.length,
+					2,
+				);
+			}
 
-        alreadyFilledMaxAllowed[details.requestId]--;
-        requestSecret(entries[alreadyFilledMaxAllowed[details.requestId]]["secret_id"]).then(
-            function (data) {
-                returnValue = {
-                    authCredentials: {
-                        username: data["website_password_username"],
-                        password: data["website_password_password"],
-                    },
-                };
-                callbackFn(returnValue);
-                return; // unnecessary but we leave it
-            },
-            function (value) {
-                callbackFn(returnValue);
-                return; // unnecessary but we leave it
-            }
-        );
-    });
+			alreadyFilledMaxAllowed[details.requestId]--;
+			requestSecret(
+				entries[alreadyFilledMaxAllowed[details.requestId]]["secret_id"],
+			).then(
+				(data) => {
+					returnValue = {
+						authCredentials: {
+							username: data["website_password_username"],
+							password: data["website_password_password"],
+						},
+					};
+					callbackFn(returnValue);
+					return; // unnecessary but we leave it
+				},
+				(value) => {
+					callbackFn(returnValue);
+					return; // unnecessary but we leave it
+				},
+			);
+		},
+	);
 }
 
 /**
@@ -1599,27 +1688,27 @@ function onAuthRequired(details, callbackFn) {
  * @returns {Promise}
  */
 function approveIframeLogin(request, sender, sendResponse) {
-    notificationBarService.create(
-        i18n.t("APPROVE_IFRAME_LOGIN"),
-        i18n.t("APPROVE_IFRAME_LOGIN_DESCRIPTION", {'origin': request.data.origin}),
-        [
-            {
-                title: i18n.t("ALLOW"),
-                onClick: () => {
-                    sendResponse({ event: "approve-iframe-login-response", data: true });
-                },
-                color: "primary",
-            },
-            {
-                title: i18n.t("CANCEL"),
-                onClick: () => {
-                    sendResponse({ event: "approve-iframe-login-response", data: false });
-                },
-            },
-        ],
-    )
+	notificationBarService.create(
+		i18n.t("APPROVE_IFRAME_LOGIN"),
+		i18n.t("APPROVE_IFRAME_LOGIN_DESCRIPTION", { origin: request.data.origin }),
+		[
+			{
+				title: i18n.t("ALLOW"),
+				onClick: () => {
+					sendResponse({ event: "approve-iframe-login-response", data: true });
+				},
+				color: "primary",
+			},
+			{
+				title: i18n.t("CANCEL"),
+				onClick: () => {
+					sendResponse({ event: "approve-iframe-login-response", data: false });
+				},
+			},
+		],
+	);
 
-    return true; // Important, do not remove! Otherwise Async return wont work
+	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**
@@ -1628,14 +1717,14 @@ function approveIframeLogin(request, sender, sendResponse) {
  * @returns {promise} Returns a promise with the password
  */
 function saveLastLoginCredentials() {
-    // Resolve URL synonym to canonical form
-    const url = urlSynonymsService.resolveUrlSynonym(lastLoginCredentials["url"]);
+	// Resolve URL synonym to canonical form
+	const url = urlSynonymsService.resolveUrlSynonym(lastLoginCredentials["url"]);
 
-    return datastorePasswordService.savePassword(
-        url,
-        lastLoginCredentials["username"],
-        lastLoginCredentials["password"]
-    );
+	return datastorePasswordService.savePassword(
+		url,
+		lastLoginCredentials["username"],
+		lastLoginCredentials["password"],
+	);
 }
 
 /**
@@ -1644,18 +1733,18 @@ function saveLastLoginCredentials() {
  * @returns {promise} Returns a promise with the password
  */
 function updateLastLoginCredentials() {
-    // TODO update logic to update entry
-    return datastorePasswordService.updatePassword(
-        lastLoginCredentials["url"],
-        lastLoginCredentials["username"],
-        lastLoginCredentials["password"]
-    );
+	// TODO update logic to update entry
+	return datastorePasswordService.updatePassword(
+		lastLoginCredentials["url"],
+		lastLoginCredentials["username"],
+		lastLoginCredentials["password"],
+	);
 }
 
 const backgroundService = {
-    activate,
-    activateAfterStore,
-    getSearchWebsitePasswordsByUrlfilter,
+	activate,
+	activateAfterStore,
+	getSearchWebsitePasswordsByUrlfilter,
 };
 
 export default backgroundService;

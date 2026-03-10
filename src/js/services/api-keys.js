@@ -2,9 +2,9 @@
  * managerAPIKeys collects all functions to edit / update / create api keys and to work with them.
  */
 
-import { getStore } from "./store";
-import cryptoLibrary from "./crypto-library";
 import apiClient from "./api-client";
+import cryptoLibrary from "./crypto-library";
+import { getStore } from "./store";
 
 /**
  * Returns one api keys
@@ -12,25 +12,30 @@ import apiClient from "./api-client";
  * @returns {Promise} Promise with the api keys
  */
 function readApiKey(apiKeyId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        result.data.private_key = cryptoLibrary.decryptSecretKey(
-            result.data.private_key,
-            result.data.private_key_nonce
-        );
-        delete result.data.private_key_nonce;
-        result.data.secret_key = cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
-        delete result.data.secret_key_nonce;
+	const onSuccess = (result) => {
+		result.data.private_key = cryptoLibrary.decryptSecretKey(
+			result.data.private_key,
+			result.data.private_key_nonce,
+		);
+		delete result.data.private_key_nonce;
+		result.data.secret_key = cryptoLibrary.decryptSecretKey(
+			result.data.secret_key,
+			result.data.secret_key_nonce,
+		);
+		delete result.data.secret_key_nonce;
 
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+		return result.data;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient.readApiKey(token, sessionSecretKey, apiKeyId).then(onSuccess, onError);
+	return apiClient
+		.readApiKey(token, sessionSecretKey, apiKeyId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -39,17 +44,15 @@ function readApiKey(apiKeyId) {
  * @returns {Promise} Promise with the api keys
  */
 function readApiKeys() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient.readApiKey(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClient.readApiKey(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -58,21 +61,26 @@ function readApiKeys() {
  * @returns {Promise} Promise with the secrets
  */
 function readApiKeySecrets(apiKeyId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        const secrets = result.data;
-        for (let i = 0; i < secrets.length; i++) {
-            secrets[i]["name"] = cryptoLibrary.decryptSecretKey(secrets[i]["title"], secrets[i]["title_nonce"]);
-        }
-        return secrets;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => {
+		const secrets = result.data;
+		for (let i = 0; i < secrets.length; i++) {
+			secrets[i]["name"] = cryptoLibrary.decryptSecretKey(
+				secrets[i]["title"],
+				secrets[i]["title_nonce"],
+			);
+		}
+		return secrets;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient.readApiKeySecrets(token, sessionSecretKey, apiKeyId).then(onSuccess, onError);
+	return apiClient
+		.readApiKeySecrets(token, sessionSecretKey, apiKeyId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -85,22 +93,25 @@ function readApiKeySecrets(apiKeyId) {
  * @returns {Promise} Promise with the new id
  */
 function addSecretToApiKey(apiKeyId, apiKeySecretKey, secret) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const secret_secret_key_enc = cryptoLibrary.encryptData(secret.secret_key, apiKeySecretKey);
-    const secret_title_enc = cryptoLibrary.encryptSecretKey(secret.name);
+	const secret_secret_key_enc = cryptoLibrary.encryptData(
+		secret.secret_key,
+		apiKeySecretKey,
+	);
+	const secret_title_enc = cryptoLibrary.encryptSecretKey(secret.name);
 
-    return apiClient.addSecretToApiKey(
-        token,
-        sessionSecretKey,
-        apiKeyId,
-        secret.secret_id,
-        secret_title_enc.text,
-        secret_title_enc.nonce,
-        secret_secret_key_enc.text,
-        secret_secret_key_enc.nonce
-    );
+	return apiClient.addSecretToApiKey(
+		token,
+		sessionSecretKey,
+		apiKeyId,
+		secret.secret_id,
+		secret_title_enc.text,
+		secret_title_enc.nonce,
+		secret_secret_key_enc.text,
+		secret_secret_key_enc.nonce,
+	);
 }
 
 /**
@@ -113,18 +124,18 @@ function addSecretToApiKey(apiKeyId, apiKeySecretKey, secret) {
  * @returns {Promise} Promise with the new id
  */
 function addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets) {
-    return new Promise(function (resolve, reject) {
-        const secret_promise_array = [];
+	return new Promise((resolve, reject) => {
+		const secret_promise_array = [];
 
-        for (let i = 0; i < secrets.length; i++) {
-            const promise = addSecretToApiKey(apiKeyId, apiKeySecretKey, secrets[i]);
-            secret_promise_array.push(promise);
-        }
+		for (let i = 0; i < secrets.length; i++) {
+			const promise = addSecretToApiKey(apiKeyId, apiKeySecretKey, secrets[i]);
+			secret_promise_array.push(promise);
+		}
 
-        Promise.all(secret_promise_array).then(function () {
-            resolve();
-        });
-    });
+		Promise.all(secret_promise_array).then(() => {
+			resolve();
+		});
+	});
 }
 
 /**
@@ -139,54 +150,70 @@ function addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets) {
  *
  * @returns {Promise} Promise with the new id
  */
-function createApiKey(title, restrictToSecrets, allowInsecureAccess, allowReadAccess, allowWriteAccess, secrets) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function createApiKey(
+	title,
+	restrictToSecrets,
+	allowInsecureAccess,
+	allowReadAccess,
+	allowWriteAccess,
+	secrets,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const apiKeySecretKey = cryptoLibrary.generateSecretKey();
-    const api_key_public_private_key_pair = cryptoLibrary.generatePublicPrivateKeypair();
+	const apiKeySecretKey = cryptoLibrary.generateSecretKey();
+	const api_key_public_private_key_pair =
+		cryptoLibrary.generatePublicPrivateKeypair();
 
-    const api_key_private_key_enc = cryptoLibrary.encryptSecretKey(api_key_public_private_key_pair.private_key);
-    const apiKeySecretKey_enc = cryptoLibrary.encryptSecretKey(apiKeySecretKey);
+	const api_key_private_key_enc = cryptoLibrary.encryptSecretKey(
+		api_key_public_private_key_pair.private_key,
+	);
+	const apiKeySecretKey_enc = cryptoLibrary.encryptSecretKey(apiKeySecretKey);
 
-    const user_private_key_enc = cryptoLibrary.encryptData(getStore().getState().user.userPrivateKey, apiKeySecretKey);
-    const user_secret_key_enc = cryptoLibrary.encryptData(getStore().getState().user.userSecretKey, apiKeySecretKey);
+	const user_private_key_enc = cryptoLibrary.encryptData(
+		getStore().getState().user.userPrivateKey,
+		apiKeySecretKey,
+	);
+	const user_secret_key_enc = cryptoLibrary.encryptData(
+		getStore().getState().user.userSecretKey,
+		apiKeySecretKey,
+	);
 
-    const verify_key = cryptoLibrary.getVerifyKey(api_key_public_private_key_pair.private_key);
+	const verify_key = cryptoLibrary.getVerifyKey(
+		api_key_public_private_key_pair.private_key,
+	);
 
-    const onSuccess = function (result) {
-        const apiKeyId = result.data["api_key_id"];
-        return addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets).then(function () {
-            return {
-                api_key_id: apiKeyId,
-            };
-        });
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => {
+		const apiKeyId = result.data["api_key_id"];
+		return addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets).then(() => ({
+			api_key_id: apiKeyId,
+		}));
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClient
-        .createApiKey(
-            token,
-            sessionSecretKey,
-            title,
-            api_key_public_private_key_pair.public_key,
-            api_key_private_key_enc.text,
-            api_key_private_key_enc.nonce,
-            apiKeySecretKey_enc.text,
-            apiKeySecretKey_enc.nonce,
-            user_private_key_enc.text,
-            user_private_key_enc.nonce,
-            user_secret_key_enc.text,
-            user_secret_key_enc.nonce,
-            restrictToSecrets,
-            allowInsecureAccess,
-            allowReadAccess,
-            allowWriteAccess,
-            verify_key
-        )
-        .then(onSuccess, onError);
+	return apiClient
+		.createApiKey(
+			token,
+			sessionSecretKey,
+			title,
+			api_key_public_private_key_pair.public_key,
+			api_key_private_key_enc.text,
+			api_key_private_key_enc.nonce,
+			apiKeySecretKey_enc.text,
+			apiKeySecretKey_enc.nonce,
+			user_private_key_enc.text,
+			user_private_key_enc.nonce,
+			user_secret_key_enc.text,
+			user_secret_key_enc.nonce,
+			restrictToSecrets,
+			allowInsecureAccess,
+			allowReadAccess,
+			allowWriteAccess,
+			verify_key,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -201,20 +228,27 @@ function createApiKey(title, restrictToSecrets, allowInsecureAccess, allowReadAc
  *
  * @returns {Promise} Promise with the new id
  */
-function updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureAccess, allowReadAccess, allowWriteAccess) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function updateApiKey(
+	apiKeyId,
+	title,
+	restrictToSecrets,
+	allowInsecureAccess,
+	allowReadAccess,
+	allowWriteAccess,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClient.updateApiKey(
-        token,
-        sessionSecretKey,
-        apiKeyId,
-        title,
-        restrictToSecrets,
-        allowInsecureAccess,
-        allowReadAccess,
-        allowWriteAccess
-    );
+	return apiClient.updateApiKey(
+		token,
+		sessionSecretKey,
+		apiKeyId,
+		title,
+		restrictToSecrets,
+		allowInsecureAccess,
+		allowReadAccess,
+		allowWriteAccess,
+	);
 }
 
 /**
@@ -225,17 +259,17 @@ function updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureAccess, a
  * @returns {Promise} Promise
  */
 function deleteApiKey(apiKeyId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => {
+		// pass
+	};
 
-    return apiClient.deleteApiKey(token, sessionSecretKey, apiKeyId).then(onSuccess, onError);
+	return apiClient
+		.deleteApiKey(token, sessionSecretKey, apiKeyId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -246,28 +280,28 @@ function deleteApiKey(apiKeyId) {
  * @returns {Promise} Promise
  */
 function deleteApiKeySecret(apiKeySecretId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => {
+		// pass
+	};
 
-    return apiClient.deleteApiKeySecret(token, sessionSecretKey, apiKeySecretId).then(onSuccess, onError);
+	return apiClient
+		.deleteApiKeySecret(token, sessionSecretKey, apiKeySecretId)
+		.then(onSuccess, onError);
 }
 
 const apiKeysService = {
-    readApiKey: readApiKey,
-    readApiKeys: readApiKeys,
-    readApiKeySecrets: readApiKeySecrets,
-    createApiKey: createApiKey,
-    updateApiKey: updateApiKey,
-    deleteApiKey: deleteApiKey,
-    addSecretsToApiKey: addSecretsToApiKey,
-    addSecretToApiKey: addSecretToApiKey,
-    deleteApiKeySecret: deleteApiKeySecret,
+	readApiKey: readApiKey,
+	readApiKeys: readApiKeys,
+	readApiKeySecrets: readApiKeySecrets,
+	createApiKey: createApiKey,
+	updateApiKey: updateApiKey,
+	deleteApiKey: deleteApiKey,
+	addSecretsToApiKey: addSecretsToApiKey,
+	addSecretToApiKey: addSecretToApiKey,
+	deleteApiKeySecret: deleteApiKeySecret,
 };
 export default apiKeysService;

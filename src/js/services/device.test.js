@@ -2,32 +2,29 @@
  * @jest-environment jsdom
  */
 
-
-import React from 'react';
+import React from "react";
 import device from "../services/device";
-import {initStore} from "./store";
+import { initStore } from "./store";
 
-describe('Service: device test suite', function () {
+describe("Service: device test suite", () => {
+	it("device exists", () => {
+		expect(device).toBeDefined();
+	});
 
-    it('device exists', function () {
-        expect(device).toBeDefined();
-    });
+	it("getDeviceFingerprint", async () => {
+		await initStore();
+		expect(device.getDeviceFingerprint()).toEqual(expect.any(String));
+	});
 
-    it('getDeviceFingerprint', async function () {
-        await initStore()
-        expect(device.getDeviceFingerprint()).toEqual(expect.any(String));
-    });
+	it("isChrome", () => {
+		expect(device.isChrome()).toEqual(expect.any(Boolean));
+	});
 
-    it('isChrome', function () {
-        expect(device.isChrome()).toEqual(expect.any(Boolean));
-    });
+	it("isFirefox", () => {
+		expect(device.isFirefox()).toEqual(expect.any(Boolean));
+	});
 
-    it('isFirefox', function () {
-        expect(device.isFirefox()).toEqual(expect.any(Boolean));
-    });
-
-    it('getDeviceDescription', function () {
-        expect(device.getDeviceDescription()).toEqual(expect.any(String));
-    });
-
+	it("getDeviceDescription", () => {
+		expect(device.getDeviceDescription()).toEqual(expect.any(String));
+	});
 });

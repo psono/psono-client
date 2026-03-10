@@ -1,62 +1,63 @@
+import { Check } from "@mui/icons-material";
+import { Checkbox, Grid } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Divider from "@mui/material/Divider";
-import { Checkbox, Grid } from "@mui/material";
-
-import { Check } from "@mui/icons-material";
-import { makeStyles } from '@mui/styles';
-import { getStore } from "../../services/store";
 import action from "../../actions/bound-action-creators";
+import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
-    checked: {
-        color: theme.palette.checked.main,
-    },
-    checkedIcon: {
-        width: "20px",
-        height: "20px",
-        border: `1px solid ${theme.palette.greyText.main}`,
-        borderRadius: "3px",
-    },
-    uncheckedIcon: {
-        width: "0px",
-        height: "0px",
-        padding: "9px",
-        border: `1px solid ${theme.palette.greyText.main}`,
-        borderRadius: "3px",
-    },
+	checked: {
+		color: theme.palette.checked.main,
+	},
+	checkedIcon: {
+		width: "20px",
+		height: "20px",
+		border: `1px solid ${theme.palette.greyText.main}`,
+		borderRadius: "3px",
+	},
+	uncheckedIcon: {
+		width: "0px",
+		height: "0px",
+		padding: "9px",
+		border: `1px solid ${theme.palette.greyText.main}`,
+		borderRadius: "3px",
+	},
 }));
 
 const SettingsNotificationView = (props) => {
-    const { t } = useTranslation();
-    const classes = useStyles();
-    const [notificationOnCopy, setNotificationOnCopy] = useState(getStore().getState().client.notificationOnCopy);
+	const { t } = useTranslation();
+	const classes = useStyles();
+	const [notificationOnCopy, setNotificationOnCopy] = useState(
+		getStore().getState().client.notificationOnCopy,
+	);
 
-    return (
-        <Grid container>
-            <Grid item xs={12} sm={12} md={12}>
-                <h2>{t("NOTIFICATIONS")}</h2>
-                <p>{t("NOTIFICATIONS_DESCRIPTION")}</p>
-                <Divider style={{ marginBottom: "20px" }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={notificationOnCopy}
-                    onChange={(event) => {
-                        setNotificationOnCopy(event.target.checked);
-                        action().setNotificationOnCopy(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("ENABLE_NOTIFICATION_COPY")}
-            </Grid>
-        </Grid>
-    );
+	return (
+		<Grid container>
+			<Grid item xs={12} sm={12} md={12}>
+				<h2>{t("NOTIFICATIONS")}</h2>
+				<p>{t("NOTIFICATIONS_DESCRIPTION")}</p>
+				<Divider style={{ marginBottom: "20px" }} />
+			</Grid>
+			<Grid item xs={12} sm={12} md={12}>
+				<Checkbox
+					tabIndex={1}
+					checked={notificationOnCopy}
+					onChange={(event) => {
+						setNotificationOnCopy(event.target.checked);
+						action().setNotificationOnCopy(event.target.checked);
+					}}
+					checkedIcon={<Check className={classes.checkedIcon} />}
+					icon={<Check className={classes.uncheckedIcon} />}
+					classes={{
+						checked: classes.checked,
+					}}
+				/>{" "}
+				{t("ENABLE_NOTIFICATION_COPY")}
+			</Grid>
+		</Grid>
+	);
 };
 
 export default SettingsNotificationView;

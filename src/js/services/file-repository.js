@@ -2,8 +2,8 @@
  * managerFileRepository collects all functions to edit / update / create file repositories and to work with them.
  */
 
-import { getStore } from "./store";
 import apiClientService from "./api-client";
+import { getStore } from "./store";
 
 /**
  * Accepts a file repository
@@ -13,20 +13,18 @@ import apiClientService from "./api-client";
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function accept(fileRepositoryRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (data) {
-        console.log(data);
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (data) => {
+		console.log(data);
+		// pass
+	};
 
-    return apiClientService
-        .acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
-        .then(onSuccess, onError);
+	return apiClientService
+		.acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -37,19 +35,17 @@ function accept(fileRepositoryRightId) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function decline(fileRepositoryRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
-        .then(onSuccess, onError);
+	return apiClientService
+		.declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -63,20 +59,32 @@ function decline(fileRepositoryRightId) {
  *
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
-function createGroupFileRepositoryRight(fileRepositoryId, groupId, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function createGroupFileRepositoryRight(
+	fileRepositoryId,
+	groupId,
+	read,
+	write,
+	grant,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .createGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, groupId, read, write, grant)
-        .then(onSuccess, onError);
+	return apiClientService
+		.createGroupFileRepositoryRight(
+			token,
+			sessionSecretKey,
+			fileRepositoryId,
+			groupId,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -89,20 +97,30 @@ function createGroupFileRepositoryRight(fileRepositoryId, groupId, read, write, 
  *
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
-function updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function updateGroupFileRepositoryRight(
+	fileRepositoryRightId,
+	read,
+	write,
+	grant,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .updateGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant)
-        .then(onSuccess, onError);
+	return apiClientService
+		.updateGroupFileRepositoryRight(
+			token,
+			sessionSecretKey,
+			fileRepositoryRightId,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -113,19 +131,21 @@ function updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, gran
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function deleteGroupFileRepositoryRight(fileRepositoryRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .deleteGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
-        .then(onSuccess, onError);
+	return apiClientService
+		.deleteGroupFileRepositoryRight(
+			token,
+			sessionSecretKey,
+			fileRepositoryRightId,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -139,20 +159,32 @@ function deleteGroupFileRepositoryRight(fileRepositoryRightId) {
  *
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
-function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+function createFileRepositoryRight(
+	fileRepositoryId,
+	userId,
+	read,
+	write,
+	grant,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .createFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, userId, read, write, grant)
-        .then(onSuccess, onError);
+	return apiClientService
+		.createFileRepositoryRight(
+			token,
+			sessionSecretKey,
+			fileRepositoryId,
+			userId,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -166,19 +198,24 @@ function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant)
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .updateFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant)
-        .then(onSuccess, onError);
+	return apiClientService
+		.updateFileRepositoryRight(
+			token,
+			sessionSecretKey,
+			fileRepositoryRightId,
+			read,
+			write,
+			grant,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -189,19 +226,17 @@ function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
  * @returns {PromiseLike<T> | Promise<T> | *}
  */
 function deleteFileRepositoryRight(fileRepositoryRightId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
-        .then(onSuccess, onError);
+	return apiClientService
+		.deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -210,26 +245,27 @@ function deleteFileRepositoryRight(fileRepositoryRightId) {
  * @returns {*[]}
  */
 function getPossibleTypes() {
-    const fileRepositoryTypes = [
-        { value: "aws_s3", title: "AWS S3" },
-        { value: "azure_blob", title: "Azure Blob Storage" },
-        // Backblaze reported (May 11, 2020, 4:11:19 PM PDT):
-        // Currently, CORS is not supported for S3 buckets. While we currently have this in development, we do not have a concrete timeline unfortunately.
-        //{value: 'backblaze', title: 'Backblaze S3'},
-        { value: "gcp_cloud_storage", title: "GCP Cloud Storage" },
-        { value: "do_spaces", title: "Digital Ocean Spaces" },
-        { value: "other_s3", title: "Other S3 compatible storage" },
-    ]
+	const fileRepositoryTypes = [
+		{ value: "aws_s3", title: "AWS S3" },
+		{ value: "azure_blob", title: "Azure Blob Storage" },
+		// Backblaze reported (May 11, 2020, 4:11:19 PM PDT):
+		// Currently, CORS is not supported for S3 buckets. While we currently have this in development, we do not have a concrete timeline unfortunately.
+		//{value: 'backblaze', title: 'Backblaze S3'},
+		{ value: "gcp_cloud_storage", title: "GCP Cloud Storage" },
+		{ value: "do_spaces", title: "Digital Ocean Spaces" },
+		{ value: "other_s3", title: "Other S3 compatible storage" },
+	];
 
-    const allowedFileRepositoryTypes = getStore().getState().server.allowedFileRepositoryTypes
+	const allowedFileRepositoryTypes =
+		getStore().getState().server.allowedFileRepositoryTypes;
 
-    for (let i = fileRepositoryTypes.length - 1; i >= 0; i--) {
-        if (!allowedFileRepositoryTypes.includes(fileRepositoryTypes[i]['value'])) {
-            fileRepositoryTypes.splice(i, 1);
-        }
-    }
+	for (let i = fileRepositoryTypes.length - 1; i >= 0; i--) {
+		if (!allowedFileRepositoryTypes.includes(fileRepositoryTypes[i]["value"])) {
+			fileRepositoryTypes.splice(i, 1);
+		}
+	}
 
-    return fileRepositoryTypes;
+	return fileRepositoryTypes;
 }
 
 /**
@@ -238,23 +274,26 @@ function getPossibleTypes() {
  * @returns {Promise} Promise with the file repositories
  */
 function readFileRepository(fileRepositoryId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        if (result.data.hasOwnProperty("file_repository_rights")) {
-            for (let i = 0; i < result.data["file_repository_rights"].length; i++) {
-                result.data["file_repository_rights"][i]["own_user"] =
-                    result.data["file_repository_rights"][i]["user_id"] === getStore().getState().user.userId;
-            }
-        }
-        return result.data;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => {
+		if (Object.hasOwn(result.data, "file_repository_rights")) {
+			for (let i = 0; i < result.data["file_repository_rights"].length; i++) {
+				result.data["file_repository_rights"][i]["own_user"] =
+					result.data["file_repository_rights"][i]["user_id"] ===
+					getStore().getState().user.userId;
+			}
+		}
+		return result.data;
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService.readFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
+	return apiClientService
+		.readFileRepository(token, sessionSecretKey, fileRepositoryId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -263,17 +302,17 @@ function readFileRepository(fileRepositoryId) {
  * @returns {Promise} Promise with the file repositories
  */
 function readFileRepositories() {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data.file_repositories;
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => result.data.file_repositories;
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService.readFileRepository(token, sessionSecretKey).then(onSuccess, onError);
+	return apiClientService
+		.readFileRepository(token, sessionSecretKey)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -307,74 +346,74 @@ function readFileRepositories() {
  * @returns {Promise} Promise with the new id
  */
 function createFileRepository(
-    title,
-    type,
-    gcpCloudStorageBucket,
-    gcpCloudStorageJsonKey,
-    awsS3Bucket,
-    awsS3Region,
-    awsS3AccessKeyId,
-    awsS3SecretAccessKey,
-    azureBlobStorageAccountName,
-    azureBlobStorageAccountPrimaryKey,
-    azureBlobStorageAccountContainerName,
-    backblazeBucket,
-    backblazeRegion,
-    backblazeAccessKeyId,
-    backblazeSecretAccessKey,
-    others3Bucket,
-    otherS3Region,
-    otherS3EndpointUrl,
-    otherS3AccessKeyId,
-    otherS3SecretAccessKey,
-    doSpace,
-    doRegion,
-    doKey,
-    doSecret
+	title,
+	type,
+	gcpCloudStorageBucket,
+	gcpCloudStorageJsonKey,
+	awsS3Bucket,
+	awsS3Region,
+	awsS3AccessKeyId,
+	awsS3SecretAccessKey,
+	azureBlobStorageAccountName,
+	azureBlobStorageAccountPrimaryKey,
+	azureBlobStorageAccountContainerName,
+	backblazeBucket,
+	backblazeRegion,
+	backblazeAccessKeyId,
+	backblazeSecretAccessKey,
+	others3Bucket,
+	otherS3Region,
+	otherS3EndpointUrl,
+	otherS3AccessKeyId,
+	otherS3SecretAccessKey,
+	doSpace,
+	doRegion,
+	doKey,
+	doSecret,
 ) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        const fileRepositoryId = result.data["file_repository_id"];
-        return {
-            file_repository_id: fileRepositoryId,
-        };
-    };
-    const onError = function () {
-        // pass
-    };
+	const onSuccess = (result) => {
+		const fileRepositoryId = result.data["file_repository_id"];
+		return {
+			file_repository_id: fileRepositoryId,
+		};
+	};
+	const onError = () => {
+		// pass
+	};
 
-    return apiClientService
-        .createFileRepository(
-            token,
-            sessionSecretKey,
-            title,
-            type,
-            gcpCloudStorageBucket,
-            gcpCloudStorageJsonKey,
-            awsS3Bucket,
-            awsS3Region,
-            awsS3AccessKeyId,
-            awsS3SecretAccessKey,
-            azureBlobStorageAccountName,
-            azureBlobStorageAccountPrimaryKey,
-            azureBlobStorageAccountContainerName,
-            backblazeBucket,
-            backblazeRegion,
-            backblazeAccessKeyId,
-            backblazeSecretAccessKey,
-            others3Bucket,
-            otherS3Region,
-            otherS3EndpointUrl,
-            otherS3AccessKeyId,
-            otherS3SecretAccessKey,
-            doSpace,
-            doRegion,
-            doKey,
-            doSecret
-        )
-        .then(onSuccess, onError);
+	return apiClientService
+		.createFileRepository(
+			token,
+			sessionSecretKey,
+			title,
+			type,
+			gcpCloudStorageBucket,
+			gcpCloudStorageJsonKey,
+			awsS3Bucket,
+			awsS3Region,
+			awsS3AccessKeyId,
+			awsS3SecretAccessKey,
+			azureBlobStorageAccountName,
+			azureBlobStorageAccountPrimaryKey,
+			azureBlobStorageAccountContainerName,
+			backblazeBucket,
+			backblazeRegion,
+			backblazeAccessKeyId,
+			backblazeSecretAccessKey,
+			others3Bucket,
+			otherS3Region,
+			otherS3EndpointUrl,
+			otherS3AccessKeyId,
+			otherS3SecretAccessKey,
+			doSpace,
+			doRegion,
+			doKey,
+			doSecret,
+		)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -410,66 +449,66 @@ function createFileRepository(
  * @returns {Promise} Promise with the new id
  */
 function updateFileRepository(
-    fileRepositoryId,
-    title,
-    type,
-    gcpCloudStorageBucket,
-    gcpCloudStorageJsonKey,
-    active,
-    awsS3Bucket,
-    awsS3Region,
-    awsS3AccessKeyId,
-    awsS3SecretAccessKey,
-    azureBlobStorageAccountName,
-    azureBlobStorageAccountPrimaryKey,
-    azureBlobStorageAccountContainerName,
-    backblazeBucket,
-    backblazeRegion,
-    backblazeAccessKeyId,
-    backblazeSecretAccessKey,
-    otherS3Bucket,
-    otherS3Region,
-    otherS3EndpointUrl,
-    otherS3AccessKeyId,
-    otherS3SecretAccessKey,
-    doSpace,
-    doRegion,
-    doHey,
-    doSecret
+	fileRepositoryId,
+	title,
+	type,
+	gcpCloudStorageBucket,
+	gcpCloudStorageJsonKey,
+	active,
+	awsS3Bucket,
+	awsS3Region,
+	awsS3AccessKeyId,
+	awsS3SecretAccessKey,
+	azureBlobStorageAccountName,
+	azureBlobStorageAccountPrimaryKey,
+	azureBlobStorageAccountContainerName,
+	backblazeBucket,
+	backblazeRegion,
+	backblazeAccessKeyId,
+	backblazeSecretAccessKey,
+	otherS3Bucket,
+	otherS3Region,
+	otherS3EndpointUrl,
+	otherS3AccessKeyId,
+	otherS3SecretAccessKey,
+	doSpace,
+	doRegion,
+	doHey,
+	doSecret,
 ) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    return apiClientService.updateFileRepository(
-        token,
-        sessionSecretKey,
-        fileRepositoryId,
-        title,
-        type,
-        gcpCloudStorageBucket,
-        gcpCloudStorageJsonKey,
-        active,
-        awsS3Bucket,
-        awsS3Region,
-        awsS3AccessKeyId,
-        awsS3SecretAccessKey,
-        azureBlobStorageAccountName,
-        azureBlobStorageAccountPrimaryKey,
-        azureBlobStorageAccountContainerName,
-        backblazeBucket,
-        backblazeRegion,
-        backblazeAccessKeyId,
-        backblazeSecretAccessKey,
-        otherS3Bucket,
-        otherS3Region,
-        otherS3EndpointUrl,
-        otherS3AccessKeyId,
-        otherS3SecretAccessKey,
-        doSpace,
-        doRegion,
-        doHey,
-        doSecret
-    );
+	return apiClientService.updateFileRepository(
+		token,
+		sessionSecretKey,
+		fileRepositoryId,
+		title,
+		type,
+		gcpCloudStorageBucket,
+		gcpCloudStorageJsonKey,
+		active,
+		awsS3Bucket,
+		awsS3Region,
+		awsS3AccessKeyId,
+		awsS3SecretAccessKey,
+		azureBlobStorageAccountName,
+		azureBlobStorageAccountPrimaryKey,
+		azureBlobStorageAccountContainerName,
+		backblazeBucket,
+		backblazeRegion,
+		backblazeAccessKeyId,
+		backblazeSecretAccessKey,
+		otherS3Bucket,
+		otherS3Region,
+		otherS3EndpointUrl,
+		otherS3AccessKeyId,
+		otherS3SecretAccessKey,
+		doSpace,
+		doRegion,
+		doHey,
+		doSecret,
+	);
 }
 
 /**
@@ -480,17 +519,17 @@ function updateFileRepository(
  * @returns {Promise} Promise
  */
 function deleteFileRepository(fileRepositoryId) {
-    const token = getStore().getState().user.token;
-    const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
-        return result.data;
-    };
-    const onError = function (result) {
-        // pass
-    };
+	const onSuccess = (result) => result.data;
+	const onError = (result) => {
+		// pass
+	};
 
-    return apiClientService.deleteFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
+	return apiClientService
+		.deleteFileRepository(token, sessionSecretKey, fileRepositoryId)
+		.then(onSuccess, onError);
 }
 
 /**
@@ -498,7 +537,7 @@ function deleteFileRepository(fileRepositoryId) {
  * By default it will return false (indicate enabled file repositories)
  */
 function fileRepositoriesDisabled() {
-    return getStore().getState().server.complianceDisableFileRepositories;
+	return getStore().getState().server.complianceDisableFileRepositories;
 }
 
 /**
@@ -512,81 +551,87 @@ function fileRepositoriesDisabled() {
  *
  * @returns {array} list of fileRepositories that fulfill the filter criteria
  */
-function filterFileRepositories(fileRepositories, requireRead, requireWrite, requireActive, requireAccepted) {
-    const filteredFileRepositories = [];
+function filterFileRepositories(
+	fileRepositories,
+	requireRead,
+	requireWrite,
+	requireActive,
+	requireAccepted,
+) {
+	const filteredFileRepositories = [];
 
-    for (let i = 0; i < fileRepositories.length; i++) {
-        if (requireRead && !fileRepositories[i]["read"]) {
-            continue;
-        }
-        if (requireWrite && !fileRepositories[i]["write"]) {
-            continue;
-        }
-        if (requireActive && !fileRepositories[i]["active"]) {
-            continue;
-        }
-        if (requireAccepted && !fileRepositories[i]["accepted"]) {
-            continue;
-        }
+	for (let i = 0; i < fileRepositories.length; i++) {
+		if (requireRead && !fileRepositories[i]["read"]) {
+			continue;
+		}
+		if (requireWrite && !fileRepositories[i]["write"]) {
+			continue;
+		}
+		if (requireActive && !fileRepositories[i]["active"]) {
+			continue;
+		}
+		if (requireAccepted && !fileRepositories[i]["accepted"]) {
+			continue;
+		}
 
-        filteredFileRepositories.push(fileRepositories[i]);
-    }
+		filteredFileRepositories.push(fileRepositories[i]);
+	}
 
-    return filteredFileRepositories;
+	return filteredFileRepositories;
 }
 
 function getAwsRegions() {
-    const awsRegions = [
-        "us-east-1", // USA Ost (Nord-Virginia)
-        "us-east-2", // USA Ost (Ohio)
-        "us-west-1", // USA West (Nordkalifornien)
-        "us-west-2", // USA West (Oregon)
-        "ap-south-1", // Asien-Pazifik (Mumbai)
-        "ap-northeast-1", // Asien-Pazifik (Tokio)
-        "ap-northeast-2", // Asien-Pazifik (Seoul
-        "ap-northeast-3", // Asien-Pazifik (Osaka-Lokal)
-        "ap-southeast-1", // Asien-Pazifik (Singapur)
-        "ap-southeast-2", // Asien-Pazifik (Sydney)
-        "ca-central-1", // Kanada (Zentral)
-        "cn-north-1", // China (Peking)
-        "cn-northwest-1", // China (Ningxia)
-        "eu-central-1", // EU (Frankfurt)
-        "eu-west-1", // EU (Irland)
-        "eu-west-2", // EU (London)
-        "eu-west-3", // EU (Paris)
-        "eu-north-1", // EU (Stockholm)
-        "sa-east-1", // Südamerika (Sao Paulo)
-        "us-gov-east-1", // AWS GovCloud (USA Ost)
-        "us-gov-west-1", // AWS GovCloud (USA)
-    ];
+	const awsRegions = [
+		"us-east-1", // USA Ost (Nord-Virginia)
+		"us-east-2", // USA Ost (Ohio)
+		"us-west-1", // USA West (Nordkalifornien)
+		"us-west-2", // USA West (Oregon)
+		"ap-south-1", // Asien-Pazifik (Mumbai)
+		"ap-northeast-1", // Asien-Pazifik (Tokio)
+		"ap-northeast-2", // Asien-Pazifik (Seoul
+		"ap-northeast-3", // Asien-Pazifik (Osaka-Lokal)
+		"ap-southeast-1", // Asien-Pazifik (Singapur)
+		"ap-southeast-2", // Asien-Pazifik (Sydney)
+		"ca-central-1", // Kanada (Zentral)
+		"cn-north-1", // China (Peking)
+		"cn-northwest-1", // China (Ningxia)
+		"eu-central-1", // EU (Frankfurt)
+		"eu-west-1", // EU (Irland)
+		"eu-west-2", // EU (London)
+		"eu-west-3", // EU (Paris)
+		"eu-north-1", // EU (Stockholm)
+		"sa-east-1", // Südamerika (Sao Paulo)
+		"us-gov-east-1", // AWS GovCloud (USA Ost)
+		"us-gov-west-1", // AWS GovCloud (USA)
+	];
 
-    return awsRegions;
+	return awsRegions;
 }
 
 function getDoSpacesRegions() {
-    const doSpacesRegions = ["ams3", "fra1", "nyc3", "sfo2", "sgp1"];
+	const doSpacesRegions = ["ams3", "fra1", "nyc3", "sfo2", "sgp1"];
 
-    return doSpacesRegions;
+	return doSpacesRegions;
 }
 
 const fileRepositoryService = {
-    accept: accept,
-    decline: decline,
-    createGroupFileRepositoryRight: createGroupFileRepositoryRight,
-    updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
-    deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
-    createFileRepositoryRight: createFileRepositoryRight,
-    updateFileRepositoryRight: updateFileRepositoryRight,
-    deleteFileRepositoryRight: deleteFileRepositoryRight,
-    getPossibleTypes: getPossibleTypes,
-    readFileRepository: readFileRepository,
-    readFileRepositories: readFileRepositories,
-    createFileRepository: createFileRepository,
-    updateFileRepository: updateFileRepository,
-    deleteFileRepository: deleteFileRepository,
-    fileRepositoriesDisabled: fileRepositoriesDisabled,
-    filterFileRepositories: filterFileRepositories,
-    getAwsRegions: getAwsRegions,
-    getDoSpacesRegions: getDoSpacesRegions,
+	accept: accept,
+	decline: decline,
+	createGroupFileRepositoryRight: createGroupFileRepositoryRight,
+	updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
+	deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
+	createFileRepositoryRight: createFileRepositoryRight,
+	updateFileRepositoryRight: updateFileRepositoryRight,
+	deleteFileRepositoryRight: deleteFileRepositoryRight,
+	getPossibleTypes: getPossibleTypes,
+	readFileRepository: readFileRepository,
+	readFileRepositories: readFileRepositories,
+	createFileRepository: createFileRepository,
+	updateFileRepository: updateFileRepository,
+	deleteFileRepository: deleteFileRepository,
+	fileRepositoriesDisabled: fileRepositoriesDisabled,
+	filterFileRepositories: filterFileRepositories,
+	getAwsRegions: getAwsRegions,
+	getDoSpacesRegions: getDoSpacesRegions,
 };
 export default fileRepositoryService;
