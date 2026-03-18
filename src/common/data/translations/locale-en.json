@@ -597,6 +597,7 @@
 	"SEARCH_DATASTORE": "Search datastore...",
 	"SETUP_SECOND_FACTOR": "Setup second factor",
 	"ADMINISTRATOR_REQUIRES_SECOND_FACTOR": "Your administrator requires that you set up a second factor. Please choose one and set it up.",
+	"ADMINISTRATOR_REQUIRES_PASSWORD_CHANGE": "Your administrator requires that you set a new password before you can continue.",
 	"ADMINISTRATOR_REQUIRES_SECOND_FACTOR_GO_TO_WEBSITE": "Your administrator requires that you set up a second factor. Please use the web interface of the website to configure one.",
 	"NO_ENTRY_FOUND": "No entry found ...",
 	"OPEN_DATASTORE": "Open datastore",
