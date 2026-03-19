@@ -850,6 +850,40 @@ const PopupView = (props) => {
 		return passwordFilter(item.content, item.path);
 	}
 
+	if (isLoggedIn && user.requirePasswordChange()) {
+		return (
+			<DarkBox className={classes.popupContainer}>
+				<Grid container>
+					<Grid item xs={12} sm={12} md={12}>
+						<MuiAlert
+							severity="error"
+							style={{
+								marginBottom: "5px",
+								marginTop: "5px",
+							}}
+						>
+							{t("ADMINISTRATOR_REQUIRES_PASSWORD_CHANGE")}
+						</MuiAlert>
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Button
+							onClick={() => {
+								browserClient.openTab("index.html#!/account/change-password");
+							}}
+							variant="contained"
+							color="primary"
+						>
+							{t("CHANGE_PASSWORD")}
+						</Button>
+						<Button onClick={logout} variant="contained">
+							{t("LOGOUT")}
+						</Button>
+					</Grid>
+				</Grid>
+			</DarkBox>
+		);
+	}
+
 	if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
 		return (
 			<DarkBox className={classes.popupContainer}>

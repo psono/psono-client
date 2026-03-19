@@ -1,10 +1,12 @@
 import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import GridContainerErrors from "../../components/grid-container-errors";
 import user from "../../services/user";
 
@@ -20,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
 const AccountChangePasswordView = (props) => {
 	const { t } = useTranslation();
 	const classes = useStyles();
+	const requirePasswordChange = useSelector(
+		(state) => state.user.requirePasswordChange,
+	);
 	const [password, setPassword] = useState("");
 	const [oldPassword, setOldPassword] = useState("");
 	const [passwordRepeat, setPasswordRepeat] = useState("");
@@ -42,6 +47,15 @@ const AccountChangePasswordView = (props) => {
 
 	return (
 		<>
+			{requirePasswordChange && (
+				<Grid container style={{ marginBottom: "16px" }}>
+					<Grid item xs={12} sm={12} md={12}>
+						<MuiAlert severity="error">
+							{t("ADMINISTRATOR_REQUIRES_PASSWORD_CHANGE")}
+						</MuiAlert>
+					</Grid>
+				</Grid>
+			)}
 			<Grid container>
 				<Grid item xs={12} sm={12} md={12}>
 					<h2>{t("CHANGE_PASSWORD")}</h2>

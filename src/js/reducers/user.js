@@ -3,6 +3,7 @@ import {
 	SET_EMAIL,
 	SET_HAS_TWO_FACTOR,
 	SET_HASHING_PARAMETERS,
+	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_SERVER_SECRET_EXISTS,
 	SET_USER_DATASTORE_OVERVIEW,
 	SET_USER_INFO_1,
@@ -42,6 +43,7 @@ function user(
 		userSauce: "",
 		userEmail: "",
 		userId: "",
+		requirePasswordChange: false,
 		userDatastoreOverview: defaultUserDatastoreOverview,
 	},
 	action,
@@ -73,6 +75,11 @@ function user(
 				userEmail: action.userEmail,
 				userSecretKey: action.userSecretKey,
 				serverSecretExists: action.serverSecretExists,
+				requirePasswordChange: action.requirePasswordChange,
+			});
+		case SET_REQUIRE_PASSWORD_CHANGE:
+			return Object.assign({}, state, {
+				requirePasswordChange: action.requirePasswordChange,
 			});
 		case SET_HASHING_PARAMETERS:
 			return Object.assign({}, state, {
@@ -119,6 +126,7 @@ function user(
 				sessionSecretKey: "",
 				token: "",
 				userSauce: "",
+				requirePasswordChange: false,
 				userDatastoreOverview: defaultUserDatastoreOverview,
 			});
 		default:

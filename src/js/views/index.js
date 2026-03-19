@@ -44,6 +44,9 @@ const IndexView = (props) => {
 	const theme = useTheme();
 	const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 	const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
+	const requirePasswordChange = useSelector(
+		(state) => state.user.requirePasswordChange,
+	);
 	const deviceCode = useSelector((state) => state.device.deviceCode);
 
 	const [showDeviceCodeModal, setShowDeviceCodeModal] = useState(false);
@@ -215,6 +218,18 @@ const IndexView = (props) => {
 				// Timeout required, otherwise setUserInfo3 doesn't finish and not persisted
 				window.location.href = "key-transfer.html";
 			}, 1);
+		}
+		if (isLoggedIn && requirePasswordChange) {
+			return (
+				<Switch>
+					<Route path="/account">
+						<AccountView {...props} />
+					</Route>
+					<Route path="/">
+						<Redirect to="/account/change-password" />
+					</Route>
+				</Switch>
+			);
 		}
 		if (!isLoggedIn) {
 			return (

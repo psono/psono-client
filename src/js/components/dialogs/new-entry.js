@@ -2077,7 +2077,7 @@ const DialogNewEntry = (props) => {
 									value={totpCode}
 									required
 									onChange={(event) => {
-										setTotpCode(event.target.value);
+										setTotpCode(event.target.value.replace(/\s+/g, ""));
 									}}
 									InputProps={{
 										type: showPassword ? "text" : "password",

@@ -378,6 +378,7 @@ function activateToken() {
 			activationData.data.user.email,
 			userSecretKey,
 			serverSecretExists,
+			activationData.data.user.require_password_change || false,
 		);
 
 		// no need anymore for the public / private session keys
@@ -456,6 +457,9 @@ function handleLoginResponse(
 	if (!Object.hasOwn(decrypted_response_data.user, "hashing_parameters")) {
 		decrypted_response_data.user["hashing_parameters"] =
 			getStore().getState().user.hashingParameters;
+	}
+	if (!Object.hasOwn(decrypted_response_data.user, "require_password_change")) {
+		decrypted_response_data.user["require_password_change"] = false;
 	}
 	action().sethashingParameters(
 		decrypted_response_data.user["hashing_algorithm"],
@@ -892,7 +896,10 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
 				hashingParameters,
 			);
 
-			onSuccess = (data) => ({ msgs: ["SAVE_SUCCESS"] });
+			onSuccess = (data) => {
+				action().setRequirePasswordChange(false);
+				return { msgs: ["SAVE_SUCCESS"] };
+			};
 			onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
 
 			return updateUser(
@@ -1231,6 +1238,7 @@ function armEmergencyCode(
 				loginInfo.user_email,
 				userSecretKey,
 				serverSecretExists,
+				loginInfo.require_password_change || false,
 			);
 
 			return {
@@ -1317,6 +1325,15 @@ function requireServerSecret() {
 function requireServerSecretModification() {
 	const serverSecretExists = getStore().getState().user.serverSecretExists;
 	return requireServerSecret() !== serverSecretExists;
+}
+
+/**
+ * Checks if the user must change the password
+ *
+ * @return {boolean} Returns whether password change is required
+ */
+function requirePasswordChange() {
+	return !!getStore().getState().user.requirePasswordChange;
 }
 
 /**
@@ -1525,6 +1542,7 @@ const userService = {
 	requireTwoFaSetup,
 	requireServerSecret,
 	requireServerSecretModification,
+	requirePasswordChange,
 	getSessions,
 	deleteSession,
 	register,

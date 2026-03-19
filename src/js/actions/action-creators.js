@@ -24,6 +24,7 @@ import {
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
+	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_REMOTE_CONFIG_JSON,
 	SET_REQUESTS_IN_PROGRESS,
 	SET_SERVER_INFO,
@@ -80,7 +81,13 @@ function setUserInfo2(
 		});
 	};
 }
-function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
+function setUserInfo3(
+	userId,
+	userEmail,
+	userSecretKey,
+	serverSecretExists,
+	requirePasswordChange = false,
+) {
 	return (dispatch) => {
 		dispatch({
 			type: SET_USER_INFO_3,
@@ -88,6 +95,16 @@ function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
 			userEmail,
 			userSecretKey,
 			serverSecretExists,
+			requirePasswordChange,
+		});
+	};
+}
+
+function setRequirePasswordChange(requirePasswordChange) {
+	return (dispatch) => {
+		dispatch({
+			type: SET_REQUIRE_PASSWORD_CHANGE,
+			requirePasswordChange,
 		});
 	};
 }
@@ -926,6 +943,7 @@ const actionCreators = {
 	setUserInfo1,
 	setUserInfo2,
 	setUserInfo3,
+	setRequirePasswordChange,
 	sethashingParameters,
 	setServerSecretExists,
 	setHasTwoFactor,
