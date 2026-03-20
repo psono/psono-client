@@ -11,8 +11,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { makeStyles } from "@mui/styles";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -72,6 +75,23 @@ const useStyles = makeStyles((theme) => ({
 		color: theme.palette.greyText.main,
 		fontSize: "0.8rem",
 	},
+	permissionPanel: {
+		padding: "4px 0 8px 0",
+		color: theme.palette.text.primary,
+		marginBottom: "8px",
+	},
+	permissionTitle: {
+		fontWeight: 400,
+		marginBottom: "8px",
+	},
+	permissionItem: {
+		display: "flex",
+		alignItems: "center",
+		padding: "0 4px",
+	},
+	expirationRow: {
+		marginTop: "8px",
+	},
 }));
 
 const DialogNewUserShare = (props) => {
@@ -92,6 +112,7 @@ const DialogNewUserShare = (props) => {
 	const [foundUserId, setFoundUserId] = useState("");
 	const [profilePic, setProfilePic] = useState("");
 	const [foundPublicKey, setFoundPublicKey] = useState("");
+	const [validTill, setValidTill] = useState(null);
 
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
@@ -213,7 +234,13 @@ const DialogNewUserShare = (props) => {
 			datastoreUserService.addUserToDatastore(userDatastore, datastoreUser);
 		}
 
-		onCreate([datastoreUser], read, write, grant);
+		onCreate(
+			[datastoreUser],
+			read,
+			write,
+			grant,
+			validTill ? validTill.toISOString() : null,
+		);
 	};
 
 	const loadUsers = () => {
@@ -339,50 +366,101 @@ const DialogNewUserShare = (props) => {
 							)}
 							{users.length === 0 && Boolean(foundUserId) && (
 								<>
-									<Grid item xs={4} sm={4} md={4}>
-										<Checkbox
-											tabIndex={1}
-											checked={read}
-											onChange={(event) => {
-												setRead(event.target.checked);
-											}}
-											checkedIcon={<Check className={classes.checkedIcon} />}
-											icon={<Check className={classes.uncheckedIcon} />}
-											classes={{
-												checked: classes.checked,
-											}}
-										/>{" "}
-										{t("READ")}
-									</Grid>
-									<Grid item xs={4} sm={4} md={4}>
-										<Checkbox
-											tabIndex={1}
-											checked={write}
-											onChange={(event) => {
-												setWrite(event.target.checked);
-											}}
-											checkedIcon={<Check className={classes.checkedIcon} />}
-											icon={<Check className={classes.uncheckedIcon} />}
-											classes={{
-												checked: classes.checked,
-											}}
-										/>{" "}
-										{t("WRITE")}
-									</Grid>
-									<Grid item xs={4} sm={4} md={4}>
-										<Checkbox
-											tabIndex={1}
-											checked={grant}
-											onChange={(event) => {
-												setGrant(event.target.checked);
-											}}
-											checkedIcon={<Check className={classes.checkedIcon} />}
-											icon={<Check className={classes.uncheckedIcon} />}
-											classes={{
-												checked: classes.checked,
-											}}
-										/>{" "}
-										{t("ADMIN")}
+									<Grid item xs={12} sm={12} md={12}>
+										<Paper elevation={0} className={classes.permissionPanel}>
+											<Typography
+												variant="subtitle2"
+												className={classes.permissionTitle}
+											>
+												{t("PERMISSIONS")}
+											</Typography>
+											<Grid container spacing={1}>
+												<Grid item xs={12} sm={4} md={4}>
+													<div className={classes.permissionItem}>
+														<Checkbox
+															tabIndex={1}
+															checked={read}
+															onChange={(event) => {
+																setRead(event.target.checked);
+															}}
+															checkedIcon={
+																<Check className={classes.checkedIcon} />
+															}
+															icon={<Check className={classes.uncheckedIcon} />}
+															classes={{ checked: classes.checked }}
+														/>
+														{t("READ")}
+													</div>
+												</Grid>
+												<Grid item xs={12} sm={4} md={4}>
+													<div className={classes.permissionItem}>
+														<Checkbox
+															tabIndex={1}
+															checked={write}
+															onChange={(event) => {
+																setWrite(event.target.checked);
+															}}
+															checkedIcon={
+																<Check className={classes.checkedIcon} />
+															}
+															icon={<Check className={classes.uncheckedIcon} />}
+															classes={{ checked: classes.checked }}
+														/>
+														{t("WRITE")}
+													</div>
+												</Grid>
+												<Grid item xs={12} sm={4} md={4}>
+													<div className={classes.permissionItem}>
+														<Checkbox
+															tabIndex={1}
+															checked={grant}
+															onChange={(event) => {
+																setGrant(event.target.checked);
+															}}
+															checkedIcon={
+																<Check className={classes.checkedIcon} />
+															}
+															icon={<Check className={classes.uncheckedIcon} />}
+															classes={{ checked: classes.checked }}
+														/>
+														{t("ADMIN")}
+													</div>
+												</Grid>
+												<Grid
+													item
+													xs={12}
+													sm={12}
+													md={12}
+													className={classes.expirationRow}
+												>
+													<DateTimePicker
+														ampm={false}
+														disablePast
+														minDateTime={new Date()}
+														label={t("VALID_TILL")}
+														value={validTill}
+														onChange={(newValidTill) => {
+															setValidTill(newValidTill);
+														}}
+														format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+														slotProps={{
+															actionBar: { actions: ["clear", "accept"] },
+															field: {
+																clearable: true,
+																onClear: () => setValidTill(null),
+															},
+															textField: {
+																variant: "outlined",
+																size: "small",
+																margin: "dense",
+																fullWidth: true,
+																placeholder: t("NOT_EXPIRING"),
+															},
+														}}
+													/>
+												</Grid>
+											</Grid>
+										</Paper>
 									</Grid>
 									<Grid item xs={12} sm={12} md={12}>
 										<Divider

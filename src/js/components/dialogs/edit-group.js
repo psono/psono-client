@@ -2,6 +2,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EventIcon from "@mui/icons-material/Event";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { Grid } from "@mui/material";
 import Button from "@mui/material/Button";
@@ -15,6 +16,7 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
 import { makeStyles } from "@mui/styles";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -358,6 +360,7 @@ const DialogEditGroup = (props) => {
 				newRight.read,
 				newRight.write,
 				newRight.grant,
+				newRight.expiration_date,
 			)
 			.then(onSuccess, onError);
 	}
@@ -381,6 +384,38 @@ const DialogEditGroup = (props) => {
 		} else {
 			return toggleRightWithoutFurtherWarning(type, right);
 		}
+	};
+
+	const saveExpiration = (shareRightId, expirationDate) => {
+		if (expirationDate && new Date(expirationDate) <= new Date()) {
+			return;
+		}
+
+		const right = shares.find((share) => share.id === shareRightId);
+		if (!right) {
+			return;
+		}
+		const onError = (result) => {
+			console.log(result);
+		};
+
+		const onSuccess = () => {
+			right.expiration_date = expirationDate;
+			const _shares = helper.duplicateObject(shares);
+			setShares(_shares);
+		};
+
+		shareService
+			.updateShareRight(
+				right.share_id,
+				right.user_id,
+				groupId,
+				right.read,
+				right.write,
+				right.grant,
+				expirationDate,
+			)
+			.then(onSuccess, onError);
 	};
 
 	const deleteShareRight = (shareRightId) => {
@@ -616,6 +651,53 @@ const DialogEditGroup = (props) => {
 			},
 		},
 		{
+			name: t("VALID_TILL"),
+			options: {
+				filter: false,
+				sort: true,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					const right = shares.find(
+						(share) => share.id === tableMeta.rowData[0],
+					);
+					return (
+						<DateTimePicker
+							ampm={false}
+							disablePast
+							minDateTime={new Date()}
+							value={
+								right && right.expiration_date
+									? new Date(right.expiration_date)
+									: null
+							}
+							onAccept={(newValue) => {
+								saveExpiration(
+									tableMeta.rowData[0],
+									newValue ? newValue.toISOString() : null,
+								);
+							}}
+							format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+							disabled={readOnly}
+							slots={{ openPickerIcon: EventIcon }}
+							slotProps={{
+								actionBar: { actions: ["clear", "accept"] },
+								field: {
+									clearable: true,
+									onClear: () => saveExpiration(tableMeta.rowData[0], null),
+								},
+								textField: {
+									variant: "outlined",
+									size: "small",
+									margin: "dense",
+									placeholder: t("NOT_EXPIRING"),
+								},
+							}}
+						/>
+					);
+				},
+			},
+		},
+		{
 			name: t("CREATE_DATE"),
 			options: {
 				display: false,
@@ -668,6 +750,7 @@ const DialogEditGroup = (props) => {
 			share.read,
 			share.write,
 			share.grant,
+			share.expiration_date ? format(new Date(share.expiration_date)) : "",
 			format(new Date(share.create_date)),
 		];
 	});

@@ -1,6 +1,7 @@
 import BlockIcon from "@mui/icons-material/Block";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EventIcon from "@mui/icons-material/Event";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { Grid } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
@@ -13,6 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { makeStyles } from "@mui/styles";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -105,6 +107,9 @@ const DialogRightsOverview = (props) => {
 							right.write,
 							right.grant,
 							right.accepted,
+							right.expiration_date
+								? format(new Date(right.expiration_date))
+								: "",
 							right.create_date ? format(new Date(right.create_date)) : "",
 						];
 					}),
@@ -118,6 +123,9 @@ const DialogRightsOverview = (props) => {
 							right.write,
 							right.grant,
 							right.accepted,
+							right.expiration_date
+								? format(new Date(right.expiration_date))
+								: "",
 							right.create_date ? format(new Date(right.create_date)) : "",
 						];
 					}),
@@ -170,6 +178,8 @@ const DialogRightsOverview = (props) => {
 					right.write,
 					right.grant,
 					right.accepted,
+					right.expiration_date ? format(new Date(right.expiration_date)) : "",
+					right.create_date ? format(new Date(right.create_date)) : "",
 				];
 			}),
 		);
@@ -182,6 +192,8 @@ const DialogRightsOverview = (props) => {
 					right.write,
 					right.grant,
 					right.accepted,
+					right.expiration_date ? format(new Date(right.expiration_date)) : "",
+					right.create_date ? format(new Date(right.create_date)) : "",
 				];
 			}),
 		);
@@ -220,6 +232,7 @@ const DialogRightsOverview = (props) => {
 		read,
 		write,
 		grant,
+		expirationDate,
 	) => {
 		let i;
 
@@ -283,6 +296,7 @@ const DialogRightsOverview = (props) => {
 					read,
 					write,
 					grant,
+					expirationDate,
 				)
 				.then(onSuccess, onError);
 		}
@@ -333,6 +347,7 @@ const DialogRightsOverview = (props) => {
 					read,
 					write,
 					grant,
+					expirationDate,
 				)
 				.then(onSuccess, onError);
 		}
@@ -342,7 +357,14 @@ const DialogRightsOverview = (props) => {
 		}
 	};
 
-	const onNewShareCreate = async (users, groups, read, write, grant) => {
+	const onNewShareCreate = async (
+		users,
+		groups,
+		read,
+		write,
+		grant,
+		expirationDate,
+	) => {
 		setNewShareUserOpen(false);
 		setNewShareGroupOpen(false);
 
@@ -365,6 +387,7 @@ const DialogRightsOverview = (props) => {
 				read,
 				write,
 				grant,
+				expirationDate,
 			);
 			loadShareRights();
 		} else {
@@ -413,6 +436,7 @@ const DialogRightsOverview = (props) => {
 							read,
 							write,
 							grant,
+							expirationDate,
 						);
 
 						// update datastore and / or possible parent shares
@@ -472,6 +496,10 @@ const DialogRightsOverview = (props) => {
 						right.write,
 						right.grant,
 						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
 					];
 				}),
 			);
@@ -484,6 +512,10 @@ const DialogRightsOverview = (props) => {
 						right.write,
 						right.grant,
 						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
 					];
 				}),
 			);
@@ -500,6 +532,7 @@ const DialogRightsOverview = (props) => {
 				newRight.read,
 				newRight.write,
 				newRight.grant,
+				newRight.expiration_date,
 			)
 			.then(onSuccess, onError);
 	};
@@ -530,6 +563,75 @@ const DialogRightsOverview = (props) => {
 			verifyToggleOwnGrantData.type,
 			verifyToggleOwnGrantData.right,
 		);
+	};
+
+	const saveExpiration = (rightId, expirationDate) => {
+		if (expirationDate && new Date(expirationDate) <= new Date()) {
+			return;
+		}
+
+		let right = shareDetails.user_share_rights.find(
+			(right) => right.id === rightId,
+		);
+		if (!right) {
+			right = shareDetails.group_share_rights.find(
+				(right) => right.id === rightId,
+			);
+		}
+		if (!right) {
+			return;
+		}
+		const onError = (data) => {
+			console.log(data);
+		};
+
+		const onSuccess = () => {
+			right.expiration_date = expirationDate;
+			setUserShareRights(
+				shareDetails.user_share_rights.map((right) => {
+					return [
+						right.id,
+						right.username,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+			setGroupShareRights(
+				shareDetails.group_share_rights.map((right) => {
+					return [
+						right.id,
+						right.group_name,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+		};
+
+		shareService
+			.updateShareRight(
+				right.share_id,
+				right.user_id,
+				right.group_id,
+				right.read,
+				right.write,
+				right.grant,
+				expirationDate,
+			)
+			.then(onSuccess, onError);
 	};
 
 	const userColumns = [
@@ -610,8 +712,55 @@ const DialogRightsOverview = (props) => {
 							{tableMeta.rowData[5] === true && <CheckIcon />}
 							{tableMeta.rowData[5] === false && <BlockIcon />}
 							{tableMeta.rowData[5] !== true &&
-								tableMeta.rowData[6] !== false && <HourglassEmptyIcon />}
+								tableMeta.rowData[5] !== false && <HourglassEmptyIcon />}
 						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("VALID_TILL"),
+			options: {
+				filter: false,
+				sort: true,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					const right = shareDetails.user_share_rights.find(
+						(right) => right.id === tableMeta.rowData[0],
+					);
+					return (
+						<DateTimePicker
+							ampm={false}
+							disablePast
+							minDateTime={new Date()}
+							value={
+								right && right.expiration_date
+									? new Date(right.expiration_date)
+									: null
+							}
+							onAccept={(newValue) => {
+								saveExpiration(
+									tableMeta.rowData[0],
+									newValue ? newValue.toISOString() : null,
+								);
+							}}
+							format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+							disabled={!shareDetails.own_share_rights.grant}
+							slots={{ openPickerIcon: EventIcon }}
+							slotProps={{
+								actionBar: { actions: ["clear", "accept"] },
+								field: {
+									clearable: true,
+									onClear: () => saveExpiration(tableMeta.rowData[0], null),
+								},
+								textField: {
+									variant: "outlined",
+									size: "small",
+									margin: "dense",
+									placeholder: t("NOT_EXPIRING"),
+								},
+							}}
+						/>
 					);
 				},
 			},
@@ -722,8 +871,55 @@ const DialogRightsOverview = (props) => {
 							{tableMeta.rowData[5] === true && <CheckIcon />}
 							{tableMeta.rowData[5] === false && <BlockIcon />}
 							{tableMeta.rowData[5] !== true &&
-								tableMeta.rowData[6] !== false && <HourglassEmptyIcon />}
+								tableMeta.rowData[5] !== false && <HourglassEmptyIcon />}
 						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("VALID_TILL"),
+			options: {
+				filter: false,
+				sort: true,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					const right = shareDetails.group_share_rights.find(
+						(right) => right.id === tableMeta.rowData[0],
+					);
+					return (
+						<DateTimePicker
+							ampm={false}
+							disablePast
+							minDateTime={new Date()}
+							value={
+								right && right.expiration_date
+									? new Date(right.expiration_date)
+									: null
+							}
+							onAccept={(newValue) => {
+								saveExpiration(
+									tableMeta.rowData[0],
+									newValue ? newValue.toISOString() : null,
+								);
+							}}
+							format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+							disabled={!shareDetails.own_share_rights.grant}
+							slots={{ openPickerIcon: EventIcon }}
+							slotProps={{
+								actionBar: { actions: ["clear", "accept"] },
+								field: {
+									clearable: true,
+									onClear: () => saveExpiration(tableMeta.rowData[0], null),
+								},
+								textField: {
+									variant: "outlined",
+									size: "small",
+									margin: "dense",
+									placeholder: t("NOT_EXPIRING"),
+								},
+							}}
+						/>
 					);
 				},
 			},
@@ -871,8 +1067,8 @@ const DialogRightsOverview = (props) => {
 				<DialogNewUserShare
 					open={newShareUserOpen}
 					onClose={() => setNewShareUserOpen(false)}
-					onCreate={(users, read, write, grant) => {
-						onNewShareCreate(users, [], read, write, grant);
+					onCreate={(users, read, write, grant, expirationDate) => {
+						onNewShareCreate(users, [], read, write, grant, expirationDate);
 					}}
 					node={item}
 				/>
@@ -881,8 +1077,8 @@ const DialogRightsOverview = (props) => {
 				<DialogNewGroupShare
 					open={newShareGroupOpen}
 					onClose={() => setNewShareGroupOpen(false)}
-					onCreate={(groups, read, write, grant) => {
-						onNewShareCreate([], groups, read, write, grant);
+					onCreate={(groups, read, write, grant, expirationDate) => {
+						onNewShareCreate([], groups, read, write, grant, expirationDate);
 					}}
 					node={item}
 				/>

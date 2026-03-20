@@ -283,6 +283,7 @@ function readShareRightsOverview() {
  * @param {boolean} read The read right
  * @param {boolean} write The write right
  * @param {boolean} grant The grant right
+ * @param {string|null|undefined} expirationDate Expiration date in ISO format
  *
  * @returns {Promise} Returns a promise with the new share right id
  */
@@ -298,6 +299,7 @@ function createShareRight(
 	read,
 	write,
 	grant,
+	expirationDate,
 ) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
@@ -335,6 +337,7 @@ function createShareRight(
 			read,
 			write,
 			grant,
+			expirationDate,
 		)
 		.then(onSuccess, onError);
 }
@@ -348,10 +351,19 @@ function createShareRight(
  * @param {boolean} read The read right
  * @param {boolean} write The write right
  * @param {boolean} grant The grant right
+ * @param {string|null|undefined} expirationDate Expiration date in ISO format
  *
  * @returns {Promise} Returns a promise with the update status
  */
-function updateShareRight(shareId, userId, groupId, read, write, grant) {
+function updateShareRight(
+	shareId,
+	userId,
+	groupId,
+	read,
+	write,
+	grant,
+	expirationDate,
+) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
@@ -374,6 +386,7 @@ function updateShareRight(shareId, userId, groupId, read, write, grant) {
 			read,
 			write,
 			grant,
+			expirationDate,
 		)
 		.then(onSuccess, onError);
 }
