@@ -220,7 +220,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			initializeStyleProtection();
 		});
 
-		document.onkeyup = (e) => {
+		document.addEventListener("keyup", (e) => {
 			if (e.ctrlKey && e.shiftKey && e.code === "KeyL") {
 				//Ctrl + Shift + L
 				base.emit(
@@ -235,7 +235,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 					},
 				);
 			}
-		};
+		});
 	}
 
 	/**
@@ -1708,7 +1708,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		// Store shadow root reference for internal access only
 		element._psonoShadowRoot = shadowRoot;
 
-		document.onclick = (event) => {
+		const onDocumentClick = (event) => {
 			if (event.target !== setup_event.target) {
 				// Clean up both regular dropdowns and shadow root dropdowns
 				const dropdowns = document.getElementsByClassName("psono-drop");
@@ -1725,8 +1725,10 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 					}
 				}
 				lastCloseTime = new Date().getTime();
+				document.removeEventListener("click", onDocumentClick, true);
 			}
 		};
+		document.addEventListener("click", onDocumentClick, true);
 
 		function open() {
 			document.body.appendChild(element);
@@ -1767,6 +1769,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		}
 
 		function close() {
+			document.removeEventListener("click", onDocumentClick, true);
+
 			// Hide popover if using Popover API
 			if (usePopover) {
 				try {

@@ -1552,6 +1552,7 @@ function readShareRightsOverview(token, sessionSecretKey) {
  * @param {bool} read read permission
  * @param {bool} write write permission
  * @param {bool} grant grant permission
+ * @param {string|null|undefined} expirationDate Expiration date in ISO format
  *
  * @returns {Promise} promise
  */
@@ -1570,6 +1571,7 @@ function createShareRight(
 	read,
 	write,
 	grant,
+	expirationDate,
 ) {
 	const endpoint = "/share/right/";
 	const method = "PUT";
@@ -1586,6 +1588,7 @@ function createShareRight(
 		read: read,
 		write: write,
 		grant: grant,
+		expiration_date: expirationDate,
 	};
 	const headers = {
 		Authorization: "Token " + token,
@@ -1605,6 +1608,7 @@ function createShareRight(
  * @param {bool} read read right
  * @param {bool} write write right
  * @param {bool} grant grant right
+ * @param {string|null|undefined} expirationDate Expiration date in ISO format
  *
  * @returns {Promise} promise
  */
@@ -1617,6 +1621,7 @@ function updateShareRight(
 	read,
 	write,
 	grant,
+	expirationDate,
 ) {
 	const endpoint = "/share/right/";
 	const method = "POST";
@@ -1627,6 +1632,7 @@ function updateShareRight(
 		read: read,
 		write: write,
 		grant: grant,
+		expiration_date: expirationDate,
 	};
 	const headers = {
 		Authorization: "Token " + token,

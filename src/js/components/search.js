@@ -2,6 +2,7 @@ import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import InputBase from "@mui/material/InputBase";
+import { alpha } from "@mui/material/styles";
 import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
 import React, { useRef, useState } from "react";
@@ -10,6 +11,15 @@ import { useTranslation } from "react-i18next";
 const useStyles = makeStyles((theme) => ({
 	inputRoot: {
 		color: "inherit",
+		backgroundColor: alpha(theme.palette.background.paper, 0.95),
+		border: `1px solid ${alpha(theme.palette.text.primary, 0.2)}`,
+		borderRadius: theme.shape.borderRadius,
+		"&:hover": {
+			borderColor: alpha(theme.palette.text.primary, 0.35),
+		},
+		"&.Mui-focused": {
+			borderColor: alpha(theme.palette.primary.main, 0.55),
+		},
 	},
 	inputInput: {
 		padding: theme.spacing(1, 1, 1, 0),
@@ -19,9 +29,9 @@ const useStyles = makeStyles((theme) => ({
 		transition: theme.transitions.create("width"),
 		width: "100%",
 		[theme.breakpoints.up("sm")]: {
-			width: "10ch",
+			width: "14ch",
 			"&:focus": {
-				width: "20ch",
+				width: "24ch",
 			},
 		},
 	},

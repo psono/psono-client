@@ -32,6 +32,8 @@ const gpgMessages = {};
 let numTabs;
 let clearFillPasswordTimeout;
 let clearFillElsterCertificateTimeout;
+let datastorePasswordLeafIndexInitialized = false;
+let datastorePasswordLeafIndexBuildPromise;
 
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
@@ -557,8 +559,8 @@ function onReady(request, sender, sendResponse) {
 		for (let i = fillpassword.length - 1; i >= 0; i--) {
 			if (fillpassword[i].url_filter) {
 				const urlFilters = fillpassword[i].url_filter.split(/\s+|,|;/);
-				for (let i = 0; i < urlFilters.length; i++) {
-					if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
+				for (let ii = 0; ii < urlFilters.length; ii++) {
+					if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[ii])) {
 						fillpassword[i].submit = parsedUrl.scheme === "https";
 						sentResponse = true;
 						sendResponse({ event: "fillpassword", data: fillpassword[i] });
@@ -578,14 +580,15 @@ function onReady(request, sender, sendResponse) {
 			(parsedUrl.path.startsWith("/eportal/login/") ||
 				parsedUrl.path.startsWith("/ekona/login/"))
 		) {
-			for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
+			if (fillelstercertificate.length > 0) {
+				const certificate =
+					fillelstercertificate[fillelstercertificate.length - 1];
 				sentResponse = true;
 				sendResponse({
 					event: "fillelstercertificate",
-					data: fillelstercertificate[i],
+					data: certificate,
 				});
 				found = true;
-				break;
 			}
 		}
 		clearFillPasswordTimeout = setTimeout(() => {
@@ -726,6 +729,8 @@ function onLogout(request, sender, sendResponse) {
 		path: "/data/img/icon-32-disabled.png",
 	});
 	updateBadgeCounter();
+	datastorePasswordLeafIndexInitialized = false;
+	datastorePasswordLeafIndexBuildPromise = undefined;
 }
 
 /**
@@ -762,11 +767,58 @@ function onLogin(request, sender, sendResponse) {
 	browserClient.setIcon({
 		path: "/data/img/icon-32.png",
 	});
+	datastorePasswordLeafIndexInitialized = false;
+	datastorePasswordLeafIndexBuildPromise = undefined;
 
 	// Wait two second for the storage to be loaded.
 	setTimeout(() => {
+		ensureDatastorePasswordLeafIndexInitialized();
 		updateBadgeCounter();
 	}, 2000);
+}
+
+/**
+ * Ensures the local password leaf index exists before autofill lookups run.
+ *
+ * @returns {Promise<void>} Resolves once the index is ready (or cannot be initialized).
+ */
+async function ensureDatastorePasswordLeafIndexInitialized() {
+	const userState = getStore().getState().user;
+	if (!userState.isLoggedIn && !userState.token) {
+		return;
+	}
+
+	if (datastorePasswordLeafIndexInitialized) {
+		return;
+	}
+
+	if (datastorePasswordLeafIndexBuildPromise) {
+		return datastorePasswordLeafIndexBuildPromise;
+	}
+
+	try {
+		const leafKeys = await storage.keys("datastore-password-leafs");
+		if (leafKeys.length > 0) {
+			datastorePasswordLeafIndexInitialized = true;
+			return;
+		}
+
+		datastorePasswordLeafIndexBuildPromise = datastorePasswordService
+			.getPasswordDatastore()
+			.then(() => {
+				datastorePasswordLeafIndexInitialized = true;
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
+				datastorePasswordLeafIndexBuildPromise = undefined;
+			});
+
+		return datastorePasswordLeafIndexBuildPromise;
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 /**
@@ -826,6 +878,7 @@ const getSearchWebsitePasswordsByUrlfilter = (url, onlyAutoSubmit) => {
  * @returns {Promise} The database objects where the url filter match the url
  */
 async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
+	await ensureDatastorePasswordLeafIndexInitialized();
 	const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
 	return storage.where("datastore-password-leafs", (value, key) =>
@@ -838,7 +891,8 @@ async function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  *
  * @returns {Promise} The database objects
  */
-function searchCreditCard() {
+async function searchCreditCard() {
+	await ensureDatastorePasswordLeafIndexInitialized();
 	const filter = (leaf, key) => leaf.type === "credit_card";
 
 	return storage.where("datastore-password-leafs", filter);
@@ -849,7 +903,8 @@ function searchCreditCard() {
  *
  * @returns {Promise} The database objects
  */
-function searchIdentity() {
+async function searchIdentity() {
+	await ensureDatastorePasswordLeafIndexInitialized();
 	const filter = (leaf, key) => leaf.type === "identity";
 
 	return storage.where("datastore-password-leafs", filter);

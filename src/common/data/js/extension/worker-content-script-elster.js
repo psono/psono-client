@@ -385,21 +385,24 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 		);
 		element.innerHTML = '<div class="psono-drop-content">' + content + "</div>";
 
-		document.onclick = (event) => {
+		const onDocumentClick = (event) => {
 			if (event.target !== setup_event.target) {
 				const dropdowns = document.getElementsByClassName("psono-drop");
 				for (let i = dropdowns.length - 1; i >= 0; i--) {
 					dropdowns[i].remove();
 				}
 				lastCloseTime = new Date().getTime();
+				document.removeEventListener("click", onDocumentClick, true);
 			}
 		};
+		document.addEventListener("click", onDocumentClick, true);
 
 		function open() {
 			document.body.appendChild(element);
 		}
 
 		function close() {
+			document.removeEventListener("click", onDocumentClick, true);
 			element.remove();
 			lastCloseTime = new Date().getTime();
 		}

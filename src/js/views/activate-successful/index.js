@@ -35,6 +35,9 @@ const useStyles = makeStyles((theme) => ({
 		maxWidth: "md",
 		margin: "0 auto",
 		textAlign: "center",
+		"@media (max-height:999px)": {
+			padding: theme.spacing(6),
+		},
 	},
 	stepsSection: {
 		padding: theme.spacing(4),
@@ -84,6 +87,7 @@ const ActivateSuccessfulView = (props) => {
 	const { t } = useTranslation();
 	const classes = useStyles();
 	const isLargeScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
+	const hasEnoughHeight = useMediaQuery("(min-height:940px)");
 
 	let hasInfo = false;
 	let downloadExtensionOrApp = "";
@@ -226,21 +230,22 @@ const ActivateSuccessfulView = (props) => {
 				)}
 			</Container>
 
-			{/* Ensure the help section remains visible at the bottom */}
-			<Box className={classes.helpSection}>
-				<Typography variant="h6">
-					{t("NEED_MORE_HELP_CHECK_OUR_DOCUMENTATION")}
-				</Typography>
-				<Button
-					variant="outlined"
-					className={classes.helpButton}
-					href="https://doc.psono.com/"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					{t("GO_TO_DOCUMENTATION")}
-				</Button>
-			</Box>
+			{hasEnoughHeight && (
+				<Box className={classes.helpSection}>
+					<Typography variant="h6">
+						{t("NEED_MORE_HELP_CHECK_OUR_DOCUMENTATION")}
+					</Typography>
+					<Button
+						variant="outlined"
+						className={classes.helpButton}
+						href="https://doc.psono.com/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{t("GO_TO_DOCUMENTATION")}
+					</Button>
+				</Box>
+			)}
 		</Box>
 	);
 };
