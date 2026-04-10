@@ -39,7 +39,7 @@
     "dompurify": "^3.3.1",
     "ecma-nacl": "^2.4.2",
     "ed25519-keygen": "^0.4.1",
-    "fast-xml-parser": "^5.5.6",
+    "fast-xml-parser": "^5.5.11",
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "i18next": "^21.4.0",
