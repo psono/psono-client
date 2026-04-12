@@ -50,6 +50,7 @@ import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import ContentCopy from "../icons/ContentCopy";
+import MarkdownNotesField from "../markdown-notes-field";
 import TextFieldColored from "../text-field/colored";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
@@ -362,6 +363,22 @@ const DialogEditEntry = (props) => {
 		(item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
 		(item.type === "file" && isValidFile) ||
 		(item.type === "elster_certificate" && isValidElsterCertificate);
+	const renderNotesField = (id, name, value, setValue) => (
+		<Grid item xs={12} sm={12} md={12}>
+			<MarkdownNotesField
+				className={classes.textField}
+				id={id}
+				label={t("NOTES")}
+				name={name}
+				onChange={(nextValue) => {
+					setDirty(true);
+					setValue(nextValue);
+				}}
+				readOnly={readOnly}
+				value={value}
+			/>
+		</Grid>
+	);
 
 	useHotkeys("alt+b", () => {
 		// copy username
@@ -2096,29 +2113,13 @@ const DialogEditEntry = (props) => {
 				renderedAttachments}
 			{item.type === "website_password" && renderAddButton}
 
-			{item.type === "website_password" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="websitePasswordNotes"
-						label={t("NOTES")}
-						name="websitePasswordNotes"
-						autoComplete="off"
-						value={websitePasswordNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setWebsitePasswordNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "website_password" &&
+				renderNotesField(
+					"websitePasswordNotes",
+					"websitePasswordNotes",
+					websitePasswordNotes,
+					setWebsitePasswordNotes,
+				)}
 
 			{item.type === "application_password" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2259,29 +2260,13 @@ const DialogEditEntry = (props) => {
 				renderedAttachments}
 			{item.type === "application_password" && renderAddButton}
 
-			{item.type === "application_password" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="applicationPasswordNotes"
-						label={t("NOTES")}
-						name="applicationPasswordNotes"
-						autoComplete="off"
-						value={applicationPasswordNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setApplicationPasswordNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "application_password" &&
+				renderNotesField(
+					"applicationPasswordNotes",
+					"applicationPasswordNotes",
+					applicationPasswordNotes,
+					setApplicationPasswordNotes,
+				)}
 
 			{item.type === "bookmark" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2359,29 +2344,13 @@ const DialogEditEntry = (props) => {
 			{item.type === "bookmark" && !hideAttachments && renderedAttachments}
 			{item.type === "bookmark" && renderAddButton}
 
-			{item.type === "bookmark" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="bookmarkNotes"
-						label={t("NOTES")}
-						name="bookmarkNotes"
-						autoComplete="off"
-						value={bookmarkNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setBookmarkNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "bookmark" &&
+				renderNotesField(
+					"bookmarkNotes",
+					"bookmarkNotes",
+					bookmarkNotes,
+					setBookmarkNotes,
+				)}
 
 			{item.type === "identity" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2605,29 +2574,13 @@ const DialogEditEntry = (props) => {
 				</Grid>
 			)}
 
-			{item.type === "identity" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="identityNotes"
-						label={t("NOTES")}
-						name="identityNotes"
-						autoComplete="off"
-						value={identityNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setIdentityNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "identity" &&
+				renderNotesField(
+					"identityNotes",
+					"identityNotes",
+					identityNotes,
+					setIdentityNotes,
+				)}
 
 			{item.type === "note" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2655,29 +2608,8 @@ const DialogEditEntry = (props) => {
 			{item.type === "note" && !hideAttachments && renderedAttachments}
 			{item.type === "note" && renderAddButton}
 
-			{item.type === "note" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="noteNotes"
-						label={t("NOTES")}
-						name="noteNotes"
-						autoComplete="off"
-						value={noteNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setNoteNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "note" &&
+				renderNotesField("noteNotes", "noteNotes", noteNotes, setNoteNotes)}
 
 			{item.type === "totp" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2721,29 +2653,8 @@ const DialogEditEntry = (props) => {
 
 			{item.type === "totp" && renderAddButton}
 
-			{item.type === "totp" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="totpNotes"
-						label={t("NOTES")}
-						name="totpNotes"
-						autoComplete="off"
-						value={totpNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setTotpNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "totp" &&
+				renderNotesField("totpNotes", "totpNotes", totpNotes, setTotpNotes)}
 
 			{item.type === "environment_variables" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -2932,29 +2843,13 @@ const DialogEditEntry = (props) => {
 
 			{item.type === "environment_variables" && renderAddButton}
 
-			{item.type === "environment_variables" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="environmentVariablesNotes"
-						label={t("NOTES")}
-						name="environmentVariablesNotes"
-						autoComplete="off"
-						value={environmentVariablesNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setEnvironmentVariablesNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "environment_variables" &&
+				renderNotesField(
+					"environmentVariablesNotes",
+					"environmentVariablesNotes",
+					environmentVariablesNotes,
+					setEnvironmentVariablesNotes,
+				)}
 
 			{item.type === "elster_certificate" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -3168,28 +3063,13 @@ const DialogEditEntry = (props) => {
 
 			{item.type === "elster_certificate" && renderAddButton}
 
-			{item.type === "elster_certificate" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="elsterCertificateNotes"
-						label={t("NOTES")}
-						name="elsterCertificateNotes"
-						autoComplete="off"
-						value={elsterCertificateNotes}
-						onChange={(event) => {
-							setDirty(true);
-							setElsterCertificateNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "elster_certificate" &&
+				renderNotesField(
+					"elsterCertificateNotes",
+					"elsterCertificateNotes",
+					elsterCertificateNotes,
+					setElsterCertificateNotes,
+				)}
 
 			{item.type === "file" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -3481,29 +3361,13 @@ const DialogEditEntry = (props) => {
 
 			{item.type === "credit_card" && renderAddButton}
 
-			{item.type === "credit_card" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="creditCardNotes"
-						label={t("NOTES")}
-						name="creditCardNotes"
-						autoComplete="off"
-						value={creditCardNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setCreditCardNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "credit_card" &&
+				renderNotesField(
+					"creditCardNotes",
+					"creditCardNotes",
+					creditCardNotes,
+					setCreditCardNotes,
+				)}
 
 			{item.type === "ssh_own_key" && (
 				<Grid item xs={12} sm={12} md={12}>
@@ -3632,29 +3496,13 @@ const DialogEditEntry = (props) => {
 
 			{item.type === "ssh_own_key" && renderAddButton}
 
-			{item.type === "ssh_own_key" && (
-				<Grid item xs={12} sm={12} md={12}>
-					<TextField
-						className={classes.textField}
-						variant="outlined"
-						margin="dense"
-						size="small"
-						id="sshOwnKeyNotes"
-						label={t("NOTES")}
-						name="sshOwnKeyNotes"
-						autoComplete="off"
-						value={sshOwnKeyNotes}
-						InputProps={{ readOnly: readOnly }}
-						onChange={(event) => {
-							setDirty(true);
-							setSshOwnKeyNotes(event.target.value);
-						}}
-						multiline
-						minRows={3}
-						maxRows={32}
-					/>
-				</Grid>
-			)}
+			{item.type === "ssh_own_key" &&
+				renderNotesField(
+					"sshOwnKeyNotes",
+					"sshOwnKeyNotes",
+					sshOwnKeyNotes,
+					setSshOwnKeyNotes,
+				)}
 
 			{item.type === "mail_gpg_own_key" && (
 				<Grid item xs={12} sm={12} md={12}>

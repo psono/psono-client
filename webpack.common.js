@@ -5,6 +5,12 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: '[name]',
   },
+  resolve: {
+    alias: {
+      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+      'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
+    },
+  },
   externals: {
     'crypto': 'crypto'
   },
