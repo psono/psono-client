@@ -1709,7 +1709,15 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		element._psonoShadowRoot = shadowRoot;
 
 		const onDocumentClick = (event) => {
-			if (event.target !== setup_event.target) {
+			const eventPath =
+				typeof event.composedPath === "function" ? event.composedPath() : [];
+			const isClickInsideDropdown =
+				event.target === setup_event.target ||
+				event.target === element ||
+				element.contains(event.target) ||
+				eventPath.includes(element);
+
+			if (!isClickInsideDropdown) {
 				// Clean up both regular dropdowns and shadow root dropdowns
 				const dropdowns = document.getElementsByClassName("psono-drop");
 				for (let i = dropdowns.length - 1; i >= 0; i--) {
