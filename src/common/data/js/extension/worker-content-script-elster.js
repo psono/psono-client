@@ -386,7 +386,15 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 		element.innerHTML = '<div class="psono-drop-content">' + content + "</div>";
 
 		const onDocumentClick = (event) => {
-			if (event.target !== setup_event.target) {
+			const eventPath =
+				typeof event.composedPath === "function" ? event.composedPath() : [];
+			const isClickInsideDropdown =
+				event.target === setup_event.target ||
+				event.target === element ||
+				element.contains(event.target) ||
+				eventPath.includes(element);
+
+			if (!isClickInsideDropdown) {
 				const dropdowns = document.getElementsByClassName("psono-drop");
 				for (let i = dropdowns.length - 1; i >= 0; i--) {
 					dropdowns[i].remove();
