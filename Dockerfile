@@ -1,4 +1,4 @@
-FROM psono-docker.jfrog.io/nginx:alpine
+FROM nginx:alpine
 
 LABEL maintainer="Sascha Pfeiffer <sascha.pfeiffer@psono.com>"
 

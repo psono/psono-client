@@ -54,16 +54,16 @@ def main():
             params=params,
             timeout=REQUEST_TIMEOUT
         )
-            response.raise_for_status()
+        response.raise_for_status()
 
-            upload_result = response.json()
-            operation_id = upload_result.get('operationId')
+        upload_result = response.json()
+        operation_id = upload_result.get('operationId')
 
-            if operation_id:
-                print(f"Extension upload successful! Operation ID: {operation_id}")
-            else:
-                print("Error: 'operationId' not found in the upload response.")
-                print("Full response:", json.dumps(upload_result, indent=2))
+        if operation_id:
+            print(f"Extension upload successful! Operation ID: {operation_id}")
+        else:
+            print("Error: 'operationId' not found in the upload response.")
+            print("Full response:", json.dumps(upload_result, indent=2))
 
     except requests.exceptions.HTTPError as e:
         print(f"HTTP Error during upload: {e}")
