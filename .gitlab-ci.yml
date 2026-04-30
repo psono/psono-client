@@ -208,229 +208,229 @@ build-chrome-extension:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-build-electron-linux:
-  except:
-    - schedules
-  stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  script:
-    - apt-get update && apt-get install -y curl rpm
-    - sh ./var/download_translations_from_artifactory.sh
-    - sh ./var/prep-build.sh
-    - apt-get install -y rpm
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../dist/* ./
-  artifacts:
-    name: "electron_linux_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-build-electron-macos:
-  except:
-    - schedules
-  stage: build
-  variables:
-    CSC_KEYCHAIN: build.keychain
-  script:
-    - sh ./var/download_translations_from_artifactory.sh
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm install appdmg@0.6.6
-    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
-    - sha256sum certificate.p12
-    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
-    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
-    - security create-keychain -p temp_password build.keychain
-    - security list-keychains -s build.keychain
-    - security default-keychain -s build.keychain
-    - security unlock-keychain -p temp_password build.keychain
-    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
-    - |-
-      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
-    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
-    - security find-identity -p codesigning
-    - security find-identity -p codesigning -v
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../dist/* ./
-  artifacts:
-    name: "electron_macos_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  tags:
-    - saas-macos-medium-m1
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-build-electron-windows:
-  except:
-    - schedules
-  stage: build
-  script:
-    - .\var\download_translations_from_artifactory.ps1
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -r -force ./*
-    - mv ../dist/* ./
-    - rm -r -force ../dist
-  artifacts:
-    name: "electron_windows_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  tags:
-    - saas-windows-medium-amd64
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-release-electron-jfrog:
-  except:
-    - schedules
-  stage: release
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  dependencies:
-    - build-electron-linux
-    - build-electron-macos
-    - build-electron-windows
-  script:
-    - apt-get update && apt-get install -y curl
-    - mkdir upload
-    - ls
-    - mv *.rpm ./upload/psono.x86_64.rpm
-    - mv *.deb ./upload/psono.amd64.deb
-    - mv *.AppImage ./upload/psono.x86_64.AppImage
-    - mv "Psono Setup"*.exe ./upload/psono.x86_64.exe
-    - mv Psono-*-arm64.dmg ./upload/psono.arm64.dmg
-    - mv Psono-*.dmg ./upload/psono.x64.dmg
-    - ls ./upload/
-    - curl -fL https://getcli.jfrog.io | sh
-    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.rpm psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.amd64.deb psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.AppImage psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.exe psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.arm64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-deploy-electron-linux:
-  except:
-    - schedules
-  stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  script:
-    - apt-get update && apt-get install -y curl rpm
-    - sh ./var/download_translations_from_artifactory.sh
-    - sh ./var/prep-build.sh
-    - apt-get install -y rpm
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run publish
-    - cd ../..
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-deploy-electron-macos:
-  except:
-    - schedules
-  stage: deploy
-  variables:
-    CSC_KEYCHAIN: build.keychain
-  script:
-    - sh ./var/download_translations_from_artifactory.sh
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm install appdmg@0.6.6
-    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
-    - sha256sum certificate.p12
-    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
-    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
-    - security create-keychain -p temp_password build.keychain
-    - security list-keychains -s build.keychain
-    - security default-keychain -s build.keychain
-    - security unlock-keychain -p temp_password build.keychain
-    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
-    - |-
-      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
-    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
-    - security find-identity -p codesigning
-    - security find-identity -p codesigning -v
-    - npm run publish
-    - cd ../..
-  tags:
-    - saas-macos-medium-m1
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-
-deploy-electron-windows:
-  except:
-    - schedules
-  stage: deploy
-  script:
-    - .\var\download_translations_from_artifactory.ps1
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run publish
-    - cd ../..
-  allow_failure: true
-  tags:
-    - saas-windows-medium-amd64
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#build-electron-linux:
+#  except:
+#    - schedules
+#  stage: build
+#  image: psono-docker.jfrog.io/ubuntu:22.04
+#  script:
+#    - apt-get update && apt-get install -y curl rpm
+#    - sh ./var/download_translations_from_artifactory.sh
+#    - sh ./var/prep-build.sh
+#    - apt-get install -y rpm
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm run build
+#    - cd ../..
+#    - mv ./src/electron/dist ../
+#    - rm -Rf *
+#    - rm -Rf .* 2> /dev/null || true
+#    - mv ../dist/* ./
+#  artifacts:
+#    name: "electron_linux_$CI_COMMIT_REF_NAME"
+#    paths:
+#      - ./*
+#    expire_in: 1 week
+#  only:
+#    - develop@esaqa/psono/psono-client
+#    - master@esaqa/psono/psono-client
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#build-electron-macos:
+#  except:
+#    - schedules
+#  stage: build
+#  variables:
+#    CSC_KEYCHAIN: build.keychain
+#  script:
+#    - sh ./var/download_translations_from_artifactory.sh
+#    - npm ci
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm install appdmg@0.6.6
+#    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
+#    - sha256sum certificate.p12
+#    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
+#    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
+#    - security create-keychain -p temp_password build.keychain
+#    - security list-keychains -s build.keychain
+#    - security default-keychain -s build.keychain
+#    - security unlock-keychain -p temp_password build.keychain
+#    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
+#    - |-
+#      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
+#    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
+#    - security find-identity -p codesigning
+#    - security find-identity -p codesigning -v
+#    - npm run build
+#    - cd ../..
+#    - mv ./src/electron/dist ../
+#    - rm -Rf *
+#    - rm -Rf .* 2> /dev/null || true
+#    - mv ../dist/* ./
+#  artifacts:
+#    name: "electron_macos_$CI_COMMIT_REF_NAME"
+#    paths:
+#      - ./*
+#    expire_in: 1 week
+#  tags:
+#    - saas-macos-medium-m1
+#  only:
+#    - develop@esaqa/psono/psono-client
+#    - master@esaqa/psono/psono-client
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#build-electron-windows:
+#  except:
+#    - schedules
+#  stage: build
+#  script:
+#    - .\var\download_translations_from_artifactory.ps1
+#    - npm ci
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm run build
+#    - cd ../..
+#    - mv ./src/electron/dist ../
+#    - rm -r -force ./*
+#    - mv ../dist/* ./
+#    - rm -r -force ../dist
+#  artifacts:
+#    name: "electron_windows_$CI_COMMIT_REF_NAME"
+#    paths:
+#      - ./*
+#    expire_in: 1 week
+#  tags:
+#    - saas-windows-medium-amd64
+#  only:
+#    - develop@esaqa/psono/psono-client
+#    - master@esaqa/psono/psono-client
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#release-electron-jfrog:
+#  except:
+#    - schedules
+#  stage: release
+#  image: psono-docker.jfrog.io/ubuntu:22.04
+#  dependencies:
+#    - build-electron-linux
+#    - build-electron-macos
+#    - build-electron-windows
+#  script:
+#    - apt-get update && apt-get install -y curl
+#    - mkdir upload
+#    - ls
+#    - mv *.rpm ./upload/psono.x86_64.rpm
+#    - mv *.deb ./upload/psono.amd64.deb
+#    - mv *.AppImage ./upload/psono.x86_64.AppImage
+#    - mv "Psono Setup"*.exe ./upload/psono.x86_64.exe
+#    - mv Psono-*-arm64.dmg ./upload/psono.arm64.dmg
+#    - mv Psono-*.dmg ./upload/psono.x64.dmg
+#    - ls ./upload/
+#    - curl -fL https://getcli.jfrog.io | sh
+#    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.rpm psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.amd64.deb psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.AppImage psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.exe psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.arm64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg
+#    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
+#  only:
+#    - develop@esaqa/psono/psono-client
+#    - master@esaqa/psono/psono-client
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#deploy-electron-linux:
+#  except:
+#    - schedules
+#  stage: deploy
+#  image: psono-docker.jfrog.io/ubuntu:22.04
+#  script:
+#    - apt-get update && apt-get install -y curl rpm
+#    - sh ./var/download_translations_from_artifactory.sh
+#    - sh ./var/prep-build.sh
+#    - apt-get install -y rpm
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm run publish
+#    - cd ../..
+#  only:
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#deploy-electron-macos:
+#  except:
+#    - schedules
+#  stage: deploy
+#  variables:
+#    CSC_KEYCHAIN: build.keychain
+#  script:
+#    - sh ./var/download_translations_from_artifactory.sh
+#    - npm ci
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm install appdmg@0.6.6
+#    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
+#    - sha256sum certificate.p12
+#    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
+#    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
+#    - security create-keychain -p temp_password build.keychain
+#    - security list-keychains -s build.keychain
+#    - security default-keychain -s build.keychain
+#    - security unlock-keychain -p temp_password build.keychain
+#    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
+#    - |-
+#      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
+#    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
+#    - security find-identity -p codesigning
+#    - security find-identity -p codesigning -v
+#    - npm run publish
+#    - cd ../..
+#  tags:
+#    - saas-macos-medium-m1
+#  only:
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+#
+#
+#deploy-electron-windows:
+#  except:
+#    - schedules
+#  stage: deploy
+#  script:
+#    - .\var\download_translations_from_artifactory.ps1
+#    - npm ci
+#    - npm run buildelectron
+#    - mkdir -p src/electron/src
+#    - cp -R build/electron/* src/electron/src
+#    - cd src/electron/
+#    - npm ci
+#    - npm run publish
+#    - cd ../..
+#  allow_failure: true
+#  tags:
+#    - saas-windows-medium-amd64
+#  only:
+#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
 build-webclient:
