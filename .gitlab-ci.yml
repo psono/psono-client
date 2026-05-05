@@ -1,20 +1,17 @@
 variables:
   CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  CONTAINER_TEST_IMAGE_JFROG: psono-docker.jfrog.io/psono/psono-client:$CI_COMMIT_REF_NAME
-  CONTAINER_LATEST_IMAGE_JFROG: psono-docker.jfrog.io/psono/psono-client:latest
 
 stages:
   - translate
   - test
   - build
-  - release
   - deploy
 
 create-translations:
   except:
     - schedules
   stage: translate
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update && apt-get install -y python3 python3-pip
     - pip3 install requests openai==1.55.3
@@ -26,7 +23,7 @@ test-unittests:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
     - npm run test
@@ -42,7 +39,7 @@ test-linter:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
@@ -56,7 +53,7 @@ test-vulnerability-scan:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update
     - apt-get install -y ca-certificates curl gnupg
@@ -73,11 +70,10 @@ test-vulnerability-scan:
 
 test-upload-translations:
   stage: test
-  image: psono-docker.jfrog.io/python:3
+  image: python:3
   script:
     - pip install requests
     - python3 var/upload_translations.py
-    - python3 var/sync_translations_to_artifactory.py
   only:
     - develop@esaqa/psono/psono-client
 
@@ -85,7 +81,7 @@ build-docker-image:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   services:
     - name: docker:25-dind
       alias: docker
@@ -96,7 +92,6 @@ build-docker-image:
     DOCKER_TLS_CERTDIR: ""
   script:
     - apt-get update && apt-get install -y curl iptables libdevmapper1.02.1
-    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
     - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.6.28-1_amd64.deb" -o containerd.deb && echo "3fcc3e44e6d507c346ae05bbaef8f4bb04dfa8da9f04af658537f7e373c91340 containerd.deb" | sha256sum -c -
@@ -120,26 +115,15 @@ build-sbom:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update && apt-get install -y curl
     - sh ./var/prep-build.sh
     - npx @cyclonedx/cyclonedx-npm > sbom.json
-    - >
-      if [ ! -z "$artifactory_credentials" ]; then
-        curl -fL https://getcli.jfrog.io | sh &&
-        ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false &&
-        ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./sbom.json psono/client/$CI_COMMIT_REF_NAME/client-sbom.json &&
-        ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/client-sbom.json" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-      fi
-    - mv ./sbom.json ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../sbom.json ./
   artifacts:
     name: "sbom_$CI_COMMIT_REF_NAME"
     paths:
-      - ./*
+      - sbom.json
   only:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
@@ -149,29 +133,19 @@ build-firefox-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update && apt-get install -y curl
-    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
     - npm run buildfirefox
     - sh ./var/package-firefox-extension.sh
-    - >
-      if [ ! -z "$artifactory_credentials" ]; then
-        curl -fL https://getcli.jfrog.io | sh &&
-        ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false &&
-        ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/esaqa/psono/psono-client/dist/firefox/psono.firefox.PW.zip psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip &&
-        ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-      fi
-    - mv /builds/esaqa/psono/psono-client/build/firefox ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../firefox/* ./
+    - cp dist/firefox/psono.firefox.PW.zip firefox-extension.zip
   artifacts:
     name: "firefox_$CI_COMMIT_REF_NAME"
     paths:
-      - ./*
+      - firefox-extension.zip
+      - build/firefox/
   only:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
@@ -181,357 +155,49 @@ build-chrome-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update && apt-get install -y curl
-    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
     - npm run buildchrome
     - sh ./var/package-chrome-extension.sh
-    - >
-      if [ ! -z "$artifactory_credentials" ]; then
-        curl -fL https://getcli.jfrog.io | sh &&
-        ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false &&
-        ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/esaqa/psono/psono-client/dist/chrome/psono.chrome.PW.zip psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip &&
-        ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-      fi
-    - mv /builds/esaqa/psono/psono-client/build/chrome ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../chrome/* ./
+    - cp dist/chrome/psono.chrome.PW.zip chrome-extension.zip
   artifacts:
     name: "chrome_$CI_COMMIT_REF_NAME"
     paths:
-      - ./*
+      - chrome-extension.zip
+      - build/chrome/
   only:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-build-electron-linux:
-  except:
-    - schedules
-  stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  script:
-    - apt-get update && apt-get install -y curl rpm
-    - sh ./var/download_translations_from_artifactory.sh
-    - sh ./var/prep-build.sh
-    - apt-get install -y rpm
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../dist/* ./
-  artifacts:
-    name: "electron_linux_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-build-electron-macos:
-  except:
-    - schedules
-  stage: build
-  variables:
-    CSC_KEYCHAIN: build.keychain
-  script:
-    - sh ./var/download_translations_from_artifactory.sh
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm install appdmg@0.6.6
-    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
-    - sha256sum certificate.p12
-    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
-    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
-    - security create-keychain -p temp_password build.keychain
-    - security list-keychains -s build.keychain
-    - security default-keychain -s build.keychain
-    - security unlock-keychain -p temp_password build.keychain
-    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
-    - |-
-      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
-    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
-    - security find-identity -p codesigning
-    - security find-identity -p codesigning -v
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../dist/* ./
-  artifacts:
-    name: "electron_macos_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  tags:
-    - saas-macos-medium-m1
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-build-electron-windows:
-  except:
-    - schedules
-  stage: build
-  script:
-    - .\var\download_translations_from_artifactory.ps1
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run build
-    - cd ../..
-    - mv ./src/electron/dist ../
-    - rm -r -force ./*
-    - mv ../dist/* ./
-    - rm -r -force ../dist
-  artifacts:
-    name: "electron_windows_$CI_COMMIT_REF_NAME"
-    paths:
-      - ./*
-    expire_in: 1 week
-  tags:
-    - saas-windows-medium-amd64
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-release-electron-jfrog:
-  except:
-    - schedules
-  stage: release
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  dependencies:
-    - build-electron-linux
-    - build-electron-macos
-    - build-electron-windows
-  script:
-    - apt-get update && apt-get install -y curl
-    - mkdir upload
-    - ls
-    - mv *.rpm ./upload/psono.x86_64.rpm
-    - mv *.deb ./upload/psono.amd64.deb
-    - mv *.AppImage ./upload/psono.x86_64.AppImage
-    - mv "Psono Setup"*.exe ./upload/psono.x86_64.exe
-    - mv Psono-*-arm64.dmg ./upload/psono.arm64.dmg
-    - mv Psono-*.dmg ./upload/psono.x64.dmg
-    - ls ./upload/
-    - curl -fL https://getcli.jfrog.io | sh
-    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.rpm psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.amd64.deb psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.AppImage psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.AppImage" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x86_64.exe psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.x64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.x64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-    - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.arm64.dmg psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg
-    - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.arm64.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-deploy-electron-linux:
-  except:
-    - schedules
-  stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  script:
-    - apt-get update && apt-get install -y curl rpm
-    - sh ./var/download_translations_from_artifactory.sh
-    - sh ./var/prep-build.sh
-    - apt-get install -y rpm
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run publish
-    - cd ../..
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-deploy-electron-macos:
-  except:
-    - schedules
-  stage: deploy
-  variables:
-    CSC_KEYCHAIN: build.keychain
-  script:
-    - sh ./var/download_translations_from_artifactory.sh
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm install appdmg@0.6.6
-    - echo "$APPLE_CERTIFICATE_P12" | base64 -d > certificate.p12
-    - sha256sum certificate.p12
-    - echo -n "$APPLE_CERTIFICATE_P12_PASSWORD" | sha256sum
-    - curl -fL -o DeveloperIDG2CA.cer "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer"
-    - security create-keychain -p temp_password build.keychain
-    - security list-keychains -s build.keychain
-    - security default-keychain -s build.keychain
-    - security unlock-keychain -p temp_password build.keychain
-    - security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_P12_PASSWORD" -T /usr/bin/codesign
-    - |-
-      security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password build.keychain
-    - security add-certificates -k build.keychain "DeveloperIDG2CA.cer"
-    - security find-identity -p codesigning
-    - security find-identity -p codesigning -v
-    - npm run publish
-    - cd ../..
-  tags:
-    - saas-macos-medium-m1
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-
-deploy-electron-windows:
-  except:
-    - schedules
-  stage: deploy
-  script:
-    - .\var\download_translations_from_artifactory.ps1
-    - npm ci
-    - npm run buildelectron
-    - mkdir -p src/electron/src
-    - cp -R build/electron/* src/electron/src
-    - cd src/electron/
-    - npm ci
-    - npm run publish
-    - cd ../..
-  allow_failure: true
-  tags:
-    - saas-windows-medium-amd64
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
 
 build-webclient:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   script:
     - apt-get update && apt-get install -y curl
-    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
     - sh ./var/package-webclient.sh
-    - >
-      if [ ! -z "$artifactory_credentials" ]; then
-        curl -fL https://getcli.jfrog.io | sh &&
-        ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false &&
-        ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/esaqa/psono/psono-client/dist/webclient/psono.webclient.PW.zip psono/client/$CI_COMMIT_REF_NAME/webclient.zip &&
-        ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/webclient.zip" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-      fi
-    - mv /builds/esaqa/psono/psono-client/build/webclient ../
-    - rm -Rf *
-    - rm -Rf .* 2> /dev/null || true
-    - mv ../webclient/* ./
+    - cp dist/webclient/psono.webclient.PW.zip webclient.zip
   artifacts:
     name: "webclient_$CI_COMMIT_REF_NAME"
     paths:
-      - ./*
+      - webclient.zip
+      - build/webclient/
   only:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-release-artifacts:
-  except:
-    - schedules
-  stage: release
-  image: psono-docker.jfrog.io/ubuntu:22.04
-  script:
-    - apt-get update
-    - apt-get install -y curl
-    - curl -fL https://getcli.jfrog.io | sh
-    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
-    - ./jfrog rt cp --flat psono/client/$CI_COMMIT_REF_NAME/client-sbom.json psono/client/latest/
-    - ./jfrog rt cp --flat psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip psono/client/latest/
-    - ./jfrog rt cp --flat psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip psono/client/latest/
-    - ./jfrog rt cp --flat psono/client/$CI_COMMIT_REF_NAME/webclient.zip psono/client/latest/
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-
-release-docker-jfrog:
-  except:
-    - schedules
-  stage: release
-  image: psono-docker.jfrog.io/docker:25.0.3-git
-  services:
-    - name: docker:25-dind
-      alias: docker
-      command: ["--tls=false"]
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - apk add skopeo
-    - docker info
-    - echo $CI_JOB_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
-    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - skopeo copy --all docker://$CONTAINER_TEST_IMAGE docker://$CONTAINER_TEST_IMAGE_JFROG
-  only:
-    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
-
-release-docker:
-  except:
-    - schedules
-  stage: release
-  image: psono-docker.jfrog.io/docker:25.0.3-git
-  services:
-    - name: docker:25-dind
-      alias: docker
-      command: ["--tls=false"]
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - apk add skopeo
-    - docker info
-    - echo $CI_JOB_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
-    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - skopeo copy --all docker://$CONTAINER_TEST_IMAGE docker://$CONTAINER_LATEST_IMAGE_JFROG
-  only:
-    - develop@esaqa/psono/psono-client
-    - master@esaqa/psono/psono-client
 
 deploy-docker:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:25.0.3-git
+  image: docker:25.0.3-git
+  dependencies: []
   services:
     - name: docker:25-dind
       alias: docker
@@ -555,7 +221,8 @@ deploy-github:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:25.0.3-git
+  image: docker:25.0.3-git
+  dependencies: []
   services:
     - name: docker:25-dind
       alias: docker
@@ -577,11 +244,11 @@ deploy-chrome:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
+  dependencies:
+    - build-chrome-extension
   script:
     - sh ./var/prep-build.sh
-    - node var/update_public_suffix_list.js
-    - npm run buildchrome
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
@@ -594,13 +261,11 @@ deploy-edge:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/python:3.11-buster
+  image: python:3.11-buster
+  dependencies:
+    - build-chrome-extension
   script:
-    - cd /builds/esaqa/psono/psono-client/
-    - curl -fL https://getcli.jfrog.io | sh
-    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --overwrite
-    - ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip
-    - mv client/$CI_COMMIT_REF_NAME/chrome-extension.zip ./edge-extension.zip
+    - mv chrome-extension.zip edge-extension.zip
     - pip install requests
     - python3 var/deploy_edge_extension.py
   environment:
@@ -614,14 +279,14 @@ deploy-firefox:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
+  dependencies:
+    - build-firefox-extension
   script:
     - apt-get update && apt-get install -y zip
-    - zip -r ../source.zip ./
+    - zip -r ../source.zip ./ -x firefox-extension.zip -x ./firefox-extension.zip -x "build/*" -x "./build/*" -x "dist/*" -x "./dist/*"
     - mv ../source.zip ./
     - sh ./var/prep-build.sh
-    - node var/update_public_suffix_list.js
-    - npm run buildfirefox
     - sh ./var/deploy-firefox-extension.sh
   environment:
     name: firefox-webstore
@@ -633,7 +298,8 @@ deploy-changelog:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
+  dependencies: []
   script:
     - sh ./var/deploy_changelog.sh
   environment:
@@ -647,9 +313,12 @@ deploy-nightlyartifacts:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   dependencies:
     - build-sbom
+    - build-firefox-extension
+    - build-chrome-extension
+    - build-webclient
   script:
     - sh ./var/deploy_nightlyartifacts.sh
   environment:
@@ -663,9 +332,12 @@ deploy-releaseartifacts:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:22.04
+  image: ubuntu:22.04
   dependencies:
     - build-sbom
+    - build-firefox-extension
+    - build-chrome-extension
+    - build-webclient
   script:
     - sh ./var/deploy_releaseartifacts.sh
   environment:

@@ -7,9 +7,7 @@ import helperService from "./helper";
 const { XMLParser } = require("fast-xml-parser");
 
 function unescapeValue(value) {
-	if (typeof value === "number") {
-		value = value.toString();
-	}
+	value = value.toString();
 	value = value.replace(/&lt;/g, "<");
 	value = value.replace(/&gt;/g, ">");
 	value = value.replace(/&amp;/g, "&");
@@ -147,8 +145,8 @@ function gatherSecrets(datastore, secrets, xml) {
  * @returns {object} The array of arrays representing the XML
  */
 function parseXml(xmlString) {
-	const parser = new XMLParser();
-	const parsedXml = parser.parse(xmlString, { parseNodeValue: false });
+	const parser = new XMLParser({ parseTagValue: false });
+	const parsedXml = parser.parse(xmlString);
 	if (
 		!Object.hasOwn(parsedXml, "KeePassFile") ||
 		!Object.hasOwn(parsedXml["KeePassFile"], "Root") ||

@@ -8,5 +8,4 @@ apt-get update && \
 apt-get install -y nodejs && \
 node --version && \
 npm --version && \
-npm ci && \
-npm install -g node-poeditor
+npm ci
