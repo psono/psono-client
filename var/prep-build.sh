@@ -8,4 +8,4 @@ apt-get update && \
 apt-get install -y nodejs && \
 node --version && \
 npm --version && \
-npm ci
+npm ci --ignore-scripts --before="$(date -u -d '7 days ago' '+%Y-%m-%dT%H:%M:%SZ')"
