@@ -174,6 +174,11 @@ const DatastoreTreeItem = (props) => {
 		secretService.copyPassword(content);
 	};
 
+	const onCopyUrl = (event) => {
+		handleClose(event);
+		secretService.copyUrl(content);
+	};
+
 	const onEdit = (event) => {
 		handleClose(event);
 		props.onEditEntry(content, content.path, props.nodePath);
@@ -249,6 +254,11 @@ const DatastoreTreeItem = (props) => {
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
 		!["website_password", "application_password"].includes(content["type"]);
+	const hideCopyUrl =
+		(Object.hasOwn(content, "share_rights") &&
+			content.share_rights.read !== true) ||
+		!Object.hasOwn(content, "type") ||
+		!["website_password", "bookmark"].includes(content["type"]);
 	const hideEdit =
 		offline ||
 		(Object.hasOwn(content, "share_rights") &&
@@ -284,6 +294,7 @@ const DatastoreTreeItem = (props) => {
 		hideCopyTotpToken &&
 		hideCopyUsername &&
 		hideCopyPassword &&
+		hideCopyUrl &&
 		hideEdit &&
 		hideShow &&
 		hideClone &&
@@ -439,11 +450,22 @@ const DatastoreTreeItem = (props) => {
 						</Typography>
 					</MenuItem>
 				)}
+				{!hideCopyUrl && (
+					<MenuItem onClick={onCopyUrl}>
+						<ListItemIcon className={classes.listItemIcon}>
+							<ContentCopy className={classes.icon} fontSize="small" />
+						</ListItemIcon>
+						<Typography variant="body2" noWrap>
+							{t("COPY_URL")}
+						</Typography>
+					</MenuItem>
+				)}
 				{(!hideShare ||
 					!hideLinkShare ||
 					!hideCopyTotpToken ||
 					!hideCopyUsername ||
-					!hideCopyPassword) && <Divider className={classes.divider} />}
+					!hideCopyPassword ||
+					!hideCopyUrl) && <Divider className={classes.divider} />}
 				{!hideEdit && (
 					<MenuItem onClick={onEdit}>
 						<ListItemIcon className={classes.listItemIcon}>
@@ -565,11 +587,22 @@ const DatastoreTreeItem = (props) => {
 						</Typography>
 					</MenuItem>
 				)}
+				{!hideCopyUrl && (
+					<MenuItem onClick={onCopyUrl}>
+						<ListItemIcon className={classes.listItemIcon}>
+							<ContentCopy className={classes.icon} fontSize="small" />
+						</ListItemIcon>
+						<Typography variant="body2" noWrap>
+							{t("COPY_URL")}
+						</Typography>
+					</MenuItem>
+				)}
 				{(!hideShare ||
 					!hideLinkShare ||
 					!hideCopyTotpToken ||
 					!hideCopyUsername ||
-					!hideCopyPassword) && <Divider className={classes.divider} />}
+					!hideCopyPassword ||
+					!hideCopyUrl) && <Divider className={classes.divider} />}
 				{!hideEdit && (
 					<MenuItem onClick={onEdit}>
 						<ListItemIcon className={classes.listItemIcon}>
