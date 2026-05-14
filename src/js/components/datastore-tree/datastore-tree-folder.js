@@ -166,7 +166,7 @@ const DatastoreTreeFolder = (props) => {
 
 	const selectNode = (event) => {
 		event.stopPropagation();
-		props.onUpdateExpandFolderProperty(content.id);
+		props.onUpdateExpandFolderProperty(content.id, isExpanded);
 		if (props.onSelectNode && isSelectable) {
 			props.onSelectNode(content, content.path, nodePath);
 		}

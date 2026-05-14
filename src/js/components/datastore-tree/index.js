@@ -19,6 +19,63 @@ import deviceService from "../../services/device";
 import offlineCache from "../../services/offline-cache";
 import DatastoreTreeVirtualElement from "./datastore-tree-virtual-element";
 
+const FOLDER_EXPANSION_STORAGE_KEY_PREFIX =
+	"psono:datastore-tree:folder-expansion";
+
+const getFolderExpansionStorageKey = (datastore, datastoreContext) => {
+	const datastoreId = datastore.datastore_id || datastore.id || "default";
+
+	return `${FOLDER_EXPANSION_STORAGE_KEY_PREFIX}:${datastoreContext}:${datastoreId}`;
+};
+
+const getLocalStorage = () => {
+	if (typeof window === "undefined") {
+		return null;
+	}
+
+	try {
+		return window.localStorage;
+	} catch (e) {
+		return null;
+	}
+};
+
+const readFolderExpansionState = (storageKey) => {
+	const localStorage = getLocalStorage();
+
+	if (!localStorage) {
+		return {};
+	}
+
+	try {
+		const folderExpansionState = JSON.parse(
+			localStorage.getItem(storageKey) || "{}",
+		);
+
+		return folderExpansionState &&
+			typeof folderExpansionState === "object" &&
+			!Array.isArray(folderExpansionState)
+			? folderExpansionState
+			: {};
+	} catch (e) {
+		return {};
+	}
+};
+
+const writeFolderExpansionState = (storageKey, folderExpansionState) => {
+	const localStorage = getLocalStorage();
+
+	if (!localStorage) {
+		return;
+	}
+
+	try {
+		localStorage.setItem(storageKey, JSON.stringify(folderExpansionState));
+	} catch (e) {
+		// Ignore unavailable localStorage, e.g. private browsing quota errors.
+	}
+};
+
 const useStyles = makeStyles((theme) => ({
 	fullWidth: {
 		width: "100%",
@@ -95,16 +152,27 @@ const DatastoreTree = (props) => {
 	const { t } = useTranslation();
 	const history = useHistory();
 	const offline = offlineCache.isActive();
+	const folderExpansionStorageKey = getFolderExpansionStorageKey(
+		datastore,
+		props.datastoreContext,
+	);
+	const [folderExpansionState, setFolderExpansionState] = React.useState(() =>
+		readFolderExpansionState(folderExpansionStorageKey),
+	);
 
 	const getIsExpandedFolder = (folder) => {
 		if (folder.datastore_id) return true;
 
-		return folder.expanded_temporary
-			? typeof folder.expanded === "undefined"
-				? true
-				: folder.expanded
-			: folder.expanded;
+		if (folder.expanded_temporary) return true;
+
+		return folderExpansionState[folder.id] === true;
 	};
+
+	React.useEffect(() => {
+		setFolderExpansionState(
+			readFolderExpansionState(folderExpansionStorageKey),
+		);
+	}, [folderExpansionStorageKey]);
 
 	React.useEffect(() => {
 		const updatedDatastore =
@@ -206,34 +274,20 @@ const DatastoreTree = (props) => {
 		return acc;
 	};
 
-	const updateExpandFolderProperty = (id, folder) => {
-		if (folder.id === id) {
-			const isExpanded = getIsExpandedFolder(folder);
-
-			return {
-				...folder,
-				expanded: !isExpanded,
+	const onUpdateExpandFolderProperty = (id, isExpanded) => {
+		setFolderExpansionState((currentFolderExpansionState) => {
+			const updatedFolderExpansionState = {
+				...currentFolderExpansionState,
+				[id]: !isExpanded,
 			};
-		}
 
-		if (folder.folders) {
-			const updatedFolders = folder.folders.map((item) => {
-				return updateExpandFolderProperty(id, item);
-			});
+			writeFolderExpansionState(
+				folderExpansionStorageKey,
+				updatedFolderExpansionState,
+			);
 
-			return {
-				...folder,
-				folders: updatedFolders,
-			};
-		}
-
-		return folder;
-	};
-
-	const onUpdateExpandFolderProperty = (id) => {
-		const updatedDatastore = updateExpandFolderProperty(id, datastore);
-
-		setDatastore(updatedDatastore);
+			return updatedFolderExpansionState;
+		});
 	};
 
 	const datastoreItems = formatDatastoreItems(datastore, [], true, [], []);
