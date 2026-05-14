@@ -83,6 +83,10 @@ const useStyles = makeStyles((theme) => ({
 	icon: {
 		fontSize: "18px",
 	},
+	iconCheckbox: {
+		fontSize: "14px",
+		marginRight: "4px",
+	},
 	listItemIcon: {
 		minWidth: theme.spacing(4),
 	},
@@ -166,6 +170,10 @@ const DatastoreTreeFolder = (props) => {
 
 	const selectNode = (event) => {
 		event.stopPropagation();
+		if (props.allowMultiselect && props.onSelectItem && isSelectable) {
+			props.onSelectItem(content, content.path);
+			return;
+		}
 		props.onUpdateExpandFolderProperty(content.id, isExpanded);
 		if (props.onSelectNode && isSelectable) {
 			props.onSelectNode(content, content.path, nodePath);
@@ -273,6 +281,14 @@ const DatastoreTreeFolder = (props) => {
 								/>
 							)}
 						</span>
+						{props.allowMultiselect && props.isSelected(content) && (
+							<i
+								className={"fa fa-check-square-o" + " " + classes.iconCheckbox}
+							/>
+						)}
+						{props.allowMultiselect && !props.isSelected(content) && (
+							<i className={"fa fa-square-o" + " " + classes.iconCheckbox} />
+						)}
 						<span className={classes.treeFolderName}>{content.name}</span>
 					</div>
 					<ButtonGroup
