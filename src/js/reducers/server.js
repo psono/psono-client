@@ -30,6 +30,7 @@ const defaultComplianceDisableExportOfSharedItems = false;
 const defaultComplianceDisableUnmanagedGroups = false;
 const defaultComplianceDisableFileRepositories = false;
 const defaultComplianceDisableLinkShares = false;
+const defaultComplianceDisableMultiplePasswordDatastores = false;
 const defaultComplianceDisableOfflineMode = false;
 const defaultComplianceMaxOfflineCacheTimeValid = 31536000;
 const defaultComplianceDisableShares = false;
@@ -107,6 +108,8 @@ function server(
 		complianceDisableUnmanagedGroups: defaultComplianceDisableUnmanagedGroups,
 		complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
 		complianceDisableLinkShares: defaultComplianceDisableLinkShares,
+		complianceDisableMultiplePasswordDatastores:
+			defaultComplianceDisableMultiplePasswordDatastores,
 		complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
 		complianceMaxOfflineCacheTimeValid:
 			defaultComplianceMaxOfflineCacheTimeValid,
@@ -188,6 +191,8 @@ function server(
 				complianceDisableFileRepositories:
 					defaultComplianceDisableFileRepositories,
 				complianceDisableLinkShares: defaultComplianceDisableLinkShares,
+				complianceDisableMultiplePasswordDatastores:
+					defaultComplianceDisableMultiplePasswordDatastores,
 				complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
 				complianceMaxOfflineCacheTimeValid:
 					defaultComplianceMaxOfflineCacheTimeValid,
@@ -271,6 +276,11 @@ function server(
 				complianceDisableFileRepositories:
 					action.info.compliance_disable_file_repositories,
 				complianceDisableLinkShares: action.info.compliance_disable_link_shares,
+				complianceDisableMultiplePasswordDatastores:
+					typeof action.info.compliance_disable_multiple_password_datastores ===
+					"undefined"
+						? defaultComplianceDisableMultiplePasswordDatastores
+						: action.info.compliance_disable_multiple_password_datastores,
 				complianceDisableOfflineMode:
 					action.info.compliance_disable_offline_mode,
 				complianceMaxOfflineCacheTimeValid:
@@ -435,6 +445,15 @@ function server(
 			if (Object.hasOwn(action.policy, "compliance_disable_link_shares")) {
 				data["complianceDisableLinkShares"] =
 					action.policy.compliance_disable_link_shares;
+			}
+			if (
+				Object.hasOwn(
+					action.policy,
+					"compliance_disable_multiple_password_datastores",
+				)
+			) {
+				data["complianceDisableMultiplePasswordDatastores"] =
+					action.policy.compliance_disable_multiple_password_datastores;
 			}
 			if (Object.hasOwn(action.policy, "compliance_disable_offline_mode")) {
 				data["complianceDisableOfflineMode"] =
