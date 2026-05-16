@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import datastorePassword from "../../services/datastore-password";
 import shareService from "../../services/share";
+import statusService from "../../services/status";
 import widget from "../../services/widget";
 import DatastoreTree from "../datastore-tree";
 import Search from "../search";
@@ -156,6 +157,7 @@ const DialogAcceptShare = (props) => {
 				const shares = [share];
 
 				const onSuccess = () => {
+					statusService.getStatus(true);
 					onClose();
 				};
 				const onError = (data) => {

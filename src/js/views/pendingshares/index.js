@@ -14,6 +14,7 @@ import Table from "../../components/table";
 import format from "../../services/date";
 import itemBlueprintService from "../../services/item-blueprint";
 import shareService from "../../services/share";
+import statusService from "../../services/status";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -105,6 +106,7 @@ const PendingSharesView = (props) => {
 
 	const decline = (rowData) => {
 		shareService.declineShareRight(rowData[7]).then(() => {
+			statusService.getStatus(true);
 			loadShares();
 		});
 	};
