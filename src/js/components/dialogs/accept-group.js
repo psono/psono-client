@@ -75,7 +75,7 @@ const DialogAcceptGroup = (props) => {
 		setDatastore(data);
 	};
 
-	const onNewFolderCreate = (name) => {
+	const onNewFolderCreate = (name, color) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
 		setNewFolderOpen(false);
 		widget.newFolderSave(
@@ -84,6 +84,7 @@ const DialogAcceptGroup = (props) => {
 			datastore,
 			datastorePassword,
 			name,
+			color,
 		);
 	};
 	const onNewFolder = (parent, path) => {

@@ -397,7 +397,7 @@ const DatastoreView = (props) => {
 		// });
 	};
 
-	const onNewFolderCreate = (name) => {
+	const onNewFolderCreate = (name, color) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
 		widget.newFolderSave(
 			newFolderData["parent"],
@@ -405,6 +405,7 @@ const DatastoreView = (props) => {
 			datastore,
 			datastorePasswordService,
 			name,
+			color,
 		);
 		setNewFolderOpen(false);
 	};

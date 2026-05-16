@@ -18,6 +18,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import folderColorService from "../../services/folder-color";
 import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
@@ -117,6 +118,7 @@ const DatastoreTreeFolder = (props) => {
 	});
 	const [anchorEl, setAnchorEl] = useState(null);
 	const isSelectable = props.isSelectable ? props.isSelectable(content) : true;
+	const folderColor = folderColorService.normalizeFolderColor(content.color);
 
 	const openMenu = (event) => {
 		event.preventDefault();
@@ -268,8 +270,18 @@ const DatastoreTreeFolder = (props) => {
 						onContextMenu={onContextMenu}
 					>
 						<span className={`fa-stack ${classes.faStack}`}>
-							{isExpanded && <i className="fa-fw fa fa-folder-open" />}
-							{!isExpanded && <i className="fa-fw fa fa-folder" />}
+							{isExpanded && (
+								<i
+									className="fa-fw fa fa-folder-open"
+									style={{ color: `#${folderColor}` }}
+								/>
+							)}
+							{!isExpanded && (
+								<i
+									className="fa-fw fa fa-folder"
+									style={{ color: `#${folderColor}` }}
+								/>
+							)}
 							{content.share_id && (
 								<i
 									className={`fa fa-circle fa-stack-2x text-danger ${classes.faCircleShared}`}

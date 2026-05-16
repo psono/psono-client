@@ -7,6 +7,7 @@ import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
 import datastoreUserService from "./datastore-user";
 import fileLinkService from "./file-link";
+import folderColorService from "./folder-color";
 import helper from "./helper";
 import secretService from "./secret";
 import secretLinkService from "./secret-link";
@@ -21,8 +22,9 @@ import shareLinkService from "./share-link";
  * @param {TreeObject} dataStructure the data structure
  * @param {Object} manager manager responsible for
  * @param {String} name The name of the new folder
+ * @param {String} color The hex encoded folder color
  */
-function newFolderSave(parent, path, dataStructure, manager, name) {
+function newFolderSave(parent, path, dataStructure, manager, name, color) {
 	let onSuccess, onError;
 
 	if (typeof parent === "undefined") {
@@ -36,6 +38,7 @@ function newFolderSave(parent, path, dataStructure, manager, name) {
 	const datastore_object = {
 		id: cryptoLibrary.generateUuid(),
 		name: name,
+		color: folderColorService.normalizeFolderColor(color),
 	};
 
 	parent.folders.push(datastore_object);
@@ -176,6 +179,7 @@ function editFolderSave(node, path, dataStructure, manager) {
 				folder = search[0][search[1]];
 			}
 			folder.name = node.name;
+			folder.color = folderColorService.normalizeFolderColor(node.color);
 			shareService.writeShare(
 				closest_share["share_id"],
 				content.data,
@@ -209,6 +213,7 @@ function editFolderSave(node, path, dataStructure, manager) {
 			}
 
 			folder.name = node.name;
+			folder.color = folderColorService.normalizeFolderColor(node.color);
 			manager.saveDatastoreContent(datastore, [path.slice()]);
 			manager.handleDatastoreContentChanged(dataStructure);
 		};

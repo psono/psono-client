@@ -10,6 +10,9 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import folderColorService from "../../services/folder-color";
+import FolderColorField from "./folder-color-field";
+
 const useStyles = makeStyles((theme) => ({
 	textField: {
 		width: "100%",
@@ -37,6 +40,11 @@ const DialogNewFolder = (props) => {
 	const { t } = useTranslation();
 	const classes = useStyles();
 	const [folderName, setDescription] = useState("");
+	const [folderColor, setFolderColor] = useState(
+		folderColorService.DEFAULT_FOLDER_COLOR,
+	);
+	const hasFolderColorError =
+		!folderColorService.isFolderColorValid(folderColor);
 
 	return (
 		<Dialog
@@ -69,6 +77,13 @@ const DialogNewFolder = (props) => {
 							}}
 						/>
 					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<FolderColorField
+							value={folderColor}
+							onChange={setFolderColor}
+							error={hasFolderColorError}
+						/>
+					</Grid>
 				</Grid>
 			</DialogContent>
 			<DialogActions>
@@ -81,11 +96,14 @@ const DialogNewFolder = (props) => {
 				</Button>
 				<Button
 					onClick={() => {
-						onCreate(folderName);
+						onCreate(
+							folderName,
+							folderColorService.normalizeFolderColor(folderColor),
+						);
 					}}
 					variant="contained"
 					color="primary"
-					disabled={!folderName}
+					disabled={!folderName || hasFolderColorError}
 				>
 					{t("CREATE")}
 				</Button>
