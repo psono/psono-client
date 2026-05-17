@@ -63,7 +63,7 @@ test-linter:
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
     - npm run buildfirefox
-    - npm install -g addons-linter@6.1.0
+    - npm install -g --ignore-scripts --before="$(date -u -d '7 days ago' '+%Y-%m-%dT%H:%M:%SZ')" addons-linter@6.1.0
     - cat ./build/firefox/manifest.json
     - addons-linter --help
     - addons-linter ./build/firefox

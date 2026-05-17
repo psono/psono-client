@@ -12,6 +12,7 @@ import { getStore, isStoreInitialized } from "./store";
 
 const validTill = 300000; // in ms, 300000 = 300s = 5min
 const intervalTime = 30000; // in ms, 30000 = 30s
+let autoAcceptForcedMembershipsInProgress = false;
 
 activate();
 
@@ -20,42 +21,53 @@ function activate() {
 }
 
 async function autoAcceptForcedMemberships() {
-	const overview = await datastoreService.getDatastoreOverview();
-	const datastores = [];
-	for (let i = 0; i < overview.datastores.length; i++) {
-		if (overview.datastores[i]["type"] === "password") {
-			datastores.push(overview.datastores[i]);
-		}
-	}
-
-	if (datastores.length !== 1) {
+	if (autoAcceptForcedMembershipsInProgress) {
 		return;
 	}
+	autoAcceptForcedMembershipsInProgress = true;
 
-	let groups;
 	try {
-		groups = await groupsService.readGroups(true);
-	} catch (e) {
-		//pass
-		console.log(e);
-	}
-
-	const forcedMembershipIds = [];
-	for (const group of groups) {
-		if (!group.forced_membership) {
-			continue;
+		const overview = await datastoreService.getDatastoreOverview();
+		const datastores = [];
+		for (let i = 0; i < overview.datastores.length; i++) {
+			if (overview.datastores[i]["type"] === "password") {
+				datastores.push(overview.datastores[i]);
+			}
 		}
-		forcedMembershipIds.push(group.membership_id);
-	}
 
-	if (forcedMembershipIds.length < 1) {
-		return;
-	}
+		if (datastores.length !== 1) {
+			return;
+		}
 
-	try {
-		await groupsService.acceptMembershipsAndShares(forcedMembershipIds, []);
-	} catch (e) {
-		console.log(e);
+		let groups;
+		try {
+			groups = await groupsService.readGroups(true);
+		} catch (e) {
+			//pass
+			console.log(e);
+			return;
+		}
+
+		const forcedMembershipIds = [];
+		for (const group of groups) {
+			if (!group.forced_membership) {
+				continue;
+			}
+			forcedMembershipIds.push(group.membership_id);
+		}
+
+		if (forcedMembershipIds.length < 1) {
+			return;
+		}
+
+		try {
+			await groupsService.acceptMembershipsAndShares(forcedMembershipIds, []);
+			await getStatus(true);
+		} catch (e) {
+			console.log(e);
+		}
+	} finally {
+		autoAcceptForcedMembershipsInProgress = false;
 	}
 }
 

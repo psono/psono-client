@@ -159,7 +159,7 @@ const DatastoreView = (props) => {
 	const [rightsOverviewData, setRightsOverviewData] = useState({});
 
 	const [moveEntryData, setMoveEntryData] = useState([]);
-	const [moveFolderData, setMoveFolderData] = useState(null);
+	const [moveFolderData, setMoveFolderData] = useState([]);
 
 	const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
 	const [createLinkShareData, setCreateLinkShareData] = useState({});
@@ -229,27 +229,87 @@ const DatastoreView = (props) => {
 		return Object.hasOwn(massOperationSelected, item.id);
 	};
 
+	const isMovableItem = (item) => {
+		return (
+			!Object.hasOwn(item, "share_id") &&
+			(!Object.hasOwn(item, "share_rights") ||
+				item.share_rights.delete !== false)
+		);
+	};
+
+	const hasSharedChild = (item) => {
+		if (item.items) {
+			for (const child of item.items) {
+				if (Object.hasOwn(child, "share_id")) {
+					return true;
+				}
+			}
+		}
+
+		if (item.folders) {
+			for (const child of item.folders) {
+				if (Object.hasOwn(child, "share_id") || hasSharedChild(child)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	const isMovableFolder = (item) => {
+		return isMovableItem(item) && !hasSharedChild(item);
+	};
+
+	const hasGrantRights = (item) => {
+		return !Object.hasOwn(item, "share_rights") || item.share_rights.grant;
+	};
+
+	const hasSameParent = (item, selectedItem) => {
+		return (
+			item.parent_datastore_id === selectedItem.parent_datastore_id &&
+			item.parent_share_id === selectedItem.parent_share_id
+		);
+	};
+
+	const isNestedFolderSelection = (item, selectedItem) => {
+		return (
+			item.id !== selectedItem.id &&
+			item.is_folder &&
+			selectedItem.is_folder &&
+			(item.path.includes(selectedItem.id) ||
+				selectedItem.path.includes(item.id))
+		);
+	};
+
 	const isSelectable = (item) => {
 		if (!showMassOperationControls) {
 			return true;
 		}
-		if (item.is_folder) {
-			return false;
-		}
-		const defaultIsSelectable = !Object.hasOwn(item, "share_id");
+		const defaultIsSelectable = item.is_folder
+			? isMovableFolder(item)
+			: isMovableItem(item);
 		const massOperationSelectedKeys = Object.keys(massOperationSelected);
+		if (Object.hasOwn(massOperationSelected, item.id)) {
+			return true;
+		}
 		if (massOperationSelectedKeys.length === 0) {
 			return defaultIsSelectable;
 		}
-		const hasSameParentDatastore =
-			item.parent_datastore_id ===
-			massOperationSelected[massOperationSelectedKeys[0]].item
-				.parent_datastore_id;
-		const hasSameParentShare =
-			item.parent_share_id ===
-			massOperationSelected[massOperationSelectedKeys[0]].item.parent_share_id;
 
-		return hasSameParentDatastore && hasSameParentShare && defaultIsSelectable;
+		const selectedItem =
+			massOperationSelected[massOperationSelectedKeys[0]].item;
+		if (item.is_folder !== selectedItem.is_folder) {
+			return false;
+		}
+
+		for (const key of massOperationSelectedKeys) {
+			if (isNestedFolderSelection(item, massOperationSelected[key].item)) {
+				return false;
+			}
+		}
+
+		return hasSameParent(item, selectedItem) && defaultIsSelectable;
 	};
 
 	const loadDatastore = () => {
@@ -337,7 +397,7 @@ const DatastoreView = (props) => {
 		// });
 	};
 
-	const onNewFolderCreate = (name) => {
+	const onNewFolderCreate = (name, color) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
 		widget.newFolderSave(
 			newFolderData["parent"],
@@ -345,6 +405,7 @@ const DatastoreView = (props) => {
 			datastore,
 			datastorePasswordService,
 			name,
+			color,
 		);
 		setNewFolderOpen(false);
 	};
@@ -512,38 +573,50 @@ const DatastoreView = (props) => {
 	};
 
 	const onMoveFolder = (item, path) => {
-		setMoveFolderData({
-			item: item,
-			path: path,
-		});
+		setMoveFolderData([
+			{
+				item: item,
+				path: path,
+			},
+		]);
 	};
 
 	const onSelectNodeForMoveFolder = async (breadcrumbs) => {
-		await widgetService.moveItem(
-			datastore,
-			moveFolderData.path,
-			breadcrumbs["id_breadcrumbs"],
-			"folders",
-			"password",
-			onStartProgress,
-			onCloseProgress,
-		);
-		setMoveFolderData(null);
+		for (const index in moveFolderData) {
+			await widgetService.moveItem(
+				datastore,
+				moveFolderData[index].path,
+				breadcrumbs["id_breadcrumbs"],
+				"folders",
+				"password",
+				onStartProgress,
+				onCloseProgress,
+			);
+		}
+		setMoveFolderData([]);
+		setShowMassOperationControls(false);
+		setMassOperationSelected({});
 		loadDatastore();
 	};
 
 	const isSelectableForMoveFolder = (node) => {
 		// filter out targets that the folder itself or are inside of that folder
-		if (node.path.includes(moveFolderData.item.id)) {
-			return false;
+		for (const folderData of moveFolderData) {
+			if (node.path.includes(folderData.item.id)) {
+				return false;
+			}
 		}
 		// filter out all targets that are a share if the item is not allowed to be shared
-		if (!moveFolderData.item.share_rights.grant && node.share_id) {
-			return false;
+		for (const folderData of moveFolderData) {
+			if (!hasGrantRights(folderData.item) && node.share_id) {
+				return false;
+			}
 		}
 		// filter out all targets that are inside of a share if the item is not allowed to be shared
-		if (!moveFolderData.item.share_rights.grant && node.parent_share_id) {
-			return false;
+		for (const folderData of moveFolderData) {
+			if (!hasGrantRights(folderData.item) && node.parent_share_id) {
+				return false;
+			}
 		}
 		//
 		if (
@@ -704,11 +777,14 @@ const DatastoreView = (props) => {
 										Object.keys(massOperationSelected).length > 0
 									}
 									onMassMove={() => {
-										setMoveEntryData(
-											Object.keys(massOperationSelected).map(
-												(key) => massOperationSelected[key],
-											),
-										);
+										const selectedItems = Object.keys(
+											massOperationSelected,
+										).map((key) => massOperationSelected[key]);
+										if (selectedItems[0].item.is_folder) {
+											setMoveFolderData(selectedItems);
+										} else {
+											setMoveEntryData(selectedItems);
+										}
 									}}
 									onMassDelete={async () => {
 										for (const key in massOperationSelected) {
@@ -903,10 +979,10 @@ const DatastoreView = (props) => {
 									isSelectable={isSelectableForMoveEntry}
 								/>
 							)}
-							{Boolean(moveFolderData) && (
+							{moveFolderData.length > 0 && (
 								<DialogSelectFolder
-									open={Boolean(moveFolderData)}
-									onClose={() => setMoveFolderData(null)}
+									open={moveFolderData.length > 0}
+									onClose={() => setMoveFolderData([])}
 									title={t("MOVE_FOLDER")}
 									onSelectNode={onSelectNodeForMoveFolder}
 									isSelectable={isSelectableForMoveFolder}

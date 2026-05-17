@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import datastorePassword from "../../services/datastore-password";
 import groupsService from "../../services/groups";
+import statusService from "../../services/status";
 import widget from "../../services/widget";
 import DatastoreTree from "../datastore-tree";
 import Search from "../search";
@@ -82,7 +83,7 @@ const DialogAcceptGroupShares = (props) => {
 		setDatastore(data);
 	};
 
-	const onNewFolderCreate = (name) => {
+	const onNewFolderCreate = (name, color) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
 		setNewFolderOpen(false);
 		widget.newFolderSave(
@@ -91,6 +92,7 @@ const DialogAcceptGroupShares = (props) => {
 			datastore,
 			datastorePassword,
 			name,
+			color,
 		);
 	};
 	const onNewFolder = (parent, path) => {
@@ -198,6 +200,7 @@ const DialogAcceptGroupShares = (props) => {
 				)
 				.then(
 					() => {
+						statusService.getStatus(true);
 						onClose();
 					},
 					(data) => {

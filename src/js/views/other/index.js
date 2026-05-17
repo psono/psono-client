@@ -23,6 +23,8 @@ const OtherView = (props) => {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [value, setValue] = React.useState(location.pathname);
+	const complianceDisableMultiplePasswordDatastores =
+		getStore().getState().server.complianceDisableMultiplePasswordDatastores;
 
 	return (
 		<Base {...props}>
@@ -43,13 +45,15 @@ const OtherView = (props) => {
 								to={"/other/sessions"}
 								onClick={() => setValue("/other/sessions")}
 							/>
-							<Tab
-								label={t("DATASTORES")}
-								value="/other/data-stores"
-								component={Link}
-								to={"/other/data-stores"}
-								onClick={() => setValue("/other/data-stores")}
-							/>
+							{!complianceDisableMultiplePasswordDatastores && (
+								<Tab
+									label={t("DATASTORES")}
+									value="/other/data-stores"
+									component={Link}
+									to={"/other/data-stores"}
+									onClick={() => setValue("/other/data-stores")}
+								/>
+							)}
 							{!getStore().getState().server.complianceDisableApiKeys && (
 								<Tab
 									label={t("API_KEYS")}
@@ -97,9 +101,11 @@ const OtherView = (props) => {
 					<TabPanel value={value} index={"/other/sessions"}>
 						<OtherSessionsView {...props} />
 					</TabPanel>
-					<TabPanel value={value} index={"/other/data-stores"}>
-						<OtherDatastoresView {...props} />
-					</TabPanel>
+					{!complianceDisableMultiplePasswordDatastores && (
+						<TabPanel value={value} index={"/other/data-stores"}>
+							<OtherDatastoresView {...props} />
+						</TabPanel>
+					)}
 					{!getStore().getState().server.complianceDisableApiKeys && (
 						<TabPanel value={value} index={"/other/api-keys"}>
 							<OtherApiKeysView {...props} />

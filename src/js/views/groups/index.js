@@ -28,6 +28,7 @@ import DialogVerify from "../../components/dialogs/verify";
 import Table from "../../components/table";
 import format from "../../services/date";
 import groupsService from "../../services/groups";
+import statusService from "../../services/status";
 import CreateGroupDialog from "./create-group-dialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -168,6 +169,7 @@ const GroupsView = (props) => {
 
 	const declineGroup = (rowData) => {
 		const onSuccess = (data) => {
+			statusService.getStatus(true);
 			loadGroups();
 		};
 

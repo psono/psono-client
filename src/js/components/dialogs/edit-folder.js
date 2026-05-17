@@ -10,6 +10,9 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import folderColorService from "../../services/folder-color";
+import FolderColorField from "./folder-color-field";
+
 const useStyles = makeStyles((theme) => ({
 	textField: {
 		width: "100%",
@@ -37,9 +40,15 @@ const DialogEditFolder = (props) => {
 	const { t } = useTranslation();
 	const classes = useStyles();
 	const [folderName, setFolderName] = useState(node.name);
+	const [folderColor, setFolderColor] = useState(
+		node.color || folderColorService.DEFAULT_FOLDER_COLOR,
+	);
+	const hasFolderColorError =
+		!folderColorService.isFolderColorValid(folderColor);
 
-	const onSave = (event) => {
+	const onSave = () => {
 		node.name = folderName;
+		node.color = folderColorService.normalizeFolderColor(folderColor);
 		props.onSave(node);
 	};
 
@@ -75,6 +84,13 @@ const DialogEditFolder = (props) => {
 						/>
 					</Grid>
 					<Grid item xs={12} sm={12} md={12}>
+						<FolderColorField
+							value={folderColor}
+							onChange={setFolderColor}
+							error={hasFolderColorError}
+						/>
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
 						{t("FOLDER_LINK")}:{" "}
 						<a href={"index.html#!/datastore/search/" + node.id}>{node.id}</a>
 					</Grid>
@@ -92,7 +108,7 @@ const DialogEditFolder = (props) => {
 					onClick={onSave}
 					variant="contained"
 					color="primary"
-					disabled={!folderName}
+					disabled={!folderName || hasFolderColorError}
 				>
 					{t("SAVE")}
 				</Button>
