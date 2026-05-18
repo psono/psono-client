@@ -15,6 +15,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import DOMPurify from "dompurify";
 import PropTypes from "prop-types";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import { Markdown } from "tiptap-markdown";
@@ -137,6 +138,7 @@ const MarkdownNotesEditor = ({
 	value,
 }) => {
 	const classes = useStyles();
+	const { t } = useTranslation();
 	const editor = useEditor({
 		editorProps: {
 			attributes: {
@@ -193,7 +195,7 @@ const MarkdownNotesEditor = ({
 		}
 
 		const previousUrl = editor.getAttributes("link").href || "";
-		const requestedUrl = window.prompt("Enter link URL", previousUrl);
+		const requestedUrl = window.prompt(t("ENTER_LINK_URL"), previousUrl);
 
 		if (requestedUrl === null) {
 			return;
@@ -245,7 +247,7 @@ const MarkdownNotesEditor = ({
 		);
 	const renderHeadingButton = (level) =>
 		renderLabelButton(
-			`Heading ${level}`,
+			t("HEADING_NUMBER", { number: level }),
 			`H${level}`,
 			editor ? editor.isActive("heading", { level: level }) : false,
 			() => {
@@ -262,7 +264,7 @@ const MarkdownNotesEditor = ({
 			>
 				<Box className={classes.toolbar}>
 					{renderToolbarButton(
-						"Bold",
+						t("BOLD"),
 						<FormatBoldIcon fontSize="small" />,
 						editor ? editor.isActive("bold") : false,
 						() => {
@@ -271,7 +273,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleBold().run(),
 					)}
 					{renderToolbarButton(
-						"Italic",
+						t("ITALIC"),
 						<FormatItalicIcon fontSize="small" />,
 						editor ? editor.isActive("italic") : false,
 						() => {
@@ -280,7 +282,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleItalic().run(),
 					)}
 					{renderToolbarButton(
-						"Strikethrough",
+						t("STRIKETHROUGH"),
 						<FormatStrikethroughIcon fontSize="small" />,
 						editor ? editor.isActive("strike") : false,
 						() => {
@@ -289,7 +291,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleStrike().run(),
 					)}
 					{renderToolbarButton(
-						"Inline Code",
+						t("INLINE_CODE"),
 						<CodeIcon fontSize="small" />,
 						editor ? editor.isActive("code") : false,
 						() => {
@@ -301,7 +303,7 @@ const MarkdownNotesEditor = ({
 					{renderHeadingButton(2)}
 					{renderHeadingButton(3)}
 					{renderToolbarButton(
-						"Bullet List",
+						t("BULLET_LIST"),
 						<FormatListBulletedIcon fontSize="small" />,
 						editor ? editor.isActive("bulletList") : false,
 						() => {
@@ -310,7 +312,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleBulletList().run(),
 					)}
 					{renderToolbarButton(
-						"Numbered List",
+						t("NUMBERED_LIST"),
 						<FormatListNumberedIcon fontSize="small" />,
 						editor ? editor.isActive("orderedList") : false,
 						() => {
@@ -319,7 +321,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleOrderedList().run(),
 					)}
 					{renderToolbarButton(
-						"Quote",
+						t("QUOTE"),
 						<FormatQuoteIcon fontSize="small" />,
 						editor ? editor.isActive("blockquote") : false,
 						() => {
@@ -328,7 +330,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleBlockquote().run(),
 					)}
 					{renderLabelButton(
-						"Code Block",
+						t("CODE_BLOCK"),
 						"Code",
 						editor ? editor.isActive("codeBlock") : false,
 						() => {
@@ -337,14 +339,14 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().toggleCodeBlock().run(),
 					)}
 					{renderToolbarButton(
-						"Link",
+						t("LINK"),
 						<LinkIcon fontSize="small" />,
 						editor ? editor.isActive("link") : false,
 						setLink,
 						!editor,
 					)}
 					{renderToolbarButton(
-						"Undo",
+						t("UNDO"),
 						<UndoIcon fontSize="small" />,
 						false,
 						() => {
@@ -353,7 +355,7 @@ const MarkdownNotesEditor = ({
 						!editor?.can().chain().focus().undo().run(),
 					)}
 					{renderToolbarButton(
-						"Redo",
+						t("REDO"),
 						<RedoIcon fontSize="small" />,
 						false,
 						() => {
