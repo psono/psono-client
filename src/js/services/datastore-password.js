@@ -1424,6 +1424,9 @@ function onShareAdded(shareId, path, datastore, distance) {
 	let share_changed = false;
 
 	for (const old_share_id in parent_share.share_index) {
+		if (!Object.hasOwn(parent_share, "share_index")) {
+			break;
+		}
 		if (!Object.hasOwn(parent_share.share_index, old_share_id)) {
 			continue;
 		}
@@ -1432,9 +1435,9 @@ function onShareAdded(shareId, path, datastore, distance) {
 		}
 
 		for (
-			i = 0, l = parent_share.share_index[old_share_id].paths.length;
-			i < l;
-			i++
+			i = parent_share.share_index[old_share_id].paths.length - 1;
+			i >= 0;
+			i--
 		) {
 			if (
 				!helperService.arrayStartsWith(
@@ -1470,6 +1473,13 @@ function onShareAdded(shareId, path, datastore, distance) {
 				delete parent_share.share_index;
 			}
 			share_changed = true;
+
+			if (
+				!Object.hasOwn(parent_share, "share_index") ||
+				!Object.hasOwn(parent_share.share_index, old_share_id)
+			) {
+				break;
+			}
 		}
 	}
 
@@ -1488,31 +1498,29 @@ function onShareAdded(shareId, path, datastore, distance) {
  * @param relativePath the relative path inside the share
  */
 function deleteFromShareIndex(share, shareId, relativePath) {
-	let already_found = false;
+	if (
+		!Object.hasOwn(share, "share_index") ||
+		!Object.hasOwn(share.share_index, shareId)
+	) {
+		return;
+	}
 
-	for (let i = share.share_index[shareId].paths.length - 1; i >= 0; i--) {
+	const paths = share.share_index[shareId].paths;
+
+	for (let i = paths.length - 1; i >= 0; i--) {
 		// delete the path from the share index entry
-		if (
-			helperService.arrayStartsWith(
-				share.share_index[shareId].paths[i],
-				relativePath,
-			)
-		) {
-			share.share_index[shareId].paths.splice(i, 1);
-			already_found = true;
+		if (helperService.arrayStartsWith(paths[i], relativePath)) {
+			paths.splice(i, 1);
 		}
-		// if no paths are empty, we delete the whole share_index entry
-		if (share.share_index[shareId].paths.length === 0) {
-			delete share.share_index[shareId];
-		}
-		// if the share_index holds no entries anymore, we delete the share_index
-		if (Object.keys(share.share_index).length === 0) {
-			delete share.share_index;
-		}
+	}
 
-		if (already_found) {
-			return;
-		}
+	// if no paths are empty, we delete the whole share_index entry
+	if (paths.length === 0) {
+		delete share.share_index[shareId];
+	}
+	// if the share_index holds no entries anymore, we delete the share_index
+	if (Object.keys(share.share_index).length === 0) {
+		delete share.share_index;
 	}
 }
 
@@ -1778,8 +1786,8 @@ function createShareLinksInDatastore(
 	for (let i = 0; i < shares.length; i++) {
 		const share = shares[i];
 
-		changedPaths.concat(
-			createShareLinkInDatastore(
+		changedPaths.push(
+			...createShareLinkInDatastore(
 				share,
 				target,
 				helperService.duplicateObject(path),
