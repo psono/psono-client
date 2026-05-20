@@ -704,7 +704,16 @@ function hideSubShareContent(share) {
 
 		for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
 			const path_copy = share.share_index[share_id].paths[i].slice();
-			const search = findInDatastore(path_copy, share);
+			let search;
+			try {
+				search = findInDatastore(path_copy, share);
+			} catch (e) {
+				if (e instanceof RangeError && e.message === "ObjectNotFound") {
+					share.share_index[share_id].paths.splice(i, 1);
+					continue;
+				}
+				throw e;
+			}
 
 			const obj = search[0][search[1]];
 
@@ -718,6 +727,14 @@ function hideSubShareContent(share) {
 				delete obj[prop];
 			}
 		}
+
+		if (share.share_index[share_id].paths.length === 0) {
+			delete share.share_index[share_id];
+		}
+	}
+
+	if (Object.keys(share.share_index).length === 0) {
+		delete share.share_index;
 	}
 }
 
