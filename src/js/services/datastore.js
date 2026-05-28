@@ -134,6 +134,7 @@ function getDatastoreWithId(datastoreId) {
 		}
 
 		datastore["datastore_id"] = datastoreId;
+		datastore["write_date"] = result.data.write_date;
 
 		return datastore;
 	};
@@ -445,7 +446,17 @@ function fillStorage(db, datastore, map, filter) {
  * @returns {Promise} Promise with the status of the save
  */
 function encryptDatastore(datastoreId, content) {
-	const jsonContent = JSON.stringify(content);
+	let contentToEncrypt = content;
+	if (
+		content &&
+		typeof content === "object" &&
+		Object.hasOwn(content, "write_date")
+	) {
+		contentToEncrypt = helperService.duplicateObject(content);
+		delete contentToEncrypt.write_date;
+	}
+
+	const jsonContent = JSON.stringify(contentToEncrypt);
 
 	function encrypt(datastoreId, json_content) {
 		const secret_key = tempDatastoreKeyStorage[datastoreId];
@@ -480,9 +491,15 @@ function encryptDatastore(datastoreId, content) {
  *
  * @returns {Promise} Promise with the status of the save
  */
-function saveDatastoreContentWithId(datastoreId, content) {
+function saveDatastoreContentWithId(
+	datastoreId,
+	content,
+	oldWriteDate,
+	writeDateTarget,
+) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	oldWriteDate = oldWriteDate || (content && content.write_date);
 
 	const onError = (result) => {
 		// pass
@@ -491,7 +508,15 @@ function saveDatastoreContentWithId(datastoreId, content) {
 		const onError = (result) => {
 			// pass
 		};
-		const onSuccess = (result) => result.data;
+		const onSuccess = (result) => {
+			if (result.data && result.data.write_date) {
+				content.write_date = result.data.write_date;
+				if (writeDateTarget) {
+					writeDateTarget.write_date = result.data.write_date;
+				}
+			}
+			return result.data;
+		};
 
 		return apiClient
 			.writeDatastore(
@@ -500,6 +525,11 @@ function saveDatastoreContentWithId(datastoreId, content) {
 				datastoreId,
 				data.text,
 				data.nonce,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				oldWriteDate,
 			)
 			.then(onSuccess, onError);
 	};
@@ -583,7 +613,12 @@ function saveDatastoreContent(type, description, content) {
 	normalizeShareContent(duplicate);
 
 	if (Object.hasOwn(duplicate, "datastore_id")) {
-		return saveDatastoreContentWithId(duplicate["datastore_id"], duplicate);
+		return saveDatastoreContentWithId(
+			duplicate["datastore_id"],
+			duplicate,
+			content && content.write_date,
+			content,
+		);
 	}
 
 	const onError = (result) => {
@@ -591,7 +626,12 @@ function saveDatastoreContent(type, description, content) {
 	};
 
 	const onSuccess = (datastore_id) =>
-		saveDatastoreContentWithId(datastore_id, duplicate);
+		saveDatastoreContentWithId(
+			datastore_id,
+			duplicate,
+			content && content.write_date,
+			content,
+		);
 
 	return getDatastoreId(type).then(onSuccess, onError);
 }

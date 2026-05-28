@@ -1069,6 +1069,7 @@ function deleteDatastore(token, sessionSecretKey, datastoreId, authkey) {
  * @param {string|undefined} [encryptedDataSecretKeyNonce] (optional) nonce for secret key, wont update on the server if not provided
  * @param {string|undefined} [description] (optional) The new description of the datastore
  * @param {boolean|undefined} [is_default] (optional) Is this the new default datastore
+ * @param {string|undefined} [oldWriteDate] (optional) The write_date before the update
  *
  * @returns {Promise} promise
  */
@@ -1082,6 +1083,7 @@ function writeDatastore(
 	encryptedDataSecretKeyNonce,
 	description,
 	is_default,
+	oldWriteDate,
 ) {
 	const endpoint = "/datastore/";
 	const method = "POST";
@@ -1093,6 +1095,7 @@ function writeDatastore(
 		secret_key_nonce: encryptedDataSecretKeyNonce,
 		description: description,
 		is_default: is_default,
+		old_write_date: oldWriteDate,
 	};
 	const headers = {
 		Authorization: "Token " + token,
@@ -1472,6 +1475,7 @@ function createShare(
  * @param {uuid} share_id the share ID
  * @param {string|undefined} [encryptedData] (optional) data for the new share
  * @param {string|undefined} [encryptedDataNonce] (optional) nonce for data, necessary if data is provided
+ * @param {string|undefined} [oldWriteDate] (optional) The write_date before the update
  *
  * @returns {Promise} Returns a promise with the status of the update
  */
@@ -1481,6 +1485,7 @@ function writeShare(
 	share_id,
 	encryptedData,
 	encryptedDataNonce,
+	oldWriteDate,
 ) {
 	const endpoint = "/share/";
 	const method = "PUT";
@@ -1488,6 +1493,7 @@ function writeShare(
 		share_id: share_id,
 		data: encryptedData,
 		data_nonce: encryptedDataNonce,
+		old_write_date: oldWriteDate,
 	};
 	const headers = {
 		Authorization: "Token " + token,
@@ -3872,8 +3878,6 @@ const sendSecurityReport = (
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid|undefined} [userId=null] (optional) avatar ID
- * @param {uuid|undefined} [avatarId=null] (optional) avatar ID
  *
  * @returns {Promise} promise
  */
