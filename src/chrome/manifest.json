@@ -73,7 +73,7 @@
 				"data/img/psono-encrypt.png",
 				"data/img/psono-decrypt.png",
 				"data/notification-bar.html",
-				"data/js/web-accessible.js"
+				"data/js/extension/web-accessible-fido2.js"
 			],
 			"matches": ["*://*/*"]
 		}
