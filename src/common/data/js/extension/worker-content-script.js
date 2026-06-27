@@ -957,11 +957,17 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @returns {number} Distance
 	 */
 	function getDistance(evt, target) {
+		const paddingRight =
+			parseFloat(
+				window.getComputedStyle(target).getPropertyValue("padding-right"),
+			) || 0;
+
 		return (
 			target.offsetWidth -
 			evt.pageX +
 			target.getBoundingClientRect().left +
-			(document.documentElement.scrollLeft || document.body.scrollLeft)
+			(document.documentElement.scrollLeft || document.body.scrollLeft) -
+			paddingRight
 		);
 	}
 
@@ -1001,7 +1007,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param target The original element that this event was bound to
 	 */
 	function mouseMove(evt, target) {
-		if (getDistance(evt, target) < 30) {
+		const distance = getDistance(evt, target);
+		if (distance >= 0 && distance < 30) {
 			evt.target.style.setProperty("cursor", "pointer", "important");
 		} else {
 			evt.target.style.setProperty("cursor", "auto", "important");
@@ -1072,7 +1079,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			return;
 		}
 
-		if (getDistance(evt, target) >= 30) {
+		const distance = getDistance(evt, target);
+		if (distance < 0 || distance >= 30) {
 			return;
 		}
 
