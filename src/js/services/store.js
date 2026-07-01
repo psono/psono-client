@@ -19,8 +19,10 @@ import storageService from "./storage";
 let store;
 
 export const initStore = async () => {
+	const persistAccountId = await accountService.getCurrentId();
+
 	const config = {
-		channel: "redux_state_sync",
+		channel: `redux_state_sync:${persistAccountId}`,
 		blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
 	};
 
@@ -168,7 +170,7 @@ export const initStore = async () => {
 	};
 
 	const persistConfig = {
-		key: await accountService.getCurrentId(),
+		key: persistAccountId,
 		blacklist: ["transient", "notification"],
 		version: 9,
 		storage: storageService.get("state"),
