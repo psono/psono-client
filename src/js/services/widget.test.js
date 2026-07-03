@@ -1552,3 +1552,50 @@ describe("Service: widgetService - moveItem test suite", () => {
 		});
 	});
 });
+
+describe("Service: datastoreService - hideSubShareContent", () => {
+	it("should prune stale share_index paths instead of throwing", () => {
+		const datastore = {
+			share_index: {
+				share1: {
+					secret_key: "secret-key",
+					paths: [["missing-share"], ["existing-share"]],
+				},
+			},
+			items: [
+				{
+					id: "existing-share",
+					name: "Existing Share",
+					type: "website_password",
+					share_id: "share1",
+					share_secret_key: "share-secret-key",
+					secret_id: "secret1",
+				},
+			],
+		};
+
+		expect(() => datastoreService.hideSubShareContent(datastore)).not.toThrow();
+		expect(datastore.share_index.share1.paths).toEqual([["existing-share"]]);
+		expect(datastore.items[0]).toEqual({
+			id: "existing-share",
+			name: "Existing Share",
+			share_id: "share1",
+			share_secret_key: "share-secret-key",
+		});
+	});
+
+	it("should remove empty share_index entries", () => {
+		const datastore = {
+			share_index: {
+				share1: {
+					secret_key: "secret-key",
+					paths: [["missing-share"]],
+				},
+			},
+			items: [],
+		};
+
+		expect(() => datastoreService.hideSubShareContent(datastore)).not.toThrow();
+		expect(datastore.share_index).toBeUndefined();
+	});
+});

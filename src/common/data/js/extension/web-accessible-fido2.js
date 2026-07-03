@@ -1,4 +1,4 @@
-const ClassWebAccessibleFido2 = () => {
+(() => {
 	const browserSupportsWebauthn =
 		typeof window.PublicKeyCredential !== "undefined";
 
@@ -171,7 +171,15 @@ const ClassWebAccessibleFido2 = () => {
 				const resolve =
 					eventNavigatorCredentialsCreateIndex[response.eventId].resolve;
 				delete eventNavigatorCredentialsCreateIndex[response.eventId];
-				return resolve(originalNavigatorCredentialsCreate(options));
+
+				originalNavigatorCredentialsCreate(options)
+					.then((realCredential) => {
+						resolve(realCredential);
+					})
+					.catch((error) => {
+						throw error;
+					});
+				return;
 			}
 			eventNavigatorCredentialsCreateIndex[response.eventId].reject(
 				new DOMException(
@@ -182,6 +190,7 @@ const ClassWebAccessibleFido2 = () => {
 			delete eventNavigatorCredentialsCreateIndex[response.eventId];
 			return;
 		}
+
 		const credential = {
 			...response.credential,
 			rawId: base64UrlToArrayBuffer(response.credential.rawId),
@@ -290,14 +299,14 @@ const ClassWebAccessibleFido2 = () => {
 
 	// async function mockedNavigatorCredentialsCreateLogging(options) {
 	//     console.log('Psono-NavigatorCredentialsCreate-Request', options);
-	//     const result = await originalNavigatorCredentialsCreate(options);
+	//     const result = await mockedNavigatorCredentialsCreate(options);
 	//     console.log('Psono-NavigatorCredentialsCreate-Response', result);
 	//     return result;
 	// }
 	//
 	// async function mockedNavigatorCredentialsGetLogging(options) {
 	//     console.log('Psono-NavigatorCredentialsGet-Request', options);
-	//     const result = await originalNavigatorCredentialsGet(options);
+	//     const result = await mockedNavigatorCredentialsGet(options);
 	//     console.log('Psono-NavigatorCredentialsGet-Response', result, options.signal);
 	//     return result;
 	// }
@@ -359,32 +368,55 @@ const ClassWebAccessibleFido2 = () => {
 				resolve: resolve,
 				reject: reject,
 			};
+			const postMessageData = {
+				options: {
+					mediation: Object.hasOwn(options, "mediation")
+						? options.mediation
+						: undefined, // "conditional"
+					publicKey: {
+						...options.publicKey,
+						challenge: arrayBufferToBase64Url(options.publicKey.challenge),
+						allowCredentials: options.publicKey.allowCredentials
+							? options.publicKey.allowCredentials.map((cred) => {
+									let transports;
+
+									if (Object.hasOwn(cred, "transports") && cred.transports) {
+										if (
+											typeof cred.transports[Symbol.iterator] === "function"
+										) {
+											transports = [...cred.transports];
+										} else {
+											console.debug(
+												"Psono passkey debug: allowCredentials transport is not iterable",
+												cred.transports,
+												cred,
+											);
+										}
+									}
+
+									return {
+										...cred,
+										id: arrayBufferToBase64Url(cred.id),
+										transports: transports,
+									};
+								})
+							: [],
+						extensions: options.publicKey.extensions
+							? { ...options.publicKey.extensions }
+							: undefined,
+					},
+				},
+				origin: window.location.origin,
+				eventId: eventId,
+			};
 
 			window.postMessage(
 				{
 					event: "navigator-credentials-get",
-					data: {
-						options: {
-							mediation: Object.hasOwn(options, "mediation")
-								? options.mediation
-								: undefined, // "conditional"
-							publicKey: {
-								...options.publicKey,
-								challenge: arrayBufferToBase64Url(options.publicKey.challenge),
-								allowCredentials: options.publicKey.allowCredentials
-									? options.publicKey.allowCredentials.map((cred) => ({
-											...cred,
-											id: arrayBufferToBase64Url(cred.id),
-										}))
-									: [],
-							},
-						},
-						origin: window.location.origin,
-						eventId: eventId,
-					},
+					data: postMessageData,
 				},
 				window.location.origin,
 			);
 		});
 	}
-};
+})();

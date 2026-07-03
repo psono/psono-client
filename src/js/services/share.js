@@ -29,16 +29,22 @@ function readShare(shareId, secretKey) {
 		// pass
 	};
 
-	const onSuccess = (content) => ({
-		data: JSON.parse(
+	const onSuccess = (content) => {
+		const data = JSON.parse(
 			cryptoLibrary.decryptData(
 				content.data.data,
 				content.data.data_nonce,
 				secretKey,
 			),
-		),
-		rights: content.data.rights,
-	});
+		);
+
+		data.write_date = content.data.write_date;
+
+		return {
+			data: data,
+			rights: content.data.rights,
+		};
+	};
 
 	return apiClient
 		.readShare(token, sessionSecretKey, shareId)
@@ -105,6 +111,7 @@ function writeShare(shareId, content, secretKey) {
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
 	const duplicate = helperService.duplicateObject(content);
+	const oldWriteDate = content.write_date;
 	datastoreService.hideSubShareContent(duplicate);
 	datastoreService.normalizeShareContent(duplicate);
 
@@ -114,17 +121,28 @@ function writeShare(shareId, content, secretKey) {
 	if (Object.hasOwn(duplicate, "share_rights")) {
 		delete duplicate.share_rights;
 	}
+	if (Object.hasOwn(duplicate, "write_date")) {
+		delete duplicate.write_date;
+	}
 
 	const jsonContent = JSON.stringify(duplicate);
 
 	const encryptedData = cryptoLibrary.encryptData(jsonContent, secretKey);
-	return apiClient.writeShare(
-		token,
-		sessionSecretKey,
-		shareId,
-		encryptedData.text,
-		encryptedData.nonce,
-	);
+	return apiClient
+		.writeShare(
+			token,
+			sessionSecretKey,
+			shareId,
+			encryptedData.text,
+			encryptedData.nonce,
+			oldWriteDate,
+		)
+		.then((result) => {
+			if (result.data && result.data.write_date) {
+				content.write_date = result.data.write_date;
+			}
+			return result;
+		});
 }
 
 /**

@@ -44,7 +44,9 @@ var ClassWorkerContentScriptFido2 = (base, browser, setTimeout) => {
 
 		// create script
 		const script1 = document.createElement("script");
-		script1.src = browser.runtime.getURL("data/js/web-accessible.js");
+		script1.src = browser.runtime.getURL(
+			"data/js/extension/web-accessible-fido2.js",
+		);
 		root.appendChild(script1);
 	}
 };

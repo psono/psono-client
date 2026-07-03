@@ -159,9 +159,14 @@ const DatastoreTree = (props) => {
 	const [folderExpansionState, setFolderExpansionState] = React.useState(() =>
 		readFolderExpansionState(folderExpansionStorageKey),
 	);
+	const [searchCollapsedFolders, setSearchCollapsedFolders] = React.useState(
+		{},
+	);
 
 	const getIsExpandedFolder = (folder) => {
 		if (folder.datastore_id) return true;
+
+		if (search && searchCollapsedFolders[folder.id]) return false;
 
 		if (folder.expanded_temporary) return true;
 
@@ -175,6 +180,8 @@ const DatastoreTree = (props) => {
 	}, [folderExpansionStorageKey]);
 
 	React.useEffect(() => {
+		setSearchCollapsedFolders({});
+
 		const updatedDatastore =
 			datastorePassword.collapseFoldersRecursive(datastore);
 
@@ -275,6 +282,23 @@ const DatastoreTree = (props) => {
 	};
 
 	const onUpdateExpandFolderProperty = (id, isExpanded) => {
+		if (search) {
+			setSearchCollapsedFolders((currentSearchCollapsedFolders) => {
+				const updatedSearchCollapsedFolders = {
+					...currentSearchCollapsedFolders,
+				};
+
+				if (isExpanded) {
+					updatedSearchCollapsedFolders[id] = true;
+				} else {
+					delete updatedSearchCollapsedFolders[id];
+				}
+
+				return updatedSearchCollapsedFolders;
+			});
+			return;
+		}
+
 		setFolderExpansionState((currentFolderExpansionState) => {
 			const updatedFolderExpansionState = {
 				...currentFolderExpansionState,
