@@ -307,4 +307,70 @@ describe("Service: importBitwardenJson test suite", () => {
 
 		expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
 	});
+
+	it("parses SSH keys", () => {
+		const generic_uuid = "1fce01f4-6411-47a9-885c-a80bf4c654aa";
+		cryptoLibrary.generateUuid = jest.fn();
+		cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
+
+		const privateKey =
+			"-----BEGIN OPENSSH PRIVATE KEY-----\nXXXXXXXXXX\n-----END OPENSSH PRIVATE KEY-----\n";
+		const input = JSON.stringify({
+			items: [
+				{
+					id: "c391e0b2-8010-4ef0-8417-b4500092e14e",
+					folderId: null,
+					organizationId: null,
+					collectionIds: null,
+					name: "Example SSH Key",
+					notes: "Imported note",
+					type: 5,
+					sshKey: {
+						privateKey: privateKey,
+						publicKey: "ssh-ed25519 XXXXXXXXXX",
+						keyFingerprint: "SHA256:XXXXXXXX",
+					},
+					favorite: false,
+					reprompt: 0,
+					passwordHistory: null,
+					revisionDate: "2026-05-20T08:54:46.436Z",
+					creationDate: "2026-05-20T08:54:46.436Z",
+					deletedDate: null,
+				},
+			],
+		});
+
+		const output = importBitwardenJson.parser(input);
+
+		expect(JSON.parse(JSON.stringify(output))).toEqual({
+			datastore: {
+				id: generic_uuid,
+				name: output.datastore.name,
+				folders: [],
+				items: [
+					{
+						id: generic_uuid,
+						type: "ssh_own_key",
+						name: "Example SSH Key",
+						ssh_own_key_title: "Example SSH Key",
+						ssh_own_key_public: "ssh-ed25519 XXXXXXXXXX",
+						ssh_own_key_private: privateKey,
+						ssh_own_key_notes:
+							"Imported note\nKey Fingerprint: SHA256:XXXXXXXX",
+					},
+				],
+			},
+			secrets: [
+				{
+					id: generic_uuid,
+					type: "ssh_own_key",
+					name: "Example SSH Key",
+					ssh_own_key_title: "Example SSH Key",
+					ssh_own_key_public: "ssh-ed25519 XXXXXXXXXX",
+					ssh_own_key_private: privateKey,
+					ssh_own_key_notes: "Imported note\nKey Fingerprint: SHA256:XXXXXXXX",
+				},
+			],
+		});
+	});
 });
