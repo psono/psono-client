@@ -1316,11 +1316,15 @@ const DialogEditEntry = (props) => {
 	const onPasswordGenerated = (password) => {
 		handleClose();
 		setGeneratePasswordDialogOpen(false);
+		setDirty(true);
 		if (item.type === "website_password") {
 			setWebsitePasswordPassword(password);
 		}
 		if (item.type === "application_password") {
 			setApplicationPasswordPassword(password);
+		}
+		if (item.type === "elster_certificate") {
+			setElsterCertificatePassword(password);
 		}
 	};
 

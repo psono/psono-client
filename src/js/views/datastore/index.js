@@ -945,7 +945,7 @@ const DatastoreView = (props) => {
 							{editEntryOpen && !bigScreen && (
 								<DialogEditEntry
 									open={editEntryOpen}
-									onClose={() => setEditEntryOpen(false)}
+									onClose={onCloseEdit}
 									onEdit={onEditEntrySave}
 									setDirty={setEditEntryDirty}
 									isDirty={editEntryDirty}
