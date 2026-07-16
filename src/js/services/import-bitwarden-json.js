@@ -28,6 +28,10 @@ function detect_type(item) {
 		// actually an identity but we map it to a note
 		return "note";
 	}
+	if (item["type"] === 5) {
+		// real SSH key
+		return "ssh_own_key";
+	}
 
 	return "note";
 }
@@ -373,6 +377,70 @@ function transferIntoCreditCard(item) {
 }
 
 /**
+ * Takes an item and transforms it into an SSH key entry
+ *
+ * @param {[]} item One item of the json
+ *
+ * @returns {*} The ssh_own_key secret object
+ */
+function transformToSshOwnKey(item) {
+	let name = "";
+	let ssh_own_key_title = "";
+	let ssh_own_key_public = "";
+	let ssh_own_key_private = "";
+	let ssh_own_key_notes = "";
+
+	if (Object.hasOwn(item, "name") && item["name"] !== null) {
+		name = item["name"];
+		ssh_own_key_title = item["name"];
+	}
+
+	if (Object.hasOwn(item, "notes") && item["notes"] !== null) {
+		ssh_own_key_notes = item["notes"];
+	}
+
+	if (Object.hasOwn(item, "sshKey") && item["sshKey"] !== null) {
+		if (
+			Object.hasOwn(item["sshKey"], "publicKey") &&
+			item["sshKey"]["publicKey"] !== null
+		) {
+			ssh_own_key_public = item["sshKey"]["publicKey"];
+		}
+
+		if (
+			Object.hasOwn(item["sshKey"], "privateKey") &&
+			item["sshKey"]["privateKey"] !== null
+		) {
+			ssh_own_key_private = item["sshKey"]["privateKey"];
+		}
+
+		if (
+			Object.hasOwn(item["sshKey"], "keyFingerprint") &&
+			item["sshKey"]["keyFingerprint"] !== null
+		) {
+			if (ssh_own_key_notes !== "" && !ssh_own_key_notes.endsWith("\n")) {
+				ssh_own_key_notes = ssh_own_key_notes + "\n";
+			}
+			ssh_own_key_notes =
+				ssh_own_key_notes +
+				"Key Fingerprint" +
+				": " +
+				item["sshKey"]["keyFingerprint"];
+		}
+	}
+
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "ssh_own_key",
+		name: name,
+		ssh_own_key_title: ssh_own_key_title,
+		ssh_own_key_public: ssh_own_key_public,
+		ssh_own_key_private: ssh_own_key_private,
+		ssh_own_key_notes: ssh_own_key_notes,
+	};
+}
+
+/**
  * Takes an item and transforms it into a note
  *
  * @param {[]} item One item of the json
@@ -484,6 +552,8 @@ function gatherSecrets(datastore, secrets, parsedData) {
 				);
 			} else if (detected_type === "credit_card") {
 				crafted_secrets.push(transferIntoCreditCard(parsedData["items"][i]));
+			} else if (detected_type === "ssh_own_key") {
+				crafted_secrets.push(transformToSshOwnKey(parsedData["items"][i]));
 			} else {
 				crafted_secrets.push(transformToNote(parsedData["items"][i]));
 			}

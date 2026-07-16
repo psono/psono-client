@@ -1,18 +1,20 @@
 /**
- * Service which handles the actual parsing of the exported JSON
+ * Service which handles the actual parsing of a 1Password v8 CSV export
  */
+import * as OTPAuth from "otpauth";
 
 const Papa = require("papaparse");
 
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 
-let INDEX_URL = 0;
-let INDEX_USERNAME = 1;
-let INDEX_PASSWORD = 2;
-let INDEX_NOTES = 3;
-let INDEX_NAME = 4;
-let INDEX_TYPE = 5;
+let INDEX_URL;
+let INDEX_USERNAME;
+let INDEX_PASSWORD;
+let INDEX_NOTES;
+let INDEX_NAME;
+let INDEX_TYPE;
+let INDEX_OTP_AUTH;
 
 /**
  * Takes the first line of the csv and checks the columns and sets the indexes correctly for later field extraction.
@@ -22,8 +24,16 @@ let INDEX_TYPE = 5;
  * @returns {*} The secrets object
  */
 function identifyRows(line) {
+	INDEX_URL = undefined;
+	INDEX_USERNAME = undefined;
+	INDEX_PASSWORD = undefined;
+	INDEX_NOTES = undefined;
+	INDEX_NAME = undefined;
+	INDEX_TYPE = undefined;
+	INDEX_OTP_AUTH = undefined;
+
 	for (let i = 0; i < line.length; i++) {
-		const column_description = line[i].toLowerCase();
+		const column_description = line[i].trim().toLowerCase();
 		if (column_description === "notes") {
 			INDEX_NOTES = i;
 		} else if (column_description === "password") {
@@ -36,6 +46,8 @@ function identifyRows(line) {
 			INDEX_URL = i;
 		} else if (column_description === "username") {
 			INDEX_USERNAME = i;
+		} else if (column_description === "otpauth") {
+			INDEX_OTP_AUTH = i;
 		}
 	}
 }
@@ -56,7 +68,7 @@ function identifyRows(line) {
  * @returns {string} Returns the appropriate type (note or website_password)
  */
 function getType(line) {
-	const type = line[INDEX_TYPE].toLowerCase();
+	const type = line[INDEX_TYPE] ? line[INDEX_TYPE].trim().toLowerCase() : "";
 	if (type === "secure note") {
 		return "note";
 	}
@@ -75,6 +87,18 @@ function getType(line) {
 		return "note";
 	}
 	if (type === "server") {
+		return "application_password";
+	}
+
+	const containsUrl = Boolean(line[INDEX_URL]?.trim());
+	const containsUsername = Boolean(line[INDEX_USERNAME]?.trim());
+	const containsPassword = Boolean(line[INDEX_PASSWORD]?.trim());
+	const containsTotp = Boolean(line[INDEX_OTP_AUTH]?.trim());
+
+	if (containsUrl || (containsPassword && containsTotp)) {
+		return "website_password";
+	}
+	if (containsUsername || containsPassword) {
 		return "application_password";
 	}
 
@@ -126,7 +150,7 @@ function transferIntoNote(line) {
 function transferIntoWebsitePassword(line) {
 	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-	return {
+	const websitePassword = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: line[INDEX_NAME],
@@ -139,6 +163,25 @@ function transferIntoWebsitePassword(line) {
 		website_password_url: line[INDEX_URL],
 		website_password_title: line[INDEX_NAME],
 	};
+
+	if (line[INDEX_OTP_AUTH]) {
+		try {
+			const label = encodeURIComponent(line[INDEX_NAME] || "1Password");
+			const otpAuthUri = line[INDEX_OTP_AUTH]
+				.trim()
+				.replace(/^otpauth:\/\/totp\/\?/i, `otpauth://totp/${label}?`);
+			const parsedTotp = OTPAuth.URI.parse(otpAuthUri);
+
+			websitePassword.website_password_totp_period = parsedTotp.period;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+		} catch {
+			// Keep the password importable if the OTP URI is malformed.
+		}
+	}
+
+	return websitePassword;
 }
 
 /**

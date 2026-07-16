@@ -536,7 +536,7 @@ function getPasswordDatastore(id) {
 				updatePathsRecursive(datastore, []);
 
 				fillStorage(datastore);
-				console.log(datastore);
+
 				return datastore;
 			};
 			const onError = (datastore) => {
