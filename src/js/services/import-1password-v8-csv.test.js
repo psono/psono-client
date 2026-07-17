@@ -125,4 +125,28 @@ describe("Service: import1PasswordV8Csv test suite", () => {
 			website_password_totp_code: "JBSWY3DPEHPK3PXP",
 		});
 	});
+
+	it("uses legacy behavior when a Type column is present", () => {
+		const input =
+			"Url,Username,Password,Notes,Title,Type\n" +
+			"https://example.com,user,password,,Password entry,Password\n" +
+			"https://example.com,user,password,,Login entry,Login\n" +
+			",user,password,,Server entry,Server\n" +
+			"https://example.com,user,password,,Secure note entry,Secure Note\n" +
+			"https://example.com,user,password,,Identity entry,Identity\n" +
+			"https://example.com,user,password,,Credit card entry,Credit Card\n" +
+			"https://example.com,user,password,,Unknown entry,Unknown";
+
+		const output = import1PasswordV8Csv.parser(input);
+
+		expect(output.secrets.map((secret) => secret.type)).toEqual([
+			"website_password",
+			"website_password",
+			"application_password",
+			"note",
+			"note",
+			"note",
+			"note",
+		]);
+	});
 });

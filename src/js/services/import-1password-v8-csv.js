@@ -69,25 +69,23 @@ function identifyRows(line) {
  */
 function getType(line) {
 	const type = line[INDEX_TYPE] ? line[INDEX_TYPE].trim().toLowerCase() : "";
-	if (type === "secure note") {
+	if (INDEX_TYPE !== undefined) {
+		if (type === "password" || type === "login") {
+			return "website_password";
+		}
+		if (type === "server") {
+			return "application_password";
+		}
+		if (
+			type === "secure note" ||
+			type === "identity" ||
+			type === "credit card"
+		) {
+			return "note";
+		}
+
+		// Preserve the legacy fallback for unknown types.
 		return "note";
-	}
-	if (type === "identity") {
-		// we currently don't have "identities" with address and so on, so we map it to a note
-		return "note";
-	}
-	if (type === "password") {
-		return "website_password";
-	}
-	if (type === "login") {
-		return "website_password";
-	}
-	if (type === "credit card") {
-		// we currently don't have "credit cards", so we map it to a note
-		return "note";
-	}
-	if (type === "server") {
-		return "application_password";
 	}
 
 	const containsUrl = Boolean(line[INDEX_URL]?.trim());
