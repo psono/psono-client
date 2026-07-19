@@ -332,7 +332,7 @@ async function navigatorCredentialsGet(options, origin, eventId) {
 
 	const rawId = converterService.fromHex(decryptedSecret.passkey_id);
 	decryptedSecret.passkey_public_key.key_ops = ["verify"];
-	const publicKey = await crypto.subtle.importKey(
+	await crypto.subtle.importKey(
 		"jwk", // the format
 		decryptedSecret.passkey_public_key,
 		decryptedSecret.passkey_algorithm,
@@ -359,10 +359,8 @@ async function navigatorCredentialsGet(options, origin, eventId) {
 		cryptoLibrary.sha256(clientDataJSONUint8Array),
 	);
 
-	const authenticatorData = await createAuthData(
+	const authenticatorData = createAssertionAuthenticatorData(
 		rpId,
-		rawId,
-		publicKey,
 		decryptedSecret.read_count,
 		true,
 	);
@@ -563,37 +561,17 @@ async function convertPublicKeyToCose(publicKey) {
 }
 
 /**
- * Creates the authenticator data structure (the first 37 bytes)
+ * Creates the fixed 37-byte authenticator data header.
  * https://www.w3.org/TR/webauthn/#sctn-authenticator-data
  *
- * ... and for the attested credential data (the variable rest)
- * https://www.w3.org/TR/webauthn/#sctn-attested-credential-data
- *
- * @param {str} rpId
- * @param {Uint8Array} rawId
- * @param {CryptoKey} publicKey
- * @param {int} signCountInt
- * @param {bool} userPresent
- *
+ * @param {string} rpId
+ * @param {number} flags
+ * @param {number} signCountInt
  * @returns {Uint8Array}
  */
-async function createAuthData(
-	rpId,
-	rawId,
-	publicKey,
-	signCountInt,
-	userPresent,
-) {
+function createAuthenticatorDataHeader(rpId, flags, signCountInt) {
 	// RP ID Hash
 	const rpIdHash = converterService.fromHex(cryptoLibrary.sha256(rpId));
-
-	// Flags
-	const flags = new Uint8Array([0x0]);
-	if (userPresent) {
-		flags[0] = flags[0] ^ (2 ** 0); // Math.pow(2,0) = 1 = 0000001 - bit 0, user present
-	}
-	flags[0] = flags[0] ^ (2 ** 2); // Math.pow(2,2) = 4 = 0000100 - bit 2, user verified
-	flags[0] = flags[0] ^ (2 ** 6); // Math.pow(2,6) = 64 = 1000000 - bit 6, attested credential data included
 
 	// Sign Count (4 bytes, big-endian)
 	const signCount = new Uint8Array([
@@ -603,7 +581,55 @@ async function createAuthData(
 		signCountInt & 0x000000ff,
 	]);
 
-	// Attested Credential Data
+	const authData = new Uint8Array(37);
+	authData.set(rpIdHash, 0);
+	authData[32] = flags;
+	authData.set(signCount, 33);
+
+	return authData;
+}
+
+/**
+ * Creates assertion authenticator data without attested credential data.
+ *
+ * @param {string} rpId
+ * @param {number} signCountInt
+ * @param {boolean} userPresent
+ * @returns {Uint8Array}
+ */
+function createAssertionAuthenticatorData(rpId, signCountInt, userPresent) {
+	let flags = 0x04; // User verified
+	if (userPresent) {
+		flags |= 0x01;
+	}
+
+	return createAuthenticatorDataHeader(rpId, flags, signCountInt);
+}
+
+/**
+ * Creates registration authenticator data including attested credential data.
+ * https://www.w3.org/TR/webauthn/#sctn-attested-credential-data
+ *
+ * @param {string} rpId
+ * @param {Uint8Array} rawId
+ * @param {CryptoKey} publicKey
+ * @param {number} signCountInt
+ * @param {boolean} userPresent
+ * @returns {Promise<Uint8Array>}
+ */
+async function createRegistrationAuthenticatorData(
+	rpId,
+	rawId,
+	publicKey,
+	signCountInt,
+	userPresent,
+) {
+	let flags = 0x44; // User verified and attested credential data included
+	if (userPresent) {
+		flags |= 0x01;
+	}
+	const header = createAuthenticatorDataHeader(rpId, flags, signCountInt);
+
 	const aaguid = new Uint8Array(16); // 16-byte AAGUID
 	aaguid.set(new Uint8Array([0x50, 0x73, 0x6f, 0x6e, 0x6f]));
 
@@ -616,41 +642,22 @@ async function createAuthData(
 
 	// Concatenate to form authData
 	const authData = new Uint8Array(
-		rpIdHash.byteLength +
-			flags.byteLength +
-			signCount.byteLength +
+		header.byteLength +
 			aaguid.byteLength +
 			credentialIdLengthView.byteLength +
 			rawId.byteLength +
 			publicKeyCose.byteLength,
 	);
-	authData.set(rpIdHash, 0);
-	authData.set(flags, rpIdHash.byteLength);
-	authData.set(signCount, rpIdHash.byteLength + flags.byteLength);
-	authData.set(
-		aaguid,
-		rpIdHash.byteLength + flags.byteLength + signCount.byteLength,
-	);
-	authData.set(
-		credentialIdLengthView,
-		rpIdHash.byteLength +
-			flags.byteLength +
-			signCount.byteLength +
-			aaguid.byteLength,
-	);
+	authData.set(header, 0);
+	authData.set(aaguid, header.byteLength);
+	authData.set(credentialIdLengthView, header.byteLength + aaguid.byteLength);
 	authData.set(
 		rawId,
-		rpIdHash.byteLength +
-			flags.byteLength +
-			signCount.byteLength +
-			aaguid.byteLength +
-			credentialIdLengthView.byteLength,
+		header.byteLength + aaguid.byteLength + credentialIdLengthView.byteLength,
 	);
 	authData.set(
 		publicKeyCose,
-		rpIdHash.byteLength +
-			flags.byteLength +
-			signCount.byteLength +
+		header.byteLength +
 			aaguid.byteLength +
 			credentialIdLengthView.byteLength +
 			rawId.byteLength,
@@ -894,7 +901,7 @@ async function navigatorCredentialsCreate(options, origin, eventId) {
 
 	const rawId = cryptoLibrary.randomBytes(16); // 16 bytes or 128 bits long random credential id
 
-	const authData = await createAuthData(
+	const authData = await createRegistrationAuthenticatorData(
 		rpId,
 		rawId,
 		keyPair.publicKey,
