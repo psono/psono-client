@@ -946,7 +946,7 @@ async function navigatorCredentialsCreate(options, origin, eventId) {
 		publicKeyJwkFormat,
 		privateKeyJwkFormat,
 		options.publicKey.user.id,
-		options.publicKey.user.display_name ||
+		options.publicKey.user.displayName ||
 			options.publicKey.user.name ||
 			options.publicKey.user.id,
 		{
@@ -974,11 +974,10 @@ async function navigatorCredentialsCreate(options, origin, eventId) {
 			authenticatorData: converterService.arrayBufferToBase64Url(authData),
 		},
 		type: "public-key",
-		clientExtensionResults: {
-			// "credProps": {
-			//     "rk": true
-			// }
-		},
+		clientExtensionResults:
+			options.publicKey.extensions && options.publicKey.extensions.credProps
+				? { credProps: { rk: autosubmit } }
+				: {},
 		authenticatorAttachment: "platform",
 	};
 

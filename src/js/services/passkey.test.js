@@ -214,7 +214,7 @@ describe("Service: passkey test suite", () => {
 						user: {
 							id: "YXNkYXNk",
 							name: "dfg",
-							displayName: "dfg",
+							displayName: "Display Name",
 						},
 						challenge: {},
 						pubKeyCredParams: [
@@ -261,6 +261,9 @@ describe("Service: passkey test suite", () => {
 		expect(navigatorCredentials.response.publicKeyAlgorithm).toBe(-7);
 
 		expect(navigatorCredentials.response.transports[0]).toBe("internal");
+		expect(navigatorCredentials.clientExtensionResults).toEqual({
+			credProps: { rk: true },
+		});
 
 		const authenticatorData = new Uint8Array(
 			converterService.base64UrlToArrayBuffer(
@@ -328,7 +331,7 @@ describe("Service: passkey test suite", () => {
 			"YXNkYXNk",
 		); // user handle
 		expect(datastorePasswordService.savePasskey.mock.calls[0][5]).toEqual(
-			"dfg",
+			"Display Name",
 		); // user handle
 		expect(datastorePasswordService.savePasskey.mock.calls[0][6]).toEqual({
 			name: "ECDSA",
