@@ -148,6 +148,19 @@
 		return base64ToArrayBuffer(base64Url.replace(/-/g, "+").replace(/_/g, "/"));
 	}
 
+	function publicKeyCredentialToJSON(credential) {
+		return {
+			id: credential.id,
+			rawId: credential.rawId,
+			response: { ...credential.response },
+			type: credential.type,
+			clientExtensionResults: {
+				...(credential.clientExtensionResults || {}),
+			},
+			authenticatorAttachment: credential.authenticatorAttachment,
+		};
+	}
+
 	/**
 	 * Received once the content script handled the navigator.credentials.create event
 	 * @param response
@@ -217,7 +230,9 @@
 					return response.credential.response.transports;
 				},
 			},
-			getClientExtensionResults: () => ({}),
+			getClientExtensionResults: () =>
+				response.credential.clientExtensionResults || {},
+			toJSON: () => publicKeyCredentialToJSON(response.credential),
 		};
 
 		// Fix instanceOf calls
@@ -282,7 +297,9 @@
 					response.credential.response.userHandle,
 				),
 			},
-			getClientExtensionResults: () => ({}),
+			getClientExtensionResults: () =>
+				response.credential.clientExtensionResults || {},
+			toJSON: () => publicKeyCredentialToJSON(response.credential),
 		};
 
 		// Fix instanceOf calls
