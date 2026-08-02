@@ -51,6 +51,12 @@ const SettingsEntryTypesView = (props) => {
 	);
 	const [showSSHKey, setShowSSHKey] = useState(settingsDatastore.showSSHKey);
 	const [showGPGKey, setShowGPGKey] = useState(settingsDatastore.showGPGKey);
+	const [showSSHConnection, setShowSSHConnection] = useState(
+		settingsDatastore.showSSHConnection,
+	);
+	const [showRDPConnection, setShowRDPConnection] = useState(
+		settingsDatastore.showRDPConnection,
+	);
 	const [showCreditCard, setShowCreditCard] = useState(
 		settingsDatastore.showCreditCard,
 	);
@@ -99,6 +105,14 @@ const SettingsEntryTypesView = (props) => {
 			value: showGPGKey,
 			setter: setShowGPGKey,
 		},
+		ssh_connection: {
+			value: showSSHConnection,
+			setter: setShowSSHConnection,
+		},
+		rdp_connection: {
+			value: showRDPConnection,
+			setter: setShowRDPConnection,
+		},
 		credit_card: {
 			value: showCreditCard,
 			setter: setShowCreditCard,
@@ -130,6 +144,8 @@ const SettingsEntryTypesView = (props) => {
 		setShowEnvironmentVariables(settingsDatastore.showEnvironmentVariables);
 		setShowSSHKey(settingsDatastore.showSSHKey);
 		setShowGPGKey(settingsDatastore.showGPGKey);
+		setShowSSHConnection(settingsDatastore.showSSHConnection);
+		setShowRDPConnection(settingsDatastore.showRDPConnection);
 		setShowCreditCard(settingsDatastore.showCreditCard);
 		setShowBookmark(settingsDatastore.showBookmark);
 		setShowIdentity(settingsDatastore.showIdentity);
@@ -147,6 +163,8 @@ const SettingsEntryTypesView = (props) => {
 			showEnvironmentVariables,
 			showSSHKey,
 			showGPGKey,
+			showSSHConnection,
+			showRDPConnection,
 			showCreditCard,
 			showBookmark,
 			showIdentity,

@@ -29,7 +29,9 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
+import action from "../../actions/bound-action-creators";
 import browserClientService from "../../services/browser-client";
+import connectionCredentialsService from "../../services/connection-credentials";
 import converterService from "../../services/converter";
 import cryptoLibrary from "../../services/crypto-library";
 import fileTransferService from "../../services/file-transfer";
@@ -38,6 +40,7 @@ import notification from "../../services/notification";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
+import ConnectionEntryFields from "../connection-entry-fields";
 import GridContainerErrors from "../grid-container-errors";
 import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
@@ -231,6 +234,29 @@ const DialogNewEntry = (props) => {
 	const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
 	const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
 	const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
+	const [sshConnection, setSshConnection] = useState({
+		title: "",
+		host: "",
+		port: 22,
+		authenticationType: "password",
+		username: "",
+		password: "",
+		privateKey: "",
+		notes: "",
+	});
+	const [sshConnectionAuthentication, setSshConnectionAuthentication] =
+		useState(null);
+	const [rdpConnection, setRdpConnection] = useState({
+		title: "",
+		host: "",
+		port: 3389,
+		domain: "",
+		username: "",
+		password: "",
+		notes: "",
+	});
+	const [rdpConnectionAuthentication, setRdpConnectionAuthentication] =
+		useState(null);
 
 	const [creditCardTitle, setCreditCardTitle] = useState("");
 	const [creditCardNumber, setCreditCardNumber] = useState("");
@@ -291,6 +317,31 @@ const DialogNewEntry = (props) => {
 		Boolean(sshOwnKeyTitle) &&
 		Boolean(sshOwnKeyPublic) &&
 		Boolean(sshOwnKeyPrivate);
+	const isValidSshConnectionAuthentication = sshConnectionAuthentication
+		? Boolean(sshConnectionAuthentication.secret_id) &&
+			Boolean(sshConnectionAuthentication.secret_key) &&
+			(sshConnectionAuthentication.type === "application_password" ||
+				(sshConnectionAuthentication.type === "ssh_own_key" &&
+					Boolean(sshConnectionAuthentication.username)))
+		: Boolean(sshConnection.username) &&
+			(sshConnection.authenticationType === "password"
+				? Boolean(sshConnection.password)
+				: Boolean(sshConnection.privateKey));
+	const isValidSshConnection =
+		Boolean(sshConnection.title) &&
+		helperService.isValidHostname(sshConnection.host) &&
+		helperService.isValidPort(sshConnection.port) &&
+		isValidSshConnectionAuthentication;
+	const isValidRdpConnectionAuthentication = rdpConnectionAuthentication
+		? rdpConnectionAuthentication.type === "application_password" &&
+			Boolean(rdpConnectionAuthentication.secret_id) &&
+			Boolean(rdpConnectionAuthentication.secret_key)
+		: Boolean(rdpConnection.username) && Boolean(rdpConnection.password);
+	const isValidRdpConnection =
+		Boolean(rdpConnection.title) &&
+		helperService.isValidHostname(rdpConnection.host) &&
+		helperService.isValidPort(rdpConnection.port) &&
+		isValidRdpConnectionAuthentication;
 	const isValidCreditCard =
 		Boolean(creditCardTitle) &&
 		Boolean(creditCardNumber) &&
@@ -311,6 +362,8 @@ const DialogNewEntry = (props) => {
 		(type === "totp" && isValidTotp) ||
 		(type === "environment_variables" && isValidEnvironmentVariables) ||
 		(type === "ssh_own_key" && isValidSshOwnKey) ||
+		(type === "ssh_connection" && isValidSshConnection) ||
+		(type === "rdp_connection" && isValidRdpConnection) ||
 		(type === "credit_card" && isValidCreditCard) ||
 		(type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
 		(type === "file" && isValidFile) ||
@@ -603,7 +656,26 @@ const DialogNewEntry = (props) => {
 			.then(onSuccess, onError);
 	};
 
-	const onCreate = (event) => {
+	const onCreate = (event, authenticationValidated = false) => {
+		const selectedAuthentication =
+			type === "ssh_connection"
+				? sshConnectionAuthentication
+				: type === "rdp_connection"
+					? rdpConnectionAuthentication
+					: null;
+		if (selectedAuthentication && !authenticationValidated) {
+			connectionCredentialsService
+				.resolveAuthenticationReference(
+					type,
+					selectedAuthentication,
+					secretService.readSecret,
+				)
+				.then(
+					() => onCreate(event, true),
+					() => setErrors(["BROKEN_REFERENCE"]),
+				);
+			return;
+		}
 		const item = {
 			id: cryptoLibrary.generateUuid(),
 			type: type,
@@ -817,6 +889,46 @@ const DialogNewEntry = (props) => {
 			secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
 		}
 
+		if (item.type === "ssh_connection") {
+			item["name"] = sshConnection.title;
+			item["description"] = `${sshConnection.host}:${sshConnection.port}`;
+			secretObject["ssh_connection_title"] = sshConnection.title;
+			secretObject["ssh_connection_host"] = sshConnection.host;
+			secretObject["ssh_connection_port"] = Number(sshConnection.port);
+			if (!sshConnectionAuthentication) {
+				secretObject["ssh_connection_authentication_type"] =
+					sshConnection.authenticationType;
+				secretObject["ssh_connection_username"] = sshConnection.username;
+				if (sshConnection.password) {
+					secretObject["ssh_connection_password"] = sshConnection.password;
+				}
+				if (sshConnection.privateKey) {
+					secretObject["ssh_connection_private_key"] = sshConnection.privateKey;
+				}
+			}
+			if (sshConnection.notes) {
+				secretObject["ssh_connection_notes"] = sshConnection.notes;
+			}
+		}
+
+		if (item.type === "rdp_connection") {
+			item["name"] = rdpConnection.title;
+			item["description"] = `${rdpConnection.host}:${rdpConnection.port}`;
+			secretObject["rdp_connection_title"] = rdpConnection.title;
+			secretObject["rdp_connection_host"] = rdpConnection.host;
+			secretObject["rdp_connection_port"] = Number(rdpConnection.port);
+			secretObject["rdp_connection_domain"] = rdpConnection.domain;
+			if (!rdpConnectionAuthentication) {
+				secretObject["rdp_connection_username"] = rdpConnection.username;
+				if (rdpConnection.password) {
+					secretObject["rdp_connection_password"] = rdpConnection.password;
+				}
+			}
+			if (rdpConnection.notes) {
+				secretObject["rdp_connection_notes"] = rdpConnection.notes;
+			}
+		}
+
 		if (item.type === "credit_card") {
 			item["name"] = creditCardTitle;
 			secretObject["credit_card_title"] = creditCardTitle;
@@ -888,7 +1000,39 @@ const DialogNewEntry = (props) => {
 			const onSuccess = (data) => {
 				item["secret_id"] = data.secret_id;
 				item["secret_key"] = data.secret_key;
-				props.onCreate(item);
+				const personalAuthentication =
+					item.type === "ssh_connection"
+						? sshConnectionAuthentication
+						: item.type === "rdp_connection"
+							? rdpConnectionAuthentication
+							: null;
+				if (!personalAuthentication) {
+					props.onCreate(item);
+					return;
+				}
+				connectionCredentialsService
+					.resolveAuthenticationReference(
+						item.type,
+						personalAuthentication,
+						secretService.readSecret,
+					)
+					.then(() =>
+						action().setConnectionAuthentication(
+							data.secret_id,
+							connectionCredentialsService.sanitizeConnectionAuthentication(
+								personalAuthentication,
+							),
+						),
+					)
+					.then(
+						() => props.onCreate(item),
+						() => {
+							notification.push(
+								"connection_authentication",
+								t("BROKEN_REFERENCE"),
+							);
+						},
+					);
 			};
 			secretService
 				.createSecret(
@@ -1050,7 +1194,9 @@ const DialogNewEntry = (props) => {
 					{(type === "website_password" ||
 						type === "application_password" ||
 						type === "bookmark" ||
-						type === "note") && (
+						type === "note" ||
+						type === "ssh_connection" ||
+						type === "rdp_connection") && (
 						<MenuItem
 							onClick={() => {
 								handleClose();
@@ -2689,6 +2835,48 @@ const DialogNewEntry = (props) => {
 								creditCardNotes,
 								setCreditCardNotes,
 							)}
+
+						{["ssh_connection", "rdp_connection"].includes(type) && (
+							<ConnectionEntryFields
+								connection={
+									type === "ssh_connection" ? sshConnection : rdpConnection
+								}
+								connectionType={type}
+								onChange={(field, value) => {
+									if (type === "ssh_connection") {
+										setSshConnection((current) => ({
+											...current,
+											[field]: value,
+										}));
+									} else {
+										setRdpConnection((current) => ({
+											...current,
+											[field]: value,
+										}));
+									}
+								}}
+								onPersonalAuthenticationChange={
+									type === "ssh_connection"
+										? setSshConnectionAuthentication
+										: setRdpConnectionAuthentication
+								}
+								onToggleSecrets={() => setShowPassword(!showPassword)}
+								personalAuthentication={
+									type === "ssh_connection"
+										? sshConnectionAuthentication
+										: rdpConnectionAuthentication
+								}
+								personalAuthenticationDisabled={
+									getStore().getState().settingsDatastore.noSaveMode
+								}
+								readOnly={false}
+								showSecrets={showPassword}
+							/>
+						)}
+						{["ssh_connection", "rdp_connection"].includes(type) &&
+							renderedCustomFields}
+						{["ssh_connection", "rdp_connection"].includes(type) &&
+							renderAddButton}
 
 						{type === "ssh_own_key" &&
 							(sshOwnKeyTitle ||

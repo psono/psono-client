@@ -1075,6 +1075,14 @@ function cloneItem(datastore, item, path) {
 			secret_object["application_password_title"] =
 				"Copy " + secret_object["application_password_title"];
 		}
+		if (Object.hasOwn(secret_object, "ssh_connection_title")) {
+			secret_object["ssh_connection_title"] =
+				"Copy " + secret_object["ssh_connection_title"];
+		}
+		if (Object.hasOwn(secret_object, "rdp_connection_title")) {
+			secret_object["rdp_connection_title"] =
+				"Copy " + secret_object["rdp_connection_title"];
+		}
 		if (Object.hasOwn(secret_object, "bookmark_title")) {
 			secret_object["bookmark_title"] =
 				"Copy " + secret_object["bookmark_title"];
@@ -1608,6 +1616,14 @@ function itemIcon(item) {
 
 	if (item.type === "application_password") {
 		return "fa fa-cube";
+	}
+
+	if (item.type === "ssh_connection") {
+		return "fa fa-terminal";
+	}
+
+	if (item.type === "rdp_connection") {
+		return "fa fa-desktop";
 	}
 
 	if (item.type === "website_password") {

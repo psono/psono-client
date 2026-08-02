@@ -243,17 +243,27 @@ const DatastoreTreeItem = (props) => {
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "totp"].includes(content["type"]);
+		!["website_password", "totp"].includes(content.type);
 	const hideCopyUsername =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "application_password"].includes(content["type"]);
+		![
+			"website_password",
+			"application_password",
+			"ssh_connection",
+			"rdp_connection",
+		].includes(content.type);
 	const hideCopyPassword =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "application_password"].includes(content["type"]);
+		![
+			"website_password",
+			"application_password",
+			"ssh_connection",
+			"rdp_connection",
+		].includes(content.type);
 	const hideCopyUrl =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||

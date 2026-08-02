@@ -134,4 +134,36 @@ describe("Service: importPsonoJson test suite", () => {
 
 		expect(output).toEqual(expected_output);
 	});
+
+	it("imports SSH and RDP connection fields", async () => {
+		await initStore();
+		cryptoLibrary.generateUuid = jest.fn(
+			() => "1fce01f4-6411-47a9-885c-a80bf4c654aa",
+		);
+		const output = importPsonoJson.parser(
+			JSON.stringify({
+				items: [
+					{
+						type: "ssh_connection",
+						name: "SSH",
+						ssh_connection_title: "SSH",
+						ssh_connection_host: "ssh.example.com",
+						ssh_connection_port: 22,
+					},
+					{
+						type: "rdp_connection",
+						name: "RDP",
+						rdp_connection_title: "RDP",
+						rdp_connection_host: "rdp.example.com",
+						rdp_connection_port: 3389,
+					},
+				],
+			}),
+		);
+
+		expect(output.secrets.map((secret) => secret.type)).toEqual([
+			"ssh_connection",
+			"rdp_connection",
+		]);
+	});
 });

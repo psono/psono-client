@@ -1,5 +1,6 @@
 import {
 	SET_CLIENT_CONFIG,
+	SET_CONNECTION_AUTHENTICATION,
 	SET_DOMAIN_SYNONYMS_CONFIG,
 	SET_GPG_CONFIG,
 	SET_GPG_DEFAULT_KEY,
@@ -7,7 +8,21 @@ import {
 	SET_SHOWN_ENTRIES_CONFIG,
 	SETTINGS_DATASTORE_LOADED,
 } from "../actions/action-types";
-import { getStore } from "../services/store";
+
+function normalizeConnectionAuthentication(value) {
+	if (
+		!value ||
+		Array.isArray(value) ||
+		typeof value !== "object" ||
+		value.schema_version !== 1 ||
+		!value.by_connection_secret_id ||
+		Array.isArray(value.by_connection_secret_id) ||
+		typeof value.by_connection_secret_id !== "object"
+	) {
+		return { schema_version: 1, by_connection_secret_id: {} };
+	}
+	return value;
+}
 
 function settingsDatastore(
 	state = {
@@ -28,12 +43,18 @@ function settingsDatastore(
 		showEnvironmentVariables: false,
 		showSSHKey: false,
 		showGPGKey: false,
+		showSSHConnection: false,
+		showRDPConnection: false,
 		showCreditCard: true,
 		showBookmark: true,
 		showIdentity: true,
 		showElsterCertificate: false,
 		showFile: true,
 		customDomainSynonyms: [],
+		connectionAuthentication: {
+			schema_version: 1,
+			by_connection_secret_id: {},
+		},
 	},
 	action,
 ) {
@@ -109,8 +130,20 @@ function settingsDatastore(
 				showSSHKey: Object.hasOwn(action.data, "setting_show_ssh_own_key")
 					? action.data.setting_show_ssh_own_key
 					: false,
-				howGPGKey: Object.hasOwn(action.data, "setting_show_mail_gpg_own_key")
+				showGPGKey: Object.hasOwn(action.data, "setting_show_mail_gpg_own_key")
 					? action.data.setting_show_mail_gpg_own_key
+					: false,
+				showSSHConnection: Object.hasOwn(
+					action.data,
+					"setting_show_ssh_connection",
+				)
+					? action.data.setting_show_ssh_connection
+					: false,
+				showRDPConnection: Object.hasOwn(
+					action.data,
+					"setting_show_rdp_connection",
+				)
+					? action.data.setting_show_rdp_connection
 					: false,
 				showCreditCard: Object.hasOwn(action.data, "setting_show_credit_card")
 					? action.data.setting_show_credit_card
@@ -151,6 +184,14 @@ function settingsDatastore(
 				)
 					? action.data.setting_custom_domain_synonyms
 					: [],
+				connectionAuthentication: Object.hasOwn(
+					action.data,
+					"setting_connection_authentication",
+				)
+					? normalizeConnectionAuthentication(
+							action.data.setting_connection_authentication,
+						)
+					: { schema_version: 1, by_connection_secret_id: {} },
 			});
 		case SET_PASSWORD_CONFIG:
 			return Object.assign({}, state, {
@@ -170,6 +211,8 @@ function settingsDatastore(
 				showEnvironmentVariables: action.showEnvironmentVariables,
 				showSSHKey: action.showSSHKey,
 				showGPGKey: action.showGPGKey,
+				showSSHConnection: action.showSSHConnection,
+				showRDPConnection: action.showRDPConnection,
 				showCreditCard: action.showCreditCard,
 				showBookmark: action.showBookmark,
 				showIdentity: action.showIdentity,
@@ -196,6 +239,10 @@ function settingsDatastore(
 		case SET_DOMAIN_SYNONYMS_CONFIG:
 			return Object.assign({}, state, {
 				customDomainSynonyms: action.customDomainSynonyms,
+			});
+		case SET_CONNECTION_AUTHENTICATION:
+			return Object.assign({}, state, {
+				connectionAuthentication: action.connectionAuthentication,
 			});
 		default:
 			return state;

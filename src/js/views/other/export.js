@@ -89,6 +89,24 @@ const OtherExportView = (props) => {
 		{ key: "application_password_username", label: t("USERNAME") },
 		{ key: "application_password_password", label: t("PASSWORD") },
 		{ key: "application_password_notes", label: t("NOTES") },
+		{ key: "ssh_connection_title", label: t("TITLE") },
+		{ key: "ssh_connection_host", label: t("HOST") },
+		{ key: "ssh_connection_port", label: t("PORT") },
+		{
+			key: "ssh_connection_authentication_type",
+			label: t("AUTHENTICATION_MODE"),
+		},
+		{ key: "ssh_connection_username", label: t("USERNAME") },
+		{ key: "ssh_connection_password", label: t("PASSWORD") },
+		{ key: "ssh_connection_private_key", label: t("PRIVATE_KEY") },
+		{ key: "ssh_connection_notes", label: t("NOTES") },
+		{ key: "rdp_connection_title", label: t("TITLE") },
+		{ key: "rdp_connection_host", label: t("HOST") },
+		{ key: "rdp_connection_port", label: t("PORT") },
+		{ key: "rdp_connection_domain", label: t("DOMAIN") },
+		{ key: "rdp_connection_username", label: t("USERNAME") },
+		{ key: "rdp_connection_password", label: t("PASSWORD") },
+		{ key: "rdp_connection_notes", label: t("NOTES") },
 		{ key: "passkey_title", label: t("TITLE") },
 		{ key: "passkey_rp_id", label: t("RP_ID") },
 		{ key: "passkey_id", label: t("ID") },
@@ -363,6 +381,18 @@ const OtherExportView = (props) => {
 										category: t("APPLICATION_PASSWORD"),
 										columns: csvColumns.filter((col) =>
 											col.key.startsWith("application_password_"),
+										),
+									},
+									{
+										category: t("SSH_CONNECTION"),
+										columns: csvColumns.filter((col) =>
+											col.key.startsWith("ssh_connection_"),
+										),
+									},
+									{
+										category: t("RDP_CONNECTION"),
+										columns: csvColumns.filter((col) =>
+											col.key.startsWith("rdp_connection_"),
 										),
 									},
 									{

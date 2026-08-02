@@ -223,6 +223,41 @@ function filterDatastoreExport(
 	return folder;
 }
 
+function addConnectionKdbxEntry(db, kdbxweb, group, item) {
+	const entry = db.createEntry(group);
+	if (item.type === "ssh_connection") {
+		entry.fields.set("Title", item.ssh_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.ssh_connection_host || "");
+		entry.fields.set("Port", item.ssh_connection_port || "");
+		entry.fields.set(
+			"Authentication Type",
+			item.ssh_connection_authentication_type || "",
+		);
+		entry.fields.set("UserName", item.ssh_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.ssh_connection_password || ""),
+		);
+		entry.fields.set(
+			"Private Key",
+			kdbxweb.ProtectedValue.fromString(item.ssh_connection_private_key || ""),
+		);
+		entry.fields.set("Notes", item.ssh_connection_notes || "");
+	} else {
+		entry.fields.set("Title", item.rdp_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.rdp_connection_host || "");
+		entry.fields.set("Port", item.rdp_connection_port || "");
+		entry.fields.set("Domain", item.rdp_connection_domain || "");
+		entry.fields.set("UserName", item.rdp_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.rdp_connection_password || ""),
+		);
+		entry.fields.set("Notes", item.rdp_connection_notes || "");
+	}
+	return entry;
+}
+
 /**
  * Converts Psono data structure to kdbx
  *
@@ -440,6 +475,12 @@ async function exportToKdbxv4(passwordData, password) {
 		if (item.type === "application_password") {
 			addApplicationPasswordEntry(group, item);
 		}
+		if (item.type === "ssh_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
+		if (item.type === "rdp_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
 		if (item.type === "bookmark") {
 			addBookmarkEntry(group, item);
 		}
@@ -540,6 +581,24 @@ async function composeExport(data, type, password, selectedColumns) {
 				application_password_username: "application_password_username",
 				application_password_password: "application_password_password",
 				application_password_notes: "application_password_notes",
+
+				ssh_connection_title: "ssh_connection_title",
+				ssh_connection_host: "ssh_connection_host",
+				ssh_connection_port: "ssh_connection_port",
+				ssh_connection_authentication_type:
+					"ssh_connection_authentication_type",
+				ssh_connection_username: "ssh_connection_username",
+				ssh_connection_password: "ssh_connection_password",
+				ssh_connection_private_key: "ssh_connection_private_key",
+				ssh_connection_notes: "ssh_connection_notes",
+
+				rdp_connection_title: "rdp_connection_title",
+				rdp_connection_host: "rdp_connection_host",
+				rdp_connection_port: "rdp_connection_port",
+				rdp_connection_domain: "rdp_connection_domain",
+				rdp_connection_username: "rdp_connection_username",
+				rdp_connection_password: "rdp_connection_password",
+				rdp_connection_notes: "rdp_connection_notes",
 
 				passkey_title: "passkey_title",
 				passkey_rp_id: "passkey_rp_id",
@@ -853,6 +912,8 @@ const exportService = {
 	fetchDatastore: fetchDatastore,
 	exportDatastore: exportDatastore,
 	getAllSecrets: getAllSecrets,
+	composeExport: composeExport,
+	addConnectionKdbxEntry: addConnectionKdbxEntry,
 };
 
 export default exportService;

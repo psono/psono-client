@@ -678,4 +678,14 @@ describe("Service: helper test suite", () => {
 			).toBe(testCase.expected);
 		});
 	});
+
+	it("validates connection ports", () => {
+		expect(helperService.isValidPort(1)).toBeTruthy();
+		expect(helperService.isValidPort("22")).toBeTruthy();
+		expect(helperService.isValidPort(65535)).toBeTruthy();
+		expect(helperService.isValidPort(0)).toBeFalsy();
+		expect(helperService.isValidPort(65536)).toBeFalsy();
+		expect(helperService.isValidPort("22.5")).toBeFalsy();
+		expect(helperService.isValidPort("invalid")).toBeFalsy();
+	});
 });

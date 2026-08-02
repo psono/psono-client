@@ -6,6 +6,99 @@ import action from "../actions/bound-action-creators";
 import datastore from "./datastore";
 import { getStore } from "./store";
 
+function normalizeConnectionAuthentication(value) {
+	if (
+		!value ||
+		Array.isArray(value) ||
+		typeof value !== "object" ||
+		value.schema_version !== 1 ||
+		!value.by_connection_secret_id ||
+		Array.isArray(value.by_connection_secret_id) ||
+		typeof value.by_connection_secret_id !== "object"
+	) {
+		return { schema_version: 1, by_connection_secret_id: {} };
+	}
+	return value;
+}
+
+function serializeSettingsDatastore(settings) {
+	return [
+		{
+			key: "setting_show_website_password",
+			value: settings.showWebsitePassword,
+		},
+		{
+			key: "setting_show_application_password",
+			value: settings.showApplicationPassword,
+		},
+		{ key: "setting_show_totp", value: settings.showTOTPAuthenticator },
+		{ key: "setting_show_passkey", value: settings.showPasskey },
+		{ key: "setting_show_note", value: settings.showNote },
+		{
+			key: "setting_show_environment_variables",
+			value: settings.showEnvironmentVariables,
+		},
+		{ key: "setting_show_ssh_own_key", value: settings.showSSHKey },
+		{ key: "setting_show_mail_gpg_own_key", value: settings.showGPGKey },
+		{
+			key: "setting_show_ssh_connection",
+			value: settings.showSSHConnection,
+		},
+		{
+			key: "setting_show_rdp_connection",
+			value: settings.showRDPConnection,
+		},
+		{ key: "setting_show_credit_card", value: settings.showCreditCard },
+		{ key: "setting_show_bookmark", value: settings.showBookmark },
+		{ key: "setting_show_identity", value: settings.showIdentity },
+		{
+			key: "setting_show_elster_certificate",
+			value: settings.showElsterCertificate,
+		},
+		{ key: "setting_show_file", value: settings.showFile },
+		{ key: "setting_password_length", value: settings.passwordLength },
+		{
+			key: "setting_password_letters_uppercase",
+			value: settings.passwordLettersUppercase,
+		},
+		{
+			key: "setting_password_letters_lowercase",
+			value: settings.passwordLettersLowercase,
+		},
+		{ key: "setting_password_numbers", value: settings.passwordNumbers },
+		{
+			key: "setting_password_special_chars",
+			value: settings.passwordSpecialChars,
+		},
+		{ key: "gpg_default_key", value: settings.gpgDefaultKey },
+		{ key: "gpg_hkp_key_server", value: settings.gpgHkpKeyServer },
+		{ key: "gpg_hkp_search", value: settings.gpgHkpSearch },
+		{
+			key: "setting_clipboard_clear_delay",
+			value: settings.clipboardClearDelay,
+		},
+		{ key: "setting_no_save_mode", value: settings.noSaveMode },
+		{ key: "setting_show_no_save_toggle", value: settings.showNoSaveToggle },
+		{
+			key: "setting_confirm_unsaved_changes",
+			value: settings.confirmOnUnsavedChanges,
+		},
+		{
+			key: "setting_custom_domain_synonyms",
+			value: JSON.stringify(settings.customDomainSynonyms || []),
+		},
+		{
+			key: "setting_connection_authentication",
+			value: JSON.stringify(
+				settings.connectionAuthentication || {
+					schema_version: 1,
+					by_connection_secret_id: {},
+				},
+			),
+		},
+	];
+}
+
 /**
  * Returns the settings datastore.
  *
@@ -91,11 +184,24 @@ function getSettingsDatastore() {
 		if (Array.isArray(results)) {
 			// if the user has no settings datastore then this function will return an dict, e.g. {'datastore_id': '...'}
 			results.forEach((result) => {
-				if (result["key"] === "setting_custom_domain_synonyms") {
+				if (
+					[
+						"setting_custom_domain_synonyms",
+						"setting_connection_authentication",
+					].includes(result["key"])
+				) {
 					try {
 						data[result["key"]] = JSON.parse(result["value"]);
+						if (result["key"] === "setting_connection_authentication") {
+							data[result["key"]] = normalizeConnectionAuthentication(
+								data[result["key"]],
+							);
+						}
 					} catch (e) {
-						data[result["key"]] = [];
+						data[result["key"]] =
+							result["key"] === "setting_custom_domain_synonyms"
+								? []
+								: { schema_version: 1, by_connection_secret_id: {} };
 					}
 				} else {
 					data[result["key"]] = result["value"];
@@ -128,5 +234,7 @@ function saveSettingsDatastore(content) {
 const datastoreSettingService = {
 	getSettingsDatastore: getSettingsDatastore,
 	saveSettingsDatastore: saveSettingsDatastore,
+	serializeSettingsDatastore: serializeSettingsDatastore,
+	normalizeConnectionAuthentication: normalizeConnectionAuthentication,
 };
 export default datastoreSettingService;

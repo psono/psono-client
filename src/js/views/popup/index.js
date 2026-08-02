@@ -363,9 +363,12 @@ const PopupItem = (props) => {
 						/>
 					</Button>
 				)}
-				{["application_password", "website_password"].indexOf(
-					item.content.type,
-				) !== -1 && (
+				{[
+					"application_password",
+					"website_password",
+					"ssh_connection",
+					"rdp_connection",
+				].indexOf(item.content.type) !== -1 && (
 					<>
 						<Tooltip
 							title={t("COPY_USERNAME")}
