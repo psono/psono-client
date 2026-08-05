@@ -92,7 +92,8 @@ const ConnectionAuthentication = ({ disabled, onChange, type, value }) => {
 ConnectionAuthentication.propTypes = {
 	disabled: PropTypes.bool,
 	onChange: PropTypes.func.isRequired,
-	type: PropTypes.oneOf(["ssh_connection", "rdp_connection"]).isRequired,
+	type: PropTypes.oneOf(["ssh_connection", "rdp_connection", "vnc_connection"])
+		.isRequired,
 	value: PropTypes.object,
 };
 

@@ -17,6 +17,7 @@ jest.mock("./store", () => ({
 				showPasskey: true,
 				showRDPConnection: true,
 				showSSHConnection: true,
+				showVNCConnection: true,
 				showSSHKey: true,
 				showTOTPAuthenticator: true,
 				showWebsitePassword: true,
@@ -33,5 +34,6 @@ describe("connection item blueprints", () => {
 
 		expect(values).toContain("ssh_connection");
 		expect(values).toContain("rdp_connection");
+		expect(values).toContain("vnc_connection");
 	});
 });

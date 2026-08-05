@@ -135,7 +135,7 @@ describe("Service: importPsonoJson test suite", () => {
 		expect(output).toEqual(expected_output);
 	});
 
-	it("imports SSH and RDP connection fields", async () => {
+	it("imports SSH, RDP, and VNC connection fields", async () => {
 		await initStore();
 		cryptoLibrary.generateUuid = jest.fn(
 			() => "1fce01f4-6411-47a9-885c-a80bf4c654aa",
@@ -156,6 +156,14 @@ describe("Service: importPsonoJson test suite", () => {
 						rdp_connection_title: "RDP",
 						rdp_connection_host: "rdp.example.com",
 						rdp_connection_port: 3389,
+						rdp_connection_ignore_certificate: true,
+					},
+					{
+						type: "vnc_connection",
+						name: "VNC",
+						vnc_connection_title: "VNC",
+						vnc_connection_host: "vnc.example.com",
+						vnc_connection_port: 5900,
 					},
 				],
 			}),
@@ -164,6 +172,8 @@ describe("Service: importPsonoJson test suite", () => {
 		expect(output.secrets.map((secret) => secret.type)).toEqual([
 			"ssh_connection",
 			"rdp_connection",
+			"vnc_connection",
 		]);
+		expect(output.secrets[1].rdp_connection_ignore_certificate).toBe(true);
 	});
 });

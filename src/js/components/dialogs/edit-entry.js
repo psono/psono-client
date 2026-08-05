@@ -52,6 +52,7 @@ import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import ConnectionEntryFields from "../connection-entry-fields";
+import GatewayLaunchButton from "../gateway-launch-button";
 import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
 import TextFieldColored from "../text-field/colored";
@@ -288,6 +289,15 @@ const DialogEditEntry = (props) => {
 		host: "",
 		port: 3389,
 		domain: "",
+		ignoreCertificate: false,
+		username: "",
+		password: "",
+		notes: "",
+	});
+	const [vncConnection, setVncConnection] = useState({
+		title: "",
+		host: "",
+		port: 5900,
 		username: "",
 		password: "",
 		notes: "",
@@ -389,6 +399,12 @@ const DialogEditEntry = (props) => {
 		isValidPersonalConnectionAuthentication &&
 		(personalConnectionAuthentication ||
 			(Boolean(rdpConnection.username) && Boolean(rdpConnection.password)));
+	const isValidVncConnection =
+		Boolean(vncConnection.title) &&
+		helperService.isValidHostname(vncConnection.host) &&
+		helperService.isValidPort(vncConnection.port) &&
+		isValidPersonalConnectionAuthentication &&
+		(personalConnectionAuthentication || Boolean(vncConnection.password));
 	const isValidCreditCard =
 		Boolean(creditCardTitle) &&
 		Boolean(creditCardNumber) &&
@@ -412,6 +428,7 @@ const DialogEditEntry = (props) => {
 		(item.type === "ssh_own_key" && isValidSshOwnKey) ||
 		(item.type === "ssh_connection" && isValidSshConnection) ||
 		(item.type === "rdp_connection" && isValidRdpConnection) ||
+		(item.type === "vnc_connection" && isValidVncConnection) ||
 		(item.type === "credit_card" && isValidCreditCard) ||
 		(item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
 		(item.type === "file" && isValidFile) ||
@@ -460,7 +477,11 @@ const DialogEditEntry = (props) => {
 		};
 
 		const onSuccess = (data) => {
-			if (["ssh_connection", "rdp_connection"].includes(item.type)) {
+			if (
+				["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+					item.type,
+				)
+			) {
 				setPersonalConnectionAuthentication(
 					connectionCredentialsService.getConnectionAuthentication(
 						item.secret_id,
@@ -871,9 +892,18 @@ const DialogEditEntry = (props) => {
 				host: data.rdp_connection_host || "",
 				port: data.rdp_connection_port || 3389,
 				domain: data.rdp_connection_domain || "",
+				ignoreCertificate: data.rdp_connection_ignore_certificate === true,
 				username: data.rdp_connection_username || "",
 				password: data.rdp_connection_password || "",
 				notes: data.rdp_connection_notes || "",
+			});
+			setVncConnection({
+				title: data.vnc_connection_title || "",
+				host: data.vnc_connection_host || "",
+				port: data.vnc_connection_port || 5900,
+				username: data.vnc_connection_username || "",
+				password: data.vnc_connection_password || "",
+				notes: data.vnc_connection_notes || "",
 			});
 
 			// credit_card
@@ -1267,6 +1297,8 @@ const DialogEditEntry = (props) => {
 			secretObject["rdp_connection_host"] = rdpConnection.host;
 			secretObject["rdp_connection_port"] = Number(rdpConnection.port);
 			secretObject["rdp_connection_domain"] = rdpConnection.domain;
+			secretObject["rdp_connection_ignore_certificate"] =
+				rdpConnection.ignoreCertificate;
 			if (!personalConnectionAuthentication) {
 				secretObject["rdp_connection_username"] = rdpConnection.username;
 				if (rdpConnection.password) {
@@ -1275,6 +1307,23 @@ const DialogEditEntry = (props) => {
 			}
 			if (rdpConnection.notes) {
 				secretObject["rdp_connection_notes"] = rdpConnection.notes;
+			}
+		}
+
+		if (item.type === "vnc_connection") {
+			item["name"] = vncConnection.title;
+			item["description"] = `${vncConnection.host}:${vncConnection.port}`;
+			secretObject["vnc_connection_title"] = vncConnection.title;
+			secretObject["vnc_connection_host"] = vncConnection.host;
+			secretObject["vnc_connection_port"] = Number(vncConnection.port);
+			if (!personalConnectionAuthentication) {
+				secretObject["vnc_connection_username"] = vncConnection.username;
+				if (vncConnection.password) {
+					secretObject["vnc_connection_password"] = vncConnection.password;
+				}
+			}
+			if (vncConnection.notes) {
+				secretObject["vnc_connection_notes"] = vncConnection.notes;
 			}
 		}
 
@@ -1366,7 +1415,11 @@ const DialogEditEntry = (props) => {
 						}
 						return result;
 					});
-			if (!["ssh_connection", "rdp_connection"].includes(item.type)) {
+			if (
+				!["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+					item.type,
+				)
+			) {
 				writeSecret().then(complete, onError);
 			} else if (personalConnectionAuthentication) {
 				persistPersonalConnectionAuthentication().then(
@@ -1402,18 +1455,19 @@ const DialogEditEntry = (props) => {
 				secretService.readSecret,
 			);
 		}
-		return Promise.resolve(
-			item.type === "ssh_connection"
-				? {
-						username: sshConnection.username,
-						password: sshConnection.password,
-						private_key: sshConnection.privateKey,
-					}
-				: {
-						username: rdpConnection.username,
-						password: rdpConnection.password,
-					},
-		);
+		if (item.type === "ssh_connection") {
+			return Promise.resolve({
+				username: sshConnection.username,
+				password: sshConnection.password,
+				private_key: sshConnection.privateKey,
+			});
+		}
+		const connection =
+			item.type === "rdp_connection" ? rdpConnection : vncConnection;
+		return Promise.resolve({
+			username: connection.username,
+			password: connection.password,
+		});
 	};
 
 	const onCopyUsername = (event) => {
@@ -1423,7 +1477,9 @@ const DialogEditEntry = (props) => {
 				Promise.resolve(websitePasswordUsername),
 			);
 		}
-		if (["ssh_connection", "rdp_connection"].includes(item.type)) {
+		if (
+			["ssh_connection", "rdp_connection", "vnc_connection"].includes(item.type)
+		) {
 			browserClientService
 				.copyToClipboard(() =>
 					resolveCurrentConnectionAuthentication().then(
@@ -1466,7 +1522,9 @@ const DialogEditEntry = (props) => {
 				Promise.resolve(elsterCertificatePassword),
 			);
 		}
-		if (["ssh_connection", "rdp_connection"].includes(item.type)) {
+		if (
+			["ssh_connection", "rdp_connection", "vnc_connection"].includes(item.type)
+		) {
 			browserClientService
 				.copyToClipboard(() =>
 					resolveCurrentConnectionAuthentication().then(
@@ -1643,7 +1701,8 @@ const DialogEditEntry = (props) => {
 			item.type === "bookmark" ||
 			item.type === "note" ||
 			item.type === "ssh_connection" ||
-			item.type === "rdp_connection");
+			item.type === "rdp_connection" ||
+			item.type === "vnc_connection");
 	const hasAddTag = !hideAddTag;
 	const hasAddTOTP =
 		!hideAddTOTP &&
@@ -1656,7 +1715,8 @@ const DialogEditEntry = (props) => {
 			item.type === "bookmark" ||
 			item.type === "note" ||
 			item.type === "ssh_connection" ||
-			item.type === "rdp_connection") &&
+			item.type === "rdp_connection" ||
+			item.type === "vnc_connection") &&
 		hostService.isNewerOrEqualVersionThan("5.4.0");
 	let renderAddButton = null;
 	if (hasAddCustomField || hasAddTag || hasAddTOTP || hasAddAttachment) {
@@ -2039,6 +2099,7 @@ const DialogEditEntry = (props) => {
 
 	const actions = (
 		<React.Fragment>
+			<GatewayLaunchButton item={item} offline={offline} showLabel />
 			<Button
 				onClick={() => {
 					onClose();
@@ -3631,10 +3692,16 @@ const DialogEditEntry = (props) => {
 					setCreditCardNotes,
 				)}
 
-			{["ssh_connection", "rdp_connection"].includes(item.type) && (
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && (
 				<ConnectionEntryFields
 					connection={
-						item.type === "ssh_connection" ? sshConnection : rdpConnection
+						item.type === "ssh_connection"
+							? sshConnection
+							: item.type === "rdp_connection"
+								? rdpConnection
+								: vncConnection
 					}
 					connectionType={item.type}
 					onChange={(field, value) => {
@@ -3644,8 +3711,13 @@ const DialogEditEntry = (props) => {
 								...current,
 								[field]: value,
 							}));
-						} else {
+						} else if (item.type === "rdp_connection") {
 							setRdpConnection((current) => ({
+								...current,
+								[field]: value,
+							}));
+						} else {
+							setVncConnection((current) => ({
 								...current,
 								[field]: value,
 							}));
@@ -3672,13 +3744,17 @@ const DialogEditEntry = (props) => {
 					showSecrets={showPassword}
 				/>
 			)}
-			{["ssh_connection", "rdp_connection"].includes(item.type) &&
-				renderedCustomFields}
-			{["ssh_connection", "rdp_connection"].includes(item.type) &&
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && renderedCustomFields}
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) &&
 				!hideAttachments &&
 				renderedAttachments}
-			{["ssh_connection", "rdp_connection"].includes(item.type) &&
-				renderAddButton}
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && renderAddButton}
 
 			{item.type === "ssh_own_key" && (
 				<Grid item xs={12} sm={12} md={12}>

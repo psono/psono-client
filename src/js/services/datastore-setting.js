@@ -21,6 +21,29 @@ function normalizeConnectionAuthentication(value) {
 	return value;
 }
 
+function normalizeGatewayClusterSelection(value) {
+	if (
+		!value ||
+		Array.isArray(value) ||
+		typeof value !== "object" ||
+		value.schema_version !== 1 ||
+		!value.by_connection_secret_id ||
+		Array.isArray(value.by_connection_secret_id) ||
+		typeof value.by_connection_secret_id !== "object"
+	) {
+		return { schema_version: 1, by_connection_secret_id: {} };
+	}
+	const byConnectionSecretId = {};
+	Object.entries(value.by_connection_secret_id).forEach(
+		([connectionSecretId, clusterId]) => {
+			if (connectionSecretId && typeof clusterId === "string" && clusterId) {
+				byConnectionSecretId[connectionSecretId] = clusterId;
+			}
+		},
+	);
+	return { schema_version: 1, by_connection_secret_id: byConnectionSecretId };
+}
+
 function serializeSettingsDatastore(settings) {
 	return [
 		{
@@ -47,6 +70,10 @@ function serializeSettingsDatastore(settings) {
 		{
 			key: "setting_show_rdp_connection",
 			value: settings.showRDPConnection,
+		},
+		{
+			key: "setting_show_vnc_connection",
+			value: settings.showVNCConnection,
 		},
 		{ key: "setting_show_credit_card", value: settings.showCreditCard },
 		{ key: "setting_show_bookmark", value: settings.showBookmark },
@@ -91,6 +118,15 @@ function serializeSettingsDatastore(settings) {
 			key: "setting_connection_authentication",
 			value: JSON.stringify(
 				settings.connectionAuthentication || {
+					schema_version: 1,
+					by_connection_secret_id: {},
+				},
+			),
+		},
+		{
+			key: "setting_gateway_cluster_selection",
+			value: JSON.stringify(
+				settings.gatewayClusterSelection || {
 					schema_version: 1,
 					by_connection_secret_id: {},
 				},
@@ -188,12 +224,17 @@ function getSettingsDatastore() {
 					[
 						"setting_custom_domain_synonyms",
 						"setting_connection_authentication",
+						"setting_gateway_cluster_selection",
 					].includes(result["key"])
 				) {
 					try {
 						data[result["key"]] = JSON.parse(result["value"]);
 						if (result["key"] === "setting_connection_authentication") {
 							data[result["key"]] = normalizeConnectionAuthentication(
+								data[result["key"]],
+							);
+						} else if (result["key"] === "setting_gateway_cluster_selection") {
+							data[result["key"]] = normalizeGatewayClusterSelection(
 								data[result["key"]],
 							);
 						}
@@ -236,5 +277,6 @@ const datastoreSettingService = {
 	saveSettingsDatastore: saveSettingsDatastore,
 	serializeSettingsDatastore: serializeSettingsDatastore,
 	normalizeConnectionAuthentication: normalizeConnectionAuthentication,
+	normalizeGatewayClusterSelection: normalizeGatewayClusterSelection,
 };
 export default datastoreSettingService;

@@ -1614,6 +1614,12 @@ describe("Service: widgetService - connection item icons", () => {
 			"fa fa-desktop",
 		);
 	});
+
+	it("uses a desktop icon for VNC connections", () => {
+		expect(widgetService.itemIcon({ type: "vnc_connection" })).toBe(
+			"fa fa-desktop",
+		);
+	});
 });
 
 describe("Service: widgetService - connection clone titles", () => {
@@ -1624,6 +1630,7 @@ describe("Service: widgetService - connection clone titles", () => {
 	it.each([
 		["ssh_connection_title", "SSH Connection"],
 		["rdp_connection_title", "RDP Connection"],
+		["vnc_connection_title", "VNC Connection"],
 	])("prefixes %s when cloning", async (titleField, title) => {
 		const item = {
 			id: "item-id",

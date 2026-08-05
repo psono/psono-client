@@ -2,6 +2,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
 	Button,
+	Checkbox,
+	FormControlLabel,
 	Grid,
 	IconButton,
 	InputAdornment,
@@ -30,7 +32,12 @@ const ConnectionEntryFields = ({
 }) => {
 	const { t } = useTranslation();
 	const isSSH = connectionType === "ssh_connection";
-	const prefix = isSSH ? "sshConnection" : "rdpConnection";
+	const isRDP = connectionType === "rdp_connection";
+	const prefix = isSSH
+		? "sshConnection"
+		: isRDP
+			? "rdpConnection"
+			: "vncConnection";
 	const useConnectionCredentials =
 		!showPersonalAuthentication || !personalAuthentication;
 	const update = (field) => (event) => onChange(field, event.target.value);
@@ -86,19 +93,35 @@ const ConnectionEntryFields = ({
 				/>
 			</Grid>
 
-			{!isSSH && (
-				<Grid item xs={12}>
-					<TextField
-						disabled={readOnly}
-						fullWidth
-						id="rdpConnectionDomain"
-						label={t("DOMAIN")}
-						margin="dense"
-						onChange={update("domain")}
-						value={connection.domain}
-						variant="outlined"
-					/>
-				</Grid>
+			{isRDP && (
+				<>
+					<Grid item xs={12}>
+						<TextField
+							disabled={readOnly}
+							fullWidth
+							id="rdpConnectionDomain"
+							label={t("DOMAIN")}
+							margin="dense"
+							onChange={update("domain")}
+							value={connection.domain}
+							variant="outlined"
+						/>
+					</Grid>
+					<Grid item xs={12}>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={connection.ignoreCertificate}
+									disabled={readOnly}
+									onChange={(event) =>
+										onChange("ignoreCertificate", event.target.checked)
+									}
+								/>
+							}
+							label={t("IGNORE_CERTIFICATE_VALIDATION")}
+						/>
+					</Grid>
+				</>
 			)}
 
 			{showPersonalAuthentication && (
@@ -211,8 +234,11 @@ const ConnectionEntryFields = ({
 
 ConnectionEntryFields.propTypes = {
 	connection: PropTypes.object.isRequired,
-	connectionType: PropTypes.oneOf(["ssh_connection", "rdp_connection"])
-		.isRequired,
+	connectionType: PropTypes.oneOf([
+		"ssh_connection",
+		"rdp_connection",
+		"vnc_connection",
+	]).isRequired,
 	onChange: PropTypes.func.isRequired,
 	onPersonalAuthenticationChange: PropTypes.func.isRequired,
 	onSavePersonalAuthentication: PropTypes.func,

@@ -1,6 +1,9 @@
 import datastoreSettingService from "../services/datastore-setting";
 import actionCreators from "./action-creators";
-import { SET_CONNECTION_AUTHENTICATION } from "./action-types";
+import {
+	SET_CONNECTION_AUTHENTICATION,
+	SET_GATEWAY_CLUSTER_SELECTION,
+} from "./action-types";
 
 let mockSettingsDatastore;
 let mockUserId;
@@ -29,6 +32,7 @@ describe("Action creator: connection authentication", () => {
 		mockSettingsDatastore = {
 			showSSHConnection: false,
 			showRDPConnection: false,
+			showVNCConnection: false,
 			connectionAuthentication: {
 				schema_version: 1,
 				by_connection_secret_id: {
@@ -38,6 +42,10 @@ describe("Action creator: connection authentication", () => {
 						type: "application_password",
 					},
 				},
+			},
+			gatewayClusterSelection: {
+				schema_version: 1,
+				by_connection_secret_id: { existing: "cluster-a" },
 			},
 		};
 	});
@@ -202,6 +210,63 @@ describe("Action creator: connection authentication", () => {
 				secret_key: "credential-key",
 			})(dispatch),
 		).rejects.toEqual({ code: "SETTINGS_PERSISTENCE_FAILED" });
+		expect(dispatch).not.toHaveBeenCalled();
+	});
+});
+
+describe("Action creator: gateway cluster selection", () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUserId = "user-a";
+		mockSettingsDatastore = {
+			gatewayClusterSelection: {
+				schema_version: 1,
+				by_connection_secret_id: { existing: "cluster-a" },
+			},
+		};
+	});
+
+	it("persists through the settings queue before dispatching", async () => {
+		datastoreSettingService.saveSettingsDatastore.mockResolvedValue("saved");
+		const dispatch = jest.fn();
+
+		await expect(
+			actionCreators.setGatewayClusterSelection(
+				"connection",
+				"cluster-b",
+			)(dispatch),
+		).resolves.toBe("saved");
+		expect(dispatch).toHaveBeenCalledWith({
+			type: SET_GATEWAY_CLUSTER_SELECTION,
+			gatewayClusterSelection: {
+				schema_version: 1,
+				by_connection_secret_id: {
+					existing: "cluster-a",
+					connection: "cluster-b",
+				},
+			},
+		});
+	});
+
+	it("does not dispatch a persisted selection after the active user changes", async () => {
+		let resolvePersistence;
+		datastoreSettingService.saveSettingsDatastore.mockReturnValue(
+			new Promise((resolve) => {
+				resolvePersistence = resolve;
+			}),
+		);
+		const dispatch = jest.fn();
+		const result = actionCreators.setGatewayClusterSelection(
+			"connection",
+			"cluster-b",
+		)(dispatch);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		mockUserId = "user-b";
+		resolvePersistence("saved");
+		await expect(result).rejects.toEqual({
+			code: "SETTINGS_PERSISTENCE_FAILED",
+		});
 		expect(dispatch).not.toHaveBeenCalled();
 	});
 });

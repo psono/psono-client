@@ -1,7 +1,22 @@
-import React from "react";
 import hostService from "./host";
 
+let mockServer = {};
+
+jest.mock("./store", () => ({
+	getStore: () => ({ getState: () => ({ server: mockServer }) }),
+}));
+
 describe("Service: host test suite", () => {
+	describe("supportsGateway", () => {
+		it("requires both EE and the signed gateway capability", () => {
+			mockServer = { type: "EE", gateway: true };
+			expect(hostService.supportsGateway()).toBe(true);
+			mockServer = { type: "CE", gateway: true };
+			expect(hostService.supportsGateway()).toBe(false);
+			mockServer = { type: "EE", gateway: false };
+			expect(hostService.supportsGateway()).toBe(false);
+		});
+	});
 	describe("semverCompare", () => {
 		it("semverCompare exists", () => {
 			expect(hostService.semverCompare).toBeDefined();

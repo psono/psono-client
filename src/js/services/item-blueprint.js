@@ -101,6 +101,15 @@ const _entryTypes = [
 		disabled: () => false,
 	},
 	{
+		value: "vnc_connection",
+		title: "VNC_CONNECTION",
+		edit_title: "EDIT_VNC_CONNECTION",
+		show_title: "SHOW_VNC_CONNECTION",
+		hideOnNewEntry: false,
+		show: () => getStore().getState().settingsDatastore.showVNCConnection,
+		disabled: () => false,
+	},
+	{
 		value: "credit_card",
 		title: "CREDIT_CARD",
 		edit_title: "EDIT_CREDIT_CARD",

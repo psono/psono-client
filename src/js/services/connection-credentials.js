@@ -72,6 +72,19 @@ function embeddedAuthentication(type, data) {
 		};
 	}
 
+	if (type === "vnc_connection") {
+		if (!data.vnc_connection_password) {
+			return null;
+		}
+		return {
+			source: "connection",
+			type: "password",
+			username: data.vnc_connection_username || "",
+			password: data.vnc_connection_password,
+			private_key: "",
+		};
+	}
+
 	return null;
 }
 
@@ -89,7 +102,7 @@ function resolveAuthenticationReference(type, authentication, readSecret) {
 		!authentication.type ||
 		(authentication.type !== "application_password" &&
 			authentication.type !== "ssh_own_key") ||
-		(type === "rdp_connection" &&
+		(["rdp_connection", "vnc_connection"].includes(type) &&
 			authentication.type !== "application_password")
 	) {
 		return rejectBrokenReference();
@@ -99,7 +112,8 @@ function resolveAuthenticationReference(type, authentication, readSecret) {
 		.then((credential) => {
 			if (authentication.type === "application_password") {
 				if (
-					!credential.application_password_username ||
+					(type !== "vnc_connection" &&
+						!credential.application_password_username) ||
 					!credential.application_password_password
 				) {
 					return rejectBrokenReference();
@@ -107,7 +121,7 @@ function resolveAuthenticationReference(type, authentication, readSecret) {
 				return {
 					source: "reference",
 					type: "password",
-					username: credential.application_password_username,
+					username: credential.application_password_username || "",
 					password: credential.application_password_password,
 					private_key: "",
 				};

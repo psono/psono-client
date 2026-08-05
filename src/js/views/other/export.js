@@ -104,9 +104,19 @@ const OtherExportView = (props) => {
 		{ key: "rdp_connection_host", label: t("HOST") },
 		{ key: "rdp_connection_port", label: t("PORT") },
 		{ key: "rdp_connection_domain", label: t("DOMAIN") },
+		{
+			key: "rdp_connection_ignore_certificate",
+			label: t("IGNORE_CERTIFICATE_VALIDATION"),
+		},
 		{ key: "rdp_connection_username", label: t("USERNAME") },
 		{ key: "rdp_connection_password", label: t("PASSWORD") },
 		{ key: "rdp_connection_notes", label: t("NOTES") },
+		{ key: "vnc_connection_title", label: t("TITLE") },
+		{ key: "vnc_connection_host", label: t("HOST") },
+		{ key: "vnc_connection_port", label: t("PORT") },
+		{ key: "vnc_connection_username", label: t("USERNAME") },
+		{ key: "vnc_connection_password", label: t("PASSWORD") },
+		{ key: "vnc_connection_notes", label: t("NOTES") },
 		{ key: "passkey_title", label: t("TITLE") },
 		{ key: "passkey_rp_id", label: t("RP_ID") },
 		{ key: "passkey_id", label: t("ID") },
@@ -393,6 +403,12 @@ const OtherExportView = (props) => {
 										category: t("RDP_CONNECTION"),
 										columns: csvColumns.filter((col) =>
 											col.key.startsWith("rdp_connection_"),
+										),
+									},
+									{
+										category: t("VNC_CONNECTION"),
+										columns: csvColumns.filter((col) =>
+											col.key.startsWith("vnc_connection_"),
 										),
 									},
 									{

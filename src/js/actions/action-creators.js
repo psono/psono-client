@@ -16,6 +16,7 @@ import {
 	SET_DOMAIN_SYNONYMS_CONFIG,
 	SET_EMAIL,
 	SET_FINGERPRINT,
+	SET_GATEWAY_CLUSTER_SELECTION,
 	SET_GPG_CONFIG,
 	SET_HAS_TWO_FACTOR,
 	SET_HASHING_PARAMETERS,
@@ -25,9 +26,9 @@ import {
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
-	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_REMOTE_CONFIG_JSON,
 	SET_REQUESTS_IN_PROGRESS,
+	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_SERVER_INFO,
 	SET_SERVER_POLICY,
 	SET_SERVER_SECRET_EXISTS,
@@ -386,6 +387,7 @@ function setShownEntriesConfig(
 	showGPGKey,
 	showSSHConnection,
 	showRDPConnection,
+	showVNCConnection,
 	showCreditCard,
 	showBookmark,
 	showIdentity,
@@ -403,6 +405,7 @@ function setShownEntriesConfig(
 		showGPGKey,
 		showSSHConnection,
 		showRDPConnection,
+		showVNCConnection,
 		showCreditCard,
 		showBookmark,
 		showIdentity,
@@ -422,6 +425,7 @@ function setShownEntriesConfig(
 			showGPGKey,
 			showSSHConnection,
 			showRDPConnection,
+			showVNCConnection,
 			showCreditCard,
 			showBookmark,
 			showIdentity,
@@ -485,6 +489,56 @@ function setConnectionAuthentication(connectionSecretId, authentication) {
 					dispatch({
 						type: SET_CONNECTION_AUTHENTICATION,
 						connectionAuthentication,
+					});
+					return result;
+				});
+		}, true);
+	};
+}
+
+function setGatewayClusterSelection(connectionSecretId, clusterId) {
+	return (dispatch) => {
+		return enqueueSettingsPersistence((userId) => {
+			const current = getStore().getState().settingsDatastore
+				.gatewayClusterSelection || {
+				schema_version: 1,
+				by_connection_secret_id: {},
+			};
+			const byConnectionSecretId = Object.assign(
+				{},
+				current.by_connection_secret_id || {},
+			);
+
+			if (clusterId === null || typeof clusterId === "undefined") {
+				delete byConnectionSecretId[connectionSecretId];
+			} else {
+				byConnectionSecretId[connectionSecretId] = clusterId;
+			}
+
+			const gatewayClusterSelection = Object.assign({}, current, {
+				schema_version: 1,
+				by_connection_secret_id: byConnectionSecretId,
+			});
+			const settings = Object.assign(
+				{},
+				getStore().getState().settingsDatastore,
+				{ gatewayClusterSelection },
+			);
+
+			return datastoreSettingService
+				.saveSettingsDatastore(
+					datastoreSettingService.serializeSettingsDatastore(settings),
+				)
+				.then((result) => {
+					if (
+						typeof result === "undefined" ||
+						getStore().getState().user?.userId !== userId
+					) {
+						return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+					}
+					dispatch({
+						type: SET_GATEWAY_CLUSTER_SELECTION,
+						gatewayClusterSelection,
 					});
 					return result;
 				});
@@ -621,6 +675,7 @@ const actionCreators = {
 	setClientOptionsConfig,
 	setDomainSynonymsConfig,
 	setConnectionAuthentication,
+	setGatewayClusterSelection,
 	setDeviceCode,
 	clearDeviceCode,
 };

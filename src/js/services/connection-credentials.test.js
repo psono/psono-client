@@ -41,6 +41,26 @@ describe("connection credentials", () => {
 		});
 	});
 
+	it("allows an optional username for embedded VNC password authentication", () => {
+		expect(
+			connectionCredentialsService.embeddedAuthentication("vnc_connection", {
+				vnc_connection_password: "secret",
+			}),
+		).toEqual({
+			source: "connection",
+			type: "password",
+			username: "",
+			password: "secret",
+			private_key: "",
+		});
+		expect(
+			connectionCredentialsService.embeddedAuthentication("vnc_connection", {
+				vnc_connection_username: "alice",
+				vnc_connection_password: "",
+			}),
+		).toBeNull();
+	});
+
 	it("resolves username and password from one application password", async () => {
 		getStore.mockReturnValue({
 			getState: () => ({
@@ -116,6 +136,41 @@ describe("connection credentials", () => {
 			private_key: "private-key",
 		});
 		expect(readSecret).toHaveBeenCalledWith("key-id", "key-secret");
+	});
+
+	it("allows only application password references for VNC", async () => {
+		const readSecret = jest.fn().mockResolvedValue({
+			application_password_password: "password",
+		});
+		await expect(
+			connectionCredentialsService.resolveAuthenticationReference(
+				"vnc_connection",
+				{
+					type: "application_password",
+					secret_id: "credential-id",
+					secret_key: "credential-key",
+				},
+				readSecret,
+			),
+		).resolves.toEqual({
+			source: "reference",
+			type: "password",
+			username: "",
+			password: "password",
+			private_key: "",
+		});
+		await expect(
+			connectionCredentialsService.resolveAuthenticationReference(
+				"vnc_connection",
+				{
+					type: "ssh_own_key",
+					secret_id: "key-id",
+					secret_key: "key-secret",
+					username: "alice",
+				},
+				readSecret,
+			),
+		).rejects.toMatchObject({ code: "BROKEN_REFERENCE" });
 	});
 
 	it("fails closed instead of mixing a broken reference with embedded data", async () => {

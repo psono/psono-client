@@ -948,6 +948,43 @@ function readDatastore(token, sessionSecretKey, datastoreId) {
 }
 
 /**
+ * Returns the gateway clusters available to the current user.
+ */
+function getGatewayClusters(token, sessionSecretKey) {
+	const endpoint = "/gateway/clusters/";
+	const method = "GET";
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, null, headers, sessionSecretKey);
+}
+
+/**
+ * Creates an encrypted gateway launch.
+ */
+function launchGateway(
+	token,
+	sessionSecretKey,
+	clusterId,
+	encryptedData,
+	encryptedDataNonce,
+) {
+	const endpoint = "/gateway/launch/";
+	const method = "POST";
+	const data = {
+		cluster_id: clusterId,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax GET request with the token as authentication to read the history for a secret as a list
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -4151,6 +4188,8 @@ const apiClientService = {
 	readSecretHistory: readSecretHistory,
 	readHistory: readHistory,
 	readDatastore: readDatastore,
+	getGatewayClusters: getGatewayClusters,
+	launchGateway: launchGateway,
 	writeDatastore: writeDatastore,
 	createDatastore: createDatastore,
 	deleteDatastore: deleteDatastore,

@@ -243,17 +243,31 @@ function addConnectionKdbxEntry(db, kdbxweb, group, item) {
 			kdbxweb.ProtectedValue.fromString(item.ssh_connection_private_key || ""),
 		);
 		entry.fields.set("Notes", item.ssh_connection_notes || "");
-	} else {
+	} else if (item.type === "rdp_connection") {
 		entry.fields.set("Title", item.rdp_connection_title || "Unnamed Entry");
 		entry.fields.set("Host", item.rdp_connection_host || "");
 		entry.fields.set("Port", item.rdp_connection_port || "");
 		entry.fields.set("Domain", item.rdp_connection_domain || "");
+		entry.fields.set(
+			"Ignore Certificate Validation",
+			item.rdp_connection_ignore_certificate ? "true" : "false",
+		);
 		entry.fields.set("UserName", item.rdp_connection_username || "");
 		entry.fields.set(
 			"Password",
 			kdbxweb.ProtectedValue.fromString(item.rdp_connection_password || ""),
 		);
 		entry.fields.set("Notes", item.rdp_connection_notes || "");
+	} else {
+		entry.fields.set("Title", item.vnc_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.vnc_connection_host || "");
+		entry.fields.set("Port", item.vnc_connection_port || "");
+		entry.fields.set("UserName", item.vnc_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.vnc_connection_password || ""),
+		);
+		entry.fields.set("Notes", item.vnc_connection_notes || "");
 	}
 	return entry;
 }
@@ -481,6 +495,9 @@ async function exportToKdbxv4(passwordData, password) {
 		if (item.type === "rdp_connection") {
 			addConnectionKdbxEntry(db, kdbxweb, group, item);
 		}
+		if (item.type === "vnc_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
 		if (item.type === "bookmark") {
 			addBookmarkEntry(group, item);
 		}
@@ -596,9 +613,17 @@ async function composeExport(data, type, password, selectedColumns) {
 				rdp_connection_host: "rdp_connection_host",
 				rdp_connection_port: "rdp_connection_port",
 				rdp_connection_domain: "rdp_connection_domain",
+				rdp_connection_ignore_certificate: "rdp_connection_ignore_certificate",
 				rdp_connection_username: "rdp_connection_username",
 				rdp_connection_password: "rdp_connection_password",
 				rdp_connection_notes: "rdp_connection_notes",
+
+				vnc_connection_title: "vnc_connection_title",
+				vnc_connection_host: "vnc_connection_host",
+				vnc_connection_port: "vnc_connection_port",
+				vnc_connection_username: "vnc_connection_username",
+				vnc_connection_password: "vnc_connection_password",
+				vnc_connection_notes: "vnc_connection_notes",
 
 				passkey_title: "passkey_title",
 				passkey_rp_id: "passkey_rp_id",

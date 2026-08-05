@@ -57,6 +57,9 @@ const SettingsEntryTypesView = (props) => {
 	const [showRDPConnection, setShowRDPConnection] = useState(
 		settingsDatastore.showRDPConnection,
 	);
+	const [showVNCConnection, setShowVNCConnection] = useState(
+		settingsDatastore.showVNCConnection,
+	);
 	const [showCreditCard, setShowCreditCard] = useState(
 		settingsDatastore.showCreditCard,
 	);
@@ -113,6 +116,10 @@ const SettingsEntryTypesView = (props) => {
 			value: showRDPConnection,
 			setter: setShowRDPConnection,
 		},
+		vnc_connection: {
+			value: showVNCConnection,
+			setter: setShowVNCConnection,
+		},
 		credit_card: {
 			value: showCreditCard,
 			setter: setShowCreditCard,
@@ -146,6 +153,7 @@ const SettingsEntryTypesView = (props) => {
 		setShowGPGKey(settingsDatastore.showGPGKey);
 		setShowSSHConnection(settingsDatastore.showSSHConnection);
 		setShowRDPConnection(settingsDatastore.showRDPConnection);
+		setShowVNCConnection(settingsDatastore.showVNCConnection);
 		setShowCreditCard(settingsDatastore.showCreditCard);
 		setShowBookmark(settingsDatastore.showBookmark);
 		setShowIdentity(settingsDatastore.showIdentity);
@@ -165,6 +173,7 @@ const SettingsEntryTypesView = (props) => {
 			showGPGKey,
 			showSSHConnection,
 			showRDPConnection,
+			showVNCConnection,
 			showCreditCard,
 			showBookmark,
 			showIdentity,

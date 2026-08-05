@@ -388,7 +388,11 @@ function copyUsername(item) {
 				(decryptedSecret) => decryptedSecret["website_password_username"],
 			),
 		);
-	} else if (["ssh_connection", "rdp_connection"].includes(item["type"])) {
+	} else if (
+		["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+			item["type"],
+		)
+	) {
 		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then((connection) =>
 				connectionCredentialsService
@@ -435,7 +439,11 @@ function copyPassword(item) {
 				(decryptedSecret) => decryptedSecret["website_password_password"],
 			),
 		);
-	} else if (["ssh_connection", "rdp_connection"].includes(item["type"])) {
+	} else if (
+		["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+			item["type"],
+		)
+	) {
 		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then((connection) =>
 				connectionCredentialsService

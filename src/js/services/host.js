@@ -41,6 +41,16 @@ function isEE() {
 function isCE() {
 	return getStore().getState().server.type === "CE";
 }
+
+/**
+ * Returns whether the current EE server advertises gateway support.
+ *
+ * @returns {boolean} The current host supports gateway launches
+ */
+function supportsGateway() {
+	const server = getStore().getState().server;
+	return server.type === "EE" && server.gateway === true;
+}
 /**
  * Returns whether the current's server version is greater (or equal) than the current specified one
  *
@@ -326,6 +336,7 @@ const hostService = {
 	getCurrentHost: getCurrentHost,
 	isCE: isCE,
 	isEE: isEE,
+	supportsGateway: supportsGateway,
 	isNewerOrEqualVersionThan: isNewerOrEqualVersionThan,
 	getCurrentHostUrl: getCurrentHostUrl,
 	checkKnownHosts: checkKnownHosts,
