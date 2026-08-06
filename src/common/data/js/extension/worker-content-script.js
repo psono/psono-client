@@ -548,6 +548,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			return;
 		}
 
+		removeDisconnectedFields();
 		addPasswordFormButtons(document);
 		addUsernameFormButtons(document);
 		findCreditCardInputFields(document);
@@ -561,8 +562,9 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param document
 	 */
 	function documentSubmitCatcher(document) {
-		for (let i = 0; i < document.forms.length; i++) {
-			formSubmitCatcher(document.forms[i]);
+		const forms = querySelectorAllIncShadowRoots(document, "form");
+		for (let i = 0; i < forms.length; i++) {
+			formSubmitCatcher(forms[i]);
 		}
 	}
 
@@ -710,6 +712,35 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		return inputs;
 	}
 
+	function removeDisconnectedFields() {
+		for (let i = myForms.length - 1; i >= 0; i--) {
+			if (myForms[i].username && !myForms[i].username.isConnected) {
+				myForms[i].username = null;
+			}
+			if (myForms[i].password && !myForms[i].password.isConnected) {
+				myForms[i].password = null;
+			}
+			if (myForms[i].form && !myForms[i].form.isConnected) {
+				myForms[i].form = null;
+			}
+			if (!myForms[i].username && !myForms[i].password) {
+				myForms.splice(i, 1);
+			}
+		}
+
+		for (let i = creditCardInputFields.length - 1; i >= 0; i--) {
+			if (!creditCardInputFields[i].isConnected) {
+				creditCardInputFields.splice(i, 1);
+			}
+		}
+
+		for (let i = identityInputFields.length - 1; i >= 0; i--) {
+			if (!identityInputFields[i].isConnected) {
+				identityInputFields.splice(i, 1);
+			}
+		}
+	}
+
 	/**
 	 * Manipulates the forms of a document and adds the password buttons
 	 *
@@ -802,18 +833,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			}
 			newForm.password = inputs[i];
 
-			let parent = inputs[i].parentElement;
-
-			while (parent.nodeName !== "FORM" && parent.parentNode) {
-				parent = parent.parentNode;
-			}
-
-			if (parent.nodeName === "FORM") {
-				//parent is surrounding form
-				//parent.style.backgroundColor = "green";
-				newForm.form = parent;
-				//parent.submit();
-			}
+			newForm.form = inputs[i].form;
 			if (newForm.username !== null || newForm.password !== null) {
 				myForms.push(newForm);
 			}
@@ -887,14 +907,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				form: null,
 			};
 
-			let parent = inputs[i].parentElement;
-			while (parent && parent.nodeName !== "FORM" && parent.parentNode) {
-				parent = parent.parentNode;
-			}
-
-			if (parent && parent.nodeName === "FORM") {
-				newForm.form = parent;
-			}
+			newForm.form = inputs[i].form;
 
 			myForms.push(newForm);
 		}
@@ -1186,7 +1199,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				// as such we need this elaborated logic to find the correct input element that triggered things
 				lastRequestElement = input;
 
-				const dropInstance = createDropdownMenu(evt, dropcontent, document);
+				const dropInstance = createDropdownMenu(input, dropcontent, document);
 				dropInstance.open();
 
 				dropInstances.push(dropInstance);
@@ -1560,14 +1573,14 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	/**
 	 * Creates the dropdown menu with closed shadow root, MutationObserver protection, and Popover API if supported
 	 *
-	 * @param setup_event
+	 * @param anchorElement
 	 * @param content
 	 * @param document
 	 * @returns {{open: open, close: close}}
 	 */
-	function createDropdownMenu(setup_event, content, document) {
-		const position = getOffset(setup_event.target);
-		const height = setup_event.target.offsetHeight;
+	function createDropdownMenu(anchorElement, content, document) {
+		const position = getOffset(anchorElement);
+		const height = anchorElement.offsetHeight;
 		const element_id = "psono_drop-" + uuid.v4();
 
 		// Create the host element with original positioning
@@ -1720,7 +1733,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			const eventPath =
 				typeof event.composedPath === "function" ? event.composedPath() : [];
 			const isClickInsideDropdown =
-				event.target === setup_event.target ||
+				event.target === anchorElement ||
+				eventPath.includes(anchorElement) ||
 				event.target === element ||
 				element.contains(event.target) ||
 				eventPath.includes(element);
@@ -1912,6 +1926,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				new Event(eventType, {
 					bubbles: true,
 					cancelable: true,
+					composed: true,
 				}),
 			);
 		});
@@ -1925,6 +1940,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				new Event(eventType, {
 					bubbles: true,
 					cancelable: true,
+					composed: true,
 				}),
 			);
 		});
@@ -1951,6 +1967,10 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		let foundUsername;
 		let foundPassword;
 		let foundTotp;
+
+		// Autofill may be requested before the debounced observer has analyzed a
+		// login form that was added to a shadow root.
+		analyzeDocument(document);
 
 		for (let i = 0; i < myForms.length; i++) {
 			if (Object.hasOwn(data, "username") && data.username !== "") {
@@ -2057,6 +2077,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param sendResponse
 	 */
 	function onFillCreditCard(data, sender, sendResponse) {
+		analyzeDocument(document);
+
 		for (let i = 0; i < creditCardInputFields.length; i++) {
 			if (
 				creditCardNameFields.has(
@@ -2132,6 +2154,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param sendResponse
 	 */
 	function onFillIdentity(data, sender, sendResponse) {
+		analyzeDocument(document);
+
 		for (let i = 0; i < identityInputFields.length; i++) {
 			const autocompleteValue = identityInputFields[i].autocomplete
 				.trim()
@@ -2505,3 +2529,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		navigator.clipboard.writeText("");
 	}
 };
+
+if (typeof module !== "undefined") {
+	module.exports = ClassWorkerContentScript;
+}
