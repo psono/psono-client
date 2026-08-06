@@ -171,9 +171,16 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
 	const sideEffect = (rawResponse) => {
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (rawResponse.status === 401 && user.isLoggedIn()) {
-			// session expired, lets log the user out
-			user.logout(i18n.t("SESSION_EXPIRED"));
+		if (rawResponse.status === 401) {
+			const currentToken = getStore().getState().user.token;
+			if (
+				currentToken &&
+				headers?.Authorization === `Token ${currentToken}` &&
+				user.isLoggedIn()
+			) {
+				// session expired, lets log the user out
+				user.logout(i18n.t("SESSION_EXPIRED"));
+			}
 		}
 		if (rawResponse.status === 423 && user.isLoggedIn()) {
 			// server error, lets log the user out
