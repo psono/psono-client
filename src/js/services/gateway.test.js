@@ -112,6 +112,7 @@ describe("Service: gateway", () => {
 			"token",
 			"session-key",
 			"cluster-a",
+			"ssh-secret",
 			"ciphertext",
 			"nonce",
 		);
@@ -180,6 +181,14 @@ describe("Service: gateway", () => {
 			2,
 			"credential-secret",
 			"credential-key",
+		);
+		expect(apiClient.launchGateway).toHaveBeenCalledWith(
+			"token",
+			"session-key",
+			"cluster-b",
+			"rdp-secret",
+			"ciphertext",
+			"nonce",
 		);
 		expect(JSON.parse(cryptoLibrary.encryptData.mock.calls[0][0])).toEqual({
 			version: 1,
@@ -349,6 +358,7 @@ describe("Service: gateway", () => {
 			"token",
 			"session-key",
 			"only",
+			"ssh-secret",
 			"ciphertext",
 			"nonce",
 		);
@@ -371,6 +381,7 @@ describe("Service: gateway", () => {
 			"token",
 			"session-key",
 			"remembered",
+			"ssh-secret",
 			"ciphertext",
 			"nonce",
 		);
@@ -390,6 +401,7 @@ describe("Service: gateway", () => {
 			"token",
 			"session-key",
 			"current",
+			"ssh-secret",
 			"ciphertext",
 			"nonce",
 		);
@@ -405,6 +417,7 @@ describe("Service: gateway", () => {
 			"token",
 			"session-key",
 			"selected",
+			"ssh-secret",
 			"ciphertext",
 			"nonce",
 		);

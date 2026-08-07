@@ -58,6 +58,7 @@ describe("API client: gateway", () => {
 			"token",
 			"session-key",
 			"cluster-a",
+			"connection-secret",
 			"ciphertext",
 			"payload-nonce",
 		);
@@ -65,6 +66,7 @@ describe("API client: gateway", () => {
 		expect(cryptoLibrary.encryptData).toHaveBeenCalledWith(
 			JSON.stringify({
 				cluster_id: "cluster-a",
+				secret_id: "connection-secret",
 				data: "ciphertext",
 				data_nonce: "payload-nonce",
 			}),

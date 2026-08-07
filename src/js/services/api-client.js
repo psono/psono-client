@@ -974,6 +974,7 @@ function launchGateway(
 	token,
 	sessionSecretKey,
 	clusterId,
+	secretId,
 	encryptedData,
 	encryptedDataNonce,
 ) {
@@ -981,6 +982,7 @@ function launchGateway(
 	const method = "POST";
 	const data = {
 		cluster_id: clusterId,
+		secret_id: secretId,
 		data: encryptedData,
 		data_nonce: encryptedDataNonce,
 	};

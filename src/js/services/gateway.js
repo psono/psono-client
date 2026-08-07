@@ -282,6 +282,7 @@ async function launch(itemOrSecretId, clusterId, gatewayWindow) {
 			state.user.token,
 			state.user.sessionSecretKey,
 			clusterId,
+			item.secret_id,
 			encrypted.text,
 			encrypted.nonce,
 		);
