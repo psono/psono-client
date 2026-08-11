@@ -179,7 +179,10 @@ function filterPasswordsHelper(folder, passwords) {
 		if (
 			folder["items"][i]["type"] !== "website_password" &&
 			folder["items"][i]["type"] !== "application_password" &&
-			folder["items"][i]["type"] !== "elster_certificate"
+			folder["items"][i]["type"] !== "elster_certificate" &&
+			folder["items"][i]["type"] !== "ssh_connection" &&
+			folder["items"][i]["type"] !== "rdp_connection" &&
+			folder["items"][i]["type"] !== "vnc_connection"
 		) {
 			continue;
 		}
@@ -224,6 +227,49 @@ function filterPasswordsHelper(folder, passwords) {
 				secret_id: folder["items"][i]["secret_id"],
 				username: "",
 				password: folder["items"][i]["elster_certificate_password"],
+				create_date: folder["items"][i]["create_date"],
+				write_date: folder["items"][i]["write_date"],
+				master_password: false,
+			});
+		} else if (
+			folder["items"][i]["type"] === "ssh_connection" &&
+			folder["items"][i]["ssh_connection_authentication_type"] === "password" &&
+			Object.hasOwn(folder["items"][i], "ssh_connection_password")
+		) {
+			passwords.push({
+				type: folder["items"][i]["type"],
+				name: folder["items"][i]["name"],
+				secret_id: folder["items"][i]["secret_id"],
+				username: folder["items"][i]["ssh_connection_username"],
+				password: folder["items"][i]["ssh_connection_password"],
+				create_date: folder["items"][i]["create_date"],
+				write_date: folder["items"][i]["write_date"],
+				master_password: false,
+			});
+		} else if (
+			folder["items"][i]["type"] === "rdp_connection" &&
+			Object.hasOwn(folder["items"][i], "rdp_connection_password")
+		) {
+			passwords.push({
+				type: folder["items"][i]["type"],
+				name: folder["items"][i]["name"],
+				secret_id: folder["items"][i]["secret_id"],
+				username: folder["items"][i]["rdp_connection_username"],
+				password: folder["items"][i]["rdp_connection_password"],
+				create_date: folder["items"][i]["create_date"],
+				write_date: folder["items"][i]["write_date"],
+				master_password: false,
+			});
+		} else if (
+			folder["items"][i]["type"] === "vnc_connection" &&
+			Object.hasOwn(folder["items"][i], "vnc_connection_password")
+		) {
+			passwords.push({
+				type: folder["items"][i]["type"],
+				name: folder["items"][i]["name"],
+				secret_id: folder["items"][i]["secret_id"],
+				username: folder["items"][i]["vnc_connection_username"],
+				password: folder["items"][i]["vnc_connection_password"],
 				create_date: folder["items"][i]["create_date"],
 				write_date: folder["items"][i]["write_date"],
 				master_password: false,
@@ -722,6 +768,7 @@ function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
 const securityReportService = {
 	on: on,
 	emit: emit,
+	filterPasswords: filterPasswords,
 	generateSecurityReport: generateSecurityReport,
 	sendToServer: sendToServer,
 };

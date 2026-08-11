@@ -37,8 +37,10 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
+import action from "../../actions/bound-action-creators";
 import apiClientService from "../../services/api-client";
 import browserClientService from "../../services/browser-client";
+import connectionCredentialsService from "../../services/connection-credentials";
 import converterService from "../../services/converter";
 import cryptoLibrary from "../../services/crypto-library";
 import fileTransferService from "../../services/file-transfer";
@@ -49,6 +51,8 @@ import notification from "../../services/notification";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
+import ConnectionEntryFields from "../connection-entry-fields";
+import GatewayLaunchButton from "../gateway-launch-button";
 import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
 import TextFieldColored from "../text-field/colored";
@@ -270,6 +274,38 @@ const DialogEditEntry = (props) => {
 	const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
 	const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
 	const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
+	const [sshConnection, setSshConnection] = useState({
+		title: "",
+		host: "",
+		port: 22,
+		authenticationType: "password",
+		username: "",
+		password: "",
+		privateKey: "",
+		notes: "",
+	});
+	const [rdpConnection, setRdpConnection] = useState({
+		title: "",
+		host: "",
+		port: 3389,
+		domain: "",
+		ignoreCertificate: false,
+		username: "",
+		password: "",
+		notes: "",
+	});
+	const [vncConnection, setVncConnection] = useState({
+		title: "",
+		host: "",
+		port: 5900,
+		username: "",
+		password: "",
+		notes: "",
+	});
+	const [
+		personalConnectionAuthentication,
+		setPersonalConnectionAuthentication,
+	] = useState(null);
 
 	const [creditCardTitle, setCreditCardTitle] = useState("");
 	const [creditCardNumber, setCreditCardNumber] = useState("");
@@ -338,6 +374,37 @@ const DialogEditEntry = (props) => {
 		Boolean(sshOwnKeyTitle) &&
 		Boolean(sshOwnKeyPublic) &&
 		Boolean(sshOwnKeyPrivate);
+	const isValidPersonalConnectionAuthentication =
+		!personalConnectionAuthentication ||
+		(Boolean(personalConnectionAuthentication.secret_id) &&
+			Boolean(personalConnectionAuthentication.secret_key) &&
+			(personalConnectionAuthentication.type === "application_password" ||
+				(item.type === "ssh_connection" &&
+					personalConnectionAuthentication.type === "ssh_own_key" &&
+					Boolean(personalConnectionAuthentication.username))));
+	const isValidSshConnection =
+		Boolean(sshConnection.title) &&
+		helperService.isValidHostname(sshConnection.host) &&
+		helperService.isValidPort(sshConnection.port) &&
+		isValidPersonalConnectionAuthentication &&
+		(personalConnectionAuthentication ||
+			(Boolean(sshConnection.username) &&
+				(sshConnection.authenticationType === "password"
+					? Boolean(sshConnection.password)
+					: Boolean(sshConnection.privateKey))));
+	const isValidRdpConnection =
+		Boolean(rdpConnection.title) &&
+		helperService.isValidHostname(rdpConnection.host) &&
+		helperService.isValidPort(rdpConnection.port) &&
+		isValidPersonalConnectionAuthentication &&
+		(personalConnectionAuthentication ||
+			(Boolean(rdpConnection.username) && Boolean(rdpConnection.password)));
+	const isValidVncConnection =
+		Boolean(vncConnection.title) &&
+		helperService.isValidHostname(vncConnection.host) &&
+		helperService.isValidPort(vncConnection.port) &&
+		isValidPersonalConnectionAuthentication &&
+		(personalConnectionAuthentication || Boolean(vncConnection.password));
 	const isValidCreditCard =
 		Boolean(creditCardTitle) &&
 		Boolean(creditCardNumber) &&
@@ -359,6 +426,9 @@ const DialogEditEntry = (props) => {
 		(item.type === "totp" && isValidTotp) ||
 		(item.type === "environment_variables" && isValidEnvironmentVariables) ||
 		(item.type === "ssh_own_key" && isValidSshOwnKey) ||
+		(item.type === "ssh_connection" && isValidSshConnection) ||
+		(item.type === "rdp_connection" && isValidRdpConnection) ||
+		(item.type === "vnc_connection" && isValidVncConnection) ||
 		(item.type === "credit_card" && isValidCreditCard) ||
 		(item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
 		(item.type === "file" && isValidFile) ||
@@ -407,6 +477,17 @@ const DialogEditEntry = (props) => {
 		};
 
 		const onSuccess = (data) => {
+			if (
+				["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+					item.type,
+				)
+			) {
+				setPersonalConnectionAuthentication(
+					connectionCredentialsService.getConnectionAuthentication(
+						item.secret_id,
+					),
+				);
+			}
 			// general infos
 			if (Object.hasOwn(data, "create_date")) {
 				setCreateDate(new Date(data["create_date"]));
@@ -795,6 +876,36 @@ const DialogEditEntry = (props) => {
 				setSshOwnKeyNotes("");
 			}
 
+			setSshConnection({
+				title: data.ssh_connection_title || "",
+				host: data.ssh_connection_host || "",
+				port: data.ssh_connection_port || 22,
+				authenticationType:
+					data.ssh_connection_authentication_type || "password",
+				username: data.ssh_connection_username || "",
+				password: data.ssh_connection_password || "",
+				privateKey: data.ssh_connection_private_key || "",
+				notes: data.ssh_connection_notes || "",
+			});
+			setRdpConnection({
+				title: data.rdp_connection_title || "",
+				host: data.rdp_connection_host || "",
+				port: data.rdp_connection_port || 3389,
+				domain: data.rdp_connection_domain || "",
+				ignoreCertificate: data.rdp_connection_ignore_certificate === true,
+				username: data.rdp_connection_username || "",
+				password: data.rdp_connection_password || "",
+				notes: data.rdp_connection_notes || "",
+			});
+			setVncConnection({
+				title: data.vnc_connection_title || "",
+				host: data.vnc_connection_host || "",
+				port: data.vnc_connection_port || 5900,
+				username: data.vnc_connection_username || "",
+				password: data.vnc_connection_password || "",
+				notes: data.vnc_connection_notes || "",
+			});
+
 			// credit_card
 			if (Object.hasOwn(data, "credit_card_title")) {
 				setCreditCardTitle(data["credit_card_title"]);
@@ -885,6 +996,37 @@ const DialogEditEntry = (props) => {
 			onEdit(false);
 		}
 	}, [triggerAutoSave]);
+
+	const persistPersonalConnectionAuthentication = () => {
+		if (!isValidPersonalConnectionAuthentication) {
+			return Promise.reject({ code: "BROKEN_REFERENCE" });
+		}
+		if (!personalConnectionAuthentication) {
+			return action().setConnectionAuthentication(item.secret_id, null);
+		}
+		return connectionCredentialsService
+			.resolveAuthenticationReference(
+				item.type,
+				personalConnectionAuthentication,
+				secretService.readSecret,
+			)
+			.then(() =>
+				action().setConnectionAuthentication(
+					item.secret_id,
+					connectionCredentialsService.sanitizeConnectionAuthentication(
+						personalConnectionAuthentication,
+					),
+				),
+			);
+	};
+
+	const savePersonalConnectionAuthentication = () => {
+		return persistPersonalConnectionAuthentication().then(
+			() => notification.push("connection_authentication", t("SAVE_SUCCESS")),
+			() =>
+				notification.push("connection_authentication", t("BROKEN_REFERENCE")),
+		);
+	};
 
 	const onEdit = (closeEditView) => {
 		let passwordSha1;
@@ -1126,6 +1268,65 @@ const DialogEditEntry = (props) => {
 			secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
 		}
 
+		if (item.type === "ssh_connection") {
+			item["name"] = sshConnection.title;
+			item["description"] = `${sshConnection.host}:${sshConnection.port}`;
+			secretObject["ssh_connection_title"] = sshConnection.title;
+			secretObject["ssh_connection_host"] = sshConnection.host;
+			secretObject["ssh_connection_port"] = Number(sshConnection.port);
+			if (!personalConnectionAuthentication) {
+				secretObject["ssh_connection_authentication_type"] =
+					sshConnection.authenticationType;
+				secretObject["ssh_connection_username"] = sshConnection.username;
+				if (sshConnection.password) {
+					secretObject["ssh_connection_password"] = sshConnection.password;
+				}
+				if (sshConnection.privateKey) {
+					secretObject["ssh_connection_private_key"] = sshConnection.privateKey;
+				}
+			}
+			if (sshConnection.notes) {
+				secretObject["ssh_connection_notes"] = sshConnection.notes;
+			}
+		}
+
+		if (item.type === "rdp_connection") {
+			item["name"] = rdpConnection.title;
+			item["description"] = `${rdpConnection.host}:${rdpConnection.port}`;
+			secretObject["rdp_connection_title"] = rdpConnection.title;
+			secretObject["rdp_connection_host"] = rdpConnection.host;
+			secretObject["rdp_connection_port"] = Number(rdpConnection.port);
+			secretObject["rdp_connection_domain"] = rdpConnection.domain;
+			secretObject["rdp_connection_ignore_certificate"] =
+				rdpConnection.ignoreCertificate;
+			if (!personalConnectionAuthentication) {
+				secretObject["rdp_connection_username"] = rdpConnection.username;
+				if (rdpConnection.password) {
+					secretObject["rdp_connection_password"] = rdpConnection.password;
+				}
+			}
+			if (rdpConnection.notes) {
+				secretObject["rdp_connection_notes"] = rdpConnection.notes;
+			}
+		}
+
+		if (item.type === "vnc_connection") {
+			item["name"] = vncConnection.title;
+			item["description"] = `${vncConnection.host}:${vncConnection.port}`;
+			secretObject["vnc_connection_title"] = vncConnection.title;
+			secretObject["vnc_connection_host"] = vncConnection.host;
+			secretObject["vnc_connection_port"] = Number(vncConnection.port);
+			if (!personalConnectionAuthentication) {
+				secretObject["vnc_connection_username"] = vncConnection.username;
+				if (vncConnection.password) {
+					secretObject["vnc_connection_password"] = vncConnection.password;
+				}
+			}
+			if (vncConnection.notes) {
+				secretObject["vnc_connection_notes"] = vncConnection.notes;
+			}
+		}
+
 		if (item.type === "credit_card") {
 			item["name"] = creditCardTitle;
 			secretObject["credit_card_title"] = creditCardTitle;
@@ -1191,22 +1392,50 @@ const DialogEditEntry = (props) => {
 			const onError = (result) => {
 				console.log(result);
 			};
-
-			const onSuccess = (e) => {
+			const authenticationError = () =>
+				notification.push("connection_authentication", t("BROKEN_REFERENCE"));
+			const complete = () => {
 				if (closeEditView) {
 					props.onEdit(item);
 				}
 			};
-			secretService
-				.writeSecret(
-					item.secret_id,
-					item.secret_key,
-					secretObject,
-					callbackUrl,
-					callbackUser,
-					callbackPass,
+			const writeSecret = () =>
+				secretService
+					.writeSecret(
+						item.secret_id,
+						item.secret_key,
+						secretObject,
+						callbackUrl,
+						callbackUser,
+						callbackPass,
+					)
+					.then((result) => {
+						if (typeof result === "undefined") {
+							return Promise.reject({ code: "SECRET_PERSISTENCE_FAILED" });
+						}
+						return result;
+					});
+			if (
+				!["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+					item.type,
 				)
-				.then(onSuccess, onError);
+			) {
+				writeSecret().then(complete, onError);
+			} else if (personalConnectionAuthentication) {
+				persistPersonalConnectionAuthentication().then(
+					() => writeSecret().then(complete, onError),
+					authenticationError,
+				);
+			} else {
+				writeSecret().then(
+					() =>
+						persistPersonalConnectionAuthentication().then(
+							complete,
+							authenticationError,
+						),
+					onError,
+				);
+			}
 		}
 	};
 
@@ -1218,6 +1447,28 @@ const DialogEditEntry = (props) => {
 		handleClose();
 		setShowPassword(!showPassword);
 	};
+	const resolveCurrentConnectionAuthentication = () => {
+		if (personalConnectionAuthentication) {
+			return connectionCredentialsService.resolveAuthenticationReference(
+				item.type,
+				personalConnectionAuthentication,
+				secretService.readSecret,
+			);
+		}
+		if (item.type === "ssh_connection") {
+			return Promise.resolve({
+				username: sshConnection.username,
+				password: sshConnection.password,
+				private_key: sshConnection.privateKey,
+			});
+		}
+		const connection =
+			item.type === "rdp_connection" ? rdpConnection : vncConnection;
+		return Promise.resolve({
+			username: connection.username,
+			password: connection.password,
+		});
+	};
 
 	const onCopyUsername = (event) => {
 		handleClose();
@@ -1225,6 +1476,26 @@ const DialogEditEntry = (props) => {
 			browserClientService.copyToClipboard(() =>
 				Promise.resolve(websitePasswordUsername),
 			);
+		}
+		if (
+			["ssh_connection", "rdp_connection", "vnc_connection"].includes(item.type)
+		) {
+			browserClientService
+				.copyToClipboard(() =>
+					resolveCurrentConnectionAuthentication().then(
+						(authentication) => authentication?.username || "",
+					),
+				)
+				.then(
+					() =>
+						notification.push("password_copy", t("USERNAME_COPY_NOTIFICATION")),
+					() =>
+						notification.push(
+							"connection_authentication",
+							t("BROKEN_REFERENCE"),
+						),
+				);
+			return;
 		}
 		if (item.type === "application_password") {
 			browserClientService.copyToClipboard(() =>
@@ -1250,6 +1521,26 @@ const DialogEditEntry = (props) => {
 			browserClientService.copyToClipboard(() =>
 				Promise.resolve(elsterCertificatePassword),
 			);
+		}
+		if (
+			["ssh_connection", "rdp_connection", "vnc_connection"].includes(item.type)
+		) {
+			browserClientService
+				.copyToClipboard(() =>
+					resolveCurrentConnectionAuthentication().then(
+						(authentication) => authentication?.password || "",
+					),
+				)
+				.then(
+					() =>
+						notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION")),
+					() =>
+						notification.push(
+							"connection_authentication",
+							t("BROKEN_REFERENCE"),
+						),
+				);
+			return;
 		}
 		notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
 	};
@@ -1306,6 +1597,27 @@ const DialogEditEntry = (props) => {
 			browserClientService.copyToClipboard(() =>
 				Promise.resolve(mailGpgOwnKeyPrivate),
 			);
+		}
+		if (item.type === "ssh_connection") {
+			browserClientService
+				.copyToClipboard(() =>
+					resolveCurrentConnectionAuthentication().then(
+						(authentication) => authentication?.private_key || "",
+					),
+				)
+				.then(
+					() =>
+						notification.push(
+							"password_copy",
+							t("PRIVATE_KEY_COPY_NOTIFICATION"),
+						),
+					() =>
+						notification.push(
+							"connection_authentication",
+							t("BROKEN_REFERENCE"),
+						),
+				);
+			return;
 		}
 		notification.push("password_copy", t("PRIVATE_KEY_COPY_NOTIFICATION"));
 	};
@@ -1387,7 +1699,10 @@ const DialogEditEntry = (props) => {
 		(item.type === "website_password" ||
 			item.type === "application_password" ||
 			item.type === "bookmark" ||
-			item.type === "note");
+			item.type === "note" ||
+			item.type === "ssh_connection" ||
+			item.type === "rdp_connection" ||
+			item.type === "vnc_connection");
 	const hasAddTag = !hideAddTag;
 	const hasAddTOTP =
 		!hideAddTOTP &&
@@ -1398,7 +1713,10 @@ const DialogEditEntry = (props) => {
 		(item.type === "website_password" ||
 			item.type === "application_password" ||
 			item.type === "bookmark" ||
-			item.type === "note") &&
+			item.type === "note" ||
+			item.type === "ssh_connection" ||
+			item.type === "rdp_connection" ||
+			item.type === "vnc_connection") &&
 		hostService.isNewerOrEqualVersionThan("5.4.0");
 	let renderAddButton = null;
 	if (hasAddCustomField || hasAddTag || hasAddTOTP || hasAddAttachment) {
@@ -1781,6 +2099,7 @@ const DialogEditEntry = (props) => {
 
 	const actions = (
 		<React.Fragment>
+			<GatewayLaunchButton item={item} offline={offline} showLabel />
 			<Button
 				onClick={() => {
 					onClose();
@@ -3372,6 +3691,70 @@ const DialogEditEntry = (props) => {
 					creditCardNotes,
 					setCreditCardNotes,
 				)}
+
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && (
+				<ConnectionEntryFields
+					connection={
+						item.type === "ssh_connection"
+							? sshConnection
+							: item.type === "rdp_connection"
+								? rdpConnection
+								: vncConnection
+					}
+					connectionType={item.type}
+					onChange={(field, value) => {
+						setDirty(true);
+						if (item.type === "ssh_connection") {
+							setSshConnection((current) => ({
+								...current,
+								[field]: value,
+							}));
+						} else if (item.type === "rdp_connection") {
+							setRdpConnection((current) => ({
+								...current,
+								[field]: value,
+							}));
+						} else {
+							setVncConnection((current) => ({
+								...current,
+								[field]: value,
+							}));
+						}
+					}}
+					onPersonalAuthenticationChange={(authentication) => {
+						setPersonalConnectionAuthentication(authentication);
+						if (!readOnly) {
+							setDirty(true);
+						}
+					}}
+					onSavePersonalAuthentication={
+						offline || !item.secret_id || !readOnly
+							? undefined
+							: savePersonalConnectionAuthentication
+					}
+					onToggleSecrets={() => setShowPassword(!showPassword)}
+					personalAuthentication={personalConnectionAuthentication}
+					personalAuthenticationDisabled={
+						offline || getStore().getState().settingsDatastore.noSaveMode
+					}
+					readOnly={readOnly}
+					showPersonalAuthentication={!props.data}
+					showSecrets={showPassword}
+				/>
+			)}
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && renderedCustomFields}
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) &&
+				!hideAttachments &&
+				renderedAttachments}
+			{["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type,
+			) && renderAddButton}
 
 			{item.type === "ssh_own_key" && (
 				<Grid item xs={12} sm={12} md={12}>

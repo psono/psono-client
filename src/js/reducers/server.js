@@ -57,6 +57,7 @@ const defaultLicenseMode = "";
 const defaultLicenseType = "";
 const defaultType = "";
 const defaultFiles = false;
+const defaultGateway = false;
 const defaultLicenseMaxUsers = undefined;
 const defaultLicenseValidFrom = undefined;
 const defaultLicenseValidTill = undefined;
@@ -142,6 +143,7 @@ function server(
 		licenseType: defaultLicenseType,
 		type: defaultType,
 		files: defaultFiles,
+		gateway: defaultGateway,
 		licenseValidFrom: defaultLicenseValidFrom,
 		licenseValidTill: defaultLicenseValidTill,
 		logAudit: defaultLogAudit,
@@ -229,6 +231,7 @@ function server(
 				licenseType: defaultLicenseType,
 				type: defaultType,
 				files: defaultFiles,
+				gateway: defaultGateway,
 				licenseValidFrom: defaultLicenseValidFrom,
 				licenseValidTill: defaultLicenseValidTill,
 				logAudit: defaultLogAudit,
@@ -334,6 +337,7 @@ function server(
 				licenseType: action.info.license_type,
 				type: action.info.type,
 				files: action.info.files,
+				gateway: action.info.gateway === true,
 				licenseValidFrom: action.info.license_valid_from,
 				licenseValidTill: action.info.license_valid_till,
 				logAudit: action.info.log_audit,

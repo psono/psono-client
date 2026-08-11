@@ -42,6 +42,7 @@ import DialogChangeAccount from "../../components/dialogs/change-account";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import EntryIcon from "../../components/entry-icon";
 import ContentCopy from "../../components/icons/ContentCopy";
+import GatewayLaunchButton from "../../components/gateway-launch-button";
 import TextFieldColored from "../../components/text-field/colored";
 import accountService from "../../services/account";
 import browserClient from "../../services/browser-client";
@@ -348,6 +349,10 @@ const PopupItem = (props) => {
 				aria-label="outlined button group"
 				className={classes.navigationItemButtonGroup}
 			>
+				<GatewayLaunchButton
+					className={classes.regularButtonText}
+					item={item.content}
+				/>
 				{["bookmark", "website_password", "elster_certificate"].indexOf(
 					item.content.type,
 				) !== -1 && (
@@ -363,9 +368,13 @@ const PopupItem = (props) => {
 						/>
 					</Button>
 				)}
-				{["application_password", "website_password"].indexOf(
-					item.content.type,
-				) !== -1 && (
+				{[
+					"application_password",
+					"website_password",
+					"ssh_connection",
+					"rdp_connection",
+					"vnc_connection",
+				].indexOf(item.content.type) !== -1 && (
 					<>
 						<Tooltip
 							title={t("COPY_USERNAME")}

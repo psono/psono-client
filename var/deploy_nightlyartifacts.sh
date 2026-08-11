@@ -3,7 +3,7 @@ set -e
 
 upload_if_exists() {
     if [ -f "$1" ]; then
-        gsutil cp "$1" "$2"
+        gcloud storage cp "$1" "$2"
     fi
 }
 

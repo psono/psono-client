@@ -10,11 +10,13 @@ import {
 	SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
 	SET_CLIENT_CONFIG,
 	SET_CLIENT_URL,
+	SET_CONNECTION_AUTHENTICATION,
 	SET_DEVICE_CODE,
 	SET_DISABLE_BROWSER_PM,
 	SET_DOMAIN_SYNONYMS_CONFIG,
 	SET_EMAIL,
 	SET_FINGERPRINT,
+	SET_GATEWAY_CLUSTER_SELECTION,
 	SET_GPG_CONFIG,
 	SET_HAS_TWO_FACTOR,
 	SET_HASHING_PARAMETERS,
@@ -24,9 +26,9 @@ import {
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
-	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_REMOTE_CONFIG_JSON,
 	SET_REQUESTS_IN_PROGRESS,
+	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_SERVER_INFO,
 	SET_SERVER_POLICY,
 	SET_SERVER_SECRET_EXISTS,
@@ -280,6 +282,39 @@ function settingsDatastoreLoaded(data) {
 		});
 	};
 }
+
+let settingsPersistenceQueue = Promise.resolve();
+
+function enqueueSettingsPersistence(operation, rejectOnStaleUser = false) {
+	const userId = getStore().getState().user?.userId;
+	const result = settingsPersistenceQueue
+		.catch(() => undefined)
+		.then(() => {
+			if (getStore().getState().user?.userId !== userId) {
+				if (rejectOnStaleUser) {
+					return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+				}
+				return undefined;
+			}
+			return operation(userId);
+		});
+	settingsPersistenceQueue = result;
+	return result;
+}
+
+function persistSettingsDatastore(overrides) {
+	return enqueueSettingsPersistence(() => {
+		const settings = Object.assign(
+			{},
+			getStore().getState().settingsDatastore,
+			overrides,
+		);
+		return datastoreSettingService.saveSettingsDatastore(
+			datastoreSettingService.serializeSettingsDatastore(settings),
+		);
+	});
+}
+
 function setPasswordConfig(
 	passwordLength,
 	passwordLettersUppercase,
@@ -287,105 +322,13 @@ function setPasswordConfig(
 	passwordNumbers,
 	passwordSpecialChars,
 ) {
-	datastoreSettingService.saveSettingsDatastore([
-		{
-			key: "setting_show_website_password",
-			value: getStore().getState().settingsDatastore.showWebsitePassword,
-		},
-		{
-			key: "setting_show_application_password",
-			value: getStore().getState().settingsDatastore.showApplicationPassword,
-		},
-		{
-			key: "setting_show_totp",
-			value: getStore().getState().settingsDatastore.showTOTPAuthenticator,
-		},
-		{
-			key: "setting_show_passkey",
-			value: getStore().getState().settingsDatastore.showPasskey,
-		},
-		{
-			key: "setting_show_note",
-			value: getStore().getState().settingsDatastore.showNote,
-		},
-		{
-			key: "setting_show_environment_variables",
-			value: getStore().getState().settingsDatastore.showEnvironmentVariables,
-		},
-		{
-			key: "setting_show_ssh_own_key",
-			value: getStore().getState().settingsDatastore.showSSHKey,
-		},
-		{
-			key: "setting_show_mail_gpg_own_key",
-			value: getStore().getState().settingsDatastore.howGPGKey,
-		},
-		{
-			key: "setting_show_credit_card",
-			value: getStore().getState().settingsDatastore.showCreditCard,
-		},
-		{
-			key: "setting_show_bookmark",
-			value: getStore().getState().settingsDatastore.showBookmark,
-		},
-		{
-			key: "setting_show_identity",
-			value: getStore().getState().settingsDatastore.showIdentity,
-		},
-		{
-			key: "setting_show_elster_certificate",
-			value: getStore().getState().settingsDatastore.showElsterCertificate,
-		},
-		{
-			key: "setting_show_file",
-			value: getStore().getState().settingsDatastore.showFile,
-		},
-		{ key: "setting_password_length", value: passwordLength },
-		{
-			key: "setting_password_letters_uppercase",
-			value: passwordLettersUppercase,
-		},
-		{
-			key: "setting_password_letters_lowercase",
-			value: passwordLettersLowercase,
-		},
-		{ key: "setting_password_numbers", value: passwordNumbers },
-		{ key: "setting_password_special_chars", value: passwordSpecialChars },
-		{
-			key: "gpg_default_key",
-			value: getStore().getState().settingsDatastore.gpgDefaultKey,
-		},
-		{
-			key: "gpg_hkp_key_server",
-			value: getStore().getState().settingsDatastore.gpgHkpKeyServer,
-		},
-		{
-			key: "gpg_hkp_search",
-			value: getStore().getState().settingsDatastore.gpgHkpSearch,
-		},
-		{
-			key: "setting_clipboard_clear_delay",
-			value: getStore().getState().settingsDatastore.clipboardClearDelay,
-		},
-		{
-			key: "setting_no_save_mode",
-			value: getStore().getState().settingsDatastore.noSaveMode,
-		},
-		{
-			key: "setting_show_no_save_toggle",
-			value: getStore().getState().settingsDatastore.showNoSaveToggle,
-		},
-		{
-			key: "setting_confirm_unsaved_changes",
-			value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges,
-		},
-		{
-			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(
-				getStore().getState().settingsDatastore.customDomainSynonyms || [],
-			),
-		},
-	]);
+	persistSettingsDatastore({
+		passwordLength,
+		passwordLettersUppercase,
+		passwordLettersLowercase,
+		passwordNumbers,
+		passwordSpecialChars,
+	});
 	return (dispatch) => {
 		dispatch({
 			type: SET_PASSWORD_CONFIG,
@@ -404,102 +347,12 @@ function setClientOptionsConfig(
 	showNoSaveToggle,
 	confirmOnUnsavedChanges,
 ) {
-	datastoreSettingService.saveSettingsDatastore([
-		{
-			key: "setting_show_website_password",
-			value: getStore().getState().settingsDatastore.showWebsitePassword,
-		},
-		{
-			key: "setting_show_application_password",
-			value: getStore().getState().settingsDatastore.showApplicationPassword,
-		},
-		{
-			key: "setting_show_totp",
-			value: getStore().getState().settingsDatastore.showTOTPAuthenticator,
-		},
-		{
-			key: "setting_show_passkey",
-			value: getStore().getState().settingsDatastore.showPasskey,
-		},
-		{
-			key: "setting_show_note",
-			value: getStore().getState().settingsDatastore.showNote,
-		},
-		{
-			key: "setting_show_environment_variables",
-			value: getStore().getState().settingsDatastore.showEnvironmentVariables,
-		},
-		{
-			key: "setting_show_ssh_own_key",
-			value: getStore().getState().settingsDatastore.showSSHKey,
-		},
-		{
-			key: "setting_show_mail_gpg_own_key",
-			value: getStore().getState().settingsDatastore.howGPGKey,
-		},
-		{
-			key: "setting_show_credit_card",
-			value: getStore().getState().settingsDatastore.showCreditCard,
-		},
-		{
-			key: "setting_show_bookmark",
-			value: getStore().getState().settingsDatastore.showBookmark,
-		},
-		{
-			key: "setting_show_identity",
-			value: getStore().getState().settingsDatastore.showIdentity,
-		},
-		{
-			key: "setting_show_elster_certificate",
-			value: getStore().getState().settingsDatastore.showElsterCertificate,
-		},
-		{
-			key: "setting_show_file",
-			value: getStore().getState().settingsDatastore.showFile,
-		},
-		{
-			key: "setting_password_length",
-			value: getStore().getState().settingsDatastore.passwordLength,
-		},
-		{
-			key: "setting_password_letters_uppercase",
-			value: getStore().getState().settingsDatastore.passwordLettersUppercase,
-		},
-		{
-			key: "setting_password_letters_lowercase",
-			value: getStore().getState().settingsDatastore.passwordLettersLowercase,
-		},
-		{
-			key: "setting_password_numbers",
-			value: getStore().getState().settingsDatastore.passwordNumbers,
-		},
-		{
-			key: "setting_password_special_chars",
-			value: getStore().getState().settingsDatastore.passwordSpecialChars,
-		},
-		{
-			key: "gpg_default_key",
-			value: getStore().getState().settingsDatastore.gpgDefaultKey,
-		},
-		{
-			key: "gpg_hkp_key_server",
-			value: getStore().getState().settingsDatastore.gpgHkpKeyServer,
-		},
-		{
-			key: "gpg_hkp_search",
-			value: getStore().getState().settingsDatastore.gpgHkpSearch,
-		},
-		{ key: "setting_clipboard_clear_delay", value: clipboardClearDelay },
-		{ key: "setting_no_save_mode", value: noSaveMode },
-		{ key: "setting_show_no_save_toggle", value: showNoSaveToggle },
-		{ key: "setting_confirm_unsaved_changes", value: confirmOnUnsavedChanges },
-		{
-			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(
-				getStore().getState().settingsDatastore.customDomainSynonyms || [],
-			),
-		},
-	]);
+	persistSettingsDatastore({
+		clipboardClearDelay,
+		noSaveMode,
+		showNoSaveToggle,
+		confirmOnUnsavedChanges,
+	});
 
 	return (dispatch) => {
 		dispatch({
@@ -513,113 +366,7 @@ function setClientOptionsConfig(
 }
 
 function setDomainSynonymsConfig(customDomainSynonyms) {
-	// Save all settings including the new custom synonyms
-	datastoreSettingService.saveSettingsDatastore([
-		{
-			key: "setting_show_website_password",
-			value: getStore().getState().settingsDatastore.showWebsitePassword,
-		},
-		{
-			key: "setting_show_application_password",
-			value: getStore().getState().settingsDatastore.showApplicationPassword,
-		},
-		{
-			key: "setting_show_totp",
-			value: getStore().getState().settingsDatastore.showTOTPAuthenticator,
-		},
-		{
-			key: "setting_show_passkey",
-			value: getStore().getState().settingsDatastore.showPasskey,
-		},
-		{
-			key: "setting_show_note",
-			value: getStore().getState().settingsDatastore.showNote,
-		},
-		{
-			key: "setting_show_environment_variables",
-			value: getStore().getState().settingsDatastore.showEnvironmentVariables,
-		},
-		{
-			key: "setting_show_ssh_own_key",
-			value: getStore().getState().settingsDatastore.showSSHKey,
-		},
-		{
-			key: "setting_show_mail_gpg_own_key",
-			value: getStore().getState().settingsDatastore.howGPGKey,
-		},
-		{
-			key: "setting_show_credit_card",
-			value: getStore().getState().settingsDatastore.showCreditCard,
-		},
-		{
-			key: "setting_show_bookmark",
-			value: getStore().getState().settingsDatastore.showBookmark,
-		},
-		{
-			key: "setting_show_identity",
-			value: getStore().getState().settingsDatastore.showIdentity,
-		},
-		{
-			key: "setting_show_elster_certificate",
-			value: getStore().getState().settingsDatastore.showElsterCertificate,
-		},
-		{
-			key: "setting_show_file",
-			value: getStore().getState().settingsDatastore.showFile,
-		},
-		{
-			key: "setting_password_length",
-			value: getStore().getState().settingsDatastore.passwordLength,
-		},
-		{
-			key: "setting_password_letters_uppercase",
-			value: getStore().getState().settingsDatastore.passwordLettersUppercase,
-		},
-		{
-			key: "setting_password_letters_lowercase",
-			value: getStore().getState().settingsDatastore.passwordLettersLowercase,
-		},
-		{
-			key: "setting_password_numbers",
-			value: getStore().getState().settingsDatastore.passwordNumbers,
-		},
-		{
-			key: "setting_password_special_chars",
-			value: getStore().getState().settingsDatastore.passwordSpecialChars,
-		},
-		{
-			key: "gpg_default_key",
-			value: getStore().getState().settingsDatastore.gpgDefaultKey,
-		},
-		{
-			key: "gpg_hkp_key_server",
-			value: getStore().getState().settingsDatastore.gpgHkpKeyServer,
-		},
-		{
-			key: "gpg_hkp_search",
-			value: getStore().getState().settingsDatastore.gpgHkpSearch,
-		},
-		{
-			key: "setting_clipboard_clear_delay",
-			value: getStore().getState().settingsDatastore.clipboardClearDelay,
-		},
-		{
-			key: "setting_no_save_mode",
-			value: getStore().getState().settingsDatastore.noSaveMode,
-		},
-		{
-			key: "setting_show_no_save_toggle",
-			value: getStore().getState().settingsDatastore.showNoSaveToggle,
-		},
-		{
-			key: "setting_confirm_unsaved_changes",
-			value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges,
-		},
-		{
-			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(customDomainSynonyms),
-		},
-	]);
+	persistSettingsDatastore({ customDomainSynonyms });
 
 	return (dispatch) => {
 		dispatch({
@@ -638,87 +385,33 @@ function setShownEntriesConfig(
 	showEnvironmentVariables,
 	showSSHKey,
 	showGPGKey,
+	showSSHConnection,
+	showRDPConnection,
+	showVNCConnection,
 	showCreditCard,
 	showBookmark,
 	showIdentity,
 	showElsterCertificate,
 	showFile,
 ) {
-	datastoreSettingService.saveSettingsDatastore([
-		{ key: "setting_show_website_password", value: showWebsitePassword },
-		{
-			key: "setting_show_application_password",
-			value: showApplicationPassword,
-		},
-		{ key: "setting_show_totp", value: showTOTPAuthenticator },
-		{ key: "setting_show_passkey", value: showPasskey },
-		{ key: "setting_show_note", value: showNote },
-		{
-			key: "setting_show_environment_variables",
-			value: showEnvironmentVariables,
-		},
-		{ key: "setting_show_ssh_own_key", value: showSSHKey },
-		{ key: "setting_show_mail_gpg_own_key", value: showGPGKey },
-		{ key: "setting_show_credit_card", value: showCreditCard },
-		{ key: "setting_show_bookmark", value: showBookmark },
-		{ key: "setting_show_identity", value: showIdentity },
-		{ key: "setting_show_elster_certificate", value: showElsterCertificate },
-		{ key: "setting_show_file", value: showFile },
-		{
-			key: "setting_password_length",
-			value: getStore().getState().settingsDatastore.passwordLength,
-		},
-		{
-			key: "setting_password_letters_uppercase",
-			value: getStore().getState().settingsDatastore.passwordLettersUppercase,
-		},
-		{
-			key: "setting_password_letters_lowercase",
-			value: getStore().getState().settingsDatastore.passwordLettersLowercase,
-		},
-		{
-			key: "setting_password_numbers",
-			value: getStore().getState().settingsDatastore.passwordNumbers,
-		},
-		{
-			key: "setting_password_special_chars",
-			value: getStore().getState().settingsDatastore.passwordSpecialChars,
-		},
-		{
-			key: "gpg_default_key",
-			value: getStore().getState().settingsDatastore.gpgDefaultKey,
-		},
-		{
-			key: "gpg_hkp_key_server",
-			value: getStore().getState().settingsDatastore.gpgHkpKeyServer,
-		},
-		{
-			key: "gpg_hkp_search",
-			value: getStore().getState().settingsDatastore.gpgHkpSearch,
-		},
-		{
-			key: "setting_clipboard_clear_delay",
-			value: getStore().getState().settingsDatastore.clipboardClearDelay,
-		},
-		{
-			key: "setting_no_save_mode",
-			value: getStore().getState().settingsDatastore.noSaveMode,
-		},
-		{
-			key: "setting_show_no_save_toggle",
-			value: getStore().getState().settingsDatastore.showNoSaveToggle,
-		},
-		{
-			key: "setting_confirm_unsaved_changes",
-			value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges,
-		},
-		{
-			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(
-				getStore().getState().settingsDatastore.customDomainSynonyms || [],
-			),
-		},
-	]);
+	persistSettingsDatastore({
+		showWebsitePassword,
+		showApplicationPassword,
+		showTOTPAuthenticator,
+		showPasskey,
+		showNote,
+		showEnvironmentVariables,
+		showSSHKey,
+		showGPGKey,
+		showSSHConnection,
+		showRDPConnection,
+		showVNCConnection,
+		showCreditCard,
+		showBookmark,
+		showIdentity,
+		showElsterCertificate,
+		showFile,
+	});
 	return (dispatch) => {
 		dispatch({
 			type: SET_SHOWN_ENTRIES_CONFIG,
@@ -730,6 +423,9 @@ function setShownEntriesConfig(
 			showEnvironmentVariables,
 			showSSHKey,
 			showGPGKey,
+			showSSHConnection,
+			showRDPConnection,
+			showVNCConnection,
 			showCreditCard,
 			showBookmark,
 			showIdentity,
@@ -739,105 +435,7 @@ function setShownEntriesConfig(
 	};
 }
 function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
-	datastoreSettingService.saveSettingsDatastore([
-		{
-			key: "setting_show_website_password",
-			value: getStore().getState().settingsDatastore.showWebsitePassword,
-		},
-		{
-			key: "setting_show_application_password",
-			value: getStore().getState().settingsDatastore.showApplicationPassword,
-		},
-		{
-			key: "setting_show_totp",
-			value: getStore().getState().settingsDatastore.showTOTPAuthenticator,
-		},
-		{
-			key: "setting_show_passkey",
-			value: getStore().getState().settingsDatastore.showPasskey,
-		},
-		{
-			key: "setting_show_note",
-			value: getStore().getState().settingsDatastore.showNote,
-		},
-		{
-			key: "setting_show_environment_variables",
-			value: getStore().getState().settingsDatastore.showEnvironmentVariables,
-		},
-		{
-			key: "setting_show_ssh_own_key",
-			value: getStore().getState().settingsDatastore.showSSHKey,
-		},
-		{
-			key: "setting_show_mail_gpg_own_key",
-			value: getStore().getState().settingsDatastore.howGPGKey,
-		},
-		{
-			key: "setting_show_credit_card",
-			value: getStore().getState().settingsDatastore.showCreditCard,
-		},
-		{
-			key: "setting_show_bookmark",
-			value: getStore().getState().settingsDatastore.showBookmark,
-		},
-		{
-			key: "setting_show_identity",
-			value: getStore().getState().settingsDatastore.showIdentity,
-		},
-		{
-			key: "setting_show_elster_certificate",
-			value: getStore().getState().settingsDatastore.showElsterCertificate,
-		},
-		{
-			key: "setting_show_file",
-			value: getStore().getState().settingsDatastore.showFile,
-		},
-		{
-			key: "setting_password_length",
-			value: getStore().getState().settingsDatastore.passwordLength,
-		},
-		{
-			key: "setting_password_letters_uppercase",
-			value: getStore().getState().settingsDatastore.passwordLettersUppercase,
-		},
-		{
-			key: "setting_password_letters_lowercase",
-			value: getStore().getState().settingsDatastore.passwordLettersLowercase,
-		},
-		{
-			key: "setting_password_numbers",
-			value: getStore().getState().settingsDatastore.passwordNumbers,
-		},
-		{
-			key: "setting_password_special_chars",
-			value: getStore().getState().settingsDatastore.passwordSpecialChars,
-		},
-		{ key: "gpg_default_key", value: gpgDefaultKey },
-		{ key: "gpg_hkp_key_server", value: gpgHkpKeyServer },
-		{ key: "gpg_hkp_search", value: gpgHkpSearch },
-		{
-			key: "setting_clipboard_clear_delay",
-			value: getStore().getState().settingsDatastore.clipboardClearDelay,
-		},
-		{
-			key: "setting_no_save_mode",
-			value: getStore().getState().settingsDatastore.noSaveMode,
-		},
-		{
-			key: "setting_show_no_save_toggle",
-			value: getStore().getState().settingsDatastore.showNoSaveToggle,
-		},
-		{
-			key: "setting_confirm_unsaved_changes",
-			value: getStore().getState().settingsDatastore.confirmOnUnsavedChanges,
-		},
-		{
-			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(
-				getStore().getState().settingsDatastore.customDomainSynonyms || [],
-			),
-		},
-	]);
+	persistSettingsDatastore({ gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch });
 	return (dispatch) => {
 		dispatch({
 			type: SET_GPG_CONFIG,
@@ -845,6 +443,106 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
 			gpgHkpKeyServer,
 			gpgHkpSearch,
 		});
+	};
+}
+
+function setConnectionAuthentication(connectionSecretId, authentication) {
+	return (dispatch) => {
+		return enqueueSettingsPersistence((userId) => {
+			const current = getStore().getState().settingsDatastore
+				.connectionAuthentication || {
+				schema_version: 1,
+				by_connection_secret_id: {},
+			};
+			const byConnectionSecretId = Object.assign(
+				{},
+				current.by_connection_secret_id || {},
+			);
+
+			if (authentication === null || typeof authentication === "undefined") {
+				delete byConnectionSecretId[connectionSecretId];
+			} else {
+				byConnectionSecretId[connectionSecretId] = authentication;
+			}
+
+			const connectionAuthentication = Object.assign({}, current, {
+				schema_version: 1,
+				by_connection_secret_id: byConnectionSecretId,
+			});
+			const settings = Object.assign(
+				{},
+				getStore().getState().settingsDatastore,
+				{ connectionAuthentication },
+			);
+
+			return datastoreSettingService
+				.saveSettingsDatastore(
+					datastoreSettingService.serializeSettingsDatastore(settings),
+				)
+				.then((result) => {
+					if (
+						typeof result === "undefined" ||
+						getStore().getState().user?.userId !== userId
+					) {
+						return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+					}
+					dispatch({
+						type: SET_CONNECTION_AUTHENTICATION,
+						connectionAuthentication,
+					});
+					return result;
+				});
+		}, true);
+	};
+}
+
+function setGatewayClusterSelection(connectionSecretId, clusterId) {
+	return (dispatch) => {
+		return enqueueSettingsPersistence((userId) => {
+			const current = getStore().getState().settingsDatastore
+				.gatewayClusterSelection || {
+				schema_version: 1,
+				by_connection_secret_id: {},
+			};
+			const byConnectionSecretId = Object.assign(
+				{},
+				current.by_connection_secret_id || {},
+			);
+
+			if (clusterId === null || typeof clusterId === "undefined") {
+				delete byConnectionSecretId[connectionSecretId];
+			} else {
+				byConnectionSecretId[connectionSecretId] = clusterId;
+			}
+
+			const gatewayClusterSelection = Object.assign({}, current, {
+				schema_version: 1,
+				by_connection_secret_id: byConnectionSecretId,
+			});
+			const settings = Object.assign(
+				{},
+				getStore().getState().settingsDatastore,
+				{ gatewayClusterSelection },
+			);
+
+			return datastoreSettingService
+				.saveSettingsDatastore(
+					datastoreSettingService.serializeSettingsDatastore(settings),
+				)
+				.then((result) => {
+					if (
+						typeof result === "undefined" ||
+						getStore().getState().user?.userId !== userId
+					) {
+						return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+					}
+					dispatch({
+						type: SET_GATEWAY_CLUSTER_SELECTION,
+						gatewayClusterSelection,
+					});
+					return result;
+				});
+		}, true);
 	};
 }
 
@@ -976,6 +674,8 @@ const actionCreators = {
 	setRequestsInProgress,
 	setClientOptionsConfig,
 	setDomainSynonymsConfig,
+	setConnectionAuthentication,
+	setGatewayClusterSelection,
 	setDeviceCode,
 	clearDeviceCode,
 };

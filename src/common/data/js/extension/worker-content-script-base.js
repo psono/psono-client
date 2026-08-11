@@ -63,6 +63,12 @@ var ClassWorkerContentScriptBase = (browser, setTimeout) => {
 			window.WebKitMutationObserver ||
 			window.MozMutationObserver;
 		const observer = new MutationObserver((mutations) => {
+			for (const mutation of mutations) {
+				for (const addedNode of mutation.addedNodes) {
+					observeShadowRoots(addedNode);
+				}
+			}
+
 			// watch for changes, but block multiple executions for potentially the same event
 			// by delaying the actual execution for 300ms and blocking all events within this timeslot to fire again
 			if (doc.analyze_waiting) {
@@ -77,7 +83,36 @@ var ClassWorkerContentScriptBase = (browser, setTimeout) => {
 			}, 300);
 		});
 		const config = { childList: true, characterData: true, subtree: true };
-		observer.observe(doc.body, config);
+		const observedRoots = new WeakSet();
+
+		function observeRoot(root) {
+			if (observedRoots.has(root)) {
+				return;
+			}
+			observedRoots.add(root);
+			observer.observe(root, config);
+		}
+
+		function observeShadowRoots(node) {
+			if (!node || typeof node.querySelectorAll !== "function") {
+				return;
+			}
+
+			if (node.shadowRoot) {
+				observeRoot(node.shadowRoot);
+				observeShadowRoots(node.shadowRoot);
+			}
+
+			for (const element of node.querySelectorAll("*")) {
+				if (element.shadowRoot) {
+					observeRoot(element.shadowRoot);
+					observeShadowRoots(element.shadowRoot);
+				}
+			}
+		}
+
+		observeRoot(doc.body);
+		observeShadowRoots(doc.body);
 	}
 	function registerObserver(fnc) {
 		observerExecutables.push(fnc);
@@ -244,3 +279,7 @@ var ClassWorkerContentScriptBase = (browser, setTimeout) => {
 		onMessage: onMessage,
 	};
 };
+
+if (typeof module !== "undefined") {
+	module.exports = ClassWorkerContentScriptBase;
+}

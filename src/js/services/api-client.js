@@ -171,9 +171,16 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
 	const sideEffect = (rawResponse) => {
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (rawResponse.status === 401 && user.isLoggedIn()) {
-			// session expired, lets log the user out
-			user.logout(i18n.t("SESSION_EXPIRED"));
+		if (rawResponse.status === 401) {
+			const currentToken = getStore().getState().user.token;
+			if (
+				currentToken &&
+				headers?.Authorization === `Token ${currentToken}` &&
+				user.isLoggedIn()
+			) {
+				// session expired, lets log the user out
+				user.logout(i18n.t("SESSION_EXPIRED"));
+			}
 		}
 		if (rawResponse.status === 423 && user.isLoggedIn()) {
 			// server error, lets log the user out
@@ -940,6 +947,45 @@ function readDatastore(token, sessionSecretKey, datastoreId) {
 	const endpoint = "/datastore/" + (!datastoreId ? "" : datastoreId + "/");
 	const method = "GET";
 	const data = null;
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Returns the gateway clusters available to the current user.
+ */
+function getGatewayClusters(token, sessionSecretKey) {
+	const endpoint = "/gateway/clusters/";
+	const method = "GET";
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, null, headers, sessionSecretKey);
+}
+
+/**
+ * Creates an encrypted gateway launch.
+ */
+function launchGateway(
+	token,
+	sessionSecretKey,
+	clusterId,
+	secretId,
+	encryptedData,
+	encryptedDataNonce,
+) {
+	const endpoint = "/gateway/launch/";
+	const method = "POST";
+	const data = {
+		cluster_id: clusterId,
+		secret_id: secretId,
+		data: encryptedData,
+		data_nonce: encryptedDataNonce,
+	};
 	const headers = {
 		Authorization: "Token " + token,
 	};
@@ -4151,6 +4197,8 @@ const apiClientService = {
 	readSecretHistory: readSecretHistory,
 	readHistory: readHistory,
 	readDatastore: readDatastore,
+	getGatewayClusters: getGatewayClusters,
+	launchGateway: launchGateway,
 	writeDatastore: writeDatastore,
 	createDatastore: createDatastore,
 	deleteDatastore: deleteDatastore,

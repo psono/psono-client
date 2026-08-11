@@ -24,6 +24,7 @@ import { getStore } from "../../services/store";
 import widgetService from "../../services/widget";
 import EntryIcon from "../entry-icon";
 import ContentCopy from "../icons/ContentCopy";
+import GatewayLaunchButton from "../gateway-launch-button";
 
 const useStyles = makeStyles((theme) => ({
 	treeItem: {
@@ -243,17 +244,29 @@ const DatastoreTreeItem = (props) => {
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "totp"].includes(content["type"]);
+		!["website_password", "totp"].includes(content.type);
 	const hideCopyUsername =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "application_password"].includes(content["type"]);
+		![
+			"website_password",
+			"application_password",
+			"ssh_connection",
+			"rdp_connection",
+			"vnc_connection",
+		].includes(content.type);
 	const hideCopyPassword =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "application_password"].includes(content["type"]);
+		![
+			"website_password",
+			"application_password",
+			"ssh_connection",
+			"rdp_connection",
+			"vnc_connection",
+		].includes(content.type);
 	const hideCopyUrl =
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights.read !== true) ||
@@ -372,6 +385,7 @@ const DatastoreTreeItem = (props) => {
 				aria-label="outlined button group"
 				className={classes.nodeOpenLink}
 			>
+				<GatewayLaunchButton item={content} offline={offline} />
 				{Boolean(props.onLinkItem) &&
 					["bookmark", "website_password", "elster_certificate"].indexOf(
 						content.type,

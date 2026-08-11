@@ -6,6 +6,7 @@ import DOMPurify from "dompurify";
 import i18n from "../i18n";
 import apiClient from "../services/api-client";
 import browserClient from "../services/browser-client";
+import connectionCredentialsService from "../services/connection-credentials";
 import cryptoLibrary from "../services/crypto-library";
 import offlineCache from "../services/offline-cache";
 import deviceService from "./device";
@@ -374,21 +375,49 @@ function onItemClick(item) {
  * @param {object} item The item of which we want to load the username into our clipboard
  */
 function copyUsername(item) {
+	let copyPromise;
 	if (item["type"] === "application_password") {
-		browserClient.copyToClipboard(() =>
+		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then(
 				(decryptedSecret) => decryptedSecret["application_password_username"],
 			),
 		);
 	} else if (item["type"] === "website_password") {
-		browserClient.copyToClipboard(() =>
+		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then(
 				(decryptedSecret) => decryptedSecret["website_password_username"],
 			),
 		);
+	} else if (
+		["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+			item["type"],
+		)
+	) {
+		copyPromise = browserClient.copyToClipboard(() =>
+			readSecret(item.secret_id, item.secret_key).then((connection) =>
+				connectionCredentialsService
+					.resolveConnectionAuthentication(
+						item.type,
+						item.secret_id,
+						connection,
+						readSecret,
+					)
+					.then((authentication) => authentication?.username || ""),
+			),
+		);
 	}
-
-	notification.push("username_copy", i18n.t("USERNAME_COPY_NOTIFICATION"));
+	if (!copyPromise) {
+		return;
+	}
+	return copyPromise.then(
+		() =>
+			notification.push("username_copy", i18n.t("USERNAME_COPY_NOTIFICATION")),
+		() =>
+			notification.push(
+				"connection_authentication",
+				i18n.t("BROKEN_REFERENCE"),
+			),
+	);
 }
 
 /**
@@ -397,21 +426,49 @@ function copyUsername(item) {
  * @param {object} item The item of which we want to load the password into our clipboard
  */
 function copyPassword(item) {
+	let copyPromise;
 	if (item["type"] === "application_password") {
-		browserClient.copyToClipboard(() =>
+		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then(
 				(decryptedSecret) => decryptedSecret["application_password_password"],
 			),
 		);
 	} else if (item["type"] === "website_password") {
-		browserClient.copyToClipboard(() =>
+		copyPromise = browserClient.copyToClipboard(() =>
 			readSecret(item.secret_id, item.secret_key).then(
 				(decryptedSecret) => decryptedSecret["website_password_password"],
 			),
 		);
+	} else if (
+		["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+			item["type"],
+		)
+	) {
+		copyPromise = browserClient.copyToClipboard(() =>
+			readSecret(item.secret_id, item.secret_key).then((connection) =>
+				connectionCredentialsService
+					.resolveConnectionAuthentication(
+						item.type,
+						item.secret_id,
+						connection,
+						readSecret,
+					)
+					.then((authentication) => authentication?.password || ""),
+			),
+		);
 	}
-
-	notification.push("password_copy", i18n.t("PASSWORD_COPY_NOTIFICATION"));
+	if (!copyPromise) {
+		return;
+	}
+	return copyPromise.then(
+		() =>
+			notification.push("password_copy", i18n.t("PASSWORD_COPY_NOTIFICATION")),
+		() =>
+			notification.push(
+				"connection_authentication",
+				i18n.t("BROKEN_REFERENCE"),
+			),
+	);
 }
 
 /**

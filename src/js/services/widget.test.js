@@ -1,6 +1,8 @@
+import cryptoLibrary from "./crypto-library";
 import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
 import datastoreUserService from "./datastore-user";
+import secretService from "./secret";
 import shareService from "./share";
 import widgetService from "./widget";
 
@@ -1597,5 +1599,74 @@ describe("Service: datastoreService - hideSubShareContent", () => {
 
 		expect(() => datastoreService.hideSubShareContent(datastore)).not.toThrow();
 		expect(datastore.share_index).toBeUndefined();
+	});
+});
+
+describe("Service: widgetService - connection item icons", () => {
+	it("uses a terminal icon for SSH connections", () => {
+		expect(widgetService.itemIcon({ type: "ssh_connection" })).toBe(
+			"fa fa-terminal",
+		);
+	});
+
+	it("uses a desktop icon for RDP connections", () => {
+		expect(widgetService.itemIcon({ type: "rdp_connection" })).toBe(
+			"fa fa-desktop",
+		);
+	});
+
+	it("uses a desktop icon for VNC connections", () => {
+		expect(widgetService.itemIcon({ type: "vnc_connection" })).toBe(
+			"fa fa-desktop",
+		);
+	});
+});
+
+describe("Service: widgetService - connection clone titles", () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it.each([
+		["ssh_connection_title", "SSH Connection"],
+		["rdp_connection_title", "RDP Connection"],
+		["vnc_connection_title", "VNC Connection"],
+	])("prefixes %s when cloning", async (titleField, title) => {
+		const item = {
+			id: "item-id",
+			name: title,
+			type: titleField.replace("_title", ""),
+			secret_id: "secret-id",
+			secret_key: "secret-key",
+			parent_datastore_id: "datastore-id",
+			share_rights: { read: true, write: true, grant: true, delete: true },
+		};
+		const datastore = {
+			datastore_id: "datastore-id",
+			items: [item],
+		};
+		jest.spyOn(cryptoLibrary, "generateUuid").mockReturnValue("clone-id");
+		jest.spyOn(secretService, "readSecret").mockResolvedValue({
+			[titleField]: title,
+		});
+		const createSecretSpy = jest
+			.spyOn(secretService, "createSecret")
+			.mockResolvedValue({
+				secret_id: "clone-secret-id",
+				secret_key: "clone-key",
+			});
+		jest
+			.spyOn(datastorePasswordService, "getDatastoreWithId")
+			.mockResolvedValue(datastore);
+		jest
+			.spyOn(datastorePasswordService, "saveDatastoreContent")
+			.mockResolvedValue();
+		jest
+			.spyOn(datastorePasswordService, "handleDatastoreContentChanged")
+			.mockImplementation(() => {});
+
+		await widgetService.cloneItem(datastore, item, ["item-id"]);
+
+		expect(createSecretSpy.mock.calls[0][0][titleField]).toBe(`Copy ${title}`);
 	});
 });

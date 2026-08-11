@@ -144,6 +144,11 @@ function isValidHostname(hostname) {
 	}
 }
 
+function isValidPort(port) {
+	const parsedPort = Number(port);
+	return Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535;
+}
+
 /**
  * Check if `hostname` is *probably* a valid ip addr (either ipv6 or ipv4).
  * This *will not* work on any string. We need `hostname` to be a valid
@@ -905,6 +910,7 @@ const helperService = {
 	getPasswordFilter: getPasswordFilter,
 	isUrlFilterMatch: isUrlFilterMatch,
 	isValidHostname: isValidHostname,
+	isValidPort: isValidPort,
 	isValidDomain: isValidDomain,
 	isValidIp: isValidIp,
 	buildDomainSynonymMap: buildDomainSynonymMap,
