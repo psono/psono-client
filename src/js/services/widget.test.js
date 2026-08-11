@@ -1555,6 +1555,114 @@ describe("Service: widgetService - moveItem test suite", () => {
 	});
 });
 
+describe("Service: widgetService - save completion", () => {
+	let manager;
+	let readShareSpy;
+	let writeShareSpy;
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		manager = {
+			handleDatastoreContentChanged: jest.fn(),
+		};
+		jest.spyOn(shareService, "getClosestParentShare").mockReturnValue({
+			closest_share: {
+				id: "share-link",
+				share_id: "share-1",
+				share_secret_key: "share-key",
+				share_rights: { read: true, write: true, grant: true },
+			},
+			relative_path: [],
+		});
+		jest
+			.spyOn(datastorePasswordService, "updatePathsRecursive")
+			.mockImplementation(() => {});
+		readShareSpy = jest.spyOn(shareService, "readShare").mockResolvedValue({
+			data: { id: "item-1", name: "Old", folders: [], items: [] },
+		});
+		writeShareSpy = jest.spyOn(shareService, "writeShare");
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it.each([
+		[
+			"new folder",
+			() =>
+				widgetService.newFolderSave(
+					{ folders: [] },
+					[],
+					{ folders: [] },
+					manager,
+					"New folder",
+					"",
+				),
+		],
+		[
+			"edit folder",
+			() =>
+				widgetService.editFolderSave(
+					{ name: "Renamed", color: "" },
+					[],
+					{},
+					manager,
+				),
+		],
+		[
+			"new item",
+			() =>
+				widgetService.newItemSave(
+					{ id: "item-2", name: "New item" },
+					{},
+					{ items: [] },
+					[],
+					manager,
+				),
+		],
+		[
+			"edit item",
+			() =>
+				widgetService.editItemSave(
+					{},
+					{ id: "item-1", name: "Renamed" },
+					[],
+					manager,
+				),
+		],
+	])("waits for the %s share write and propagates failures", async (_name, save) => {
+		let resolveWrite;
+		writeShareSpy.mockReturnValueOnce(
+			new Promise((resolve) => {
+				resolveWrite = resolve;
+			}),
+		);
+
+		let completed = false;
+		const savePromise = save().then(() => {
+			completed = true;
+		});
+		await readShareSpy.mock.results[0].value;
+
+		expect(writeShareSpy).toHaveBeenCalledTimes(1);
+		expect(completed).toBe(false);
+		expect(manager.handleDatastoreContentChanged).not.toHaveBeenCalled();
+
+		resolveWrite();
+		await savePromise;
+
+		expect(completed).toBe(true);
+		expect(manager.handleDatastoreContentChanged).toHaveBeenCalledTimes(1);
+
+		const writeError = new Error("WRITE_DATE_MISMATCH");
+		writeShareSpy.mockRejectedValueOnce(writeError);
+
+		await expect(save()).rejects.toBe(writeError);
+		expect(manager.handleDatastoreContentChanged).toHaveBeenCalledTimes(1);
+	});
+});
+
 describe("Service: datastoreService - hideSubShareContent", () => {
 	it("should prune stale share_index paths instead of throwing", () => {
 		const datastore = {
