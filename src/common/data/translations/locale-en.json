@@ -135,6 +135,7 @@
 	"PERMISSIONS_TO_ACCESS_THIS_ENTRY_HAVE_BEEN_DENIED": "Permission to access this entry has been denied.",
 	"CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GRANT_PRIVILEGE": "Configure multiple accounts with admin privileges to be able to modify the permissions of the share in case of a lost admin password or resigned administrator.",
 	"UPLOAD_FAILED": "Upload failed.",
+	"DATASTORE_SAVE_FAILED": "Could not save changes to the datastore or share. Check the server and reverse proxy request body size limits.",
 	"PARSER_NOT_FOUND": "Parser not found.",
 	"FILE_FORMAT_WRONG": "Wrong file format.",
 	"DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD": "Decryption of the export failed. You most likely provided the wrong password.",

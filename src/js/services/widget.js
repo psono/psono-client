@@ -9,6 +9,7 @@ import datastoreUserService from "./datastore-user";
 import fileLinkService from "./file-link";
 import folderColorService from "./folder-color";
 import helper from "./helper";
+import notification from "./notification";
 import secretService from "./secret";
 import secretLinkService from "./secret-link";
 import shareService from "./share";
@@ -300,16 +301,18 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
 			}
 			parent.items.push(datastoreObject);
 
-			shareService.writeShare(
-				closestShare["share_id"],
-				content.data,
-				closestShare["share_secret_key"],
-			);
+			shareService
+				.writeShare(
+					closestShare["share_id"],
+					content.data,
+					closestShare["share_secret_key"],
+				)
+				.catch(onError);
 			manager.handleDatastoreContentChanged(datastore);
 		};
 
-		onError = (e) => {
-			// pass
+		onError = () => {
+			notification.errorSend("DATASTORE_SAVE_FAILED");
 		};
 		return shareService
 			.readShare(closestShare["share_id"], closestShare["share_secret_key"])
