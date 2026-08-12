@@ -1,11 +1,20 @@
 import cryptoLibraryService from "./crypto-library";
+import datastorePasswordService from "./datastore-password";
 import importService from "./import";
+import secretService from "./secret";
 
 // Mock the dependencies
 jest.mock("./datastore-password", () => ({
 	getPasswordDatastore: jest.fn(() =>
 		Promise.resolve({ datastore_id: "test-datastore-id" }),
 	),
+	analyzeBreadcrumbs: jest.fn(() => ({
+		target: { folders: [] },
+		path: [],
+	})),
+	updateParents: jest.fn(),
+	handleDatastoreContentChanged: jest.fn(() => Promise.resolve()),
+	saveDatastoreContent: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock("./secret", () => ({
@@ -19,7 +28,62 @@ jest.mock("./secret", () => ({
 	}),
 }));
 
+jest.mock("./item-blueprint", () => ({
+	getEntryTypes: jest.fn(() => [{ value: "website_password" }]),
+}));
+
 describe("Import Service: password_hash calculation test suite", () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it("enables HTTP matching for imported HTTP website passwords", async () => {
+		await importService.importDatastore(
+			"bitwarden_json",
+			JSON.stringify({
+				items: [
+					{
+						type: 1,
+						name: "Intranet",
+						login: {
+							uris: [{ uri: "http://intranet.example/login" }],
+						},
+					},
+				],
+			}),
+		);
+
+		const createdSecret = secretService.createSecretBulk.mock.calls[0][0][0];
+		const importedDatastore =
+			datastorePasswordService.updateParents.mock.calls[0][0];
+		expect(importedDatastore.items[0].allow_http).toBe(true);
+		expect(createdSecret.content.website_password_allow_http).toBe(true);
+	});
+
+	it("preserves an explicit HTTP autofill setting", async () => {
+		await importService.importDatastore(
+			"psono_pw_json",
+			JSON.stringify({
+				folders: [],
+				items: [
+					{
+						type: "website_password",
+						name: "Intranet",
+						website_password_url: "http://intranet.example/login",
+						allow_http: false,
+						website_password_allow_http: false,
+					},
+				],
+			}),
+		);
+
+		const createdSecret = secretService.createSecretBulk.mock.calls[0][0][0];
+		const importedDatastore =
+			datastorePasswordService.updateParents.mock.calls[0][0];
+		expect(importedDatastore.items[0].allow_http).toBe(false);
+		expect(createdSecret.content.website_password_allow_http).toBe(false);
+	});
+
 	it("should calculate password_hash for website_password during import", async () => {
 		const testPassword = "testPassword123";
 		const expectedHash = cryptoLibraryService
