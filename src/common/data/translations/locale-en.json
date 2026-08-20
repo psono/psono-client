@@ -462,6 +462,8 @@
 	"ACTIVE": "Active",
 	"INSECURE": "Insecure",
 	"ALLOW_INSECURE_USAGE": "Allow insecure usage",
+	"ALLOW_API_KEY_MANAGEMENT": "Allow API key management",
+	"ALLOW_ADMIN_API_ACCESS": "Allow admin API access",
 	"RIGHT_TO_READ": "Right to read (allows all GET operations)",
 	"RIGHT_TO_WRITE": "Right to write (allows all PUT, POST, and DELETE operations)",
 	"SECRETS_ONLY": "Secret Restriction",

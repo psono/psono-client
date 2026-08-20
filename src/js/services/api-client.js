@@ -2540,6 +2540,8 @@ const readApiKeySecrets = (token, sessionSecretKey, api_key_id) => {
  * @param {string} userSecretKeyNonce nonce for secret key
  * @param {bool} restrict_to_secrets Restrict to secrets
  * @param {bool} allow_insecure_access Allow insecure access
+ * @param {bool} allow_api_key_management Allow API key management
+ * @param {bool} allow_admin_access Allow administration API access
  * @param {bool} read Allow read access
  * @param {bool} write Allow write access
  * @param {string} verify_key The verify key as a derivat of the private key
@@ -2561,6 +2563,8 @@ const createApiKey = (
 	userSecretKeyNonce,
 	restrict_to_secrets,
 	allow_insecure_access,
+	allow_api_key_management,
+	allow_admin_access,
 	read,
 	write,
 	verify_key,
@@ -2580,6 +2584,8 @@ const createApiKey = (
 		user_secret_key_nonce: userSecretKeyNonce,
 		restrict_to_secrets: restrict_to_secrets,
 		allow_insecure_access: allow_insecure_access,
+		allow_api_key_management: allow_api_key_management,
+		allow_admin_access: allow_admin_access,
 		read: read,
 		write: write,
 		verify_key: verify_key,
@@ -2643,6 +2649,8 @@ const addSecretToApiKey = (
  * @param {string} title The new title of the api_key
  * @param {bool} restrict_to_secrets Restrict to secrets
  * @param {bool} allow_insecure_access Allow insecure access
+ * @param {bool} allow_api_key_management Allow API key management
+ * @param {bool} allow_admin_access Allow administration API access
  * @param {bool} read Allow read access
  * @param {bool} write Allow write access
  *
@@ -2655,6 +2663,8 @@ const updateApiKey = (
 	title,
 	restrict_to_secrets,
 	allow_insecure_access,
+	allow_api_key_management,
+	allow_admin_access,
 	read,
 	write,
 ) => {
@@ -2666,6 +2676,8 @@ const updateApiKey = (
 		restrict_to_secrets: restrict_to_secrets,
 		read: read,
 		allow_insecure_access: allow_insecure_access,
+		allow_api_key_management: allow_api_key_management,
+		allow_admin_access: allow_admin_access,
 		write: write,
 	};
 

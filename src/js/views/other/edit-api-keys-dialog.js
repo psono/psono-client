@@ -71,6 +71,8 @@ const EditApiKeysDialog = (props) => {
 	const [apiKeySecretKey, setApiKeySecretKey] = useState("");
 	const [restrictToSecrets, setRestrictToSecrets] = useState(true);
 	const [allowInsecureUsage, setAllowInsecureUsage] = useState(false);
+	const [allowApiKeyManagement, setAllowApiKeyManagement] = useState(false);
+	const [allowAdminAccess, setAllowAdminAccess] = useState(false);
 	const [rightToRead, setRightToRead] = useState(true);
 	const [rightToWrite, setRightToWrite] = useState(false);
 	const [secrets, setSecrets] = useState([]);
@@ -92,6 +94,8 @@ const EditApiKeysDialog = (props) => {
 				setApiKeySecretKey(data.secret_key);
 				setRestrictToSecrets(data.restrict_to_secrets);
 				setAllowInsecureUsage(data.allow_insecure_access);
+				setAllowApiKeyManagement(data.allow_api_key_management);
+				setAllowAdminAccess(data.allow_admin_access);
 				setRightToRead(data.read);
 				setRightToWrite(data.write);
 			},
@@ -129,6 +133,8 @@ const EditApiKeysDialog = (props) => {
 				title,
 				restrictToSecrets,
 				allowInsecureUsage,
+				allowApiKeyManagement,
+				allowAdminAccess,
 				rightToRead,
 				rightToWrite,
 			)
@@ -309,6 +315,36 @@ const EditApiKeysDialog = (props) => {
 							</MuiAlert>
 						</Grid>
 					)}
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowApiKeyManagement}
+							onChange={(event) => {
+								setAllowApiKeyManagement(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_API_KEY_MANAGEMENT")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowAdminAccess}
+							onChange={(event) => {
+								setAllowAdminAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_ADMIN_API_ACCESS")}
+					</Grid>
 					<Grid item xs={12} sm={12} md={12}>
 						<Checkbox
 							tabIndex={1}

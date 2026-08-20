@@ -47,6 +47,8 @@ const CreateApiKeysDialog = (props) => {
 	const [title, setTitle] = useState("");
 	const [restrictToSecrets, setRestrictToSecrets] = useState(true);
 	const [allowInsecureUsage, setAllowInsecureUsage] = useState(false);
+	const [allowApiKeyManagement, setAllowApiKeyManagement] = useState(false);
+	const [allowAdminAccess, setAllowAdminAccess] = useState(false);
 	const [rightToRead, setRightToRead] = useState(true);
 	const [rightToWrite, setRightToWrite] = useState(false);
 	const [addSecretOpen, setAddSecretOpen] = useState(false);
@@ -67,6 +69,8 @@ const CreateApiKeysDialog = (props) => {
 				title,
 				restrictToSecrets,
 				allowInsecureUsage,
+				allowApiKeyManagement,
+				allowAdminAccess,
 				rightToRead,
 				rightToWrite,
 				secrets.map((secret) => {
@@ -218,6 +222,36 @@ const CreateApiKeysDialog = (props) => {
 							</MuiAlert>
 						</Grid>
 					)}
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowApiKeyManagement}
+							onChange={(event) => {
+								setAllowApiKeyManagement(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_API_KEY_MANAGEMENT")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowAdminAccess}
+							onChange={(event) => {
+								setAllowAdminAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_ADMIN_API_ACCESS")}
+					</Grid>
 					<Grid item xs={12} sm={12} md={12}>
 						<Checkbox
 							tabIndex={1}

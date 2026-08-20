@@ -144,6 +144,8 @@ function addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets) {
  * @param {string} title The title of the new api key
  * @param {bool} restrictToSecrets
  * @param {bool} allowInsecureAccess
+ * @param {bool} allowApiKeyManagement
+ * @param {bool} allowAdminAccess
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  * @param {array} secrets Array of secrets
@@ -154,6 +156,8 @@ function createApiKey(
 	title,
 	restrictToSecrets,
 	allowInsecureAccess,
+	allowApiKeyManagement,
+	allowAdminAccess,
 	allowReadAccess,
 	allowWriteAccess,
 	secrets,
@@ -209,6 +213,8 @@ function createApiKey(
 			user_secret_key_enc.nonce,
 			restrictToSecrets,
 			allowInsecureAccess,
+			allowApiKeyManagement,
+			allowAdminAccess,
 			allowReadAccess,
 			allowWriteAccess,
 			verify_key,
@@ -223,6 +229,8 @@ function createApiKey(
  * @param {string} title The title of the new api key
  * @param {bool} restrictToSecrets
  * @param {bool} allowInsecureAccess
+ * @param {bool} allowApiKeyManagement
+ * @param {bool} allowAdminAccess
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  *
@@ -233,6 +241,8 @@ function updateApiKey(
 	title,
 	restrictToSecrets,
 	allowInsecureAccess,
+	allowApiKeyManagement,
+	allowAdminAccess,
 	allowReadAccess,
 	allowWriteAccess,
 ) {
@@ -246,6 +256,8 @@ function updateApiKey(
 		title,
 		restrictToSecrets,
 		allowInsecureAccess,
+		allowApiKeyManagement,
+		allowAdminAccess,
 		allowReadAccess,
 		allowWriteAccess,
 	);
