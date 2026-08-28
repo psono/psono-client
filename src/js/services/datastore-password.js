@@ -282,6 +282,8 @@ function _readShares(datastore, shareRightsDict) {
 		const all_calls = [];
 		const all_share_data = {};
 		let content;
+		// Reads repair indexes in memory only; a later user write persists them.
+		repairShareIndex(datastore);
 		const share_index = datastore.share_index;
 
 		let localResolve = () => {};
@@ -321,6 +323,7 @@ function _readShares(datastore, shareRightsDict) {
 						localResolve();
 						return;
 					}
+					repairShareIndex(content.data);
 					all_share_data[share_id] = content;
 
 					updatePathsWithData(
@@ -497,6 +500,146 @@ function _readShares(datastore, shareRightsDict) {
 			localResolve();
 		});
 	});
+}
+
+function pathsEqual(first, second) {
+	if (first.length !== second.length) {
+		return false;
+	}
+	for (let i = 0; i < first.length; i++) {
+		if (first[i] !== second[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Rebuilds missing share index entries from embedded share placeholders and
+ * removes paths that no longer resolve to the indexed share.
+ *
+ * @param {TreeObject} container The datastore or share content to repair
+ * @returns {boolean} Whether the share index changed
+ */
+function repairShareIndex(container) {
+	const discovered = {};
+
+	const addDiscoveredShare = (shareId, secretKey, path) => {
+		if (!Object.hasOwn(discovered, shareId)) {
+			discovered[shareId] = {
+				secret_key: secretKey,
+				paths: [],
+			};
+		}
+		if (!discovered[shareId].secret_key && secretKey) {
+			discovered[shareId].secret_key = secretKey;
+		}
+		if (
+			!discovered[shareId].paths.some((existing) => pathsEqual(existing, path))
+		) {
+			discovered[shareId].paths.push(path.slice());
+		}
+	};
+
+	const childShares = [];
+	getAllChildShares(container, 1, childShares);
+	for (const { share, path } of childShares) {
+		if (!share.share_id || path.some((id) => !id)) {
+			continue;
+		}
+		addDiscoveredShare(share.share_id, share.share_secret_key, path);
+	}
+
+	const repaired = {};
+	let changed = false;
+	for (const [shareId, location] of Object.entries(
+		container.share_index || {},
+	)) {
+		if (!location || !Array.isArray(location.paths)) {
+			changed = true;
+			continue;
+		}
+
+		const validPaths = [];
+		for (const path of location.paths) {
+			if (
+				!Array.isArray(path) ||
+				validPaths.some((existing) => pathsEqual(existing, path))
+			) {
+				changed = true;
+				continue;
+			}
+
+			try {
+				const search = datastoreService.findInDatastore(
+					path.slice(),
+					container,
+				);
+				const node = search[0][search[1]];
+				if (node.share_id !== shareId) {
+					changed = true;
+					continue;
+				}
+			} catch (error) {
+				if (error instanceof RangeError && error.message === "ObjectNotFound") {
+					changed = true;
+					continue;
+				}
+				throw error;
+			}
+
+			validPaths.push(path.slice());
+		}
+
+		if (validPaths.length === 0) {
+			changed = true;
+			continue;
+		}
+		repaired[shareId] = {
+			secret_key: location.secret_key,
+			paths: validPaths,
+		};
+	}
+
+	for (const [shareId, discoveredLocation] of Object.entries(discovered)) {
+		if (!Object.hasOwn(repaired, shareId)) {
+			if (!discoveredLocation.secret_key) {
+				continue;
+			}
+			repaired[shareId] = {
+				secret_key: discoveredLocation.secret_key,
+				paths: [],
+			};
+		}
+		if (
+			discoveredLocation.secret_key &&
+			repaired[shareId].secret_key !== discoveredLocation.secret_key
+		) {
+			repaired[shareId].secret_key = discoveredLocation.secret_key;
+			changed = true;
+		}
+		for (const path of discoveredLocation.paths) {
+			if (
+				repaired[shareId].paths.some((existing) => pathsEqual(existing, path))
+			) {
+				continue;
+			}
+			repaired[shareId].paths.push(path.slice());
+			changed = true;
+		}
+	}
+
+	if (!container.share_index && Object.keys(repaired).length > 0) {
+		changed = true;
+	}
+	if (changed) {
+		if (Object.keys(repaired).length > 0) {
+			container.share_index = repaired;
+		} else {
+			delete container.share_index;
+		}
+	}
+	return changed;
 }
 
 /**
@@ -2007,6 +2150,7 @@ const datastorePasswordService = {
 	getAllChildShares: getAllChildShares,
 	getAllSecretLinks: getAllSecretLinks,
 	getAllFileLinks: getAllFileLinks,
+	repairShareIndex: repairShareIndex,
 	onShareAdded: onShareAdded,
 	onShareMoved: onShareMoved,
 	onShareDeleted: onShareDeleted,

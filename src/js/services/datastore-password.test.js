@@ -1,5 +1,7 @@
 import React from "react";
 import datastorePasswordService from "./datastore-password";
+import datastoreService from "./datastore";
+import shareService from "./share";
 
 describe("Service: datastorePasswordService test suite #1", () => {
 	it("datastorePasswordService exists", () => {
@@ -153,5 +155,141 @@ describe("Service: datastorePasswordService share_index", () => {
 		]);
 
 		expect(share.share_index.childShare.paths).toEqual([["other", "child3"]]);
+	});
+
+	it("repairShareIndex rebuilds and canonicalizes embedded shares", () => {
+		const datastore = {
+			folders: [
+				{
+					id: "parent",
+					folders: [
+						{
+							id: "first",
+							share_id: "share-1",
+							share_secret_key: "key-1",
+						},
+					],
+					items: [
+						{
+							id: "second",
+							share_id: "share-2",
+							share_secret_key: "key-2",
+						},
+					],
+				},
+			],
+			share_index: {
+				"share-1": {
+					secret_key: "stale-key",
+					paths: [["parent", "first"], ["parent", "first"], ["missing"]],
+				},
+				"wrong-share": {
+					secret_key: "key-3",
+					paths: [["parent", "first"]],
+				},
+			},
+		};
+
+		expect(datastorePasswordService.repairShareIndex(datastore)).toBe(true);
+		expect(datastore.share_index).toEqual({
+			"share-1": {
+				secret_key: "key-1",
+				paths: [["parent", "first"]],
+			},
+			"share-2": {
+				secret_key: "key-2",
+				paths: [["parent", "second"]],
+			},
+		});
+		expect(datastorePasswordService.repairShareIndex(datastore)).toBe(false);
+	});
+
+	it("repairs nested share indexes during reads without writing", async () => {
+		const datastore = {
+			datastore_id: "datastore-1",
+			folders: [
+				{
+					id: "outer-link",
+					share_id: "outer-share",
+					share_secret_key: "outer-key",
+				},
+			],
+			items: [],
+		};
+		const getDatastoreSpy = jest
+			.spyOn(datastoreService, "getDatastore")
+			.mockResolvedValue(datastore);
+		const saveDatastoreSpy = jest
+			.spyOn(datastoreService, "saveDatastoreContent")
+			.mockResolvedValue();
+		const fillStorageSpy = jest
+			.spyOn(datastoreService, "fillStorage")
+			.mockImplementation(() => undefined);
+		const readRightsSpy = jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockResolvedValue({
+				share_rights: [
+					{
+						share_id: "outer-share",
+						read: true,
+						write: true,
+						grant: true,
+					},
+				],
+			});
+		const readShareSpy = jest
+			.spyOn(shareService, "readShare")
+			.mockImplementation((shareId) => {
+				if (shareId === "outer-share") {
+					return Promise.resolve({
+						data: {
+							folders: [],
+							items: [
+								{
+									id: "nested-link",
+									share_id: "nested-share",
+									share_secret_key: "nested-key",
+								},
+							],
+						},
+						rights: { read: true, write: true, grant: true },
+					});
+				}
+				return Promise.resolve({
+					data: { name: "Nested item", type: "note" },
+					rights: { read: true, write: true, grant: true },
+				});
+			});
+		const writeShareSpy = jest
+			.spyOn(shareService, "writeShare")
+			.mockResolvedValue();
+
+		try {
+			const result = await datastorePasswordService.getPasswordDatastore();
+
+			expect(result.share_index).toEqual({
+				"outer-share": {
+					secret_key: "outer-key",
+					paths: [["outer-link"]],
+				},
+			});
+			expect(result.folders[0].share_index).toEqual({
+				"nested-share": {
+					secret_key: "nested-key",
+					paths: [["nested-link"]],
+				},
+			});
+			expect(result.folders[0].items[0].name).toBe("Nested item");
+			expect(readShareSpy).toHaveBeenCalledTimes(2);
+			expect(saveDatastoreSpy).not.toHaveBeenCalled();
+			expect(writeShareSpy).not.toHaveBeenCalled();
+		} finally {
+			getDatastoreSpy.mockRestore();
+			saveDatastoreSpy.mockRestore();
+			fillStorageSpy.mockRestore();
+			readRightsSpy.mockRestore();
+			readShareSpy.mockRestore();
+			writeShareSpy.mockRestore();
+		}
 	});
 });
