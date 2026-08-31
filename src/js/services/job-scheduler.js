@@ -177,11 +177,9 @@ async function processMembershipMissingGroupSecret(job) {
 /**
  * Queries the server for the current job of the user if the local cached job is outdated.
  *
- * @param {boolean} [forceFresh] Whether a fresh result should be fetched or a cache will do fine
- *
  * @returns {Promise} Returns a promise with the current job
  */
-function checkForJobs(forceFresh) {
+function checkForJobs() {
 	if (!canProcessJob()) {
 		return Promise.resolve();
 	}
@@ -189,7 +187,7 @@ function checkForJobs(forceFresh) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = (result) => {
+	const onError = () => {
 		// pass
 	};
 
@@ -202,7 +200,12 @@ function checkForJobs(forceFresh) {
 				outstandingJobs[jobId].length > 0
 			) {
 				for (let i = 0; i < outstandingJobs[jobId].length; i++) {
-					await jobProcessors[jobId](outstandingJobs[jobId][i]);
+					try {
+						await jobProcessors[jobId](outstandingJobs[jobId][i]);
+					} catch (e) {
+						// A malformed job must not prevent later jobs from being processed.
+						console.log(e);
+					}
 				}
 			}
 		}

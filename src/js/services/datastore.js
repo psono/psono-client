@@ -6,6 +6,7 @@ import action from "../actions/bound-action-creators";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
+import notification from "./notification";
 import storage from "./storage";
 import { getStore } from "./store";
 
@@ -501,12 +502,12 @@ function saveDatastoreContentWithId(
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 	oldWriteDate = oldWriteDate || (content && content.write_date);
 
-	const onError = (result) => {
-		// pass
+	const onError = () => {
+		notification.errorSend("DATASTORE_SAVE_FAILED");
 	};
 	const onSuccess = (data) => {
-		const onError = (result) => {
-			// pass
+		const onError = () => {
+			notification.errorSend("DATASTORE_SAVE_FAILED");
 		};
 		const onSuccess = (result) => {
 			if (result.data && result.data.write_date) {
@@ -621,8 +622,8 @@ function saveDatastoreContent(type, description, content) {
 		);
 	}
 
-	const onError = (result) => {
-		// pass
+	const onError = () => {
+		notification.errorSend("DATASTORE_SAVE_FAILED");
 	};
 
 	const onSuccess = (datastore_id) =>

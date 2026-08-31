@@ -323,6 +323,19 @@ function createSecrets(parsedData) {
 				content[property] = poppedSecret[property];
 				delete poppedSecret[property];
 			}
+			if (
+				poppedSecret["type"] === "website_password" &&
+				Object.hasOwn(content, "website_password_url") &&
+				typeof content["website_password_url"] === "string" &&
+				!Object.hasOwn(poppedSecret, "allow_http") &&
+				!Object.hasOwn(content, "website_password_allow_http")
+			) {
+				const url = content["website_password_url"].trim();
+				if (/^http:\/\//i.test(url)) {
+					poppedSecret["allow_http"] = true;
+					content["website_password_allow_http"] = true;
+				}
+			}
 			if (tags) {
 				content["tags"] = tags;
 			}

@@ -39,6 +39,7 @@ import datastoreService from "../../services/datastore";
 import datastorePasswordService from "../../services/datastore-password";
 import fileTransferService from "../../services/file-transfer";
 import itemBlueprintService from "../../services/item-blueprint";
+import notification from "../../services/notification";
 import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
@@ -166,6 +167,7 @@ const DatastoreView = (props) => {
 
 	const [datastore, setDatastore] = useState(null);
 	const [tags, setTags] = useState([]);
+	const datastoreSaveInProgress = useRef(false);
 
 	const [preselectItem, setPreselectItem] = useState(null);
 	const [preselectPath, setPreselectPath] = useState(null);
@@ -397,17 +399,35 @@ const DatastoreView = (props) => {
 		// });
 	};
 
+	const persistDatastoreChange = async (persist, onSuccess) => {
+		if (datastoreSaveInProgress.current) {
+			return;
+		}
+		datastoreSaveInProgress.current = true;
+		try {
+			await persist();
+			onSuccess();
+		} catch {
+			notification.errorSend("DATASTORE_SAVE_FAILED");
+		} finally {
+			datastoreSaveInProgress.current = false;
+		}
+	};
+
 	const onNewFolderCreate = (name, color) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
-		widget.newFolderSave(
-			newFolderData["parent"],
-			newFolderData["path"],
-			datastore,
-			datastorePasswordService,
-			name,
-			color,
+		return persistDatastoreChange(
+			() =>
+				widget.newFolderSave(
+					newFolderData.parent,
+					newFolderData.path,
+					datastore,
+					datastorePasswordService,
+					name,
+					color,
+				),
+			() => setNewFolderOpen(false),
 		);
-		setNewFolderOpen(false);
 	};
 	const onNewFolder = (parent, path) => {
 		onContextMenuClose();
@@ -421,14 +441,17 @@ const DatastoreView = (props) => {
 
 	const onNewEntryCreate = (item) => {
 		// called once someone clicked the CREATE button in the dialog closes with the new name
-		widget.newItemSave(
-			item,
-			datastore,
-			newEntryData["parent"],
-			newEntryData["path"],
-			datastorePasswordService,
+		return persistDatastoreChange(
+			() =>
+				widget.newItemSave(
+					item,
+					datastore,
+					newEntryData.parent,
+					newEntryData.path,
+					datastorePasswordService,
+				),
+			() => setNewEntryOpen(false),
 		);
-		setNewEntryOpen(false);
 	};
 	const onNewEntry = (parent, path) => {
 		onContextMenuClose();
@@ -454,12 +477,15 @@ const DatastoreView = (props) => {
 	};
 
 	const onEditFolderSave = (node) => {
-		setEditFolderOpen(false);
-		widget.editFolderSave(
-			node,
-			editFolderData.path,
-			datastore,
-			datastorePasswordService,
+		return persistDatastoreChange(
+			() =>
+				widget.editFolderSave(
+					node,
+					editFolderData.path,
+					datastore,
+					datastorePasswordService,
+				),
+			() => setEditFolderOpen(false),
 		);
 	};
 	const onEditFolder = (node, path) => {
@@ -471,13 +497,18 @@ const DatastoreView = (props) => {
 	};
 
 	const onEditEntrySave = (node) => {
-		setEditEntryOpen(false);
-		setEditEntryDirty(false);
-		widget.editItemSave(
-			datastore,
-			node,
-			editEntryData.path,
-			datastorePasswordService,
+		return persistDatastoreChange(
+			() =>
+				widget.editItemSave(
+					datastore,
+					node,
+					editEntryData.path,
+					datastorePasswordService,
+				),
+			() => {
+				setEditEntryOpen(false);
+				setEditEntryDirty(false);
+			},
 		);
 	};
 

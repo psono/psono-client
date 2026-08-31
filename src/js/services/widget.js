@@ -25,7 +25,7 @@ import shareLinkService from "./share-link";
  * @param {String} color The hex encoded folder color
  */
 function newFolderSave(parent, path, dataStructure, manager, name, color) {
-	let onSuccess, onError;
+	let onSuccess;
 
 	if (typeof parent === "undefined") {
 		parent = dataStructure;
@@ -98,27 +98,22 @@ function newFolderSave(parent, path, dataStructure, manager, name, color) {
 				parent.folders = [];
 			}
 			parent.folders.push(datastore_object);
-			shareService.writeShare(
-				closest_share["share_id"],
-				content.data,
-				closest_share["share_secret_key"],
-			);
-
-			manager.handleDatastoreContentChanged(dataStructure);
-		};
-
-		onError = (e) => {
-			// pass
+			return shareService
+				.writeShare(
+					closest_share["share_id"],
+					content.data,
+					closest_share["share_secret_key"],
+				)
+				.then((result) => {
+					manager.handleDatastoreContentChanged(dataStructure);
+					return result;
+				});
 		};
 		return shareService
 			.readShare(closest_share["share_id"], closest_share["share_secret_key"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	} else {
 		// refresh datastore content before updating it
-		onError = (result) => {
-			// pass
-		};
-
 		onSuccess = (datastore) => {
 			let parent;
 			if (closest_share_info["relative_path"].length === 0) {
@@ -135,14 +130,15 @@ function newFolderSave(parent, path, dataStructure, manager, name, color) {
 				parent.folders = [];
 			}
 			parent.folders.push(datastore_object);
-			manager.saveDatastoreContent(datastore, [path]);
-
-			manager.handleDatastoreContentChanged(dataStructure);
+			return manager.saveDatastoreContent(datastore, [path]).then((result) => {
+				manager.handleDatastoreContentChanged(dataStructure);
+				return result;
+			});
 		};
 
 		return manager
 			.getDatastoreWithId(closest_share["datastore_id"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	}
 }
 
@@ -155,7 +151,7 @@ function newFolderSave(parent, path, dataStructure, manager, name, color) {
  * @param {Object} manager manager responsible for
  */
 function editFolderSave(node, path, dataStructure, manager) {
-	let onSuccess, onError;
+	let onSuccess;
 
 	const closest_share_info = shareService.getClosestParentShare(
 		path.slice(),
@@ -180,26 +176,22 @@ function editFolderSave(node, path, dataStructure, manager) {
 			}
 			folder.name = node.name;
 			folder.color = folderColorService.normalizeFolderColor(node.color);
-			shareService.writeShare(
-				closest_share["share_id"],
-				content.data,
-				closest_share["share_secret_key"],
-			);
-			manager.handleDatastoreContentChanged(dataStructure);
+			return shareService
+				.writeShare(
+					closest_share["share_id"],
+					content.data,
+					closest_share["share_secret_key"],
+				)
+				.then((result) => {
+					manager.handleDatastoreContentChanged(dataStructure);
+					return result;
+				});
 		};
-
-		onError = (e) => {
-			// pass
-		};
-		shareService
+		return shareService
 			.readShare(closest_share["share_id"], closest_share["share_secret_key"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	} else {
 		// refresh datastore content before updating it
-		onError = (result) => {
-			// pass
-		};
-
 		onSuccess = (datastore) => {
 			let folder;
 			if (closest_share_info["relative_path"].length === 0) {
@@ -214,13 +206,17 @@ function editFolderSave(node, path, dataStructure, manager) {
 
 			folder.name = node.name;
 			folder.color = folderColorService.normalizeFolderColor(node.color);
-			manager.saveDatastoreContent(datastore, [path.slice()]);
-			manager.handleDatastoreContentChanged(dataStructure);
+			return manager
+				.saveDatastoreContent(datastore, [path.slice()])
+				.then((result) => {
+					manager.handleDatastoreContentChanged(dataStructure);
+					return result;
+				});
 		};
 
 		return datastoreService
 			.getDatastoreWithId(closest_share["datastore_id"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	}
 }
 
@@ -271,7 +267,7 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
 		};
 	}
 
-	let onSuccess, onError;
+	let onSuccess;
 
 	// update visual representation
 	if (typeof parent.items === "undefined") {
@@ -300,26 +296,22 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
 			}
 			parent.items.push(datastoreObject);
 
-			shareService.writeShare(
-				closestShare["share_id"],
-				content.data,
-				closestShare["share_secret_key"],
-			);
-			manager.handleDatastoreContentChanged(datastore);
-		};
-
-		onError = (e) => {
-			// pass
+			return shareService
+				.writeShare(
+					closestShare["share_id"],
+					content.data,
+					closestShare["share_secret_key"],
+				)
+				.then((result) => {
+					manager.handleDatastoreContentChanged(datastore);
+					return result;
+				});
 		};
 		return shareService
 			.readShare(closestShare["share_id"], closestShare["share_secret_key"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	} else {
 		// refresh datastore content before updating it
-		onError = (result) => {
-			// pass
-		};
-
 		onSuccess = (datastore) => {
 			let parent;
 			if (closestShareInfo["relative_path"].length === 0) {
@@ -336,13 +328,17 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
 				parent.items = [];
 			}
 			parent.items.push(datastoreObject);
-			datastorePasswordService.saveDatastoreContent(datastore, [path]);
-			manager.handleDatastoreContentChanged(datastore);
+			return datastorePasswordService
+				.saveDatastoreContent(datastore, [path])
+				.then((result) => {
+					manager.handleDatastoreContentChanged(datastore);
+					return result;
+				});
 		};
 
 		return manager
 			.getDatastoreWithId(closestShare["datastore_id"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	}
 }
 
@@ -355,7 +351,7 @@ function newItemSave(datastoreObject, datastore, parent, path, manager) {
  * @param {Object} manager manager responsible for
  */
 function editItemSave(datastore, newContent, path, manager) {
-	let onSuccess, onError;
+	let onSuccess;
 
 	const closest_share_info = shareService.getClosestParentShare(
 		path.slice(),
@@ -391,26 +387,22 @@ function editItemSave(datastore, newContent, path, manager) {
 				node[keys[i]] = newContent[keys[i]];
 			}
 
-			shareService.writeShare(
-				closest_share["share_id"],
-				content.data,
-				closest_share["share_secret_key"],
-			);
-			manager.handleDatastoreContentChanged(datastore);
-		};
-
-		onError = (e) => {
-			// pass
+			return shareService
+				.writeShare(
+					closest_share["share_id"],
+					content.data,
+					closest_share["share_secret_key"],
+				)
+				.then((result) => {
+					manager.handleDatastoreContentChanged(datastore);
+					return result;
+				});
 		};
 		return shareService
 			.readShare(closest_share["share_id"], closest_share["share_secret_key"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	} else {
 		// refresh datastore content before updating it
-		onError = (result) => {
-			// pass
-		};
-
 		onSuccess = (datastore) => {
 			const search = datastoreService.findInDatastore(
 				closest_share_info["relative_path"],
@@ -428,13 +420,17 @@ function editItemSave(datastore, newContent, path, manager) {
 				node[keys[i]] = newContent[keys[i]];
 			}
 
-			datastorePasswordService.saveDatastoreContent(datastore, [path.slice()]);
-			manager.handleDatastoreContentChanged(datastore);
+			return datastorePasswordService
+				.saveDatastoreContent(datastore, [path.slice()])
+				.then((result) => {
+					manager.handleDatastoreContentChanged(datastore);
+					return result;
+				});
 		};
 
 		return manager
 			.getDatastoreWithId(closest_share["datastore_id"])
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	}
 
 	return datastorePasswordService.saveDatastoreContent(datastore, [
