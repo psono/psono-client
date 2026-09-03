@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import action from "../../actions/bound-action-creators";
+import AdminRecoveryKeyChanged from "../../components/admin-recovery-key-changed";
 import ConfigLogo from "../../components/config-logo";
 import DialogEditEntry from "../../components/dialogs/edit-entry";
 import GridContainerErrors from "../../components/grid-container-errors";
@@ -82,6 +83,7 @@ const LinkShareAccessView = (props) => {
 	let closedRequest = 0;
 
 	React.useEffect(() => {
+		action().setServerInfo({}, undefined);
 		const onSuccess = (config) => {
 			let serverUrl = config["backend_servers"][0]["url"];
 
@@ -125,18 +127,35 @@ const LinkShareAccessView = (props) => {
 
 	function initiateLinkShareAccess(serverUrl) {
 		action().setServerUrl(serverUrl);
+		action().setServerInfo({}, undefined);
 		const onError = () => {
 			setErrors(["SERVER_OFFLINE"]);
 		};
 
 		const onSuccess = (serverCheck) => {
 			setServerCheck(serverCheck);
-			action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-			if (serverCheck.status !== "matched") {
+			action().setServerInfo(serverCheck.info, serverCheck.verify_key, "");
+			if (serverCheck.status === "matched") {
+				return linkShareAccess();
+			}
+			if (
+				[
+					"new_server",
+					"signature_changed",
+					"admin_recovery_public_key_changed",
+					"unsupported_server_version",
+				].includes(serverCheck.status)
+			) {
 				setView(serverCheck.status);
 				return;
 			}
-			return linkShareAccess();
+
+			setView("default");
+			setErrors([
+				serverCheck.status === "invalid_signature"
+					? "INVALID_SERVER_SIGNATURE"
+					: "RECEIVED_MALFORMED_RESPONSE",
+			]);
 		};
 		hostService.checkHost(serverUrl, verifyKey).then(onSuccess, onError);
 	}
@@ -192,7 +211,12 @@ const LinkShareAccessView = (props) => {
 	}
 
 	const approveHost = () => {
-		host.approveHost(serverCheck.server_url, serverCheck.verify_key);
+		host.approveHost(
+			serverCheck.server_url,
+			serverCheck.verify_key,
+			serverCheck.admin_recovery_public_key,
+		);
+		action().setServerInfo(serverCheck.info, serverCheck.verify_key, "");
 		setView("default");
 		return linkShareAccess();
 	};
@@ -401,6 +425,13 @@ const LinkShareAccessView = (props) => {
 							/>
 						</Grid>
 					</Grid>
+					{serverCheck.admin_recovery_public_key_changed && (
+						<AdminRecoveryKeyChanged
+							serverCheck={serverCheck}
+							textFieldClass={classes.textField}
+							showActions={false}
+						/>
+					)}
 					<Grid container>
 						<Grid item xs={12} sm={12} md={12}>
 							<MuiAlert
@@ -439,6 +470,17 @@ const LinkShareAccessView = (props) => {
 							</Button>
 						</Grid>
 					</Grid>
+					<GridContainerErrors errors={errors} setErrors={setErrors} />
+				</>
+			)}
+			{view === "admin_recovery_public_key_changed" && (
+				<>
+					<AdminRecoveryKeyChanged
+						serverCheck={serverCheck}
+						textFieldClass={classes.textField}
+						onCancel={cancel}
+						onApprove={approveHost}
+					/>
 					<GridContainerErrors errors={errors} setErrors={setErrors} />
 				</>
 			)}

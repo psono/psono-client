@@ -1873,6 +1873,79 @@ function readJob(token, sessionSecretKey) {
 }
 
 /**
+ * Ajax POST request to add the user's keys to admin recovery.
+ *
+ * @param {string} token The authentication token
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} privateKey Encrypted private key of the user
+ * @param {string} privateKeyNonce Nonce for the private key
+ * @param {string} secretKey Encrypted secret key of the user
+ * @param {string} secretKeyNonce Nonce for the secret key
+ *
+ * @returns {Promise} Returns a promise with the job result
+ */
+function createJobUserMissingAdminSecret(
+	token,
+	sessionSecretKey,
+	privateKey,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+) {
+	const endpoint = "/job/user-missing-admin-secret/";
+	const method = "POST";
+	const data = {
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax POST request to add a group's keys to admin recovery.
+ *
+ * @param {string} token The authentication token
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} groupId The group id
+ * @param {string} privateKey Encrypted private key of the group
+ * @param {string} privateKeyNonce Nonce for the private key
+ * @param {string} secretKey Encrypted secret key of the group
+ * @param {string} secretKeyNonce Nonce for the secret key
+ *
+ * @returns {Promise} Returns a promise with the job result
+ */
+function createJobGroupMissingAdminSecret(
+	token,
+	sessionSecretKey,
+	groupId,
+	privateKey,
+	privateKeyNonce,
+	secretKey,
+	secretKeyNonce,
+) {
+	const endpoint = "/job/group-missing-admin-secret/";
+	const method = "POST";
+	const data = {
+		group_id: groupId,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
+
+	return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax POST request to create the missing group secrets for memberships
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -4241,6 +4314,8 @@ const apiClientService = {
 	deleteGa: deleteGa,
 	readStatus: readStatus,
 	readJob: readJob,
+	createJobUserMissingAdminSecret: createJobUserMissingAdminSecret,
+	createJobGroupMissingAdminSecret: createJobGroupMissingAdminSecret,
 	createMembershipMissingGroupSecret: createMembershipMissingGroupSecret,
 	createJobStaffMissingGroupSecret: createJobStaffMissingGroupSecret,
 	createWebauthn: createWebauthn,

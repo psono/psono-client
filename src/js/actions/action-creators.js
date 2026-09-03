@@ -163,12 +163,13 @@ function logout(rememberMe) {
 	};
 }
 
-function setServerInfo(info, verifyKey) {
+function setServerInfo(info, verifyKey, adminRecoveryPublicKey = "") {
 	return (dispatch) => {
 		dispatch({
 			type: SET_SERVER_INFO,
 			info,
 			verifyKey,
+			adminRecoveryPublicKey,
 		});
 	};
 }

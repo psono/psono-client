@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { BarLoader } from "react-spinners";
 import action from "../../actions/bound-action-creators";
+import AdminRecoveryKeyChanged from "../../components/admin-recovery-key-changed";
 import FooterLinks from "../../components/footer-links";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TextWithLineBreaks from "../../components/text-with-linebreaks";
@@ -483,8 +484,53 @@ const LoginForm = (props) => {
 		setErrors([]);
 	};
 
+	const handleServerCheck = (serverCheck) => {
+		setServerCheck(serverCheck);
+		action().setServerInfo(
+			serverCheck.info,
+			serverCheck.verify_key,
+			serverCheck.status === "matched"
+				? serverCheck.admin_recovery_public_key
+				: "",
+		);
+		if (serverCheck.status === "matched") {
+			return true;
+		}
+		if (
+			[
+				"new_server",
+				"signature_changed",
+				"admin_recovery_public_key_changed",
+				"unsupported_server_version",
+			].includes(serverCheck.status)
+		) {
+			setView(serverCheck.status);
+			return false;
+		}
+
+		setView("default");
+		setLoginLoading(false);
+		setErrors([
+			serverCheck.status === "invalid_signature"
+				? "INVALID_SERVER_SIGNATURE"
+				: "RECEIVED_MALFORMED_RESPONSE",
+		]);
+		return false;
+	};
+
 	const approveHost = () => {
-		host.approveHost(serverCheck.server_url, serverCheck.verify_key);
+		host.approveHost(
+			serverCheck.server_url,
+			serverCheck.verify_key,
+			serverCheck.admin_recovery_public_key,
+		);
+		action().setServerInfo(
+			serverCheck.info,
+			serverCheck.verify_key,
+			loginType === "LOAD_REMOTE_CONFIG"
+				? ""
+				: serverCheck.admin_recovery_public_key,
+		);
 
 		if (loginType === "SAML") {
 			initiateSamlLogin(providerId, server);
@@ -739,6 +785,7 @@ const LoginForm = (props) => {
 		}
 
 		action().setServerUrl(server);
+		action().setServerInfo({}, undefined);
 		setErrors([]);
 
 		const onError = (error) => {
@@ -747,12 +794,8 @@ const LoginForm = (props) => {
 		};
 
 		const onSuccess = (serverCheck) => {
-			setServerCheck(serverCheck);
-			action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-
-			if (serverCheck.status !== "matched") {
-				setView(serverCheck.status);
-				setLoginType("LOAD_REMOTE_CONFIG");
+			setLoginType("LOAD_REMOTE_CONFIG");
+			if (!handleServerCheck(serverCheck)) {
 				return;
 			}
 
@@ -780,6 +823,7 @@ const LoginForm = (props) => {
 
 	const initiateOidcLogin = (providerId, server) => {
 		setLoginLoading(true);
+		action().setServerInfo({}, undefined);
 		setLoginType("OIDC");
 		setErrors([]);
 		setProviderId(providerId);
@@ -787,11 +831,7 @@ const LoginForm = (props) => {
 			.initiateOidcLogin(server, rememberMe, trustDevice, true)
 			.then(
 				(serverCheck) => {
-					setServerCheck(serverCheck);
-					action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-					if (serverCheck.status !== "matched") {
-						setView(serverCheck.status);
-					} else {
+					if (handleServerCheck(serverCheck)) {
 						user.getOidcRedirectUrl(providerId).then(
 							(result) => {
 								browserClient
@@ -838,6 +878,7 @@ const LoginForm = (props) => {
 
 	const initiateSamlLogin = (providerId, server) => {
 		setLoginLoading(true);
+		action().setServerInfo({}, undefined);
 		setLoginType("SAML");
 		setErrors([]);
 		setProviderId(providerId);
@@ -845,11 +886,7 @@ const LoginForm = (props) => {
 			.initiateSamlLogin(server, rememberMe, trustDevice, true)
 			.then(
 				(serverCheck) => {
-					setServerCheck(serverCheck);
-					action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-					if (serverCheck.status !== "matched") {
-						setView(serverCheck.status);
-					} else {
+					if (handleServerCheck(serverCheck)) {
 						user.getSamlRedirectUrl(providerId).then(
 							(result) => {
 								browserClient
@@ -896,6 +933,7 @@ const LoginForm = (props) => {
 
 	const initiateLogin = () => {
 		setLoginLoading(true);
+		action().setServerInfo({}, undefined);
 		setLoginType("");
 		setErrors([]);
 
@@ -910,10 +948,8 @@ const LoginForm = (props) => {
 			.initiateLogin(fullUsername, server, rememberMe, trustDevice, true)
 			.then(
 				(serverCheck) => {
-					setServerCheck(serverCheck);
-					action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-					if (serverCheck.status !== "matched") {
-						setView(serverCheck.status);
+					if (!handleServerCheck(serverCheck)) {
+						return;
 					} else if (hasLdapAuth(serverCheck)) {
 						if (
 							Object.hasOwn(
@@ -1457,6 +1493,13 @@ const LoginForm = (props) => {
 						/>
 					</Grid>
 				</Grid>
+				{serverCheck.admin_recovery_public_key_changed && (
+					<AdminRecoveryKeyChanged
+						serverCheck={serverCheck}
+						textFieldClass={classes.textField}
+						showActions={false}
+					/>
+				)}
 				<Grid container>
 					<Grid item xs={12} sm={12} md={12}>
 						<MuiAlert
@@ -1497,6 +1540,21 @@ const LoginForm = (props) => {
 						</Button>
 					</Grid>
 				</Grid>
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+			</>
+		);
+	}
+
+	if (view === "admin_recovery_public_key_changed") {
+		formContent = (
+			<>
+				<AdminRecoveryKeyChanged
+					serverCheck={serverCheck}
+					textFieldClass={classes.textField}
+					regularButtonTextClass={classes.regularButtonText}
+					onCancel={disapproveNewServer}
+					onApprove={approveHost}
+				/>
 				<GridContainerErrors errors={errors} setErrors={setErrors} />
 			</>
 		);

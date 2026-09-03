@@ -3,6 +3,7 @@ import actionCreators from "./action-creators";
 import {
 	SET_CONNECTION_AUTHENTICATION,
 	SET_GATEWAY_CLUSTER_SELECTION,
+	SET_SERVER_INFO,
 } from "./action-types";
 
 let mockSettingsDatastore;
@@ -24,6 +25,22 @@ jest.mock("../services/datastore-setting", () => ({
 		serializeSettingsDatastore: jest.fn((settings) => settings),
 	},
 }));
+
+describe("Action creator: server info recovery key boundary", () => {
+	it("defaults the explicit trusted recovery key to disabled", () => {
+		const dispatch = jest.fn();
+		const info = { admin_recovery_public_key: "a".repeat(64) };
+
+		actionCreators.setServerInfo(info, "verify-key")(dispatch);
+
+		expect(dispatch).toHaveBeenCalledWith({
+			type: SET_SERVER_INFO,
+			info,
+			verifyKey: "verify-key",
+			adminRecoveryPublicKey: "",
+		});
+	});
+});
 
 describe("Action creator: connection authentication", () => {
 	beforeEach(() => {
