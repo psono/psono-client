@@ -138,7 +138,7 @@ function isValidUrl(url) {
 function isValidHostname(hostname) {
 	try {
 		const url = new URL("https://" + hostname);
-		return url.hostname.toLocaleString() === hostname.toLocaleString();
+		return url.hostname.toLowerCase() === hostname.toLowerCase();
 	} catch (e) {
 		return false;
 	}

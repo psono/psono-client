@@ -688,4 +688,10 @@ describe("Service: helper test suite", () => {
 		expect(helperService.isValidPort("22.5")).toBeFalsy();
 		expect(helperService.isValidPort("invalid")).toBeFalsy();
 	});
+
+	it("validates hostnames case-insensitively", () => {
+		expect(helperService.isValidHostname("example.com")).toBeTruthy();
+		expect(helperService.isValidHostname("Example.COM")).toBeTruthy();
+		expect(helperService.isValidHostname("example.com/path")).toBeFalsy();
+	});
 });
