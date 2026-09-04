@@ -108,6 +108,11 @@ const OtherExportView = (props) => {
 			key: "rdp_connection_ignore_certificate",
 			label: t("IGNORE_CERTIFICATE_VALIDATION"),
 		},
+		{ key: "rdp_connection_resize_method", label: t("RDP_RESIZE_METHOD") },
+		{
+			key: "rdp_connection_server_layout",
+			label: t("RDP_SERVER_KEYBOARD_LAYOUT"),
+		},
 		{ key: "rdp_connection_username", label: t("USERNAME") },
 		{ key: "rdp_connection_password", label: t("PASSWORD") },
 		{ key: "rdp_connection_notes", label: t("NOTES") },

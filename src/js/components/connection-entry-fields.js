@@ -17,6 +17,38 @@ import { useTranslation } from "react-i18next";
 import ConnectionAuthentication from "./connection-authentication";
 import MarkdownNotesField from "./markdown-notes-field";
 
+const RDP_RESIZE_METHODS = [
+	{ value: "", label: "RDP_RESIZE_NONE" },
+	{ value: "display-update", label: "RDP_RESIZE_DISPLAY_UPDATE" },
+	{ value: "reconnect", label: "RDP_RESIZE_RECONNECT" },
+];
+
+const RDP_SERVER_LAYOUTS = [
+	["cs-cz-qwertz", "KEYBOARD_LAYOUT_CS_CZ"],
+	["da-dk-qwerty", "KEYBOARD_LAYOUT_DA_DK"],
+	["de-ch-qwertz", "KEYBOARD_LAYOUT_DE_CH"],
+	["de-de-qwertz", "KEYBOARD_LAYOUT_DE_DE"],
+	["en-gb-qwerty", "KEYBOARD_LAYOUT_EN_GB"],
+	["en-us-qwerty", "KEYBOARD_LAYOUT_EN_US"],
+	["es-es-qwerty", "KEYBOARD_LAYOUT_ES_ES"],
+	["es-latam-qwerty", "KEYBOARD_LAYOUT_ES_LATAM"],
+	["failsafe", "KEYBOARD_LAYOUT_FAILSAFE"],
+	["fr-be-azerty", "KEYBOARD_LAYOUT_FR_BE"],
+	["fr-ca-qwerty", "KEYBOARD_LAYOUT_FR_CA"],
+	["fr-ch-qwertz", "KEYBOARD_LAYOUT_FR_CH"],
+	["fr-fr-azerty", "KEYBOARD_LAYOUT_FR_FR"],
+	["hu-hu-qwertz", "KEYBOARD_LAYOUT_HU_HU"],
+	["it-it-qwerty", "KEYBOARD_LAYOUT_IT_IT"],
+	["ja-jp-qwerty", "KEYBOARD_LAYOUT_JA_JP"],
+	["no-no-qwerty", "KEYBOARD_LAYOUT_NO_NO"],
+	["pl-pl-qwerty", "KEYBOARD_LAYOUT_PL_PL"],
+	["pt-br-qwerty", "KEYBOARD_LAYOUT_PT_BR"],
+	["pt-pt-qwerty", "KEYBOARD_LAYOUT_PT_PT"],
+	["ro-ro-qwerty", "KEYBOARD_LAYOUT_RO_RO"],
+	["sv-se-qwerty", "KEYBOARD_LAYOUT_SV_SE"],
+	["tr-tr-qwerty", "KEYBOARD_LAYOUT_TR_TR"],
+];
+
 const ConnectionEntryFields = ({
 	connection,
 	connectionType,
@@ -106,6 +138,46 @@ const ConnectionEntryFields = ({
 							value={connection.domain}
 							variant="outlined"
 						/>
+					</Grid>
+					<Grid item xs={12} sm={6}>
+						<TextField
+							disabled={readOnly}
+							fullWidth
+							id="rdpConnectionResizeMethod"
+							InputLabelProps={{ shrink: true }}
+							label={t("RDP_RESIZE_METHOD")}
+							margin="dense"
+							onChange={update("resizeMethod")}
+							select
+							SelectProps={{ displayEmpty: true }}
+							value={connection.resizeMethod}
+							variant="outlined"
+						>
+							{RDP_RESIZE_METHODS.map((option) => (
+								<MenuItem key={option.value} value={option.value}>
+									{t(option.label)}
+								</MenuItem>
+							))}
+						</TextField>
+					</Grid>
+					<Grid item xs={12} sm={6}>
+						<TextField
+							disabled={readOnly}
+							fullWidth
+							id="rdpConnectionServerLayout"
+							label={t("RDP_SERVER_KEYBOARD_LAYOUT")}
+							margin="dense"
+							onChange={update("serverLayout")}
+							select
+							value={connection.serverLayout}
+							variant="outlined"
+						>
+							{RDP_SERVER_LAYOUTS.map(([value, label]) => (
+								<MenuItem key={value} value={value}>
+									{t(label)}
+								</MenuItem>
+							))}
+						</TextField>
 					</Grid>
 					<Grid item xs={12}>
 						<FormControlLabel
