@@ -14,6 +14,7 @@ describe("Service: settings datastore", () => {
 			},
 		};
 		const content = datastoreSettingService.serializeSettingsDatastore({
+			useMarkdownForNotes: false,
 			showGPGKey: true,
 			showSSHConnection: true,
 			showRDPConnection: false,
@@ -29,6 +30,7 @@ describe("Service: settings datastore", () => {
 		);
 
 		expect(settings.setting_show_mail_gpg_own_key).toBe(true);
+		expect(settings.setting_use_markdown_for_notes).toBe(false);
 		expect(settings.setting_show_ssh_connection).toBe(true);
 		expect(settings.setting_show_rdp_connection).toBe(false);
 		expect(settings.setting_show_vnc_connection).toBe(true);

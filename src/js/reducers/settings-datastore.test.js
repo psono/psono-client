@@ -1,5 +1,6 @@
 import {
 	SET_CONNECTION_AUTHENTICATION,
+	SET_CLIENT_CONFIG,
 	SET_GATEWAY_CLUSTER_SELECTION,
 	SET_SHOWN_ENTRIES_CONFIG,
 	SETTINGS_DATASTORE_LOADED,
@@ -13,6 +14,7 @@ describe("Reducer: settings datastore", () => {
 		expect(state.showSSHConnection).toBe(false);
 		expect(state.showRDPConnection).toBe(false);
 		expect(state.showVNCConnection).toBe(false);
+		expect(state.useMarkdownForNotes).toBe(true);
 		expect(state.connectionAuthentication).toEqual({
 			schema_version: 1,
 			by_connection_secret_id: {},
@@ -21,6 +23,20 @@ describe("Reducer: settings datastore", () => {
 			schema_version: 1,
 			by_connection_secret_id: {},
 		});
+	});
+
+	it("loads and updates the Markdown notes preference", () => {
+		const loaded = settingsDatastore(undefined, {
+			type: SETTINGS_DATASTORE_LOADED,
+			data: { setting_use_markdown_for_notes: false },
+		});
+		expect(loaded.useMarkdownForNotes).toBe(false);
+
+		const state = settingsDatastore(loaded, {
+			type: SET_CLIENT_CONFIG,
+			useMarkdownForNotes: true,
+		});
+		expect(state.useMarkdownForNotes).toBe(true);
 	});
 
 	it("normalizes and updates gateway cluster selections", () => {

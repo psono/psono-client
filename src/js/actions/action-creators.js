@@ -347,12 +347,14 @@ function setClientOptionsConfig(
 	noSaveMode,
 	showNoSaveToggle,
 	confirmOnUnsavedChanges,
+	useMarkdownForNotes,
 ) {
 	persistSettingsDatastore({
 		clipboardClearDelay,
 		noSaveMode,
 		showNoSaveToggle,
 		confirmOnUnsavedChanges,
+		useMarkdownForNotes,
 	});
 
 	return (dispatch) => {
@@ -362,6 +364,7 @@ function setClientOptionsConfig(
 			noSaveMode,
 			showNoSaveToggle,
 			confirmOnUnsavedChanges,
+			useMarkdownForNotes,
 		});
 	};
 }

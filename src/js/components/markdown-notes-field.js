@@ -6,6 +6,8 @@ import Typography from "@mui/material/Typography";
 import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
 import React, { Suspense } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
 const MarkdownNotesEditor = React.lazy(
 	() =>
@@ -90,8 +92,21 @@ const MarkdownNotesField = ({
 	readOnly,
 	value,
 }) => {
+	const { t } = useTranslation();
 	const classes = useStyles();
-	const [viewMode, setViewMode] = React.useState("rendered");
+	const useMarkdownForNotes = useSelector(
+		(state) =>
+			![false, "false"].includes(state.settingsDatastore.useMarkdownForNotes),
+	);
+	const [viewMode, setViewMode] = React.useState(
+		useMarkdownForNotes ? "rendered" : "raw",
+	);
+	const viewModeChanged = React.useRef(false);
+	React.useEffect(() => {
+		if (!viewModeChanged.current) {
+			setViewMode(useMarkdownForNotes ? "rendered" : "raw");
+		}
+	}, [useMarkdownForNotes]);
 	const fallback = (
 		<InputBase
 			className={classes.rawInput}
@@ -143,16 +158,17 @@ const MarkdownNotesField = ({
 						value={viewMode}
 						onChange={(event, nextViewMode) => {
 							if (nextViewMode) {
+								viewModeChanged.current = true;
 								setViewMode(nextViewMode);
 							}
 						}}
 						aria-label="markdown notes view mode"
 					>
 						<ToggleButton className={classes.toggleButton} value="rendered">
-							Rendered
+							{t("RENDERED")}
 						</ToggleButton>
 						<ToggleButton className={classes.toggleButton} value="raw">
-							Raw
+							{t("RAW")}
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>

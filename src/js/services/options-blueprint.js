@@ -31,6 +31,14 @@ const _entryTypes = [
 		hideOnNewEntry: false,
 		show: () => getStore().getState().settingsDatastore.confirmOnUnsavedChanges,
 	},
+	{
+		value: "markdown_notes",
+		title: "USE_MARKDOWN_FOR_NOTES",
+		edit_title: "EDIT_USE_MARKDOWN_FOR_NOTES",
+		show_title: "SHOW_USE_MARKDOWN_FOR_NOTES",
+		hideOnNewEntry: false,
+		show: () => getStore().getState().settingsDatastore.useMarkdownForNotes,
+	},
 ];
 
 /**

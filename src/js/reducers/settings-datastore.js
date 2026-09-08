@@ -56,6 +56,7 @@ function settingsDatastore(
 		passwordNumbers: "0123456789",
 		passwordSpecialChars: ",.-;:_#'+*~!\"$%&/@()=?{[]}\\",
 		clipboardClearDelay: 30,
+		useMarkdownForNotes: true,
 		gpgDefaultKey: null,
 		gpgHkpKeyServer: "https://keyserver.ubuntu.com",
 		gpgHkpSearch: true,
@@ -120,6 +121,14 @@ function settingsDatastore(
 				)
 					? parseInt(action.data.setting_clipboard_clear_delay)
 					: 30,
+				useMarkdownForNotes: Object.hasOwn(
+					action.data,
+					"setting_use_markdown_for_notes",
+				)
+					? ![false, "false"].includes(
+							action.data.setting_use_markdown_for_notes,
+						)
+					: true,
 				gpgDefaultKey: Object.hasOwn(action.data, "gpg_default_key")
 					? action.data.gpg_default_key
 					: null,
@@ -272,6 +281,7 @@ function settingsDatastore(
 		case SET_CLIENT_CONFIG:
 			return Object.assign({}, state, {
 				clipboardClearDelay: action.clipboardClearDelay,
+				useMarkdownForNotes: action.useMarkdownForNotes,
 				noSaveMode: action.noSaveMode,
 				showNoSaveToggle: action.showNoSaveToggle,
 				confirmOnUnsavedChanges: action.confirmOnUnsavedChanges,

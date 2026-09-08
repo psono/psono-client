@@ -171,6 +171,7 @@ const Topbar = (props) => {
 			nosavemode,
 			settingsDatastore.showNoSaveToggle,
 			settingsDatastore.confirmOnUnsavedChanges,
+			settingsDatastore.useMarkdownForNotes,
 		);
 	};
 	let isSubscribed = true;

@@ -167,12 +167,22 @@ export const initStore = async () => {
 				},
 			};
 		},
+		10: (state) => {
+			return {
+				...state,
+				settingsDatastore: {
+					...state.settingsDatastore,
+					useMarkdownForNotes:
+						state.settingsDatastore?.useMarkdownForNotes ?? true,
+				},
+			};
+		},
 	};
 
 	const persistConfig = {
 		key: persistAccountId,
 		blacklist: ["transient", "notification"],
-		version: 9,
+		version: 10,
 		storage: storageService.get("state"),
 		debug: false,
 		migrate: createMigrate(migrations, { debug: false }),

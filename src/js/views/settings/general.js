@@ -57,6 +57,9 @@ const SettingsGeneralView = (props) => {
 	const [confirmOnUnsavedChanges, setConfirmOnUnsavedChanges] = useState(
 		settingsDatastore.confirmOnUnsavedChanges,
 	);
+	const [useMarkdownForNotes, setUseMarkdownForNotes] = useState(
+		settingsDatastore.useMarkdownForNotes,
+	);
 
 	const [clipboardClearDelay, setClipboardClearDelay] = useState(
 		settingsDatastore.clipboardClearDelay,
@@ -76,11 +79,16 @@ const SettingsGeneralView = (props) => {
 			value: confirmOnUnsavedChanges,
 			setter: setConfirmOnUnsavedChanges,
 		},
+		markdown_notes: {
+			value: useMarkdownForNotes,
+			setter: setUseMarkdownForNotes,
+		},
 	};
 	React.useEffect(() => {
 		setNoSaveMode(settingsDatastore.noSaveMode);
 		setShowNoSaveToggle(settingsDatastore.showNoSaveToggle);
 		setConfirmOnUnsavedChanges(settingsDatastore.confirmOnUnsavedChanges);
+		setUseMarkdownForNotes(settingsDatastore.useMarkdownForNotes);
 	}, [settingsDatastore]);
 
 	const save = (event) => {
@@ -115,6 +123,7 @@ const SettingsGeneralView = (props) => {
 			stateLookupDict["nosave"].value,
 			stateLookupDict["nosavetoggle"].value,
 			stateLookupDict["confirm_unsaved"].value,
+			stateLookupDict["markdown_notes"].value,
 		);
 		setMsgs(["SAVE_SUCCESS"]);
 	};
