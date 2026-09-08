@@ -41,8 +41,8 @@ import DarkBox from "../../components/dark-box";
 import DialogChangeAccount from "../../components/dialogs/change-account";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import EntryIcon from "../../components/entry-icon";
-import ContentCopy from "../../components/icons/ContentCopy";
 import GatewayLaunchButton from "../../components/gateway-launch-button";
+import ContentCopy from "../../components/icons/ContentCopy";
 import TextFieldColored from "../../components/text-field/colored";
 import accountService from "../../services/account";
 import browserClient from "../../services/browser-client";
@@ -749,7 +749,7 @@ const PopupView = (props) => {
 		}
 		const entries = [];
 
-		function deepSearchAllItems(folder, path) {
+		function deepSearchAllItems(folder) {
 			let i;
 			if (!folder) {
 				return;
@@ -762,10 +762,7 @@ const PopupView = (props) => {
 					) {
 						continue;
 					}
-					deepSearchAllItems(
-						folder["folders"][i],
-						path + folder["folders"][i].name + "/",
-					);
+					deepSearchAllItems(folder["folders"][i]);
 				}
 			}
 
@@ -779,13 +776,16 @@ const PopupView = (props) => {
 					}
 					entries.push({
 						content: folder["items"][i],
-						path: path,
+						path: datastorePassword.getFolderPath(
+							folder["items"][i].path,
+							data,
+						),
 					});
 				}
 			}
 		}
 
-		deepSearchAllItems(data, "/");
+		deepSearchAllItems(data);
 		setItems(entries);
 		accountService.broadcastReinitializeBackgroundEvent();
 	};
