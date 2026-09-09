@@ -58,4 +58,41 @@ describe("Service: browser client test suite", () => {
 		);
 		expect(callback).toHaveBeenCalledWith(response);
 	});
+
+	it("includes SSO state in browser extension return URLs", () => {
+		global.TARGET = "chrome";
+
+		expect(browserClient.getSamlReturnToUrl("saml-state")).toBe(
+			"https://psono.com/redirect#!/saml/token/saml-state/",
+		);
+		expect(browserClient.getOidcReturnToUrl("oidc-state")).toBe(
+			"https://psono.com/redirect#!/oidc/token/oidc-state/",
+		);
+	});
+
+	it("updates a specific Chrome tab", async () => {
+		const update = jest.fn((_tabId, _options, callback) => callback());
+		global.TARGET = "chrome";
+		global.chrome = { tabs: { update } };
+
+		await browserClient.replaceTabUrlInTab(42, "/data/index.html#!/");
+
+		expect(update).toHaveBeenCalledWith(
+			42,
+			{ url: "/data/index.html#!/" },
+			expect.any(Function),
+		);
+	});
+
+	it("updates a specific Firefox tab", async () => {
+		const update = jest.fn(() => Promise.resolve());
+		global.TARGET = "firefox";
+		global.browser = { tabs: { update } };
+
+		await browserClient.replaceTabUrlInTab(42, "/data/index.html#!/");
+
+		expect(update).toHaveBeenCalledWith(42, {
+			url: "/data/index.html#!/",
+		});
+	});
 });

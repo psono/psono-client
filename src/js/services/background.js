@@ -14,6 +14,7 @@ import notificationBarService from "./notification-bar";
 import offlineCache from "./offline-cache";
 import passkeyService from "./passkey";
 import secretService from "./secret";
+import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import { getStore } from "./store";
 import urlSynonymsService from "./url-synonyms";
@@ -1512,10 +1513,33 @@ function loginFormSubmit(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function oidcSamlRedirectDetected(request, sender, sendResponse) {
-	if (request.data.url.indexOf("#") !== -1) {
-		const split = request.data.url.split("#");
-		browserClient.replaceTabUrl("/data/index.html#" + split[1]);
+	if (!sender.tab || sender.frameId !== 0 || !sender.url) {
+		return false;
 	}
+
+	ssoRedirect
+		.consume(sender.url)
+		.then((redirect) => {
+			if (!redirect) {
+				sendResponse({ event: "status", data: "ignored" });
+				return;
+			}
+
+			return browserClient
+				.replaceTabUrlInTab(
+					sender.tab.id,
+					`/data/index.html#!/${redirect.type}/token/${redirect.tokenId}`,
+				)
+				.then(() => {
+					sendResponse({ event: "status", data: "ok" });
+				});
+		})
+		.catch((error) => {
+			console.error("Error validating SSO redirect:", error);
+			sendResponse({ event: "status", data: "ignored" });
+		});
+
+	return true;
 }
 
 /**
@@ -1801,6 +1825,7 @@ const backgroundService = {
 	activate,
 	activateAfterStore,
 	getSearchWebsitePasswordsByUrlfilter,
+	oidcSamlRedirectDetected,
 };
 
 export default backgroundService;

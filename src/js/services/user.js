@@ -14,6 +14,7 @@ import device from "./device";
 import helperService from "./helper";
 import host from "./host";
 import notification from "./notification";
+import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import { getStore } from "./store";
 
@@ -164,10 +165,20 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getSamlRedirectUrl(providerId) {
-	const returnToUrl = browserClient.getSamlReturnToUrl();
+	const clientType = browserClient.getClientType();
+	const statePromise = ["chrome_extension", "firefox_extension"].includes(
+		clientType,
+	)
+		? ssoRedirect.createPending("saml")
+		: Promise.resolve(undefined);
 
-	return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
-		return result.data;
+	return statePromise.then((state) => {
+		const returnToUrl = browserClient.getSamlReturnToUrl(state);
+		return apiClient
+			.samlInitiateLogin(providerId, returnToUrl)
+			.then((result) => {
+				return result.data;
+			});
 	});
 }
 
@@ -256,10 +267,20 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getOidcRedirectUrl(providerId) {
-	const returnToUrl = browserClient.getOidcReturnToUrl();
+	const clientType = browserClient.getClientType();
+	const statePromise = ["chrome_extension", "firefox_extension"].includes(
+		clientType,
+	)
+		? ssoRedirect.createPending("oidc")
+		: Promise.resolve(undefined);
 
-	return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
-		return result.data;
+	return statePromise.then((state) => {
+		const returnToUrl = browserClient.getOidcReturnToUrl(state);
+		return apiClient
+			.oidcInitiateLogin(providerId, returnToUrl)
+			.then((result) => {
+				return result.data;
+			});
 	});
 }
 

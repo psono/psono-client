@@ -2,7 +2,7 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScriptOIDCSAML = (base, browser, setTimeout) => {
+var ClassWorkerContentScriptOIDCSAML = (base, _browser, _setTimeout) => {
 	base.ready(() => {
 		activate();
 	});
@@ -17,14 +17,17 @@ var ClassWorkerContentScriptOIDCSAML = (base, browser, setTimeout) => {
 	 * @param document
 	 */
 	function observer(document) {
-		if (
-			document.defaultView.location.href.startsWith(
-				"https://psono.com/redirect",
-			)
-		) {
-			base.emit("oidc-saml-redirect-detected", {
-				url: document.defaultView.location.href,
-			});
+		if (document.defaultView !== document.defaultView.top) {
+			return;
+		}
+
+		const url = new URL(document.defaultView.location.href);
+		if (url.origin === "https://psono.com" && url.pathname === "/redirect") {
+			base.emit("oidc-saml-redirect-detected", {});
 		}
 	}
 };
+
+if (typeof module !== "undefined") {
+	module.exports = ClassWorkerContentScriptOIDCSAML;
+}
