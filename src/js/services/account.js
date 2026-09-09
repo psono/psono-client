@@ -68,6 +68,20 @@ async function updateInfoCurrent(info) {
 	await allAccountsDb.setItem(currentActiveId, info);
 }
 
+async function isCurrentSession(token) {
+	try {
+		const currentActiveId = await getCurrentId();
+		const state = JSON.parse(
+			await storage.findKey("state", `persist:${currentActiveId}`),
+		);
+		const stateUser = JSON.parse(state.user);
+
+		return stateUser.token === token;
+	} catch {
+		return false;
+	}
+}
+
 async function clearUnused() {
 	const currentActiveId = await getCurrentId();
 	const usedList = [];
@@ -230,6 +244,7 @@ const accountService = {
 	listAccounts: listAccounts,
 	updateCurrentId: updateCurrentId,
 	updateInfoCurrent: updateInfoCurrent,
+	isCurrentSession: isCurrentSession,
 	addAccount: addAccount,
 	broadcastReinitializeAppEvent: broadcastReinitializeAppEvent,
 	broadcastReinitializeBackgroundEvent: broadcastReinitializeBackgroundEvent,

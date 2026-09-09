@@ -1,6 +1,6 @@
 import React from "react";
-import datastorePasswordService from "./datastore-password";
 import datastoreService from "./datastore";
+import datastorePasswordService from "./datastore-password";
 import shareService from "./share";
 
 describe("Service: datastorePasswordService test suite #1", () => {
@@ -78,6 +78,43 @@ describe("Service: datastorePasswordService test suite #1", () => {
 			),
 		);
 		return expect(test).toBeTruthy();
+	});
+
+	it("getFolderPath returns the parent folder names", () => {
+		const datastore = {
+			folders: [
+				{
+					id: "work",
+					name: "Work",
+					folders: [{ id: "servers", name: "Servers", folders: [] }],
+				},
+			],
+		};
+
+		expect(
+			datastorePasswordService.getFolderPath(
+				["work", "servers", "entry"],
+				datastore,
+			),
+		).toBe("/Work/Servers/");
+		expect(
+			datastorePasswordService.getFolderPath(["work", "servers"], datastore),
+		).toBe("/Work/");
+		expect(
+			datastorePasswordService.getFolderPath(["top-level-entry"], datastore),
+		).toBe("/");
+	});
+
+	it("abbreviateFolderPath replaces the middle of long paths", () => {
+		expect(
+			datastorePasswordService.abbreviateFolderPath(
+				"/first/second/third/fourth/",
+				20,
+			),
+		).toBe("/first/se.../fourth/");
+		expect(datastorePasswordService.abbreviateFolderPath("/short/", 20)).toBe(
+			"/short/",
+		);
 	});
 });
 

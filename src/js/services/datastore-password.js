@@ -653,6 +653,49 @@ function updatePathsRecursive(datastore, parentPath) {
 }
 
 /**
+ * Returns the display path of the folder containing the object at path.
+ *
+ * @param {Array} path The id path to an item or folder
+ * @param {TreeObject} datastore The datastore tree
+ * @returns {string} The slash-delimited parent folder path
+ */
+function getFolderPath(path, datastore) {
+	let folder = datastore;
+	let folderPath = "/";
+
+	for (const folderId of path.slice(0, -1)) {
+		const childFolder = (folder.folders || []).find(
+			(child) => child.id === folderId,
+		);
+		if (!childFolder) {
+			throw new RangeError("ObjectNotFound");
+		}
+		folderPath += `${childFolder.name || ""}/`;
+		folder = childFolder;
+	}
+
+	return folderPath;
+}
+
+/**
+ * Shortens a folder path while keeping its beginning and end visible.
+ *
+ * @param {string} folderPath The folder path to abbreviate
+ * @param {number} [maxLength=90] The maximum displayed length
+ * @returns {string} The abbreviated folder path
+ */
+function abbreviateFolderPath(folderPath, maxLength = 90) {
+	if (folderPath.length <= maxLength) {
+		return folderPath;
+	}
+
+	const availableLength = maxLength - 3;
+	const startLength = Math.ceil(availableLength / 2);
+	const endLength = Math.floor(availableLength / 2);
+	return `${folderPath.slice(0, startLength)}...${folderPath.slice(-endLength)}`;
+}
+
+/**
  * Returns the password datastore. In addition this function triggers the generation of the local datastore
  * storage to.
  *
@@ -2164,6 +2207,8 @@ const datastorePasswordService = {
 	getInaccessibleShares: getInaccessibleShares,
 	getAllOwnPgpKeys: getAllOwnPgpKeys,
 	updatePathsRecursive: updatePathsRecursive,
+	getFolderPath: getFolderPath,
+	abbreviateFolderPath: abbreviateFolderPath,
 	collapseFoldersRecursive: collapseFoldersRecursive,
 	fillStorage: fillStorage,
 };

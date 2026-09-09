@@ -14,6 +14,7 @@ import device from "./device";
 import helperService from "./helper";
 import host from "./host";
 import notification from "./notification";
+import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import { getStore } from "./store";
 
@@ -164,10 +165,20 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getSamlRedirectUrl(providerId) {
-	const returnToUrl = browserClient.getSamlReturnToUrl();
+	const clientType = browserClient.getClientType();
+	const statePromise = ["chrome_extension", "firefox_extension"].includes(
+		clientType,
+	)
+		? ssoRedirect.createPending("saml")
+		: Promise.resolve(undefined);
 
-	return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
-		return result.data;
+	return statePromise.then((state) => {
+		const returnToUrl = browserClient.getSamlReturnToUrl(state);
+		return apiClient
+			.samlInitiateLogin(providerId, returnToUrl)
+			.then((result) => {
+				return result.data;
+			});
 	});
 }
 
@@ -256,10 +267,20 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getOidcRedirectUrl(providerId) {
-	const returnToUrl = browserClient.getOidcReturnToUrl();
+	const clientType = browserClient.getClientType();
+	const statePromise = ["chrome_extension", "firefox_extension"].includes(
+		clientType,
+	)
+		? ssoRedirect.createPending("oidc")
+		: Promise.resolve(undefined);
 
-	return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
-		return result.data;
+	return statePromise.then((state) => {
+		const returnToUrl = browserClient.getOidcReturnToUrl(state);
+		return apiClient
+			.oidcInitiateLogin(providerId, returnToUrl)
+			.then((result) => {
+				return result.data;
+			});
 	});
 }
 
@@ -669,13 +690,24 @@ function login(password, serverInfo, sendPlain) {
  *
  * @param {string} msg An optional message to display
  * @param {string|undefined} [postLogoutRedirectUri] An optional post logout redirect url
+ * @param {string|undefined} [expectedToken] Only clear local state if this token is still active
  * @returns {Promise} Returns a promise with the result
  */
-function logout(msg = "", postLogoutRedirectUri = undefined) {
+function logout(
+	msg = "",
+	postLogoutRedirectUri = undefined,
+	expectedToken = undefined,
+) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
 	async function logoutLocal() {
+		if (
+			expectedToken &&
+			!(await accountService.isCurrentSession(expectedToken))
+		) {
+			return false;
+		}
 		await accountService.updateInfoCurrent({
 			username: "",
 			isLoggedIn: false,
@@ -690,10 +722,13 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
 		if (msg) {
 			notification.infoSend(msg);
 		}
+		return true;
 	}
 
 	const onSuccess = async (result) => {
-		await logoutLocal();
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
 
 		accountService.broadcastReinitializeAppEvent();
 		accountService.broadcastReinitializeBackgroundEvent();
@@ -723,7 +758,9 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
 
 	const onError = async () => {
 		//session expired, so let's delete the local data
-		await logoutLocal();
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
 
 		return {
 			response: "success",

@@ -290,6 +290,8 @@ const DialogEditEntry = (props) => {
 		port: 3389,
 		domain: "",
 		ignoreCertificate: false,
+		resizeMethod: "display-update",
+		serverLayout: "en-us-qwerty",
 		username: "",
 		password: "",
 		notes: "",
@@ -893,6 +895,8 @@ const DialogEditEntry = (props) => {
 				port: data.rdp_connection_port || 3389,
 				domain: data.rdp_connection_domain || "",
 				ignoreCertificate: data.rdp_connection_ignore_certificate === true,
+				resizeMethod: data.rdp_connection_resize_method ?? "display-update",
+				serverLayout: data.rdp_connection_server_layout || "en-us-qwerty",
 				username: data.rdp_connection_username || "",
 				password: data.rdp_connection_password || "",
 				notes: data.rdp_connection_notes || "",
@@ -1299,6 +1303,8 @@ const DialogEditEntry = (props) => {
 			secretObject["rdp_connection_domain"] = rdpConnection.domain;
 			secretObject["rdp_connection_ignore_certificate"] =
 				rdpConnection.ignoreCertificate;
+			secretObject["rdp_connection_resize_method"] = rdpConnection.resizeMethod;
+			secretObject["rdp_connection_server_layout"] = rdpConnection.serverLayout;
 			if (!personalConnectionAuthentication) {
 				secretObject["rdp_connection_username"] = rdpConnection.username;
 				if (rdpConnection.password) {

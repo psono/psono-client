@@ -63,9 +63,16 @@ const defaultLicenseValidFrom = undefined;
 const defaultLicenseValidTill = undefined;
 const defaultLogAudit = false;
 const defaultManagement = false;
+const defaultAdminRecoveryPublicKey = "";
 const defaultPublicKey = "";
 const defaultVersion = "";
 const defaultWebClient = "";
+
+function normalizeAdminRecoveryPublicKey(publicKey) {
+	return typeof publicKey === "string" && /^[0-9a-f]{64}$/i.test(publicKey)
+		? publicKey.toLowerCase()
+		: defaultAdminRecoveryPublicKey;
+}
 const defaultDisableCentralSecurityReports = false;
 const defaultDisableCallbacks = true;
 const defaultAllowedFileRepositoryTypes = [
@@ -148,6 +155,7 @@ function server(
 		licenseValidTill: defaultLicenseValidTill,
 		logAudit: defaultLogAudit,
 		management: defaultManagement,
+		adminRecoveryPublicKey: defaultAdminRecoveryPublicKey,
 		publicKey: defaultPublicKey,
 		version: defaultVersion,
 		webClient: defaultWebClient,
@@ -236,6 +244,7 @@ function server(
 				licenseValidTill: defaultLicenseValidTill,
 				logAudit: defaultLogAudit,
 				management: defaultManagement,
+				adminRecoveryPublicKey: defaultAdminRecoveryPublicKey,
 				publicKey: defaultPublicKey,
 				version: defaultVersion,
 				webClient: defaultWebClient,
@@ -342,6 +351,9 @@ function server(
 				licenseValidTill: action.info.license_valid_till,
 				logAudit: action.info.log_audit,
 				management: action.info.management,
+				adminRecoveryPublicKey: normalizeAdminRecoveryPublicKey(
+					action.adminRecoveryPublicKey,
+				),
 				publicKey: action.info.public_key,
 				version: action.info.version,
 				webClient: action.info.web_client,
@@ -568,6 +580,7 @@ function server(
 		case SET_SERVER_URL:
 			return Object.assign({}, state, {
 				url: action.url,
+				adminRecoveryPublicKey: "",
 			});
 		case SETTINGS_DATASTORE_LOADED: {
 			const customSynonyms = action.data.setting_custom_domain_synonyms || [];

@@ -168,6 +168,8 @@ describe("Service: gateway", () => {
 				rdp_connection_port: 3389,
 				rdp_connection_domain: "EXAMPLE",
 				rdp_connection_ignore_certificate: true,
+				rdp_connection_resize_method: "reconnect",
+				rdp_connection_server_layout: "de-de-qwertz",
 				rdp_connection_notes: "ignored",
 			})
 			.mockResolvedValueOnce({
@@ -197,6 +199,8 @@ describe("Service: gateway", () => {
 			port: 3389,
 			domain: "EXAMPLE",
 			ignore_certificate: true,
+			resize_method: "reconnect",
+			server_layout: "de-de-qwertz",
 			authentication: {
 				type: "password",
 				username: "bob",
@@ -205,18 +209,21 @@ describe("Service: gateway", () => {
 		});
 	});
 
-	it("validates RDP certificates by default", () => {
-		expect(
-			gatewayService.buildPayload(
-				"rdp_connection",
-				{
-					rdp_connection_host: "rdp.example.com",
-					rdp_connection_port: 3389,
-					rdp_connection_domain: "",
-				},
-				{ type: "password", username: "bob", password: "secret" },
-			),
-		).toEqual(expect.objectContaining({ ignore_certificate: false }));
+	it("omits RDP defaults for compatibility with older gateways", () => {
+		const payload = gatewayService.buildPayload(
+			"rdp_connection",
+			{
+				rdp_connection_host: "rdp.example.com",
+				rdp_connection_port: 3389,
+				rdp_connection_domain: "",
+			},
+			{ type: "password", username: "bob", password: "secret" },
+		);
+		expect(payload).toEqual(
+			expect.objectContaining({ ignore_certificate: false }),
+		);
+		expect(payload).not.toHaveProperty("resize_method");
+		expect(payload).not.toHaveProperty("server_layout");
 	});
 
 	it("builds a strict VNC payload with an optional username", () => {
@@ -286,6 +293,28 @@ describe("Service: gateway", () => {
 				"ssh_connection",
 				{ ssh_connection_host: "host", ssh_connection_port: 22 },
 				{ type: "private_key", username: "alice", private_key: "key\u0000" },
+			),
+		).toThrow();
+		expect(() =>
+			gatewayService.buildPayload(
+				"rdp_connection",
+				{
+					rdp_connection_host: "host",
+					rdp_connection_port: 3389,
+					rdp_connection_resize_method: "invalid",
+				},
+				{ type: "password", username: "user", password: "secret" },
+			),
+		).toThrow();
+		expect(() =>
+			gatewayService.buildPayload(
+				"rdp_connection",
+				{
+					rdp_connection_host: "host",
+					rdp_connection_port: 3389,
+					rdp_connection_server_layout: "invalid",
+				},
+				{ type: "password", username: "user", password: "secret" },
 			),
 		).toThrow();
 		expect(() =>

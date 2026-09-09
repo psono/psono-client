@@ -252,6 +252,14 @@ function addConnectionKdbxEntry(db, kdbxweb, group, item) {
 			"Ignore Certificate Validation",
 			item.rdp_connection_ignore_certificate ? "true" : "false",
 		);
+		entry.fields.set(
+			"Resize Method",
+			item.rdp_connection_resize_method ?? "display-update",
+		);
+		entry.fields.set(
+			"Remote Keyboard Layout",
+			item.rdp_connection_server_layout || "en-us-qwerty",
+		);
 		entry.fields.set("UserName", item.rdp_connection_username || "");
 		entry.fields.set(
 			"Password",
@@ -614,6 +622,8 @@ async function composeExport(data, type, password, selectedColumns) {
 				rdp_connection_port: "rdp_connection_port",
 				rdp_connection_domain: "rdp_connection_domain",
 				rdp_connection_ignore_certificate: "rdp_connection_ignore_certificate",
+				rdp_connection_resize_method: "rdp_connection_resize_method",
+				rdp_connection_server_layout: "rdp_connection_server_layout",
 				rdp_connection_username: "rdp_connection_username",
 				rdp_connection_password: "rdp_connection_password",
 				rdp_connection_notes: "rdp_connection_notes",

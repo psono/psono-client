@@ -104,6 +104,10 @@ function serializeSettingsDatastore(settings) {
 			key: "setting_clipboard_clear_delay",
 			value: settings.clipboardClearDelay,
 		},
+		{
+			key: "setting_use_markdown_for_notes",
+			value: settings.useMarkdownForNotes,
+		},
 		{ key: "setting_no_save_mode", value: settings.noSaveMode },
 		{ key: "setting_show_no_save_toggle", value: settings.showNoSaveToggle },
 		{
@@ -147,6 +151,7 @@ function getSettingsDatastore() {
 	const onSuccess = (results) => {
 		const data = {
 			setting_clipboard_clear_delay: 30,
+			setting_use_markdown_for_notes: true,
 			setting_password_length: 16,
 			setting_password_letters_uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 			setting_password_letters_lowercase: "abcdefghijklmnopqrstuvwxyz",

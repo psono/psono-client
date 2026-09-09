@@ -82,31 +82,79 @@ function updateKnownHosts(newKnownHosts) {
  *
  * @param {string} serverUrl The url of the server
  * @param {string} verifyKey The fingerprint of the server
+ * @param {*} adminRecoveryPublicKey The advertised admin recovery public key
  *
  * @returns {*} The result of the search / comparison
  */
-function checkKnownHosts(serverUrl, verifyKey) {
+function checkKnownHosts(serverUrl, verifyKey, adminRecoveryPublicKey) {
 	const known_hosts = getKnownHosts();
 	serverUrl = serverUrl.toLowerCase();
+	adminRecoveryPublicKey = normalizeAdminRecoveryPublicKey(
+		adminRecoveryPublicKey,
+	);
 
 	for (let i = 0; i < known_hosts.length; i++) {
 		if (known_hosts[i]["url"] !== serverUrl) {
 			continue;
 		}
 		if (known_hosts[i]["verify_key"] !== verifyKey) {
+			const hasAdminRecoveryPublicKey = Object.hasOwn(
+				known_hosts[i],
+				"admin_recovery_public_key",
+			);
+			const oldAdminRecoveryPublicKey = hasAdminRecoveryPublicKey
+				? normalizeAdminRecoveryPublicKey(
+						known_hosts[i]["admin_recovery_public_key"],
+					)
+				: undefined;
 			return {
 				status: "signature_changed",
 				verify_key_old: known_hosts[i]["verify_key"],
+				admin_recovery_public_key_old: oldAdminRecoveryPublicKey,
+				admin_recovery_public_key_changed:
+					hasAdminRecoveryPublicKey &&
+					oldAdminRecoveryPublicKey !== adminRecoveryPublicKey,
+			};
+		}
+		if (!Object.hasOwn(known_hosts[i], "admin_recovery_public_key")) {
+			return {
+				status: "matched",
+				admin_recovery_public_key_missing: true,
+			};
+		}
+
+		const oldAdminRecoveryPublicKey = normalizeAdminRecoveryPublicKey(
+			known_hosts[i]["admin_recovery_public_key"],
+		);
+		if (oldAdminRecoveryPublicKey !== adminRecoveryPublicKey) {
+			return {
+				status: "admin_recovery_public_key_changed",
+				admin_recovery_public_key_old: oldAdminRecoveryPublicKey,
 			};
 		}
 		return {
 			status: "matched",
+			admin_recovery_public_key_needs_normalization:
+				known_hosts[i]["admin_recovery_public_key"] !==
+				oldAdminRecoveryPublicKey,
 		};
 	}
 
 	return {
 		status: "not_found",
 	};
+}
+
+/**
+ * Returns a canonical admin recovery public key or the disabled value.
+ *
+ * @param {*} publicKey The advertised public key
+ * @returns {string} A lowercase 64 character hex key, or an empty string
+ */
+function normalizeAdminRecoveryPublicKey(publicKey) {
+	return typeof publicKey === "string" && /^[0-9a-f]{64}$/i.test(publicKey)
+		? publicKey.toLowerCase()
+		: "";
 }
 
 /**
@@ -167,10 +215,12 @@ function semverCompare(a, b) {
  */
 function checkHost(server, preApprovedVerifyKey) {
 	const onSuccess = (response) => {
-		let checkResult;
 		const data = response.data;
 		const serverUrl = server.toLowerCase();
 		const info = JSON.parse(data["info"]);
+		const adminRecoveryPublicKey = normalizeAdminRecoveryPublicKey(
+			info["admin_recovery_public_key"],
+		);
 		const splitVersion = info.version.split(" ");
 		info.version = "v" + splitVersion[0];
 		info.build = splitVersion[2].replace(")", "");
@@ -186,6 +236,7 @@ function checkHost(server, preApprovedVerifyKey) {
 				server_url: serverUrl,
 				status: "invalid_signature",
 				verify_key: undefined,
+				admin_recovery_public_key: adminRecoveryPublicKey,
 				info: info,
 			};
 		}
@@ -205,28 +256,58 @@ function checkHost(server, preApprovedVerifyKey) {
 				server_url: serverUrl,
 				status: "unsupported_server_version",
 				verify_key: data["verify_key"],
+				admin_recovery_public_key: adminRecoveryPublicKey,
 				info: info,
 			};
 		}
 
-		checkResult = checkKnownHosts(serverUrl, data["verify_key"]);
+		const checkResult = checkKnownHosts(
+			serverUrl,
+			data["verify_key"],
+			adminRecoveryPublicKey,
+		);
 
-		if (
-			checkResult["status"] === "matched" ||
-			(preApprovedVerifyKey && preApprovedVerifyKey === data["verify_key"])
-		) {
-			return {
-				server_url: serverUrl,
-				status: "matched",
-				verify_key: data["verify_key"],
-				info: info,
-			};
-		} else if (checkResult["status"] === "signature_changed") {
+		if (checkResult["status"] === "signature_changed") {
 			return {
 				server_url: serverUrl,
 				status: "signature_changed",
 				verify_key: data["verify_key"],
 				verify_key_old: checkResult["verify_key_old"],
+				admin_recovery_public_key: adminRecoveryPublicKey,
+				admin_recovery_public_key_old:
+					checkResult["admin_recovery_public_key_old"],
+				admin_recovery_public_key_changed:
+					checkResult["admin_recovery_public_key_changed"],
+				info: info,
+			};
+		} else if (checkResult["status"] === "admin_recovery_public_key_changed") {
+			return {
+				server_url: serverUrl,
+				status: "admin_recovery_public_key_changed",
+				verify_key: data["verify_key"],
+				admin_recovery_public_key: adminRecoveryPublicKey,
+				admin_recovery_public_key_old:
+					checkResult["admin_recovery_public_key_old"],
+				info: info,
+			};
+		} else if (
+			checkResult["status"] === "matched" ||
+			(checkResult["status"] === "not_found" &&
+				preApprovedVerifyKey &&
+				preApprovedVerifyKey === data["verify_key"])
+		) {
+			if (
+				checkResult["status"] === "matched" &&
+				(checkResult["admin_recovery_public_key_missing"] ||
+					checkResult["admin_recovery_public_key_needs_normalization"])
+			) {
+				approveHost(serverUrl, data["verify_key"], adminRecoveryPublicKey);
+			}
+			return {
+				server_url: serverUrl,
+				status: "matched",
+				verify_key: data["verify_key"],
+				admin_recovery_public_key: adminRecoveryPublicKey,
 				info: info,
 			};
 		} else {
@@ -234,6 +315,7 @@ function checkHost(server, preApprovedVerifyKey) {
 				server_url: serverUrl,
 				status: "new_server",
 				verify_key: data["verify_key"],
+				admin_recovery_public_key: adminRecoveryPublicKey,
 				info: info,
 			};
 		}
@@ -289,17 +371,22 @@ function loadRemoteConfig(webClientUrl, serverUrl) {
  *
  * @param {string} serverUrl The url of the server
  * @param {string} verifyKey The verification key
+ * @param {*} adminRecoveryPublicKey The admin recovery public key
  */
-function approveHost(serverUrl, verifyKey) {
+function approveHost(serverUrl, verifyKey, adminRecoveryPublicKey) {
 	serverUrl = serverUrl.toLowerCase();
+	adminRecoveryPublicKey = normalizeAdminRecoveryPublicKey(
+		adminRecoveryPublicKey,
+	);
 
-	const known_hosts = getKnownHosts();
+	const known_hosts = getKnownHosts().map((knownHost) => ({ ...knownHost }));
 
 	for (let i = 0; i < known_hosts.length; i++) {
 		if (known_hosts[i]["url"] !== serverUrl) {
 			continue;
 		}
 		known_hosts[i]["verify_key"] = verifyKey;
+		known_hosts[i]["admin_recovery_public_key"] = adminRecoveryPublicKey;
 
 		updateKnownHosts(known_hosts);
 		return;
@@ -308,6 +395,7 @@ function approveHost(serverUrl, verifyKey) {
 	known_hosts.push({
 		url: serverUrl,
 		verify_key: verifyKey,
+		admin_recovery_public_key: adminRecoveryPublicKey,
 	});
 
 	updateKnownHosts(known_hosts);
@@ -340,6 +428,7 @@ const hostService = {
 	isNewerOrEqualVersionThan: isNewerOrEqualVersionThan,
 	getCurrentHostUrl: getCurrentHostUrl,
 	checkKnownHosts: checkKnownHosts,
+	normalizeAdminRecoveryPublicKey: normalizeAdminRecoveryPublicKey,
 	info: info,
 	checkHost: checkHost,
 	loadRemoteConfig: loadRemoteConfig,

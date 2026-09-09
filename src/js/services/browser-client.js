@@ -204,14 +204,16 @@ function openTab(url) {
 /**
  * cosntructs and returns the "return to" address for SAML
  *
+ * @param {string} [state] State that binds an extension callback to its login initiation
  * @returns {string}
  */
-function getSamlReturnToUrl() {
+function getSamlReturnToUrl(state) {
+	const statePath = state ? encodeURIComponent(state) + "/" : "";
 	if (TARGET === "firefox") {
-		return "https://psono.com/redirect#!/saml/token/";
+		return "https://psono.com/redirect#!/saml/token/" + statePath;
 		//return browser.identity.getRedirectURL() + "data/index.html#!/saml/token/";
 	} else if (TARGET === "chrome") {
-		return "https://psono.com/redirect#!/saml/token/";
+		return "https://psono.com/redirect#!/saml/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
 	} else if (TARGET === "electron") {
 		return "https://psono.com/redirect#!/saml/token/";
@@ -226,14 +228,16 @@ function getSamlReturnToUrl() {
 /**
  * cosntructs and returns the "return to" address for OIDC
  *
+ * @param {string} [state] State that binds an extension callback to its login initiation
  * @returns {string}
  */
-function getOidcReturnToUrl() {
+function getOidcReturnToUrl(state) {
+	const statePath = state ? encodeURIComponent(state) + "/" : "";
 	if (TARGET === "firefox") {
-		return "https://psono.com/redirect#!/oidc/token/";
+		return "https://psono.com/redirect#!/oidc/token/" + statePath;
 		//return browser.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
 	} else if (TARGET === "chrome") {
-		return "https://psono.com/redirect#!/oidc/token/";
+		return "https://psono.com/redirect#!/oidc/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
 	} else if (TARGET === "electron") {
 		return "https://psono.com/redirect#!/oidc/token/";
@@ -372,6 +376,24 @@ function replaceTabUrl(url, callback_function) {
 	} else {
 		// pass, websites have no background page
 	}
+}
+
+/**
+ * Replaces the URL of a specific browser tab.
+ *
+ * @param {number} tabId The browser tab id
+ * @param {string} url The new URL
+ * @returns {Promise}
+ */
+function replaceTabUrlInTab(tabId, url) {
+	if (TARGET === "firefox") {
+		return browser.tabs.update(tabId, { url: url });
+	} else if (TARGET === "chrome") {
+		return new Promise((resolve) => {
+			chrome.tabs.update(tabId, { url: url }, resolve);
+		});
+	}
+	return Promise.resolve();
 }
 
 /**
@@ -750,6 +772,33 @@ function emitTab(tabId, event, data, callbackFunction) {
 			{ event: event, data: data },
 			callbackFunction,
 		);
+	}
+}
+
+/**
+ * sends an event message to a specific frame in a specific tab
+ *
+ * @param {string} tabId The id of the tab
+ * @param {number} frameId The id of the frame
+ * @param {string} event The event
+ * @param {*} data The payload for the event
+ * @param {function} [callbackFunction] An optional callback function
+ */
+function emitFrame(tabId, frameId, event, data, callbackFunction) {
+	const message = { event: event, data: data };
+	const options = { frameId: frameId };
+
+	if (TARGET === "firefox") {
+		const promise = browser.tabs.sendMessage(tabId, message, options);
+		if (callbackFunction) {
+			promise.then(callbackFunction);
+		}
+	} else if (TARGET === "chrome") {
+		if (callbackFunction) {
+			chrome.tabs.sendMessage(tabId, message, options, callbackFunction);
+		} else {
+			chrome.tabs.sendMessage(tabId, message, options);
+		}
 	}
 }
 
@@ -1181,6 +1230,7 @@ const browserClientService = {
 	launchWebAuthFlow: launchWebAuthFlow,
 	openTabBg: openTabBg,
 	replaceTabUrl: replaceTabUrl,
+	replaceTabUrlInTab: replaceTabUrlInTab,
 	openPopup: openPopup,
 	closeOpenedPopup: closeOpenedPopup,
 	clearConfigCache: clearConfigCache,
@@ -1191,6 +1241,7 @@ const browserClientService = {
 	getActiveTabUrl: getActiveTabUrl,
 	emit: emit,
 	emitTab: emitTab,
+	emitFrame: emitFrame,
 	getURL: getURL,
 	emitSec: emitSec,
 	getConfig: getConfig,

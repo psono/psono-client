@@ -5,10 +5,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import FormHelperText from "@mui/material/FormHelperText";
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import datastorePassword from "../../services/datastore-password";
 import helper from "../../services/helper";
 import widgetService from "../../services/widget";
 import ButtonDanger from "../button-danger";
@@ -52,7 +55,11 @@ const DialogTrashBin = (props) => {
 				) {
 					return;
 				}
-				newRecyclingBinEntries.push([folder.id, folder.name]);
+				newRecyclingBinEntries.push([
+					folder.id,
+					folder.name,
+					datastorePassword.getFolderPath(path, datastore),
+				]);
 				newRecyclingBinEntriesFull[folder.id] = {
 					path: path,
 					item: folder,
@@ -93,7 +100,11 @@ const DialogTrashBin = (props) => {
 				) {
 					continue;
 				}
-				newRecyclingBinEntries.push([folder.items[i].id, folder.items[i].name]);
+				newRecyclingBinEntries.push([
+					folder.items[i].id,
+					folder.items[i].name,
+					datastorePassword.getFolderPath(pathCopy, datastore),
+				]);
 				newRecyclingBinEntriesFull[folder.items[i].id] = {
 					path: pathCopy,
 					item: folder.items[i],
@@ -197,7 +208,37 @@ const DialogTrashBin = (props) => {
 
 	const columns = [
 		{ name: t("ID"), options: { display: false } },
-		{ name: t("TITLE") },
+		{
+			name: t("TITLE"),
+			options: {
+				customBodyRender: (value, tableMeta) => {
+					const folderPath = tableMeta.rowData[2];
+					const displayedFolderPath =
+						datastorePassword.abbreviateFolderPath(folderPath);
+					return (
+						<>
+							{value}
+							<Tooltip title={folderPath} placement="top">
+								<FormHelperText
+									style={{ overflow: "hidden", textOverflow: "ellipsis" }}
+								>
+									{displayedFolderPath}
+								</FormHelperText>
+							</Tooltip>
+						</>
+					);
+				},
+			},
+		},
+		{
+			name: t("PATH"),
+			options: {
+				display: false,
+				filter: false,
+				sort: false,
+				viewColumns: false,
+			},
+		},
 		{
 			name: t("RESTORE"),
 			options: {

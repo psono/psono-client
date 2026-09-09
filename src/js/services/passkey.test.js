@@ -82,6 +82,45 @@ describe("Service: passkey test suite", () => {
 		expect(passkeyService).toBeDefined();
 	});
 
+	it.each([
+		[
+			"get",
+			passkeyService.onNavigatorCredentialsGet,
+			"navigator-credentials-get-response",
+		],
+		[
+			"create",
+			passkeyService.onNavigatorCredentialsCreate,
+			"navigator-credentials-create-response",
+		],
+	])("rejects %s requests without a trusted sender origin", async (_, handler, event) => {
+		const response = await new Promise((resolve) => {
+			expect(
+				handler(
+					{
+						data: {
+							origin: "https://webauthn.io",
+							eventId: "event-id",
+						},
+					},
+					null,
+					resolve,
+				),
+			).toBe(true);
+		});
+
+		expect(response).toEqual({
+			event,
+			data: {
+				error: {
+					errorType: "ORIGIN_NOT_SUPPORTED",
+					message: expect.any(String),
+				},
+				eventId: "event-id",
+			},
+		});
+	});
+
 	it("isRegistrableDomainSuffix 0.0.0.0 <-> 0.0.0.0 = True", async () => {
 		window.fetch = mockFetch();
 		expect(
@@ -339,6 +378,40 @@ describe("Service: passkey test suite", () => {
 		}); // algorithm
 	});
 
+	it("rejects create requests whose RP ID only matches the payload origin", async () => {
+		window.fetch = mockFetch();
+		user.isLoggedIn = jest.fn(() => true);
+		notificationBarService.create = jest.fn((_title, _description, buttons) =>
+			buttons[0].onClick(),
+		);
+		await initStore();
+
+		const response = await new Promise((resolve) => {
+			expect(
+				passkeyService.onNavigatorCredentialsCreate(
+					{
+						data: {
+							options: {
+								publicKey: {
+									rp: { id: "webauthn.io" },
+									pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+								},
+							},
+							origin: "https://webauthn.io",
+							eventId: "event-id",
+						},
+					},
+					{ origin: "https://attacker.example" },
+					resolve,
+				),
+			).toBe(true);
+		});
+
+		expect(response.event).toBe("navigator-credentials-create-response");
+		expect(response.data.eventId).toBe("event-id");
+		expect(response.data.error.errorType).toBe("RP_ID_NOT_ALLOWED");
+	});
+
 	it("creates assertion-form authenticator data for navigator.credentials.get", async () => {
 		window.fetch = mockFetch();
 		user.isLoggedIn = jest.fn(() => true);
@@ -408,11 +481,11 @@ describe("Service: passkey test suite", () => {
 									userVerification: "preferred",
 								},
 							},
-							origin: "https://webauthn.io",
+							origin: "https://attacker.example",
 							eventId: "event-id",
 						},
 					},
-					null,
+					{ origin: "https://webauthn.io" },
 					resolve,
 				),
 			).toBe(true);
@@ -463,6 +536,9 @@ describe("Service: passkey test suite", () => {
 			converterService.base64UrlToArrayBuffer(
 				credential.response.clientDataJSON,
 			),
+		);
+		expect(JSON.parse(converterService.decodeUtf8(clientDataJSON)).origin).toBe(
+			"https://webauthn.io",
 		);
 		const clientDataJSONHash = new Uint8Array(
 			await crypto.subtle.digest("SHA-256", clientDataJSON),

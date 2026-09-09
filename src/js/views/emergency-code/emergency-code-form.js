@@ -8,6 +8,7 @@ import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import action from "../../actions/bound-action-creators";
+import AdminRecoveryKeyChanged from "../../components/admin-recovery-key-changed";
 import FooterLinks from "../../components/footer-links";
 import GridContainerErrors from "../../components/grid-container-errors";
 import browserClient from "../../services/browser-client";
@@ -71,6 +72,7 @@ const EmergencyCodeViewForm = (props) => {
 	const [allowCustomServer, setAllowCustomServer] = useState(true);
 
 	React.useEffect(() => {
+		action().setServerInfo({}, undefined);
 		browserClient.getConfig().then(onNewConfigLoaded);
 	}, []);
 
@@ -138,7 +140,12 @@ const EmergencyCodeViewForm = (props) => {
 	};
 
 	const approveHost = () => {
-		host.approveHost(serverCheck.server_url, serverCheck.verify_key);
+		host.approveHost(
+			serverCheck.server_url,
+			serverCheck.verify_key,
+			serverCheck.admin_recovery_public_key,
+		);
+		action().setServerInfo(serverCheck.info, serverCheck.verify_key, "");
 		arm(emergencyCode, serverCheck);
 	};
 
@@ -154,6 +161,7 @@ const EmergencyCodeViewForm = (props) => {
 	const armEmergencyCode = () => {
 		setErrors([]);
 		action().setServerUrl(server);
+		action().setServerInfo({}, undefined);
 
 		const parsedUrl = helperService.parseUrl(server);
 		const fullUsername = helperService.formFullUsername(
@@ -201,14 +209,26 @@ const EmergencyCodeViewForm = (props) => {
 
 		const onSuccess = (serverCheck) => {
 			setServerCheck(serverCheck);
-			action().setServerInfo(serverCheck.info, serverCheck.verify_key);
-			console.log(serverCheck.status);
-			if (serverCheck.status !== "matched") {
+			action().setServerInfo(serverCheck.info, serverCheck.verify_key, "");
+			if (serverCheck.status === "matched") {
+				arm(localEmergencyCode, serverCheck);
+			} else if (
+				[
+					"new_server",
+					"signature_changed",
+					"admin_recovery_public_key_changed",
+					"unsupported_server_version",
+				].includes(serverCheck.status)
+			) {
 				setView(serverCheck.status);
-				return;
+			} else {
+				setView("default");
+				setErrors([
+					serverCheck.status === "invalid_signature"
+						? "INVALID_SERVER_SIGNATURE"
+						: "RECEIVED_MALFORMED_RESPONSE",
+				]);
 			}
-
-			arm(localEmergencyCode, serverCheck);
 		};
 		host.checkHost(server).then(onSuccess, onError);
 	};
@@ -529,6 +549,13 @@ const EmergencyCodeViewForm = (props) => {
 						/>
 					</Grid>
 				</Grid>
+				{serverCheck.admin_recovery_public_key_changed && (
+					<AdminRecoveryKeyChanged
+						serverCheck={serverCheck}
+						textFieldClass={classes.textField}
+						showActions={false}
+					/>
+				)}
 				<Grid container>
 					<Grid item xs={12} sm={12} md={12}>
 						<MuiAlert
@@ -570,6 +597,21 @@ const EmergencyCodeViewForm = (props) => {
 						</Button>
 					</Grid>
 				</Grid>
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+			</>
+		);
+	}
+
+	if (view === "admin_recovery_public_key_changed") {
+		formContent = (
+			<>
+				<AdminRecoveryKeyChanged
+					serverCheck={serverCheck}
+					textFieldClass={classes.textField}
+					regularButtonTextClass={classes.regularButtonText}
+					onCancel={disapproveNewServer}
+					onApprove={approveNewServer}
+				/>
 				<GridContainerErrors errors={errors} setErrors={setErrors} />
 			</>
 		);

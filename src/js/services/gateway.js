@@ -12,6 +12,32 @@ const MAX_USERNAME_LENGTH = 256;
 const MAX_PASSWORD_LENGTH = 4096;
 const MAX_DOMAIN_LENGTH = 256;
 const MAX_PRIVATE_KEY_LENGTH = 64 * 1024;
+const RDP_RESIZE_METHODS = new Set(["", "display-update", "reconnect"]);
+const RDP_SERVER_LAYOUTS = new Set([
+	"cs-cz-qwertz",
+	"da-dk-qwerty",
+	"de-ch-qwertz",
+	"de-de-qwertz",
+	"en-gb-qwerty",
+	"en-us-qwerty",
+	"es-es-qwerty",
+	"es-latam-qwerty",
+	"failsafe",
+	"fr-be-azerty",
+	"fr-ca-qwerty",
+	"fr-ch-qwertz",
+	"fr-fr-azerty",
+	"hu-hu-qwertz",
+	"it-it-qwerty",
+	"ja-jp-qwerty",
+	"no-no-qwerty",
+	"pl-pl-qwerty",
+	"pt-br-qwerty",
+	"pt-pt-qwerty",
+	"ro-ro-qwerty",
+	"sv-se-qwerty",
+	"tr-tr-qwerty",
+]);
 
 function gatewayError(code) {
 	return { code, non_field_errors: [code] };
@@ -115,6 +141,10 @@ function buildPayload(type, connection, authentication) {
 		const domain = connection.rdp_connection_domain || "";
 		const ignoreCertificate =
 			connection.rdp_connection_ignore_certificate === true;
+		const resizeMethod =
+			connection.rdp_connection_resize_method ?? "display-update";
+		const serverLayout =
+			connection.rdp_connection_server_layout || "en-us-qwerty";
 		if (
 			!validHostname(hostname) ||
 			!Number.isInteger(port) ||
@@ -133,11 +163,13 @@ function buildPayload(type, connection, authentication) {
 				false,
 				false,
 			) ||
-			!validString(domain, MAX_DOMAIN_LENGTH, true, false)
+			!validString(domain, MAX_DOMAIN_LENGTH, true, false) ||
+			!RDP_RESIZE_METHODS.has(resizeMethod) ||
+			!RDP_SERVER_LAYOUTS.has(serverLayout)
 		) {
 			throw gatewayError("GATEWAY_CONNECTION_INVALID");
 		}
-		return {
+		const payload = {
 			version: 1,
 			protocol: "rdp",
 			hostname,
@@ -150,6 +182,13 @@ function buildPayload(type, connection, authentication) {
 				password: authentication.password,
 			},
 		};
+		if (resizeMethod !== "display-update") {
+			payload.resize_method = resizeMethod;
+		}
+		if (serverLayout !== "en-us-qwerty") {
+			payload.server_layout = serverLayout;
+		}
+		return payload;
 	}
 
 	if (type === "vnc_connection") {
