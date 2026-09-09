@@ -690,13 +690,24 @@ function login(password, serverInfo, sendPlain) {
  *
  * @param {string} msg An optional message to display
  * @param {string|undefined} [postLogoutRedirectUri] An optional post logout redirect url
+ * @param {string|undefined} [expectedToken] Only clear local state if this token is still active
  * @returns {Promise} Returns a promise with the result
  */
-function logout(msg = "", postLogoutRedirectUri = undefined) {
+function logout(
+	msg = "",
+	postLogoutRedirectUri = undefined,
+	expectedToken = undefined,
+) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
 	async function logoutLocal() {
+		if (
+			expectedToken &&
+			!(await accountService.isCurrentSession(expectedToken))
+		) {
+			return false;
+		}
 		await accountService.updateInfoCurrent({
 			username: "",
 			isLoggedIn: false,
@@ -711,10 +722,13 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
 		if (msg) {
 			notification.infoSend(msg);
 		}
+		return true;
 	}
 
 	const onSuccess = async (result) => {
-		await logoutLocal();
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
 
 		accountService.broadcastReinitializeAppEvent();
 		accountService.broadcastReinitializeBackgroundEvent();
@@ -744,7 +758,9 @@ function logout(msg = "", postLogoutRedirectUri = undefined) {
 
 	const onError = async () => {
 		//session expired, so let's delete the local data
-		await logoutLocal();
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
 
 		return {
 			response: "success",
