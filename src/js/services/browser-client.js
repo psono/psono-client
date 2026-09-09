@@ -754,6 +754,33 @@ function emitTab(tabId, event, data, callbackFunction) {
 }
 
 /**
+ * sends an event message to a specific frame in a specific tab
+ *
+ * @param {string} tabId The id of the tab
+ * @param {number} frameId The id of the frame
+ * @param {string} event The event
+ * @param {*} data The payload for the event
+ * @param {function} [callbackFunction] An optional callback function
+ */
+function emitFrame(tabId, frameId, event, data, callbackFunction) {
+	const message = { event: event, data: data };
+	const options = { frameId: frameId };
+
+	if (TARGET === "firefox") {
+		const promise = browser.tabs.sendMessage(tabId, message, options);
+		if (callbackFunction) {
+			promise.then(callbackFunction);
+		}
+	} else if (TARGET === "chrome") {
+		if (callbackFunction) {
+			chrome.tabs.sendMessage(tabId, message, options, callbackFunction);
+		} else {
+			chrome.tabs.sendMessage(tabId, message, options);
+		}
+	}
+}
+
+/**
  * Returns the absolute path for a given relative path
  *
  * @param {string} path The relative path
@@ -1191,6 +1218,7 @@ const browserClientService = {
 	getActiveTabUrl: getActiveTabUrl,
 	emit: emit,
 	emitTab: emitTab,
+	emitFrame: emitFrame,
 	getURL: getURL,
 	emitSec: emitSec,
 	getConfig: getConfig,

@@ -137,7 +137,7 @@ function activateAfterStore() {
 					recheckPage();
 					break;
 				default:
-					fillSecretTab(info.menuItemId, tab);
+					fillSecretTab(info.menuItemId, tab, info.frameId ?? 0);
 			}
 		});
 	}
@@ -405,8 +405,9 @@ function recheckPage(info, tab) {
  *
  * @param secretId The secret id
  * @param tab The tab info
+ * @param frameId The id of the frame where the context menu was opened
  */
-function fillSecretTab(secretId, tab) {
+function fillSecretTab(secretId, tab, frameId) {
 	return storage.findKey("datastore-password-leafs", secretId).then((leaf) => {
 		const onError = (result) => {
 			// pass
@@ -414,7 +415,7 @@ function fillSecretTab(secretId, tab) {
 
 		const onSuccess = (content) => {
 			if (leaf.type === "website_password") {
-				browserClient.emitTab(tab.id, "fillpassword", {
+				browserClient.emitFrame(tab.id, frameId, "fillpassword", {
 					username: content.website_password_username,
 					password: content.website_password_password,
 					totp_token: content.website_password_totp_code
@@ -431,7 +432,7 @@ function fillSecretTab(secretId, tab) {
 				});
 			}
 			if (leaf.type === "credit_card") {
-				browserClient.emitTab(tab.id, "fillcreditcard", {
+				browserClient.emitFrame(tab.id, frameId, "fillcreditcard", {
 					credit_card_number: content.credit_card_number,
 					credit_card_cvc: content.credit_card_cvc,
 					credit_card_name: content.credit_card_name,
@@ -440,7 +441,7 @@ function fillSecretTab(secretId, tab) {
 				});
 			}
 			if (leaf.type === "identity") {
-				browserClient.emitTab(tab.id, "fillidentity", {
+				browserClient.emitFrame(tab.id, frameId, "fillidentity", {
 					identity_first_name: content.identity_first_name,
 					identity_last_name: content.identity_last_name,
 					identity_company: content.identity_company,
@@ -642,7 +643,7 @@ function onFillpasswordActiveTab(request, sender, sendResponse) {
 	if (typeof activeTabId === "undefined") {
 		return;
 	}
-	browserClient.emitTab(activeTabId, "fillpassword", request.data);
+	browserClient.emitFrame(activeTabId, 0, "fillpassword", request.data);
 }
 
 /**
@@ -657,7 +658,7 @@ function savePasswordActiveTab(request, sender, sendResponse) {
 	if (typeof activeTabId === "undefined") {
 		return;
 	}
-	browserClient.emitTab(activeTabId, "get-username", {}, (response) => {
+	browserClient.emitFrame(activeTabId, 0, "get-username", {}, (response) => {
 		const onError = (data) => {
 			console.log(data);
 		};
