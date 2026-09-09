@@ -32,14 +32,14 @@
     "@noble/hashes": "^1.7.1",
     "@openpgp/hkp-client": "^0.0.2",
     "@sentry/react": "^9.5.0",
-    "@tiptap/extension-link": "^3.22.3",
-    "@tiptap/react": "^3.22.3",
-    "@tiptap/starter-kit": "^3.22.3",
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "chart.js": "^3.7.0",
     "classnames": "^2.3.2",
     "core-js": "^3.19.1",
     "date-fns": "^2.26.0",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.15",
     "ecma-nacl": "^2.4.2",
     "ed25519-keygen": "^0.4.1",
     "fast-xml-parser": "^5.7.2",
@@ -83,7 +83,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "overrides": {
-    "@xmldom/xmldom": "0.8.13"
+    "@xmldom/xmldom": "0.8.15"
   },
   "devDependencies": {
     "@babel/cli": "^7.27.2",
