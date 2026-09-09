@@ -26,6 +26,17 @@ function createBypassPsonoException(reason, metadata) {
 	});
 }
 
+function getSenderOrigin(sender) {
+	try {
+		return new URL(sender.origin).origin;
+	} catch {
+		throw new PasskeyException(
+			"ORIGIN_NOT_SUPPORTED",
+			i18n.t("ORIGIN_NOT_SUPPORTED"),
+		);
+	}
+}
+
 /**
  * Checks whether a provided hostSuffixString is an allowed host suffix string for the originalHost
  *
@@ -416,9 +427,10 @@ function onNavigatorCredentialsGet(request, sender, sendResponse) {
 	async function asyncResponse() {
 		let credential;
 		try {
+			const origin = getSenderOrigin(sender);
 			credential = await navigatorCredentialsGet(
 				request.data.options,
-				request.data.origin,
+				origin,
 				request.data.eventId,
 			);
 		} catch (e) {
@@ -996,9 +1008,10 @@ function onNavigatorCredentialsCreate(request, sender, sendResponse) {
 	async function asyncResponse() {
 		let credential;
 		try {
+			const origin = getSenderOrigin(sender);
 			credential = await navigatorCredentialsCreate(
 				request.data.options,
-				request.data.origin,
+				origin,
 				request.data.eventId,
 			);
 		} catch (e) {
