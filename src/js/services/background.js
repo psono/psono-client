@@ -1765,12 +1765,28 @@ function onAuthRequired(details, callbackFn) {
 /**
  * Being fired once a content script wants to ask a user to approve iframe login
  *
- * @returns {Promise}
+ * @returns {boolean} Whether a response will be sent asynchronously
  */
 function approveIframeLogin(request, sender, sendResponse) {
+	let authority;
+	try {
+		const frameUrl = new URL(sender.origin ?? sender.url);
+		if (frameUrl.protocol === "http:" || frameUrl.protocol === "https:") {
+			// URL filters use host[:port] from the browser-provided frame identity.
+			authority = frameUrl.host;
+		}
+	} catch {
+		// Missing or opaque origins cannot identify an autofill destination.
+	}
+
+	if (!authority) {
+		sendResponse({ event: "approve-iframe-login-response", data: false });
+		return false;
+	}
+
 	notificationBarService.create(
 		i18n.t("APPROVE_IFRAME_LOGIN"),
-		i18n.t("APPROVE_IFRAME_LOGIN_DESCRIPTION", { origin: request.data.origin }),
+		i18n.t("APPROVE_IFRAME_LOGIN_DESCRIPTION", { origin: authority }),
 		[
 			{
 				title: i18n.t("ALLOW"),
@@ -1824,6 +1840,7 @@ function updateLastLoginCredentials() {
 const backgroundService = {
 	activate,
 	activateAfterStore,
+	approveIframeLogin,
 	getSearchWebsitePasswordsByUrlfilter,
 	oidcSamlRedirectDetected,
 };
