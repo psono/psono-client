@@ -17,7 +17,7 @@ import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import i18n from "./i18n";
 import datastoreSettingService from "./services/datastore-setting";
-import { initStore } from "./services/store";
+import { initLinkShareStore, initStore } from "./services/store";
 import { initSentry } from "./var/sentry";
 
 initSentry();
@@ -27,6 +27,10 @@ import NotificationSnackbar from "./components/notification-snackbar";
 import backgroundService from "./services/background";
 import browserClientService from "./services/browser-client";
 import IndexView from "./views/index";
+
+const isLinkSharePage = window.location.pathname.endsWith(
+	"/link-share-access.html",
+);
 
 const LazyThemeProvider = ({ children }) => {
 	const [theme, setTheme] = useState(null);
@@ -58,12 +62,14 @@ const LazyThemeProvider = ({ children }) => {
 	);
 };
 
-const channel = new BroadcastChannel("account");
-channel.onmessage = (event) => {
-	if (event.data?.event === "reinitialize-app") {
-		initAndRenderApp();
-	}
-};
+if (!isLinkSharePage) {
+	const channel = new BroadcastChannel("account");
+	channel.onmessage = (event) => {
+		if (event.data?.event === "reinitialize-app") {
+			initAndRenderApp();
+		}
+	};
+}
 
 /**
  * Loads the datastore
@@ -83,16 +89,27 @@ async function initAndRenderApp() {
 		backgroundService.activate();
 	}
 
-	const store = await initStore();
-	const persistor = persistStore(store, null, () => {
-		store.dispatch(loadSettingsDatastore);
-	});
+	const store = await (isLinkSharePage ? initLinkShareStore() : initStore());
+	const persistor = isLinkSharePage
+		? null
+		: persistStore(store, null, () => {
+				store.dispatch(loadSettingsDatastore);
+			});
+
+	const StateGate = ({ children }) =>
+		persistor ? (
+			<PersistGate loading={<HashLoader />} persistor={persistor}>
+				{children}
+			</PersistGate>
+		) : (
+			children
+		);
 
 	const App = () => (
 		<LocalizationProvider dateAdapter={AdapterDateFns}>
 			<Provider store={store}>
 				<Suspense fallback={<HashLoader />}>
-					<PersistGate loading={<HashLoader />} persistor={persistor}>
+					<StateGate>
 						<I18nextProvider i18n={i18n}>
 							<LazyThemeProvider>
 								<HashRouter history={customHistory} hashType="hashbang">
@@ -102,7 +119,7 @@ async function initAndRenderApp() {
 								</HashRouter>
 							</LazyThemeProvider>
 						</I18nextProvider>
-					</PersistGate>
+					</StateGate>
 				</Suspense>
 			</Provider>
 		</LocalizationProvider>

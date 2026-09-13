@@ -837,7 +837,7 @@ function downloadFileFromShard(file, shards, fileTransfer) {
 				});
 			});
 	} else {
-		downloadFileFromShardHelper(shards);
+		return downloadFileFromShardHelper(shards);
 	}
 }
 

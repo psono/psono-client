@@ -103,7 +103,8 @@ function readSecretWithLinkShare(encryptedSecret, item) {
 function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
 	return fileTransfer.downloadFile(
 		shareLinkData,
-		encryptedFileMeta["shards"],
+		// A share must not fall back to the account's cached file-server list.
+		encryptedFileMeta["shards"] || [],
 		encryptedFileMeta,
 	);
 }

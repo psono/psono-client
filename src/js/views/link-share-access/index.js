@@ -126,6 +126,7 @@ const LinkShareAccessView = (props) => {
 	}, []);
 
 	function initiateLinkShareAccess(serverUrl) {
+		// The standalone share page uses a private, non-persisted store.
 		action().setServerUrl(serverUrl);
 		action().setServerInfo({}, undefined);
 		const onError = () => {

@@ -2,7 +2,7 @@
  * Store service
  */
 
-import { applyMiddleware, combineReducers, compose, createStore } from "redux";
+import { applyMiddleware, compose, createStore } from "redux";
 import { createLogger } from "redux-logger";
 import { createMigrate, persistReducer } from "redux-persist";
 import {
@@ -202,6 +202,40 @@ export const initStore = async () => {
 		window.store = store;
 	}
 
+	return store;
+};
+
+/**
+ * Initializes the standalone link-share page with a private, anonymous store.
+ * Only host pins and client configuration are copied from the active account.
+ * There is deliberately no persistence or cross-tab state synchronization: a
+ * share's backend selection and host approvals must stay within this page.
+ */
+export const initLinkShareStore = async () => {
+	const initialState = rootReducer(undefined, { type: "@@INIT_LINK_SHARE" });
+	const accountId = await accountService.getCurrentId();
+	const persistedState = JSON.parse(
+		await storageService.findKey("state", `persist:${accountId}`),
+	);
+
+	if (persistedState?.persistent) {
+		const persistent = JSON.parse(persistedState.persistent);
+		for (const key of [
+			"knownHosts",
+			"remoteConfigWebClientUrl",
+			"remoteConfigJson",
+		]) {
+			if (Object.hasOwn(persistent, key)) {
+				initialState.persistent[key] = persistent[key];
+			}
+		}
+	}
+
+	store = createStore(
+		rootReducer,
+		initialState,
+		applyMiddleware(thunkMiddleware),
+	);
 	return store;
 };
 
