@@ -4,11 +4,13 @@ describe("Service: browser client test suite", () => {
 	const originalTarget = global.TARGET;
 	const originalBrowser = global.browser;
 	const originalChrome = global.chrome;
+	const originalUrl = window.location.href;
 
 	afterEach(() => {
 		global.TARGET = originalTarget;
 		global.browser = originalBrowser;
 		global.chrome = originalChrome;
+		window.history.replaceState({}, "", originalUrl);
 	});
 
 	it("sends Chrome messages only to the specified frame", () => {
@@ -67,6 +69,26 @@ describe("Service: browser client test suite", () => {
 		);
 		expect(browserClient.getOidcReturnToUrl("oidc-state")).toBe(
 			"https://psono.com/redirect#!/oidc/token/oidc-state/",
+		);
+	});
+
+	it.each([
+		["/index.html", "/index.html"],
+		["/psono/index.html", "/psono/index.html"],
+		["/psono/", "/psono/index.html"],
+		[
+			"/psono/index.html?next=https://other.example/path#!/login",
+			"/psono/index.html",
+		],
+	])("includes SSO state in web-client return URLs from %s", (page, callback) => {
+		global.TARGET = "webclient";
+		window.history.replaceState({}, "", page);
+
+		expect(browserClient.getSamlReturnToUrl("saml-state")).toBe(
+			`${window.location.origin}${callback}#!/saml/token/saml-state/`,
+		);
+		expect(browserClient.getOidcReturnToUrl("oidc-state")).toBe(
+			`${window.location.origin}${callback}#!/oidc/token/oidc-state/`,
 		);
 	});
 

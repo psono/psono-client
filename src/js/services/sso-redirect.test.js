@@ -60,6 +60,47 @@ describe("Service: SSO redirect test suite", () => {
 		).toBeNull();
 	});
 
+	it.each([
+		"https://vault.example",
+		"https://vault.example:8443",
+		"http://localhost:9000",
+	])("accepts the expected web-client callback at %s", async (origin) => {
+		const returnToUrl = `${origin}/psono/index.html#!/saml/token/`;
+		const url = `${returnToUrl}${state}/${tokenId}`;
+		await ssoRedirect.createPending("saml");
+
+		expect(ssoRedirect.parse(url)).toBeNull();
+		await expect(ssoRedirect.consume(url, returnToUrl)).resolves.toEqual({
+			type: "saml",
+			state,
+			tokenId,
+		});
+		await expect(ssoRedirect.consume(url, returnToUrl)).resolves.toBeNull();
+	});
+
+	it("rejects web callbacks outside the expected origin, path and protocol", async () => {
+		const returnToUrl = "https://vault.example/psono/index.html#!/saml/token/";
+		const fragment = `#!/saml/token/${state}/${tokenId}`;
+		await ssoRedirect.createPending("saml");
+
+		for (const url of [
+			`https://attacker.example/psono/index.html${fragment}`,
+			`https://vault.example.attacker.example/psono/index.html${fragment}`,
+			`http://vault.example/psono/index.html${fragment}`,
+			`https://vault.example:8443/psono/index.html${fragment}`,
+			`https://user@vault.example/psono/index.html${fragment}`,
+			`https://vault.example/index.html${fragment}`,
+			`https://vault.example/psono/index.html-attacker${fragment}`,
+			`https://vault.example/psono/index.html?next=attacker${fragment}`,
+			`https://vault.example/psono/index.html#!/oidc/token/${state}/${tokenId}`,
+			`https://vault.example/psono/index.html#!/saml/token/${tokenId}`,
+			`${returnToUrl}${state}/${tokenId}/extra`,
+		]) {
+			await expect(ssoRedirect.consume(url, returnToUrl)).resolves.toBeNull();
+		}
+		expect(database.removeItem).not.toHaveBeenCalled();
+	});
+
 	it("consumes a matching redirect only once", async () => {
 		await ssoRedirect.createPending("oidc");
 		const url = `https://psono.com/redirect#!/oidc/token/${state}/${tokenId}`;

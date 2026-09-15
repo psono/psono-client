@@ -233,6 +233,7 @@ const LoginForm = (props) => {
 					handleLogin(loginDetails);
 				},
 				(errors) => {
+					setLoginLoading(false);
 					setErrors(errors);
 				},
 			);
@@ -245,6 +246,7 @@ const LoginForm = (props) => {
 					handleLogin(loginDetails);
 				},
 				(errors) => {
+					setLoginLoading(false);
 					setErrors(errors);
 				},
 			);

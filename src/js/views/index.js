@@ -234,10 +234,20 @@ const IndexView = (props) => {
 		if (!isLoggedIn) {
 			return (
 				<Switch>
-					<Route path="/saml/token/:samlTokenId">
+					<Route
+						path={[
+							"/saml/token/:ssoState/:samlTokenId",
+							"/saml/token/:samlTokenId",
+						]}
+					>
 						<LoginView {...props} />
 					</Route>
-					<Route path="/oidc/token/:oidcTokenId">
+					<Route
+						path={[
+							"/oidc/token/:ssoState/:oidcTokenId",
+							"/oidc/token/:oidcTokenId",
+						]}
+					>
 						<LoginView {...props} />
 					</Route>
 					<Route path="/device/:deviceCode/:deviceCodeSecretBoxKey">

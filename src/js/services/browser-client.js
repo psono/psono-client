@@ -204,7 +204,7 @@ function openTab(url) {
 /**
  * cosntructs and returns the "return to" address for SAML
  *
- * @param {string} [state] State that binds an extension callback to its login initiation
+ * @param {string} [state] State that binds the callback to its login initiation
  * @returns {string}
  */
 function getSamlReturnToUrl(state) {
@@ -219,8 +219,9 @@ function getSamlReturnToUrl(state) {
 		return "https://psono.com/redirect#!/saml/token/";
 	} else {
 		return (
-			window.location.href.split("#")[0].split("/").slice(0, -1).join("/") +
-			"/index.html#!/saml/token/"
+			new URL("index.html", window.location.href).href +
+			"#!/saml/token/" +
+			statePath
 		);
 	}
 }
@@ -228,7 +229,7 @@ function getSamlReturnToUrl(state) {
 /**
  * cosntructs and returns the "return to" address for OIDC
  *
- * @param {string} [state] State that binds an extension callback to its login initiation
+ * @param {string} [state] State that binds the callback to its login initiation
  * @returns {string}
  */
 function getOidcReturnToUrl(state) {
@@ -243,8 +244,9 @@ function getOidcReturnToUrl(state) {
 		return "https://psono.com/redirect#!/oidc/token/";
 	} else {
 		return (
-			window.location.href.split("#")[0].split("/").slice(0, -1).join("/") +
-			"/index.html#!/oidc/token/"
+			new URL("index.html", window.location.href).href +
+			"#!/oidc/token/" +
+			statePath
 		);
 	}
 }

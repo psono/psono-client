@@ -81,6 +81,27 @@ function initiateLogin(
 }
 
 /**
+ * Web callbacks arrive directly at the login page, so validate their pending
+ * state before exchanging the token. Extensions validate in the background.
+ */
+async function validateWebClientSsoRedirect(type, tokenId) {
+	if (browserClient.getClientType() !== "webclient") {
+		return;
+	}
+
+	const returnToUrl =
+		type === "saml"
+			? browserClient.getSamlReturnToUrl()
+			: browserClient.getOidcReturnToUrl();
+	const redirect = await ssoRedirect
+		.consume(window.location.href, returnToUrl)
+		.catch(() => null);
+	if (!redirect || redirect.type !== type || redirect.tokenId !== tokenId) {
+		return Promise.reject(["AUTHENTICATION_FAILED"]);
+	}
+}
+
+/**
  * Triggered once someone comes back from a redirect to a index.html#!/saml/token/... url
  * Will try to use the token to authenticate and login
  *
@@ -88,7 +109,9 @@ function initiateLogin(
  *
  * @returns {Promise}
  */
-function samlLogin(samlTokenId) {
+async function samlLogin(samlTokenId) {
+	await validateWebClientSsoRedirect("saml", samlTokenId);
+
 	const serverPublicKey = getStore().getState().server.publicKey;
 	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 	const password = "";
@@ -165,14 +188,7 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getSamlRedirectUrl(providerId) {
-	const clientType = browserClient.getClientType();
-	const statePromise = ["chrome_extension", "firefox_extension"].includes(
-		clientType,
-	)
-		? ssoRedirect.createPending("saml")
-		: Promise.resolve(undefined);
-
-	return statePromise.then((state) => {
+	return ssoRedirect.createPending("saml").then((state) => {
 		const returnToUrl = browserClient.getSamlReturnToUrl(state);
 		return apiClient
 			.samlInitiateLogin(providerId, returnToUrl)
@@ -190,7 +206,9 @@ function getSamlRedirectUrl(providerId) {
  *
  * @returns {Promise}
  */
-function oidcLogin(oidcTokenId) {
+async function oidcLogin(oidcTokenId) {
+	await validateWebClientSsoRedirect("oidc", oidcTokenId);
+
 	const serverPublicKey = getStore().getState().server.publicKey;
 	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 	const password = "";
@@ -267,14 +285,7 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
  * @returns {Promise}
  */
 function getOidcRedirectUrl(providerId) {
-	const clientType = browserClient.getClientType();
-	const statePromise = ["chrome_extension", "firefox_extension"].includes(
-		clientType,
-	)
-		? ssoRedirect.createPending("oidc")
-		: Promise.resolve(undefined);
-
-	return statePromise.then((state) => {
+	return ssoRedirect.createPending("oidc").then((state) => {
 		const returnToUrl = browserClient.getOidcReturnToUrl(state);
 		return apiClient
 			.oidcInitiateLogin(providerId, returnToUrl)

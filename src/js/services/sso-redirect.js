@@ -45,18 +45,24 @@ async function createPending(type) {
 	return state;
 }
 
-function parse(url) {
+function parse(url, returnToUrl = "https://psono.com/redirect") {
 	let parsedUrl;
+	let expectedUrl;
 	try {
 		parsedUrl = new URL(url);
+		expectedUrl = new URL(returnToUrl);
 	} catch {
 		return null;
 	}
 
 	if (
-		parsedUrl.origin !== "https://psono.com" ||
-		parsedUrl.pathname !== "/redirect" ||
-		parsedUrl.search !== ""
+		!["http:", "https:"].includes(expectedUrl.protocol) ||
+		parsedUrl.origin !== expectedUrl.origin ||
+		parsedUrl.pathname !== expectedUrl.pathname ||
+		parsedUrl.username !== "" ||
+		parsedUrl.password !== "" ||
+		parsedUrl.search !== "" ||
+		!parsedUrl.hash.startsWith(expectedUrl.hash)
 	) {
 		return null;
 	}
@@ -73,8 +79,8 @@ function parse(url) {
 	};
 }
 
-async function consume(url) {
-	const redirect = parse(url);
+async function consume(url, returnToUrl) {
+	const redirect = parse(url, returnToUrl);
 	if (!redirect || consumingStates.has(redirect.state)) {
 		return null;
 	}
