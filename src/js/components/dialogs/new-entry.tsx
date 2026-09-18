@@ -232,6 +232,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 	const [totpDigits, setTotpDigits] = useState(6);
 	const [totpCode, setTotpCode] = useState("");
 	const [totpNotes, setTotpNotes] = useState("");
+	const [totpUrlFilter, setTotpUrlFilter] = useState("");
 
 	const [environmentVariablesTitle, setEnvironmentVariablesTitle] =
 		useState("");
@@ -914,6 +915,10 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 			}
 			if (totpNotes) {
 				secretObject["totp_notes"] = totpNotes;
+			}
+			if (totpUrlFilter) {
+				item["urlfilter"] = totpUrlFilter;
+				secretObject["totp_url_filter"] = totpUrlFilter;
 			}
 		}
 
@@ -3341,6 +3346,25 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 									value={bookmarkUrlFilter}
 									onChange={(event) => {
 										setBookmarkUrlFilter(event.target.value);
+									}}
+								/>
+							</Grid>
+						)}
+						{type === "totp" && showAdvanced && (
+							<Grid item xs={12} sm={12} md={12}>
+								<TextField
+									className={classes.textField}
+									variant="outlined"
+									margin="dense"
+									size="small"
+									id="totpUrlFilter"
+									label={t("DOMAIN_FILTER")}
+									helperText={t("URL_FILTER_EG")}
+									name="totpUrlFilter"
+									autoComplete="off"
+									value={totpUrlFilter}
+									onChange={(event) => {
+										setTotpUrlFilter(event.target.value);
 									}}
 								/>
 							</Grid>

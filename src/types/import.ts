@@ -22,7 +22,7 @@ type TextFields =
 	| `application_password_${"title" | "username" | "password" | "notes"}`
 	| `bookmark_${"title" | "url" | "notes" | "url_filter"}`
 	| `note_${"title" | "notes"}`
-	| `totp_${"title" | "notes" | "code" | "algorithm"}`
+	| `totp_${"title" | "notes" | "code" | "algorithm" | "url_filter"}`
 	| `credit_card_${
 			| "title"
 			| "number"

@@ -87,6 +87,7 @@ export interface SecretContent {
 	totp_algorithm?: string;
 	totp_digits?: number;
 	totp_notes?: string;
+	totp_url_filter?: string;
 	note_title?: string;
 	note_notes?: string;
 	environment_variables_title?: string;

@@ -278,6 +278,7 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	const [totpDigits, setTotpDigits] = useState(6);
 	const [totpCode, setTotpCode] = useState("");
 	const [totpNotes, setTotpNotes] = useState("");
+	const [totpUrlFilter, setTotpUrlFilter] = useState("");
 
 	const [environmentVariablesTitle, setEnvironmentVariablesTitle] =
 		useState("");
@@ -833,6 +834,9 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			} else {
 				setTotpNotes("");
 			}
+			// Older clients may have retained only the datastore filter. An
+			// explicitly empty secret field must still clear that association.
+			setTotpUrlFilter(data["totp_url_filter"] ?? item.urlfilter ?? "");
 
 			// environment variables
 			if (Object.hasOwn(data, "environment_variables_title")) {
@@ -1266,6 +1270,12 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			}
 			if (totpNotes) {
 				secretObject["totp_notes"] = totpNotes;
+			}
+			if (totpUrlFilter) {
+				item["urlfilter"] = totpUrlFilter;
+				secretObject["totp_url_filter"] = totpUrlFilter;
+			} else {
+				delete item["urlfilter"];
 			}
 		}
 
@@ -4267,6 +4277,27 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 						onChange={(event) => {
 							setDirty(true);
 							setBookmarkUrlFilter(event.target.value);
+						}}
+					/>
+				</Grid>
+			)}
+			{item.type === "totp" && showAdvanced && (
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="totpUrlFilter"
+						label={t("DOMAIN_FILTER")}
+						helperText={t("URL_FILTER_EG")}
+						name="totpUrlFilter"
+						autoComplete="off"
+						value={totpUrlFilter}
+						InputProps={{ readOnly: readOnly }}
+						onChange={(event) => {
+							setDirty(true);
+							setTotpUrlFilter(event.target.value);
 						}}
 					/>
 				</Grid>

@@ -66,6 +66,17 @@ function validate_secrets(secrets: ImportedSecret[]) {
 			secret.urlfilter ||= parsedUrl.authority || "";
 			secret.bookmark_url_filter ||= parsedUrl.authority || "";
 		}
+		if (secret.type === "totp") {
+			const urlFilter = secret.totp_url_filter ?? secret.urlfilter;
+			if (urlFilter !== undefined) {
+				secret.totp_url_filter = urlFilter;
+				if (urlFilter) {
+					secret.urlfilter = urlFilter;
+				} else {
+					delete secret.urlfilter;
+				}
+			}
+		}
 	}
 }
 

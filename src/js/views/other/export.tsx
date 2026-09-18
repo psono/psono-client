@@ -146,6 +146,7 @@ const OtherExportView = (_props: ManagementViewProps) => {
 		{ key: "totp_algorithm", label: t("ALGORITHM") },
 		{ key: "totp_digits", label: t("DIGITS") },
 		{ key: "totp_code", label: t("TOTP_CODE") },
+		{ key: "totp_url_filter", label: t("TOTP") + " " + t("DOMAIN_FILTER") },
 		{ key: "note_title", label: t("TITLE") },
 		{ key: "note_notes", label: t("NOTES") },
 		{ key: "environment_variables_title", label: t("TITLE") },

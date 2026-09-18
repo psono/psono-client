@@ -1,5 +1,40 @@
 import exportService from "./export";
 import { KdbxEntry, KdbxGroup, ProtectedValue } from "kdbxweb";
+import Papa from "papaparse";
+import importPsonoJson from "./import-psono-json";
+import { initStore } from "./store";
+
+describe("Service: exportService - TOTP domain filters", () => {
+	const entry = {
+		type: "totp",
+		name: "Example account",
+		totp_title: "Example account",
+		totp_code: "JBSWY3DPEHPK3PXP",
+		totp_url_filter: "example.com, login.example.org",
+		urlfilter: "example.com, login.example.org",
+	};
+	it("includes the standalone filter in CSV exports and column selection", async () => {
+		const csv = await exportService.composeExport({ items: [entry] }, "csv");
+		const rows = Papa.parse<Record<string, string>>(csv, { header: true });
+		expect(rows.data[0].totp_url_filter).toBe(entry.totp_url_filter);
+		const selected = await exportService.composeExport(
+			{ items: [entry] },
+			"csv",
+			undefined,
+			["totp_url_filter"],
+		);
+		expect(Papa.parse(selected, { header: true }).data).toEqual([
+			{ totp_url_filter: entry.totp_url_filter },
+		]);
+	});
+	it("round-trips both domain-filter fields through native JSON export and import", async () => {
+		await initStore();
+		const json = await exportService.composeExport({ items: [entry] }, "json");
+		const restored = importPsonoJson.parser(json);
+		expect(restored?.secrets[0]).toMatchObject(entry);
+		expect(restored?.datastore.items?.[0].urlfilter).toBe(entry.urlfilter);
+	});
+});
 
 describe("Service: exportService - connection entries", () => {
 	it("exports embedded SSH, RDP, and VNC fields to CSV", async () => {

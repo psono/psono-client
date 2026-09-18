@@ -3,6 +3,36 @@ import importPsonoJson from "./import-psono-json";
 import { initStore } from "./store";
 
 describe("Service: importPsonoJson test suite", () => {
+	it.each([
+		[{ totp_url_filter: "example.com" }, "example.com"],
+		[{ urlfilter: "legacy.example.com" }, "legacy.example.com"],
+		[
+			{ totp_url_filter: "new.example.com", urlfilter: "old.example.com" },
+			"new.example.com",
+		],
+		[{ totp_url_filter: "", urlfilter: "old.example.com" }, ""],
+		[{}, undefined],
+	])("preserves TOTP domain associations on native import: %p", async (fields, expectedFilter) => {
+		await initStore();
+		const output = importPsonoJson.parser(
+			JSON.stringify({
+				items: [
+					{
+						type: "totp",
+						name: "Account",
+						totp_title: "Account",
+						totp_code: "JBSWY3DPEHPK3PXP",
+						...fields,
+					},
+				],
+			}),
+		);
+		if (!output) throw new Error("Expected a successful import");
+		expect(output.secrets[0].totp_url_filter).toBe(expectedFilter);
+		expect(output.secrets[0].urlfilter).toBe(expectedFilter || undefined);
+		expect(output.datastore.items![0]).toBe(output.secrets[0]);
+	});
+
 	it("importPsonoJson exists", () => {
 		expect(importPsonoJson).toBeDefined();
 	});

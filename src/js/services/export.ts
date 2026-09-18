@@ -686,6 +686,7 @@ async function composeExport(
 				totp_algorithm: "totp_algorithm",
 				totp_digits: "totp_digits",
 				totp_code: "totp_code",
+				totp_url_filter: "totp_url_filter",
 
 				note_title: "note_title",
 				note_notes: "note_notes",
