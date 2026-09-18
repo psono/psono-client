@@ -16,8 +16,8 @@ module.exports = () => {
   //merge(firefox, developConfig),
   const config= merge(webclient, developConfig)
   config['entry'] = {
-    'js/bundle.min.js': './src/js/index.js',
-    'js/crypto-worker.js': './src/js/crypto-worker.js',
+    'js/bundle.min.js': './src/js/index.tsx',
+    'js/crypto-worker.js': './src/js/crypto-worker.ts',
   }
   return config
 };

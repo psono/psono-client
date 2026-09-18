@@ -45,6 +45,7 @@ test-unittests:
   image: ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
+    - npm run typecheck
     - npm run test
 #    - DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends xvfb x11vnc fluxbox xterm chromium-browser
 #    - curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -

@@ -1,0 +1,176 @@
+/**
+ * Service that is something like the base class for adf widgets
+ */
+
+import action from "../actions/bound-action-creators";
+import apiClient from "./api-client";
+import datastoreService from "./datastore";
+import groupsService from "./groups";
+import offlineCache from "./offline-cache";
+import storage from "./storage";
+import { getStore, isStoreInitialized } from "./store";
+
+export interface ServerStatus {
+	data: {
+		// The server can add counters independently of the client version.
+		[counter: string]: unknown;
+		unaccepted_forced_groups_count?: number;
+	};
+	valid_till?: number;
+}
+
+const validTill = 300000; // in ms, 300000 = 300s = 5min
+const intervalTime = 30000; // in ms, 30000 = 30s
+let autoAcceptForcedMembershipsInProgress = false;
+
+activate();
+
+function activate() {
+	setInterval(getStatus, intervalTime);
+}
+
+async function autoAcceptForcedMemberships() {
+	if (autoAcceptForcedMembershipsInProgress) {
+		return;
+	}
+	autoAcceptForcedMembershipsInProgress = true;
+
+	try {
+		const overview = (await datastoreService.getDatastoreOverview())!;
+		const datastores = [];
+		for (let i = 0; i < overview.datastores.length; i++) {
+			if (overview.datastores[i]["type"] === "password") {
+				datastores.push(overview.datastores[i]);
+			}
+		}
+
+		if (datastores.length !== 1) {
+			return;
+		}
+
+		let groups;
+		try {
+			groups = await groupsService.readGroups(true);
+		} catch (e) {
+			//pass
+			console.log(e);
+			return;
+		}
+
+		const forcedMembershipIds = [];
+		for (const group of groups!) {
+			if (!group.forced_membership) {
+				continue;
+			}
+			forcedMembershipIds.push(group.membership_id);
+		}
+
+		if (forcedMembershipIds.length < 1) {
+			return;
+		}
+
+		try {
+			await groupsService.acceptMembershipsAndShares(forcedMembershipIds, []);
+			await getStatus(true);
+		} catch (e) {
+			console.log(e);
+		}
+	} finally {
+		autoAcceptForcedMembershipsInProgress = false;
+	}
+}
+
+/**
+ * Queries the server for the current status of the user if the local cached status is outdated.
+ *
+ * @param {boolean} [forceFresh] Whether a fresh result should be fetched or a cache will do fine
+ *
+ * @returns {Promise} Returns a promise with the current status
+ */
+function getStatus(forceFresh?: boolean): Promise<ServerStatus | void> {
+	if (!isStoreInitialized()) {
+		return Promise.resolve({
+			data: {},
+		});
+	}
+
+	const isLoggedIn = getStore().getState().user.isLoggedIn;
+	const isOffline = offlineCache.isActive();
+
+	if (!isLoggedIn) {
+		return Promise.resolve({
+			data: {},
+		});
+	}
+
+	if (isOffline) {
+		return Promise.resolve({
+			data: {},
+		});
+	}
+
+	const cachedStatus = storage.findKey<{
+		key: string;
+		value?: ServerStatus;
+	}>("various", "server-status");
+	return cachedStatus.then<ServerStatus | void>((oldServerStatus) => {
+		const token = getStore().getState().user.token;
+		const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+		const now = new Date();
+		const timestamp = now.getTime();
+		const serverStatusOutdated =
+			(typeof forceFresh !== "undefined" && forceFresh === true) ||
+			oldServerStatus === null ||
+			!oldServerStatus.value ||
+			oldServerStatus.value.valid_till! < timestamp;
+		const serverStatusInStateOutdated =
+			!serverStatusOutdated &&
+			(!(getStore().getState().server.status as ServerStatus).valid_till ||
+				(getStore().getState().server.status as ServerStatus).valid_till !==
+					oldServerStatus!.value!.valid_till);
+
+		if (!serverStatusOutdated) {
+			if (serverStatusInStateOutdated) {
+				action().setServerStatus(oldServerStatus!.value!);
+			}
+
+			return Promise.resolve(oldServerStatus!.value!);
+		}
+
+		const onError = () => {
+			// pass
+		};
+
+		const onSuccess = (response: unknown) => {
+			const content = response as { data: ServerStatus["data"] };
+			const newServerStatus = {
+				data: content.data,
+				valid_till: timestamp + validTill - 10,
+			};
+
+			action().setServerStatus(newServerStatus);
+			storage.upsert("various", {
+				key: "server-status",
+				value: newServerStatus,
+			});
+
+			if (
+				Object.hasOwn(content.data, "unaccepted_forced_groups_count") &&
+				content.data.unaccepted_forced_groups_count! > 0
+			) {
+				autoAcceptForcedMemberships();
+			}
+
+			return newServerStatus;
+		};
+
+		return apiClient
+			.readStatus(token, sessionSecretKey)
+			.then(onSuccess, onError);
+	});
+}
+
+const statusService = {
+	getStatus: getStatus,
+};
+export default statusService;

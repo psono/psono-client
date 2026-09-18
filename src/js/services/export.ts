@@ -1,0 +1,1002 @@
+/**
+ * Service to manage the export of datastores
+ */
+
+import converterService from "./converter";
+import cryptoLibraryService from "./crypto-library";
+import datastorePasswordService from "./datastore-password";
+import helperService from "./helper";
+import secretService from "./secret";
+
+import Papa from "papaparse";
+import type { Kdbx, KdbxGroup } from "kdbxweb";
+import type {
+	ExportFolder,
+	ExportItem,
+	ExportOutput,
+} from "../../types/import";
+
+const _exporter: { name: string; value: string }[] = [];
+
+const registrations: Record<string, ((data: unknown) => void)[]> = {};
+
+/**
+ * used to register functions for specific events
+ *
+ * @param {string} event The event to subscribe to
+ * @param {function} func The callback function to subscribe
+ */
+function on(event: string, func: (data: unknown) => void) {
+	if (!Object.hasOwn(registrations, event)) {
+		registrations[event] = [];
+	}
+
+	registrations[event].push(func);
+}
+
+/**
+ * sends an event message to the export service
+ *
+ * @param {string} event The event to trigger
+ * @param {*} data The payload data to send to the subscribed callback functions
+ */
+function emit(event: string, data: unknown) {
+	if (!Object.hasOwn(registrations, event)) {
+		return;
+	}
+	for (let i = registrations[event].length - 1; i >= 0; i--) {
+		registrations[event][i](data);
+	}
+}
+
+/**
+ * Handles the download of the actual export.json
+ *
+ * @param {string} data The data to download
+ * @param {string} type The selected type of the export
+ * @param {string} isEncrypted Whether the datastore is encrypted or not
+ */
+function downloadExport(
+	data: string | ArrayBuffer | ExportFolder,
+	type: string,
+	isEncrypted: boolean,
+) {
+	let file_name = "export.json";
+	let data_type = "data:attachment/json,";
+	let href = "";
+	if (type === "json" && typeof data === "string") {
+		file_name = "export.json";
+		data_type = "data:attachment/json,";
+		if (isEncrypted) {
+			file_name = file_name + ".encrypted";
+		}
+		href = data_type + encodeURI(data).replace(/#/g, "%23");
+	}
+	if (type === "csv" && typeof data === "string") {
+		file_name = "export.csv";
+		data_type = "data:attachment/csv,";
+		href = data_type + encodeURI(data).replace(/#/g, "%23");
+	}
+	if (type === "kdbxv4" && data instanceof ArrayBuffer) {
+		file_name = "export.kdbx";
+		data_type = "application/octet-stream";
+		const blob = new Blob([data], { type: data_type });
+		href = URL.createObjectURL(blob);
+	}
+
+	const a = document.createElement("a");
+
+	a.href = href;
+
+	a.target = "_blank";
+	a.download = file_name;
+	a.click();
+}
+
+/**
+ * Filters the datastore export to reduce the size and remove unnecessary elements
+ *
+ * @param {object} folder The folder to filter
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
+ *
+ * @returns {*} filtered folder
+ */
+function filterDatastoreExport(
+	folder: ExportFolder,
+	includeTrashBinItems: boolean,
+	includeSharedItems: boolean,
+) {
+	let i;
+	let p;
+
+	const unwanted_folder_properties = [
+		"id",
+		"datastore_id",
+		"is_folder",
+		"parent_datastore_id",
+		"share_index",
+		"parent_share_id",
+		"share_id",
+		"path",
+		"share_rights",
+		"share_secret_key",
+	] as const;
+
+	const unwanted_item_properties = [
+		"id",
+		"datastore_id",
+		"is_folder",
+		"parent_datastore_id",
+		"parent_share_id",
+		"secret_key",
+		"share_id",
+		"path",
+		"share_rights",
+		"share_secret_key",
+	] as const;
+
+	// filter out unwanted folder properties
+	for (p = 0; p < unwanted_folder_properties.length; p++) {
+		if (Object.hasOwn(folder, unwanted_folder_properties[p])) {
+			delete folder[unwanted_folder_properties[p]];
+		}
+	}
+
+	// Delete items that have been marked as deleted if includeTrashBinItems is not set
+	if (folder.items) {
+		// deleted file entries
+		for (i = folder["items"].length - 1; i >= 0; i--) {
+			if (
+				Object.hasOwn(folder["items"][i], "type") &&
+				folder["items"][i]["type"] === "file"
+			) {
+				folder["items"].splice(i, 1);
+			}
+		}
+		if (!includeTrashBinItems) {
+			for (i = folder["items"].length - 1; i >= 0; i--) {
+				if (
+					Object.hasOwn(folder["items"][i], "deleted") &&
+					folder["items"][i]["deleted"]
+				) {
+					folder["items"].splice(i, 1);
+				}
+			}
+		}
+		if (!includeSharedItems) {
+			for (i = folder["items"].length - 1; i >= 0; i--) {
+				if (Object.hasOwn(folder["items"][i], "share_id")) {
+					folder["items"].splice(i, 1);
+				}
+			}
+		}
+	}
+
+	// Delete folder attribute if its empty
+	if (folder.items) {
+		if (folder["items"].length === 0) {
+			delete folder["items"];
+		}
+	}
+
+	// filter out unwanted item properties
+	if (folder.items) {
+		for (p = 0; p < unwanted_item_properties.length; p++) {
+			for (i = folder["items"].length - 1; i >= 0; i--) {
+				if (Object.hasOwn(folder["items"][i], unwanted_item_properties[p])) {
+					delete folder["items"][i][unwanted_item_properties[p]];
+				}
+			}
+		}
+	}
+
+	// Delete folders that have been marked as deleted if includeTrashBinItems is not set
+	if (folder.folders) {
+		if (!includeTrashBinItems) {
+			for (i = folder["folders"].length - 1; i >= 0; i--) {
+				if (
+					Object.hasOwn(folder["folders"][i], "deleted") &&
+					folder["folders"][i]["deleted"]
+				) {
+					folder["folders"].splice(i, 1);
+				}
+			}
+		}
+		if (!includeSharedItems) {
+			for (i = folder["folders"].length - 1; i >= 0; i--) {
+				if (Object.hasOwn(folder["folders"][i], "share_id")) {
+					folder["folders"].splice(i, 1);
+				}
+			}
+		}
+	}
+
+	// Delete folder attribute if its empty
+	if (folder.folders) {
+		if (folder["folders"].length === 0) {
+			delete folder["folders"];
+		}
+	}
+
+	// filter folders recursive
+	if (folder.folders) {
+		for (i = folder["folders"].length - 1; i >= 0; i--) {
+			folder["folders"][i] = filterDatastoreExport(
+				folder["folders"][i],
+				includeTrashBinItems,
+				includeSharedItems,
+			);
+		}
+	}
+
+	return folder;
+}
+
+function addConnectionKdbxEntry(
+	db: Pick<Kdbx, "createEntry">,
+	kdbxweb: Pick<typeof import("kdbxweb"), "ProtectedValue">,
+	group: KdbxGroup,
+	item: ExportItem,
+) {
+	const entry = db.createEntry(group);
+	if (item.type === "ssh_connection") {
+		entry.fields.set("Title", item.ssh_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.ssh_connection_host || "");
+		entry.fields.set("Port", String(item.ssh_connection_port || ""));
+		entry.fields.set(
+			"Authentication Type",
+			item.ssh_connection_authentication_type || "",
+		);
+		entry.fields.set("UserName", item.ssh_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.ssh_connection_password || ""),
+		);
+		entry.fields.set(
+			"Private Key",
+			kdbxweb.ProtectedValue.fromString(item.ssh_connection_private_key || ""),
+		);
+		entry.fields.set("Notes", item.ssh_connection_notes || "");
+	} else if (item.type === "rdp_connection") {
+		entry.fields.set("Title", item.rdp_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.rdp_connection_host || "");
+		entry.fields.set("Port", String(item.rdp_connection_port || ""));
+		entry.fields.set("Domain", item.rdp_connection_domain || "");
+		entry.fields.set(
+			"Ignore Certificate Validation",
+			item.rdp_connection_ignore_certificate ? "true" : "false",
+		);
+		entry.fields.set(
+			"Resize Method",
+			item.rdp_connection_resize_method ?? "display-update",
+		);
+		entry.fields.set(
+			"Remote Keyboard Layout",
+			item.rdp_connection_server_layout || "en-us-qwerty",
+		);
+		entry.fields.set("UserName", item.rdp_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.rdp_connection_password || ""),
+		);
+		entry.fields.set("Notes", item.rdp_connection_notes || "");
+	} else {
+		entry.fields.set("Title", item.vnc_connection_title || "Unnamed Entry");
+		entry.fields.set("Host", item.vnc_connection_host || "");
+		entry.fields.set("Port", String(item.vnc_connection_port || ""));
+		entry.fields.set("UserName", item.vnc_connection_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.vnc_connection_password || ""),
+		);
+		entry.fields.set("Notes", item.vnc_connection_notes || "");
+	}
+	return entry;
+}
+
+/**
+ * Converts Psono data structure to kdbx
+ *
+ * @param {object} passwordData The datastore data to compose
+ * @param {string} [password] An optional password
+ *
+ * @returns {*} filtered folder
+ */
+async function exportToKdbxv4(
+	passwordData: ExportFolder,
+	password = "",
+): Promise<ArrayBuffer> {
+	const kdbxweb = await import("kdbxweb");
+	const { argon2d, argon2id } = await import("@noble/hashes/argon2");
+
+	kdbxweb.CryptoEngine.setArgon2Impl(
+		(password, salt, memory, iterations, length, parallelism, type, version) =>
+			new Promise((resolve, reject) => {
+				const fnc = type === 0 ? argon2d : argon2id;
+				try {
+					const bytes = fnc(new Uint8Array(password), new Uint8Array(salt), {
+						t: iterations,
+						m: memory,
+						p: parallelism,
+						dkLen: length,
+						version,
+					});
+					resolve(new Uint8Array(bytes).buffer);
+				} catch (error) {
+					reject(error);
+				}
+			}),
+	);
+
+	const credentials = new kdbxweb.Credentials(
+		kdbxweb.ProtectedValue.fromString(password),
+	);
+
+	const db = kdbxweb.Kdbx.create(credentials, "Exported Passwords");
+	//db.setVersion(3);
+
+	const rootGroup = db.getDefaultGroup();
+	rootGroup.name = "Exported Passwords";
+
+	function addWebsitePasswordEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.website_password_title || "Unnamed Entry");
+		entry.fields.set("URL", item.website_password_url || "");
+		entry.fields.set("UserName", item.website_password_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(item.website_password_password || ""),
+		);
+		entry.fields.set("Notes", item.website_password_notes || "");
+
+		if (item.website_password_totp_code) {
+			const parsedUrl = helperService.parseUrl(item.website_password_url || "");
+			const otp =
+				"otpauth://totp/" +
+				parsedUrl["full_domain_without_www"] +
+				":" +
+				(item.website_password_username || "") +
+				"?secret=" +
+				item.website_password_totp_code +
+				"&period=" +
+				item.website_password_totp_period +
+				"&digits=" +
+				item.website_password_totp_digits +
+				"&algorithm=" +
+				item.website_password_totp_algorithm;
+			entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+			if (item.website_password_totp_algorithm === "SHA1") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-1");
+			}
+			if (item.website_password_totp_algorithm === "SHA256") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-256");
+			}
+			if (item.website_password_totp_algorithm === "SHA512") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-512");
+			}
+			entry.fields.set(
+				"TimeOtp-Length",
+				String(item.website_password_totp_digits ?? ""),
+			);
+			entry.fields.set(
+				"TimeOtp-Period",
+				String(item.website_password_totp_period ?? ""),
+			);
+			entry.fields.set(
+				"TimeOtp-Secret-Base32",
+				kdbxweb.ProtectedValue.fromString(item.website_password_totp_code),
+			);
+		}
+	}
+
+	function addTotpEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.totp_title || "Unnamed Entry");
+		entry.fields.set("Notes", item.totp_notes || "");
+
+		if (item.totp_code) {
+			const otp =
+				"otpauth://totp/" +
+				//item.totp_title +
+				"?secret=" +
+				item.totp_code +
+				"&period=" +
+				item.totp_period +
+				"&digits=" +
+				item.totp_digits +
+				"&algorithm=" +
+				item.totp_algorithm;
+			entry.fields.set("otp", kdbxweb.ProtectedValue.fromString(otp));
+			if (item.totp_algorithm === "SHA1") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-1");
+			}
+			if (item.totp_algorithm === "SHA256") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-256");
+			}
+			if (item.totp_algorithm === "SHA512") {
+				entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-512");
+			}
+			entry.fields.set("TimeOtp-Length", String(item.totp_digits ?? ""));
+			entry.fields.set("TimeOtp-Period", String(item.totp_period ?? ""));
+			entry.fields.set(
+				"TimeOtp-Secret-Base32",
+				kdbxweb.ProtectedValue.fromString(item.totp_code),
+			);
+		}
+	}
+
+	function addApplicationPasswordEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set(
+			"Title",
+			item.application_password_title || "Unnamed Entry",
+		);
+		entry.fields.set("UserName", item.application_password_username || "");
+		entry.fields.set(
+			"Password",
+			kdbxweb.ProtectedValue.fromString(
+				item.application_password_password || "",
+			),
+		);
+		entry.fields.set("Notes", item.application_password_notes || "");
+	}
+
+	function addBookmarkEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.bookmark_title || "Unnamed Entry");
+		entry.fields.set("URL", item.bookmark_url || "");
+		entry.fields.set("Notes", item.bookmark_notes || "");
+	}
+
+	function addNoteEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.note_title || "Unnamed Entry");
+		entry.fields.set("Notes", item.note_notes || "");
+	}
+
+	function addCreditCardEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.credit_card_title || "Unnamed Entry");
+		entry.fields.set("Number", item.credit_card_number || "");
+		entry.fields.set("CVC", item.credit_card_cvc || "");
+		entry.fields.set("PIN", item.credit_card_pin || "");
+		entry.fields.set("Name", item.credit_card_name || "");
+		entry.fields.set("Valid Through", item.credit_card_valid_through || "");
+		entry.fields.set("Notes", item.credit_card_notes || "");
+	}
+
+	function addMailGPGOwnKeyEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.mail_gpg_own_key_title || "Unnamed Entry");
+		entry.fields.set("Name", item.mail_gpg_own_key_name || "");
+		entry.fields.set("Email", item.mail_gpg_own_key_email || "");
+		entry.fields.set("Public Key", item.mail_gpg_own_key_public || "");
+		entry.fields.set("Private Key", item.mail_gpg_own_key_private || "");
+	}
+
+	function addSshOwnKeyEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.ssh_own_key_title || "Unnamed Entry");
+		entry.fields.set("Public Key", item.ssh_own_key_public || "");
+		entry.fields.set("Private Key", item.ssh_own_key_private || "");
+		entry.fields.set("Notes", item.ssh_own_key_notes || "");
+	}
+
+	function addElsterCertificateEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		entry.fields.set("Title", item.elster_certificate_title || "Unnamed Entry");
+		entry.fields.set("Password", item.elster_certificate_password || "");
+		entry.fields.set(
+			"Retrieval Code",
+			item.elster_certificate_retrieval_code || "",
+		);
+		entry.fields.set("Notes", item.elster_certificate_notes || "");
+
+		entry.binaries.set(
+			"elster.pfx",
+			converterService.fromHex(item.elster_certificate_file_content || "")
+				.buffer,
+		);
+	}
+
+	function addEnvironmentvariablesEntry(group: KdbxGroup, item: ExportItem) {
+		const entry = db.createEntry(group);
+		if (Object.hasOwn(item, "environment_variables_title")) {
+			entry.fields.set(
+				"Title",
+				item.environment_variables_title || "Unnamed Entry",
+			);
+		}
+		if (Object.hasOwn(item, "environment_variables_notes")) {
+			entry.fields.set("Notes", item.environment_variables_notes || "");
+		}
+		if (item.environment_variables_variables) {
+			item.environment_variables_variables.forEach((ev) => {
+				entry.fields.set("EV:" + ev.key, ev.value);
+			});
+		}
+	}
+
+	function processItem(group: KdbxGroup, item: ExportItem) {
+		if (item.type === "application_password") {
+			addApplicationPasswordEntry(group, item);
+		}
+		if (item.type === "ssh_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
+		if (item.type === "rdp_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
+		if (item.type === "vnc_connection") {
+			addConnectionKdbxEntry(db, kdbxweb, group, item);
+		}
+		if (item.type === "bookmark") {
+			addBookmarkEntry(group, item);
+		}
+		if (item.type === "credit_card") {
+			addCreditCardEntry(group, item);
+		}
+		if (item.type === "mail_gpg_own_key") {
+			addMailGPGOwnKeyEntry(group, item);
+		}
+		if (item.type === "ssh_own_key") {
+			addSshOwnKeyEntry(group, item);
+		}
+		if (item.type === "elster_certificate") {
+			addElsterCertificateEntry(group, item);
+		}
+		if (item.type === "environment_variables") {
+			addEnvironmentvariablesEntry(group, item);
+		}
+		if (item.type === "totp") {
+			addTotpEntry(group, item);
+		}
+		if (item.type === "website_password") {
+			addWebsitePasswordEntry(group, item);
+		}
+		if (item.type === "note") {
+			addNoteEntry(group, item);
+		}
+	}
+
+	if (passwordData.items) {
+		passwordData.items.forEach((item) => {
+			processItem(rootGroup, item);
+		});
+	}
+
+	function processFolders(parentGroup: KdbxGroup, folders: ExportFolder[]) {
+		folders.forEach((folder) => {
+			const newGroup = db.createGroup(
+				parentGroup,
+				folder.name || "Unnamed Folder",
+			);
+			if (folder.items) {
+				folder.items.forEach((item) => {
+					processItem(newGroup, item);
+				});
+			}
+			if (folder.folders) {
+				processFolders(newGroup, folder.folders);
+			}
+		});
+	}
+
+	if (passwordData.folders) {
+		processFolders(rootGroup, passwordData.folders);
+	}
+
+	return await db.save();
+}
+
+/**
+ * compose the export structure
+ *
+ * @param {object} data The datastore data to compose
+ * @param {string} type The selected type of the export
+ * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
+ *
+ * @returns {*} filtered folder
+ */
+function composeExport<Format extends string | undefined>(
+	data: ExportFolder,
+	type: Format,
+	password?: string,
+	selectedColumns?: string[],
+): Promise<ExportOutput<Format>>;
+async function composeExport(
+	data: ExportFolder,
+	type: string | undefined,
+	password?: string,
+	selectedColumns?: string[],
+): Promise<string | ArrayBuffer | ExportFolder> {
+	if (type === "json") {
+		return JSON.stringify(data);
+	} else if (type === "kdbxv4") {
+		return await exportToKdbxv4(data, password);
+	} else if (type === "csv") {
+		const helperData: Record<string, unknown>[] = [
+			{
+				path: "path",
+				type: "type",
+				callback_user: "callback_user",
+				callback_url: "callback_url",
+				callback_pass: "callback_pass",
+				urlfilter: "urlfilter",
+
+				website_password_title: "website_password_title",
+				website_password_url: "website_password_url",
+				website_password_username: "website_password_username",
+				website_password_password: "website_password_password",
+				website_password_notes: "website_password_notes",
+				website_password_auto_submit: "website_password_auto_submit",
+				website_password_url_filter: "website_password_url_filter",
+				website_password_totp_period: "website_password_totp_period",
+				website_password_totp_algorithm: "website_password_totp_algorithm",
+				website_password_totp_digits: "website_password_totp_digits",
+				website_password_totp_code: "website_password_totp_code",
+
+				application_password_title: "application_password_title",
+				application_password_username: "application_password_username",
+				application_password_password: "application_password_password",
+				application_password_notes: "application_password_notes",
+
+				ssh_connection_title: "ssh_connection_title",
+				ssh_connection_host: "ssh_connection_host",
+				ssh_connection_port: "ssh_connection_port",
+				ssh_connection_authentication_type:
+					"ssh_connection_authentication_type",
+				ssh_connection_username: "ssh_connection_username",
+				ssh_connection_password: "ssh_connection_password",
+				ssh_connection_private_key: "ssh_connection_private_key",
+				ssh_connection_notes: "ssh_connection_notes",
+
+				rdp_connection_title: "rdp_connection_title",
+				rdp_connection_host: "rdp_connection_host",
+				rdp_connection_port: "rdp_connection_port",
+				rdp_connection_domain: "rdp_connection_domain",
+				rdp_connection_ignore_certificate: "rdp_connection_ignore_certificate",
+				rdp_connection_resize_method: "rdp_connection_resize_method",
+				rdp_connection_server_layout: "rdp_connection_server_layout",
+				rdp_connection_username: "rdp_connection_username",
+				rdp_connection_password: "rdp_connection_password",
+				rdp_connection_notes: "rdp_connection_notes",
+
+				vnc_connection_title: "vnc_connection_title",
+				vnc_connection_host: "vnc_connection_host",
+				vnc_connection_port: "vnc_connection_port",
+				vnc_connection_username: "vnc_connection_username",
+				vnc_connection_password: "vnc_connection_password",
+				vnc_connection_notes: "vnc_connection_notes",
+
+				passkey_title: "passkey_title",
+				passkey_rp_id: "passkey_rp_id",
+				passkey_id: "passkey_id",
+				passkey_public_key: "passkey_public_key",
+				passkey_private_key: "passkey_private_key",
+				passkey_user_handle: "passkey_user_handle",
+				passkey_algorithm: "passkey_algorithm",
+				passkey_auto_submit: "passkey_auto_submit",
+				passkey_url_filter: "passkey_url_filter",
+
+				totp_title: "totp_title",
+				totp_period: "totp_period",
+				totp_algorithm: "totp_algorithm",
+				totp_digits: "totp_digits",
+				totp_code: "totp_code",
+
+				note_title: "note_title",
+				note_notes: "note_notes",
+
+				environment_variables_title: "environment_variables_title",
+				environment_variables_variables: "environment_variables_variables",
+				environment_variables_notes: "environment_variables_notes",
+
+				ssh_own_key_title: "ssh_own_key_title",
+				ssh_own_key_email: "ssh_own_key_email",
+				ssh_own_key_name: "ssh_own_key_name",
+				ssh_own_key_public: "ssh_own_key_public",
+				ssh_own_key_private: "ssh_own_key_private",
+				ssh_own_key_notes: "ssh_own_key_notes",
+
+				mail_gpg_own_key_title: "mail_gpg_own_key_title",
+				mail_gpg_own_key_email: "mail_gpg_own_key_email",
+				mail_gpg_own_key_name: "mail_gpg_own_key_name",
+				mail_gpg_own_key_public: "mail_gpg_own_key_public",
+				mail_gpg_own_key_private: "mail_gpg_own_key_private",
+
+				credit_card_title: "credit_card_title",
+				credit_card_number: "credit_card_number",
+				credit_card_name: "credit_card_name",
+				credit_card_cvc: "credit_card_cvc",
+				credit_card_pin: "credit_card_pin",
+				credit_card_valid_through: "credit_card_valid_through",
+				credit_card_notes: "credit_card_notes",
+
+				bookmark_title: "bookmark_title",
+				bookmark_url: "bookmark_url",
+				bookmark_notes: "bookmark_notes",
+				bookmark_url_filter: "bookmark_url_filter",
+
+				identity_title: "identity_title",
+				identity_first_name: "identity_first_name",
+				identity_last_name: "identity_last_name",
+				identity_company: "identity_company",
+				identity_address: "identity_address",
+				identity_city: "identity_city",
+				identity_postal_code: "identity_postal_code",
+				identity_state: "identity_state",
+				identity_country: "identity_country",
+				identity_phone_number: "identity_phone_number",
+				identity_email: "identity_email",
+
+				elster_certificate_title: "elster_certificate_title",
+				elster_certificate_file_content: "elster_certificate_file_content",
+				elster_certificate_password: "elster_certificate_password",
+				elster_certificate_retrieval_code: "elster_certificate_retrieval_code",
+				elster_certificate_notes: "elster_certificate_notes",
+
+				custom_fields: "custom_fields",
+				tags: "tags",
+			},
+		];
+
+		function csv_helper(data: ExportFolder, path: string) {
+			var i;
+			if (data.folders) {
+				for (i = 0; i < data.folders.length; i++) {
+					csv_helper(data.folders[i], path + data.folders[i].name + "\\");
+				}
+			}
+			if (data.items) {
+				for (i = 0; i < data.items.length; i++) {
+					// CSV cells are a projection: JSON-valued fields become strings
+					// without changing the typed native export tree.
+					const row: Record<string, unknown> = { ...data.items[i], path };
+					if (
+						data.items[i].type === "environment_variables" &&
+						Object.hasOwn(data.items[i], "environment_variables_variables")
+					) {
+						row["environment_variables_variables"] = JSON.stringify(
+							data.items[i]["environment_variables_variables"],
+						);
+					}
+					if (Object.hasOwn(data.items[i], "custom_fields")) {
+						row["custom_fields"] = JSON.stringify(
+							data.items[i]["custom_fields"],
+						);
+					}
+					if (Object.hasOwn(data.items[i], "tags")) {
+						row["tags"] = JSON.stringify(data.items[i]["tags"]);
+					}
+					if (Object.hasOwn(data.items[i], "passkey_public_key")) {
+						row["passkey_public_key"] = JSON.stringify(
+							data.items[i]["passkey_public_key"],
+						);
+					}
+					if (Object.hasOwn(data.items[i], "passkey_private_key")) {
+						row["passkey_private_key"] = JSON.stringify(
+							data.items[i]["passkey_private_key"],
+						);
+					}
+					if (Object.hasOwn(data.items[i], "passkey_algorithm")) {
+						row["passkey_algorithm"] = JSON.stringify(
+							data.items[i]["passkey_algorithm"],
+						);
+					}
+
+					helperData.push(row);
+				}
+			}
+		}
+
+		csv_helper(data, "\\");
+
+		// Filter columns if selectedColumns is provided
+		if (selectedColumns && selectedColumns.length > 0) {
+			const filteredData = helperData.map((row) => {
+				const filteredRow: Record<string, unknown> = {};
+				selectedColumns.forEach((columnKey) => {
+					if (Object.hasOwn(row, columnKey)) {
+						filteredRow[columnKey] = row[columnKey];
+					}
+				});
+				return filteredRow;
+			});
+			return Papa.unparse(filteredData, {
+				header: false,
+			});
+		}
+
+		return Papa.unparse(helperData, {
+			header: false,
+		});
+	} else {
+		return data;
+	}
+}
+
+/**
+ * Requests all secrets in our datastore and fills the datastore with the content
+ *
+ * @param {object} datastore The datastore structure with secrets
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
+ *
+ * @returns {Promise} The datastore structure where all secrets have been filled
+ */
+async function getAllSecrets<Folder extends ExportFolder>(
+	datastore: Folder,
+	includeTrashBinItems: boolean,
+	includeSharedItems: boolean,
+): Promise<Folder> {
+	type LinkedExportItem = ExportItem & {
+		secret_id: string;
+		secret_key: string;
+	};
+	const secrets: Record<string, LinkedExportItem> = {};
+
+	const handleItems = (items: ExportItem[]) => {
+		for (const item of items) {
+			if (Object.hasOwn(item, "share_id") && !includeSharedItems) {
+				continue;
+			}
+			if (
+				typeof item.secret_id === "string" &&
+				typeof item.secret_key === "string"
+			) {
+				if (
+					!includeTrashBinItems &&
+					Object.hasOwn(item, "deleted") &&
+					item.deleted
+				) {
+					continue;
+				}
+				secrets[item.secret_id] = item as LinkedExportItem;
+			}
+		}
+	};
+
+	const handleFolders = (folders: ExportFolder[]) => {
+		for (const folder of folders) {
+			if (Object.hasOwn(folder, "share_id") && !includeSharedItems) {
+				continue;
+			}
+			if (folder.folders) {
+				handleFolders(folder.folders);
+			}
+
+			if (folder.items) {
+				handleItems(folder.items);
+			}
+		}
+	};
+
+	if (datastore.folders) {
+		handleFolders(datastore["folders"]);
+	}
+
+	if (datastore.items) {
+		handleItems(datastore["items"]);
+	}
+	const bulkObjects = Object.keys(secrets).map((secretId): [string, string] => [
+		secretId,
+		secrets[secretId]["secret_key"],
+	]);
+
+	const decryptedSecrets = await secretService.readSecretBulk(bulkObjects);
+
+	for (const s of decryptedSecrets) {
+		if (s.id !== undefined) {
+			Object.assign(secrets[s.id], s);
+		}
+	}
+
+	return datastore;
+}
+
+/**
+ * Returns a list with all possible exporter
+ *
+ * @returns {[]} List with all possible exporters
+ */
+function getExporter() {
+	return _exporter;
+}
+
+/**
+ * Fetches the datastore with all secrets ready to download or analyze
+ *
+ * @param {string} type The selected type of the export
+ * @param {uuid} id The id of the datastore one wants to download
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
+ * @param {string} [password] An optional password
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
+ *
+ * @returns {Promise} Returns a promise with the exportable datastore content
+ */
+function fetchDatastore<Format extends string | undefined>(
+	type: Format,
+	id: string | undefined,
+	includeTrashBinItems: boolean,
+	includeSharedItems: boolean,
+	password?: string,
+	selectedColumns?: string[],
+): Promise<ExportOutput<Format>>;
+function fetchDatastore(
+	type: string | undefined,
+	id: string | undefined,
+	includeTrashBinItems: boolean,
+	includeSharedItems: boolean,
+	password?: string,
+	selectedColumns?: string[],
+): Promise<string | ArrayBuffer | ExportFolder> {
+	emit("export-started", {});
+
+	return datastorePasswordService
+		.getPasswordDatastore(id)
+		.then((datastore) => {
+			if (!datastore) throw new Error("Password datastore unavailable");
+			return getAllSecrets(datastore, includeTrashBinItems, includeSharedItems);
+		})
+		.then((folder) =>
+			filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems),
+		)
+		.then((data) => {
+			emit("export-complete", {});
+			return composeExport(data, type, password, selectedColumns);
+		});
+}
+
+/**
+ * Returns a copy of the datastore
+ *
+ * @param {string} type The selected type of the export
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
+ * @param {string} [password] A password which if provided will be used to encrypt the datastore
+ * @param {Array} [selectedColumns] Array of column keys to include in CSV export
+ *
+ * @returns {Promise} Returns a promise once the export is successful
+ */
+function exportDatastore(
+	type: string,
+	includeTrashBinItems: boolean,
+	includeSharedItems: boolean,
+	password?: string,
+	selectedColumns?: string[],
+) {
+	return fetchDatastore(
+		type,
+		undefined,
+		includeTrashBinItems,
+		includeSharedItems,
+		password,
+		selectedColumns,
+	)
+		.then((data) => {
+			if (password && type === "json" && typeof data === "string") {
+				data = JSON.stringify(
+					cryptoLibraryService.encryptSecret(data, password, ""),
+				);
+			}
+			return downloadExport(data, type, !!password);
+		})
+		.then(() => ({ msgs: ["EXPORT_SUCCESSFUL"] }));
+}
+
+const exportService = {
+	on: on,
+	emit: emit,
+	getExporter: getExporter,
+	fetchDatastore: fetchDatastore,
+	exportDatastore: exportDatastore,
+	getAllSecrets: getAllSecrets,
+	composeExport: composeExport,
+	addConnectionKdbxEntry: addConnectionKdbxEntry,
+};
+
+export default exportService;

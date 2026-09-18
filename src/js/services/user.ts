@@ -1,0 +1,1707 @@
+/**
+ * Users service, everything about login / logout ...
+ */
+
+import action from "../actions/bound-action-creators";
+import i18n from "../i18n";
+import accountService from "./account";
+import apiClient from "./api-client";
+import avatarService from "./avatar";
+import browserClient from "./browser-client";
+import browserClientService from "./browser-client";
+import cryptoLibrary from "./crypto-library";
+import device from "./device";
+import helperService from "./helper";
+import host from "./host";
+import notification from "./notification";
+import ssoRedirect from "./sso-redirect";
+import storage from "./storage";
+import { getStore } from "./store";
+import type {
+	AuthenticationMethod,
+	AuthErrorData,
+	AuthOperationResult,
+	AuthResponse,
+	EmergencyCodeActivationData,
+	EmergencyCodeStatus,
+	EmergencyLoginData,
+	EncryptedLoginData,
+	LoginData,
+	LoginEnvelope,
+	LoginResult,
+	LogoutResult,
+	PreloginData,
+	RecoveredKeys,
+	RecoveryEnableData,
+	RecoveryInformation,
+	SsoProtocol,
+	TokenActivationData,
+	UserSession,
+} from "../../types/auth";
+import type {
+	EncryptedValue,
+	PublicPrivateKeyPair,
+	ScryptParameters,
+} from "../../types/crypto";
+
+let sessionPassword = "";
+let verification: Partial<EncryptedValue> = {};
+let redirectOnTwoFaMissing: boolean | undefined;
+
+/**
+ * Activates a user account with the provided activation code after registration
+ *
+ * @param {string} activationCode The activation code sent via mail
+ * @param {string} server The server to send the activation code to
+ *
+ * @returns {Promise} Returns a promise with the activation status
+ */
+function activateCode(
+	activationCode: string,
+	server: string,
+): Promise<AuthOperationResult> {
+	action().setServerUrl(server);
+
+	const onSuccess = (): AuthOperationResult => ({
+		response: "success",
+	});
+
+	const onError = (response: AuthResponse<unknown>): AuthOperationResult => ({
+		response: "error",
+		error_data: response.data,
+	});
+
+	return apiClient.verifyEmail(activationCode).then(onSuccess, onError);
+}
+
+/**
+ * Updates the global state with username, server, rememberMe and trustDevice
+ * Returns the result of check_host
+ *
+ * @param username
+ * @param server
+ * @param rememberMe
+ * @param trustDevice
+ * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
+ *
+ * @returns {Promise}
+ */
+function initiateLogin(
+	username: string,
+	server: string,
+	rememberMe: boolean,
+	trustDevice: boolean,
+	twoFaRedirect?: boolean,
+) {
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	const parsedUrl = helperService.parseUrl(server);
+
+	username = helperService.formFullUsername(
+		username,
+		parsedUrl["full_domain_without_www"]!,
+	);
+	action().setUserUsername(username);
+	action().setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
+
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
+}
+
+/**
+ * Web callbacks arrive directly at the login page, so validate their pending
+ * state before exchanging the token. Extensions validate in the background.
+ */
+async function validateWebClientSsoRedirect(
+	type: SsoProtocol,
+	tokenId: string,
+): Promise<void> {
+	if (browserClient.getClientType() !== "webclient") {
+		return;
+	}
+
+	const returnToUrl =
+		type === "saml"
+			? browserClient.getSamlReturnToUrl()
+			: browserClient.getOidcReturnToUrl();
+	const redirect = await ssoRedirect
+		.consume(window.location.href, returnToUrl)
+		.catch(() => null);
+	if (!redirect || redirect.type !== type || redirect.tokenId !== tokenId) {
+		return Promise.reject(["AUTHENTICATION_FAILED"]);
+	}
+}
+
+/**
+ * Triggered once someone comes back from a redirect to a index.html#!/saml/token/... url
+ * Will try to use the token to authenticate and login
+ *
+ * @param {string} samlTokenId The saml token id
+ *
+ * @returns {Promise}
+ */
+async function samlLogin(samlTokenId: string): Promise<LoginResult> {
+	await validateWebClientSsoRedirect("saml", samlTokenId);
+
+	// SSO initiation loads and persists host info before redirecting to this callback.
+	const serverPublicKey = getStore().getState().server.publicKey!;
+	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+	const password = "";
+
+	const onSuccess = (response: AuthResponse<EncryptedLoginData>) =>
+		handleLoginResponse(
+			response,
+			password,
+			sessionKeys,
+			serverPublicKey,
+			"SAML",
+		);
+
+	const onError = (response: AuthResponse<AuthErrorData>) =>
+		Promise.reject(response.data.non_field_errors);
+
+	const login_info = JSON.stringify({
+		saml_token_id: samlTokenId,
+		device_time: new Date().toISOString(),
+		device_fingerprint: device.getDeviceFingerprint(),
+		device_description: device.getDeviceDescription(),
+	});
+
+	// encrypt the login infos
+	const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+		login_info,
+		serverPublicKey,
+		sessionKeys.private_key,
+	);
+
+	let sessionDuration = 24 * 60 * 60;
+	const trustDevice = getStore().getState().user.trustDevice;
+	if (trustDevice) {
+		sessionDuration = 24 * 60 * 60 * 30;
+	}
+
+	return apiClient
+		.samlLogin(
+			loginInfoEnc["text"],
+			loginInfoEnc["nonce"],
+			sessionKeys.public_key,
+			sessionDuration,
+		)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Updates the global state with server, remember_me and trust_device
+ * Returns the result of check_host
+ *
+ * @param server
+ * @param rememberMe
+ * @param trustDevice
+ * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
+ *
+ * @returns {Promise}
+ */
+function initiateSamlLogin(
+	server: string,
+	rememberMe: boolean,
+	trustDevice: boolean,
+	twoFaRedirect?: boolean,
+) {
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	action().setUserInfo1(rememberMe, trustDevice, "SAML");
+
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
+}
+
+/**
+ * Takes the provider id and returns (as a promise) the redirect url to initiate the saml auth flow
+ *
+ * @param providerId
+ *
+ * @returns {Promise}
+ */
+function getSamlRedirectUrl(
+	providerId: string | number,
+): Promise<{ saml_redirect_url: string }> {
+	return ssoRedirect.createPending("saml").then((state) => {
+		const returnToUrl = browserClient.getSamlReturnToUrl(state);
+		return apiClient
+			.samlInitiateLogin(providerId, returnToUrl)
+			.then((result: AuthResponse<{ saml_redirect_url: string }>) => {
+				return result.data;
+			});
+	});
+}
+
+/**
+ * Triggered once someone comes back from a redirect to a index.html#!/oidc/token/... url
+ * Will try to use the token to authenticate and login
+ *
+ * @param {string} oidcTokenId The oidc token id
+ *
+ * @returns {Promise}
+ */
+async function oidcLogin(oidcTokenId: string): Promise<LoginResult> {
+	await validateWebClientSsoRedirect("oidc", oidcTokenId);
+
+	// SSO initiation loads and persists host info before redirecting to this callback.
+	const serverPublicKey = getStore().getState().server.publicKey!;
+	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+	const password = "";
+
+	const onSuccess = (response: AuthResponse<EncryptedLoginData>) =>
+		handleLoginResponse(
+			response,
+			password,
+			sessionKeys,
+			serverPublicKey,
+			"OIDC",
+		);
+
+	const onError = (response: AuthResponse<AuthErrorData>) =>
+		Promise.reject(response.data.non_field_errors);
+
+	const login_info = JSON.stringify({
+		oidc_token_id: oidcTokenId,
+		device_time: new Date().toISOString(),
+		device_fingerprint: device.getDeviceFingerprint(),
+		device_description: device.getDeviceDescription(),
+	});
+
+	// encrypt the login infos
+	const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+		login_info,
+		serverPublicKey,
+		sessionKeys.private_key,
+	);
+
+	let sessionDuration = 24 * 60 * 60;
+	const trustDevice = getStore().getState().user.trustDevice;
+	if (trustDevice) {
+		sessionDuration = 24 * 60 * 60 * 30;
+	}
+
+	return apiClient
+		.oidcLogin(
+			loginInfoEnc["text"],
+			loginInfoEnc["nonce"],
+			sessionKeys.public_key,
+			sessionDuration,
+		)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Updates the global state with server, remember_me and trust_device
+ * Returns the result of check_host
+ *
+ * @param server
+ * @param rememberMe
+ * @param trustDevice
+ * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
+ *
+ * @returns {Promise}
+ */
+function initiateOidcLogin(
+	server: string,
+	rememberMe: boolean,
+	trustDevice: boolean,
+	twoFaRedirect?: boolean,
+) {
+	redirectOnTwoFaMissing = twoFaRedirect;
+	action().setServerUrl(server);
+	action().setUserInfo1(rememberMe, trustDevice, "OIDC");
+
+	return host.checkHost(server).then((response) => {
+		return response;
+	});
+}
+
+/**
+ * Takes the provider id and returns (as a promise) the redirect url to initiate the oidc auth flow
+ *
+ * @param providerId
+ *
+ * @returns {Promise}
+ */
+function getOidcRedirectUrl(
+	providerId: string | number,
+): Promise<{ oidc_redirect_url: string }> {
+	return ssoRedirect.createPending("oidc").then((state) => {
+		const returnToUrl = browserClient.getOidcReturnToUrl(state);
+		return apiClient
+			.oidcInitiateLogin(providerId, returnToUrl)
+			.then((result: AuthResponse<{ oidc_redirect_url: string }>) => {
+				return result.data;
+			});
+	});
+}
+
+/**
+ * Ajax POST request to the backend with the token
+ *
+ * @param {string} gaToken The GA Token
+ *
+ * @returns Promise Returns a promise with the login status
+ */
+function gaVerify(gaToken: string): ReturnType<typeof apiClient.gaVerify> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	return apiClient
+		.gaVerify(token, gaToken, sessionSecretKey)
+		.catch((response: AuthResponse<AuthErrorData>) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "ga_token")
+			) {
+				return Promise.reject(response.data.ga_token);
+			} else {
+				return Promise.reject(response);
+			}
+		});
+}
+
+/**
+ * Ajax POST request to the backend with the token
+ *
+ * @param {string} [duoToken] (optional) The Duo Token
+ *
+ * @returns Promise Returns a promise with the login status
+ */
+function duoVerify(duoToken?: string): ReturnType<typeof apiClient.duoVerify> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	return apiClient
+		.duoVerify(token, duoToken, sessionSecretKey)
+		.catch((response: AuthResponse<AuthErrorData>) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		});
+}
+
+/**
+ * Ajax POST request to the backend with the token
+ *
+ * @param {string} yubikeyOtp The YubiKey OTP token
+ *
+ * @returns Promise Returns a promise with the login status
+ */
+function yubikeyOtpVerify(
+	yubikeyOtp: string,
+): ReturnType<typeof apiClient.yubikeyOtpVerify> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	return apiClient
+		.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey)
+		.catch((response: AuthResponse<AuthErrorData>) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		});
+}
+
+/**
+ * Handles the validation of the token with the server by solving the cryptographic puzzle
+ *
+ * @returns Promise Returns a promise with the the final activate token was successful or not
+ */
+function activateToken(): Promise<{ response: "success" }> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const userSauce = getStore().getState().user.userSauce;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+
+	const onSuccess = (
+		activationData: AuthResponse<TokenActivationData>,
+	): { response: "success" } => {
+		// decrypt user secret key
+		const userSecretKey = cryptoLibrary.decryptSecret(
+			activationData.data.user.secret_key,
+			activationData.data.user.secret_key_nonce,
+			sessionPassword,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+
+		let serverSecretExists = ["SAML", "OIDC", "LDAP"].includes(
+			activationData.data.user.authentication,
+		);
+		if (Object.hasOwn(activationData.data.user, "server_secret_exists")) {
+			serverSecretExists = activationData.data.user.server_secret_exists!;
+		}
+
+		action().setUserInfo3(
+			activationData.data.user.id,
+			activationData.data.user.email,
+			userSecretKey,
+			serverSecretExists,
+			activationData.data.user.require_password_change || false,
+		);
+
+		// no need anymore for the public / private session keys
+		sessionPassword = "";
+		verification = {};
+
+		browserClient.emit("login", null);
+
+		return {
+			response: "success",
+		};
+	};
+
+	const zoneinfo = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+	return apiClient
+		.activateToken(
+			token,
+			verification.text!,
+			verification.nonce!,
+			sessionSecretKey,
+			zoneinfo,
+		)
+		.then(onSuccess);
+}
+
+/**
+ * handles the response of the login with all the necessary cryptography and returns the required multifactors
+ *
+ * @param {object} response The login response
+ * @param {string} password The password
+ * @param {object} sessionKeys The session keys
+ * @param {string} serverPublicKey The server's public key
+ * @param {string} defaultAuthentication The default authentication if not provided by the server
+ *
+ * @returns {Array} The list of required multifactor challenges to solve
+ */
+function handleLoginResponse(
+	response: AuthResponse<EncryptedLoginData>,
+	password: string,
+	sessionKeys: PublicPrivateKeyPair,
+	serverPublicKey: string,
+	defaultAuthentication: AuthenticationMethod,
+): LoginResult {
+	// Authenticated decrypted JSON follows the server's login schema. Older servers
+	// return LoginData directly; newer ones wrap it in a second encrypted envelope.
+	const loginEnvelope = JSON.parse(
+		cryptoLibrary.decryptDataPublicKey(
+			response.data.login_info,
+			response.data.login_info_nonce,
+			serverPublicKey,
+			sessionKeys.private_key,
+		),
+	) as LoginData | LoginEnvelope;
+
+	const server_session_public_key = (loginEnvelope.server_session_public_key ||
+		loginEnvelope.session_public_key)!;
+	let decrypted_response_data: LoginData;
+
+	if (
+		Object.hasOwn(loginEnvelope, "data") &&
+		Object.hasOwn(loginEnvelope, "data_nonce")
+	) {
+		const envelope = loginEnvelope as LoginEnvelope;
+		decrypted_response_data = JSON.parse(
+			cryptoLibrary.decryptDataPublicKey(
+				envelope.data,
+				envelope.data_nonce,
+				server_session_public_key,
+				sessionKeys.private_key,
+			),
+		) as LoginData;
+	} else {
+		decrypted_response_data = loginEnvelope as LoginData;
+	}
+
+	if (!Object.hasOwn(decrypted_response_data.user, "hashing_algorithm")) {
+		decrypted_response_data.user["hashing_algorithm"] =
+			getStore().getState().user.hashingAlgorithm;
+	}
+	if (!Object.hasOwn(decrypted_response_data.user, "hashing_parameters")) {
+		decrypted_response_data.user["hashing_parameters"] =
+			getStore().getState().user.hashingParameters;
+	}
+	if (!Object.hasOwn(decrypted_response_data.user, "require_password_change")) {
+		decrypted_response_data.user["require_password_change"] = false;
+	}
+	action().sethashingParameters(
+		decrypted_response_data.user["hashing_algorithm"],
+		decrypted_response_data.user["hashing_parameters"],
+	);
+
+	sessionPassword =
+		password || !Object.hasOwn(decrypted_response_data, "password")
+			? password
+			: decrypted_response_data.password!;
+
+	// decrypt the session key
+	let sessionSecretKey = decrypted_response_data.session_secret_key;
+	if (Object.hasOwn(decrypted_response_data, "session_secret_key_nonce")) {
+		sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
+			decrypted_response_data.session_secret_key,
+			decrypted_response_data.session_secret_key_nonce!,
+			decrypted_response_data.session_public_key!,
+			sessionKeys.private_key,
+		);
+	}
+
+	const authentication = decrypted_response_data.user.authentication
+		? decrypted_response_data.user.authentication
+		: defaultAuthentication;
+
+	let user_private_key;
+	try {
+		// decrypt user private key which may fail if the user server's password isn't correct and the user
+		// needs to enter one
+		user_private_key = cryptoLibrary.decryptSecret(
+			decrypted_response_data.user.private_key,
+			decrypted_response_data.user.private_key_nonce,
+			sessionPassword,
+			decrypted_response_data.user.user_sauce,
+			decrypted_response_data.user.hashing_algorithm,
+			decrypted_response_data.user.hashing_parameters,
+		);
+	} catch (error) {
+		return {
+			require_password: (password: string) =>
+				handleLoginResponse(
+					response,
+					password,
+					sessionKeys,
+					serverPublicKey,
+					defaultAuthentication,
+				),
+		};
+	}
+
+	// decrypt the user_validator
+	const user_validator = cryptoLibrary.decryptDataPublicKey(
+		decrypted_response_data.user_validator,
+		decrypted_response_data.user_validator_nonce,
+		server_session_public_key,
+		user_private_key,
+	);
+
+	// encrypt the validator as verification
+	verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
+
+	action().setUserUsername(decrypted_response_data.user.username);
+
+	action().setUserInfo2(
+		user_private_key,
+		decrypted_response_data.user.public_key,
+		sessionSecretKey,
+		decrypted_response_data.token,
+		decrypted_response_data.user.user_sauce,
+		authentication,
+	);
+
+	if (
+		Object.hasOwn(decrypted_response_data.user, "language") &&
+		(i18n.options.supportedLngs as string[]).includes(
+			decrypted_response_data.user.language!,
+		)
+	) {
+		i18n.changeLanguage(decrypted_response_data.user.language).then(() => {
+			browserClientService.emitSec(
+				"language-changed",
+				decrypted_response_data.user.language!,
+				() => {},
+			);
+		});
+	}
+
+	if (decrypted_response_data.user.policies) {
+		action().setServerPolicy(decrypted_response_data.user.policies);
+	}
+
+	// Preserve the legacy numeric coercion here (the login view also sets this flag).
+	action().setHasTwoFactor(
+		Number(decrypted_response_data.required_multifactors) > 0,
+	);
+
+	return decrypted_response_data;
+}
+
+function prelogin(username: string): Promise<AuthResponse<PreloginData>> {
+	const onSuccess = (response: AuthResponse<PreloginData>) => {
+		if (
+			!Object.hasOwn(response.data, "hashing_algorithm") ||
+			response.data.hashing_algorithm !== "scrypt"
+		) {
+			return Promise.reject("UNSUPPORTED_ALGORITHM_UPDATE_CLIENT");
+		}
+
+		if (!Object.hasOwn(response.data, "hashing_parameters")) {
+			return Promise.reject("UNSUPPORTED_ALGORITHM_UPDATE_CLIENT");
+		}
+
+		return response;
+	};
+
+	const onError = (response: AuthResponse<AuthErrorData>) => {
+		if (
+			Object.hasOwn(response, "data") &&
+			Object.hasOwn(response.data, "non_field_errors")
+		) {
+			return Promise.reject(response.data.non_field_errors);
+		} else {
+			return Promise.reject(response);
+		}
+	};
+
+	return apiClient.prelogin(username).then(onSuccess, onError);
+}
+
+function login(
+	password: string,
+	serverInfo: { info: { public_key: string } },
+	sendPlain?: boolean,
+): Promise<LoginResult> {
+	const username = getStore().getState().user.username;
+	const trustDevice = getStore().getState().user.trustDevice;
+	const serverPublicKey = serverInfo.info.public_key;
+
+	const onSuccess = (response: AuthResponse<PreloginData>) => {
+		action().sethashingParameters(
+			response.data.hashing_algorithm,
+			response.data.hashing_parameters,
+		);
+		const authkey = cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			response.data.hashing_algorithm,
+			response.data.hashing_parameters,
+		);
+		const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+
+		const onSuccess = (response: AuthResponse<EncryptedLoginData>) =>
+			handleLoginResponse(
+				response,
+				password,
+				sessionKeys,
+				serverPublicKey,
+				"AUTHKEY",
+			);
+
+		const onError = (response: AuthResponse<AuthErrorData>) => {
+			if (
+				Object.hasOwn(response, "data") &&
+				Object.hasOwn(response.data, "non_field_errors")
+			) {
+				return Promise.reject(response.data.non_field_errors);
+			} else {
+				return Promise.reject(response);
+			}
+		};
+
+		const loginInfo: {
+			username: string;
+			authkey: string;
+			device_time: string;
+			device_fingerprint: string;
+			device_description: string;
+			password?: string;
+		} = {
+			username: username,
+			authkey: authkey,
+			device_time: new Date().toISOString(),
+			device_fingerprint: device.getDeviceFingerprint(),
+			device_description: device.getDeviceDescription(),
+		};
+
+		if (sendPlain) {
+			loginInfo["password"] = password;
+		}
+
+		// encrypt the login infos
+		const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(
+			JSON.stringify(loginInfo),
+			serverPublicKey,
+			sessionKeys.private_key,
+		);
+
+		let sessionDuration = 24 * 60 * 60;
+		if (trustDevice) {
+			sessionDuration = 24 * 60 * 60 * 30;
+		}
+
+		return apiClient
+			.login(
+				loginInfoEnc["text"],
+				loginInfoEnc["nonce"],
+				sessionKeys.public_key,
+				sessionDuration,
+			)
+			.then(onSuccess, onError);
+	};
+
+	const onError = (response: unknown) => Promise.reject(response);
+
+	return prelogin(username).then(onSuccess, onError);
+}
+
+/**
+ * Initiates the logout, deletes all data including user tokens and session secrets
+ *
+ * @param {string} msg An optional message to display
+ * @param {string|undefined} [postLogoutRedirectUri] An optional post logout redirect url
+ * @param {string|undefined} [expectedToken] Only clear local state if this token is still active
+ * @returns {Promise} Returns a promise with the result
+ */
+function logout(
+	msg = "",
+	postLogoutRedirectUri?: string,
+	expectedToken?: string,
+): Promise<LogoutResult> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	async function logoutLocal() {
+		if (
+			expectedToken &&
+			!(await accountService.isCurrentSession(expectedToken))
+		) {
+			return false;
+		}
+		await accountService.updateInfoCurrent({
+			username: "",
+			isLoggedIn: false,
+			server: "",
+			avatar: "",
+		});
+		await accountService.logoutAll();
+		action().disableOfflineMode();
+		storage.removeAll();
+		storage.save();
+		action().logout(getStore().getState().user.rememberMe);
+		if (msg) {
+			notification.infoSend(msg);
+		}
+		return true;
+	}
+
+	const onSuccess = async (
+		result: AuthResponse<{ redirect_url?: string }>,
+	): Promise<LogoutResult> => {
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
+
+		accountService.broadcastReinitializeAppEvent();
+		accountService.broadcastReinitializeBackgroundEvent();
+
+		const response: LogoutResult = {
+			response: "success",
+		};
+
+		if (Object.hasOwn(result.data, "redirect_url")) {
+			response["redirect_url"] = result.data["redirect_url"];
+			// Store redirect_url in sessionStorage so it survives the logout and can be used by logout-success.html
+			// even if the session is already terminated and a subsequent logout call returns 401
+			if (result.data["redirect_url"]) {
+				try {
+					sessionStorage.setItem(
+						"psono_logout_redirect_url",
+						result.data["redirect_url"],
+					);
+				} catch (e) {
+					console.error("Failed to store redirect_url in sessionStorage:", e);
+				}
+			}
+		}
+
+		return response;
+	};
+
+	const onError = async (): Promise<LogoutResult> => {
+		//session expired, so let's delete the local data
+		if (!(await logoutLocal())) {
+			return { response: "ignored" };
+		}
+
+		return {
+			response: "success",
+		};
+	};
+
+	return apiClient
+		.logout(token, sessionSecretKey, undefined, postLogoutRedirectUri)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Checks if a user is logged in
+ *
+ * @returns {boolean} Returns whether a user is logged in
+ */
+function isLoggedIn(): boolean {
+	return getStore().getState().user.isLoggedIn;
+}
+
+/**
+ * Deletes an account
+ *
+ * @param {string} password The old password
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function deleteAccount(password: string): Promise<void> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+
+	const authkey = cryptoLibrary.generateAuthkey(
+		username,
+		password,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+
+	const onSuccess = () => {
+		logout();
+	};
+
+	const onError = (data: AuthResponse<unknown>) => Promise.reject(data.data);
+
+	let pass;
+	if (getStore().getState().user.authentication === "LDAP") {
+		pass = password;
+	}
+
+	return apiClient
+		.deleteAccount(token, sessionSecretKey, authkey, pass)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Update user base settings
+ *
+ * @param {string|null} email The email of the user
+ * @param {string|null} authkey The new authkey of the user
+ * @param {string} authkeyOld The old authkey of the user
+ * @param {string|null} privateKey The encrypted private key of the user (hex format)
+ * @param {string|null} privateKeyNonce The nonce of the private key (hex format)
+ * @param {string|null} secretKey The encrypted secret key of the user (hex format)
+ * @param {string|null} secretKeyNonce The nonce of the secret key (hex format)
+ * @param {string|null} language The new language
+ * @param {string} hashingAlgorithm the hashing algorithm e.g. scrypt
+ * @param {object} hashingParameters the hashing parameters for the algorithm
+ *
+ * @returns {Promise} Returns a promise with the update status
+ */
+function updateUser(
+	email?: string | null,
+	authkey?: string | null,
+	authkeyOld?: string | null,
+	privateKey?: string | null,
+	privateKeyNonce?: string | null,
+	secretKey?: string | null,
+	secretKeyNonce?: string | null,
+	language?: string | null,
+	hashingAlgorithm?: string | null,
+	hashingParameters?: ScryptParameters | null,
+) {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	return apiClient.updateUser(
+		token,
+		sessionSecretKey,
+		email,
+		authkey,
+		authkeyOld,
+		privateKey,
+		privateKeyNonce,
+		secretKey,
+		secretKeyNonce,
+		language,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+}
+
+/**
+ * Saves a new password
+ *
+ * @param {string} newPassword The new password
+ * @param {string} newPasswordRepeat The new password (repeated)
+ * @param {string} oldPassword The old password
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewPassword(
+	newPassword: string,
+	newPasswordRepeat: string,
+	oldPassword: string | null,
+): Promise<{ msgs: string[] }> {
+	return host.info().then(
+		(info) => {
+			let authkeyOld,
+				newAuthkey,
+				userPrivateKey,
+				userSecretKey,
+				userSauce,
+				privKeyEnc,
+				secretKeyEnc,
+				onSuccess,
+				onError;
+			const username = getStore().getState().user.username;
+			const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+			const hashingParameters = getStore().getState().user.hashingParameters;
+			const test_error = helperService.isValidPassword(
+				newPassword,
+				newPasswordRepeat,
+				info.data["decoded_info"]["compliance_min_master_password_length"],
+				info.data["decoded_info"]["compliance_min_master_password_complexity"],
+			);
+			if (test_error) {
+				return Promise.reject({ errors: [test_error] });
+			}
+
+			if (oldPassword === null || oldPassword.length === 0) {
+				return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+			}
+
+			authkeyOld = cryptoLibrary.generateAuthkey(
+				username,
+				oldPassword,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			newAuthkey = cryptoLibrary.generateAuthkey(
+				username,
+				newPassword,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			userPrivateKey = getStore().getState().user.userPrivateKey;
+			userSecretKey = getStore().getState().user.userSecretKey;
+			userSauce = getStore().getState().user.userSauce;
+
+			privKeyEnc = cryptoLibrary.encryptSecret(
+				userPrivateKey,
+				newPassword,
+				userSauce,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+			secretKeyEnc = cryptoLibrary.encryptSecret(
+				userSecretKey,
+				newPassword,
+				userSauce,
+				hashingAlgorithm,
+				hashingParameters,
+			);
+
+			onSuccess = () => {
+				action().setRequirePasswordChange(false);
+				return { msgs: ["SAVE_SUCCESS"] };
+			};
+			onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+
+			return updateUser(
+				null,
+				newAuthkey,
+				authkeyOld,
+				privKeyEnc.text,
+				privKeyEnc.nonce,
+				secretKeyEnc.text,
+				secretKeyEnc.nonce,
+				undefined,
+				hashingAlgorithm,
+				hashingParameters,
+			).then(onSuccess, onError);
+		},
+		(data) => {
+			console.log(data);
+			// handle server is offline
+			return Promise.reject({ errors: ["SERVER_OFFLINE"] });
+		},
+	);
+}
+
+/**
+ * Saves a new email
+ *
+ * @param {string} newEmail The new email
+ * @param {string|null} verificationPassword The password for verification
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewEmail(
+	newEmail: string,
+	verificationPassword: string | null,
+): Promise<{ msgs: string[] }> {
+	const username = getStore().getState().user.username;
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
+	const hashingParameters = getStore().getState().user.hashingParameters;
+	if (verificationPassword === null || verificationPassword.length === 0) {
+		return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+	}
+
+	const authkeyOld = cryptoLibrary.generateAuthkey(
+		username,
+		verificationPassword,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+
+	const onSuccess = () => {
+		action().setEmail(newEmail);
+		return { msgs: ["SAVE_SUCCESS"] };
+	};
+	const onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+	return updateUser(
+		newEmail,
+		null,
+		authkeyOld,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+	).then(onSuccess, onError);
+}
+
+/**
+ * Saves a new language
+ *
+ * @param {string} language The new language
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewLanguage(language: string): Promise<{ msgs: string[] }> {
+	const onSuccess = () => ({ msgs: ["SAVE_SUCCESS"] });
+	const onError = (result: unknown) => Promise.reject(result);
+	return updateUser(
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		language,
+		undefined,
+		undefined,
+	).then(onSuccess, onError);
+}
+
+/**
+ * Ajax POST request to destroy the token and recovery_enable the user
+ *
+ * @param {string} username The username of the user
+ * @param {string} recoveryCode The recovery code in base58 format
+ * @param {string} server The server to send the recovery code to
+ *
+ * @returns {Promise} Returns a promise with the recovery_enable status
+ */
+function recoveryEnable(
+	username: string,
+	recoveryCode: string,
+	server: string,
+): Promise<RecoveryInformation> {
+	action().setUserUsername(username);
+	action().setServerUrl(server);
+
+	const onSuccess = (data: AuthResponse<RecoveryEnableData>) => {
+		const recovery_data = JSON.parse(
+			cryptoLibrary.decryptSecret(
+				data.data.recovery_data,
+				data.data.recovery_data_nonce,
+				recoveryCode,
+				data.data.recovery_sauce,
+			),
+		) as RecoveredKeys;
+
+		if (data.data.policies) {
+			action().setServerPolicy(data.data.policies);
+		}
+
+		return {
+			user_private_key: recovery_data.user_private_key,
+			user_secret_key: recovery_data.user_secret_key,
+			user_sauce: data.data.user_sauce,
+			verifier_public_key: data.data.verifier_public_key,
+			verifier_time_valid: data.data.verifier_time_valid,
+		};
+	};
+	const recoveryAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		recoveryCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+
+	return apiClient
+		.enableRecoverycode(username, recoveryAuthkey)
+		.then(onSuccess);
+}
+
+/**
+ * Encrypts the recovered data with the new password and initiates the save of this data
+ *
+ * @param {string} username the account's username e.g dummy@example.com
+ * @param {string} recoveryCode The recovery code in base58 format
+ * @param {string} password The new password
+ * @param {string} userPrivateKey The user's private key
+ * @param {string} userSecretKey The user's secret key
+ * @param {string} userSauce The user's userSauce
+ * @param {string} verifierPublicKey The "verifier" one needs, that the server accepts this new password
+ *
+ * @returns {Promise} Returns a promise with the set_password status
+ */
+function setPassword(
+	username: string,
+	recoveryCode: string,
+	password: string,
+	userPrivateKey: string,
+	userSecretKey: string,
+	userSauce: string,
+	verifierPublicKey: string,
+) {
+	// Recovery uses initialized user hashing settings, including the reset scrypt defaults.
+	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm!;
+	const hashingParameters = getStore().getState().user.hashingParameters!;
+
+	const privKeyEnc = cryptoLibrary.encryptSecret(
+		userPrivateKey,
+		password,
+		userSauce,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+	const secretKeyEnc = cryptoLibrary.encryptSecret(
+		userSecretKey,
+		password,
+		userSauce,
+		hashingAlgorithm,
+		hashingParameters,
+	);
+
+	const updateRequest = JSON.stringify({
+		authkey: cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			hashingAlgorithm,
+			hashingParameters,
+		),
+		private_key: privKeyEnc.text,
+		private_key_nonce: privKeyEnc.nonce,
+		secret_key: secretKeyEnc.text,
+		secret_key_nonce: secretKeyEnc.nonce,
+	});
+
+	const updateRequestEnc = cryptoLibrary.encryptDataPublicKey(
+		updateRequest,
+		verifierPublicKey,
+		userPrivateKey,
+	);
+
+	const onSuccess = (data: AuthResponse<unknown>) => data;
+
+	const onError = (data: AuthResponse<unknown>) => data;
+
+	const recovery_authkey = cryptoLibrary.generateAuthkey(
+		username,
+		recoveryCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+
+	return apiClient
+		.setPassword(
+			username,
+			recovery_authkey,
+			updateRequestEnc.text,
+			updateRequestEnc.nonce,
+			hashingAlgorithm,
+			hashingParameters,
+		)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Ajax POST request to activate the emergency code
+ *
+ * @param {string} username The username of the user
+ * @param {string} emergencyCode The emergency code in base58 format
+ * @param {string} server The server to send the recovery code to
+ * @param {object} serverInfo Some info about the server including its public key
+ * @param {object} verifyKey The signature of the server
+ *
+ * @returns {Promise} Returns a promise with the emergency code activation status
+ */
+function armEmergencyCode(
+	username: string,
+	emergencyCode: string,
+	server: string,
+	serverInfo: { public_key: string },
+	verifyKey?: string,
+): Promise<EmergencyCodeStatus> {
+	action().setUserUsername(username);
+	action().setServerUrl(server);
+
+	let userSauce: string;
+	let policies: Record<string, unknown> | undefined;
+	let userSecretKey: string;
+
+	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		emergencyCode,
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+
+	const onSuccess = (
+		data: AuthResponse<
+			| EmergencyCodeActivationData
+			| (EmergencyCodeStatus & { status: "started" | "waiting" })
+		>,
+	) => {
+		if (data.data.status === "started" || data.data.status === "waiting") {
+			return data.data as EmergencyCodeStatus;
+		}
+		const activation = data.data as EmergencyCodeActivationData;
+
+		const emergency_data = JSON.parse(
+			cryptoLibrary.decryptSecret(
+				activation.emergency_data,
+				activation.emergency_data_nonce,
+				emergencyCode,
+				activation.emergency_sauce,
+			),
+		) as RecoveredKeys;
+
+		userSauce = activation.user_sauce;
+		userSecretKey = emergency_data.user_secret_key;
+		policies = activation.policies;
+		const authentication = activation.authentication
+			? activation.authentication
+			: "AUTHKEY";
+
+		const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
+
+		const loginInfo = JSON.stringify({
+			device_time: new Date().toISOString(),
+			device_fingerprint: device.getDeviceFingerprint(),
+			device_description: device.getDeviceDescription(),
+			session_public_key: sessionKey.public_key,
+		});
+
+		const update_request_enc = cryptoLibrary.encryptDataPublicKey(
+			loginInfo,
+			activation.verifier_public_key,
+			emergency_data.user_private_key,
+		);
+
+		const onSuccess = (
+			data: AuthResponse<EncryptedLoginData>,
+		): EmergencyCodeStatus => {
+			const loginInfo = JSON.parse(
+				cryptoLibrary.decryptDataPublicKey(
+					data.data.login_info,
+					data.data.login_info_nonce,
+					serverInfo["public_key"],
+					sessionKey.private_key,
+				),
+			) as EmergencyLoginData;
+
+			action().setUserInfo2(
+				emergency_data.user_private_key,
+				loginInfo.user_public_key,
+				loginInfo.session_secret_key,
+				loginInfo.token,
+				userSauce,
+				authentication,
+			);
+			if (policies) {
+				action().setServerPolicy(policies);
+			}
+
+			let serverSecretExists = false;
+			if (Object.hasOwn(loginInfo, "authentication")) {
+				serverSecretExists = ["SAML", "OIDC", "LDAP"].includes(
+					loginInfo.authentication!,
+				);
+				if (Object.hasOwn(loginInfo, "server_secret_exists")) {
+					serverSecretExists = loginInfo.server_secret_exists!;
+				}
+			}
+
+			action().setUserInfo3(
+				loginInfo.user_id,
+				loginInfo.user_email,
+				userSecretKey,
+				serverSecretExists,
+				loginInfo.require_password_change || false,
+			);
+
+			return {
+				status: "active",
+			};
+		};
+
+		const onError = (data: unknown) => Promise.reject(data);
+
+		return apiClient
+			.activateEmergencyCode(
+				username,
+				emergencyAuthkey,
+				update_request_enc.text,
+				update_request_enc.nonce,
+			)
+			.then(onSuccess, onError);
+	};
+
+	return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
+}
+
+/**
+ * Checks if the user needs to setup a second factor
+ *
+ * @return {boolean|undefined} Whether setup is required, or undefined while host info is reset
+ */
+function requireTwoFaSetup(): boolean | undefined {
+	// A sparse host reset leaves enforcement undefined and short-circuits here.
+	// An enabled enforcement policy has its factor list from the loaded host info.
+	return (
+		!getStore().getState().user.hasTwoFactor &&
+		getStore().getState().server.complianceEnforce2fa &&
+		getStore().getState().server.allowedSecondFactors!.length > 0
+	);
+}
+
+/**
+ * Checks if a server secret is needed or not
+ *
+ * @return {boolean} Returns whether the user should be forced to configure a server secret or not
+ */
+function requireServerSecret(): boolean {
+	const authentication = getStore().getState().user.authentication;
+	const complianceServerSecrets = getStore()
+		.getState()
+		.server.complianceServerSecrets.toLowerCase();
+
+	const lookupTable: Record<string, Record<string, boolean>> = {
+		auto: {
+			LDAP: true,
+			SAML: true,
+			OIDC: true,
+			AUTHKEY: false,
+		},
+		noone: {
+			LDAP: false,
+			SAML: false,
+			OIDC: false,
+			AUTHKEY: false,
+		},
+		all: {
+			LDAP: true,
+			SAML: true,
+			OIDC: true,
+			AUTHKEY: true,
+		},
+	};
+
+	if (!Object.hasOwn(lookupTable, complianceServerSecrets)) {
+		return false;
+	}
+
+	if (!Object.hasOwn(lookupTable[complianceServerSecrets], authentication)) {
+		return false;
+	}
+
+	return lookupTable[complianceServerSecrets][authentication];
+}
+
+/**
+ * Checks if the user needs to setup a second factor
+ *
+ * @return {boolean} Returns whether the user should be forced to setup two factor
+ */
+function requireServerSecretModification(): boolean {
+	const serverSecretExists = getStore().getState().user.serverSecretExists;
+	return requireServerSecret() !== serverSecretExists;
+}
+
+/**
+ * Checks if the user must change the password
+ *
+ * @return {boolean} Returns whether password change is required
+ */
+function requirePasswordChange(): boolean {
+	return !!getStore().getState().user.requirePasswordChange;
+}
+
+/**
+ * loads the sessions
+ *
+ * @returns {Promise} Returns a promise with the sessions
+ */
+function getSessions(): Promise<UserSession[] | void> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	const onSuccess = (request: AuthResponse<{ sessions: UserSession[] }>) =>
+		request.data["sessions"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.getSessions(token, sessionSecretKey)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Deletes an sessions
+ *
+ * @param {string} sessionId The id of the session to delete
+ *
+ * @returns {Promise} Returns a promise with true or false
+ */
+function deleteSession(sessionId: string): Promise<void> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	const onSuccess = () => {
+		// pass
+	};
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.logout(token, sessionSecretKey, sessionId, "")
+		.then(onSuccess, onError);
+}
+
+/**
+ * Responsible for the registration. Generates the users public-private-key-pair together with the secret
+ * key and the user sauce. Encrypts the sensible data before initiating the register call with the api client.
+ *
+ * @param {email} email The email to register with
+ * @param {string} username The username to register with
+ * @param {string} password The password to register with
+ * @param {string} server The server to send the registration to
+ *
+ * @returns {Promise} promise
+ */
+function register(
+	email: string,
+	username: string,
+	password: string,
+	server: string,
+): Promise<AuthOperationResult | void> {
+	const onSuccess = (baseUrl: string | null | void) => {
+		//managerBase.delete_local_data();
+
+		// storage.upsert('config', {key: 'user_email', value: email});
+		// storage.upsert('config', {key: 'user_username', value: username});
+		// storage.upsert('config', {key: 'server', value: server});
+
+		// Registration uses the user reducer's initialized/reset hashing settings.
+		const hashingAlgorithm = getStore().getState().user.hashingAlgorithm!;
+		const hashingParameters = getStore().getState().user.hashingParameters!;
+
+		const pair = cryptoLibrary.generatePublicPrivateKeypair();
+		const userSauce = cryptoLibrary.generateUserSauce();
+
+		const privateKeyEncrypted = cryptoLibrary.encryptSecret(
+			pair.private_key,
+			password,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+		const secretKeyEncrypted = cryptoLibrary.encryptSecret(
+			cryptoLibrary.generateSecretKey(),
+			password,
+			userSauce,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+
+		const onSuccess = (): AuthOperationResult => {
+			storage.save();
+
+			return {
+				response: "success",
+			};
+		};
+
+		const onError = (response: AuthResponse<unknown>): AuthOperationResult => {
+			// storage.remove('config', storage.find_key('config', 'user_email'));
+			// storage.remove('config', storage.find_key('config', 'server'));
+			storage.save();
+
+			return {
+				response: "error",
+				error_data: response.data,
+			};
+		};
+
+		const authkey = cryptoLibrary.generateAuthkey(
+			username,
+			password,
+			hashingAlgorithm,
+			hashingParameters,
+		);
+		return apiClient
+			.register(
+				email,
+				username,
+				authkey,
+				pair.public_key,
+				privateKeyEncrypted.text,
+				privateKeyEncrypted.nonce,
+				secretKeyEncrypted.text,
+				secretKeyEncrypted.nonce,
+				userSauce,
+				baseUrl,
+				hashingAlgorithm,
+				hashingParameters,
+			)
+			.then(onSuccess, onError);
+	};
+
+	const onError = () => {};
+
+	return browserClient.getBaseUrl().then(onSuccess, onError);
+}
+
+/**
+ * Responsible for the un-registration / deletion of a user via email link
+ *
+ * @param {string} username The username to unregister with
+ * @param {email} email The email to unregister with
+ *
+ * @returns {Promise} promise
+ */
+function unregister(
+	username: string,
+	email: string,
+): Promise<{ response: "success" }> {
+	const onSuccess = (baseUrl: string | null | void) => {
+		const onSuccess = (): { response: "success" } => ({
+			response: "success",
+		});
+
+		const onError = (response: unknown) => Promise.reject(response);
+
+		return apiClient
+			.unregister(username, email, baseUrl)
+			.then(onSuccess, onError);
+	};
+
+	const onError = (response: unknown) => Promise.reject(response);
+
+	return browserClient.getBaseUrl().then(onSuccess, onError);
+}
+
+/**
+ Confirms the deletion of a user account with the provided unregistration code
+
+ @param {string} unregisterCode The unregistration code sent via mail
+ @param {string} server The server to send the activation code to
+
+ @returns {Promise} Returns a promise with the unregistration status
+ */
+function unregisterConfirm(
+	unregisterCode: string,
+	server: string,
+): Promise<{ response: "success" }> {
+	action().setServerUrl(server);
+
+	const onSuccess = () => {
+		const onSuccess = (): { response: "success" } => ({
+			response: "success",
+		});
+
+		const onError = (response: unknown) => Promise.reject(response);
+
+		return apiClient.unregisterConfirm(unregisterCode).then(onSuccess, onError);
+	};
+
+	const onError = (response: unknown) => Promise.reject(response);
+
+	return browserClient.getBaseUrl().then(onSuccess, onError);
+}
+
+const userService = {
+	activateCode,
+	initiateLogin,
+	samlLogin,
+	initiateSamlLogin,
+	getSamlRedirectUrl,
+	oidcLogin,
+	initiateOidcLogin,
+	getOidcRedirectUrl,
+	login,
+	activateToken,
+	gaVerify,
+	duoVerify,
+	yubikeyOtpVerify,
+	logout,
+	isLoggedIn,
+	deleteAccount,
+	saveNewPassword,
+	saveNewEmail,
+	saveNewLanguage,
+	recoveryEnable,
+	setPassword,
+	armEmergencyCode,
+	requireTwoFaSetup,
+	requireServerSecret,
+	requireServerSecretModification,
+	requirePasswordChange,
+	getSessions,
+	deleteSession,
+	register,
+	unregister,
+	unregisterConfirm,
+};
+
+export default userService;

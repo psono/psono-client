@@ -1,0 +1,127 @@
+/**
+ * Emergency codes and all the functions to create / edit / delete them ...
+ */
+
+import apiClient from "./api-client";
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+import { getStore } from "./store";
+import type { AuthResponse, EmergencyCode } from "../../types/auth";
+
+/**
+ * Returns a list of configured emergency codes
+ *
+ * @returns {Promise} Returns a promise with the emergency codes
+ */
+function readEmergencyCodes(): Promise<EmergencyCode[] | void> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	const onSuccess = (
+		request: AuthResponse<{ emegency_codes: EmergencyCode[] }>,
+	) => request.data["emegency_codes"];
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.readEmergencyCodes(token, sessionSecretKey)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Creates the emergency code. Will
+ *
+ * @param {string} title The title of the emergency code
+ * @param {int} leadTime The lead time till someone can activate this code in seconds
+ *
+ * @returns {Promise} Returns a promise with the emergency code
+ */
+function createEmergencyCode(
+	title: string,
+	leadTime: number,
+): Promise<{
+	username: string;
+	emergency_password: string;
+	emergency_words: string;
+}> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+	const username = getStore().getState().user.username;
+
+	const emergencyPassword = cryptoLibrary.generateRecoveryCode();
+	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
+		username,
+		emergencyPassword["base58"],
+		"scrypt",
+		{
+			u: 14,
+			r: 8,
+			p: 1,
+			l: 64,
+		},
+	);
+	const emergencySauce = cryptoLibrary.generateUserSauce();
+
+	const emergencyDataDec = {
+		user_private_key: getStore().getState().user.userPrivateKey,
+		user_secret_key: getStore().getState().user.userSecretKey,
+	};
+
+	const emergency_data = cryptoLibrary.encryptSecret(
+		JSON.stringify(emergencyDataDec),
+		emergencyPassword["base58"],
+		emergencySauce,
+	);
+
+	const onSuccess = () => ({
+		username: username,
+		emergency_password: helperService
+			.splitStringInChunks(emergencyPassword["base58_checksums"], 13)
+			.join("-"),
+		emergency_words: emergencyPassword["words"].join(" "),
+	});
+	const onError = (request: AuthResponse<unknown>) =>
+		Promise.reject(request.data);
+	return apiClient
+		.createEmergencyCode(
+			token,
+			sessionSecretKey,
+			title,
+			leadTime,
+			emergencyAuthkey,
+			emergency_data.text,
+			emergency_data.nonce,
+			emergencySauce,
+		)
+		.then(onSuccess, onError);
+}
+
+/**
+ * Deletes an emergency code
+ *
+ * @param {uuid} emergencyCodeId The id of the emergency code to delete
+ *
+ * @returns {Promise} Returns a promise with true or false
+ */
+function deleteEmergencyCode(emergencyCodeId: string): Promise<void> {
+	const token = getStore().getState().user.token;
+	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
+
+	const onSuccess = () => {
+		// pass
+	};
+	const onError = () => {
+		// pass
+	};
+	return apiClient
+		.deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId)
+		.then(onSuccess, onError);
+}
+
+const emergencyCodeService = {
+	readEmergencyCodes,
+	createEmergencyCode,
+	deleteEmergencyCode,
+};
+
+export default emergencyCodeService;

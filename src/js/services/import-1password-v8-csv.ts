@@ -1,0 +1,328 @@
+/**
+ * Service which handles the actual parsing of a 1Password v8 CSV export
+ */
+import * as OTPAuth from "otpauth";
+
+import Papa from "papaparse";
+import type {
+	CsvRow,
+	ImportedSecret,
+	ImportItemsFolder,
+	ImportResult,
+} from "../../types/import";
+
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+
+// A missing column uses -1, which reads as undefined from a CSV row.
+let INDEX_URL = -1;
+let INDEX_USERNAME = -1;
+let INDEX_PASSWORD = -1;
+let INDEX_NOTES = -1;
+let INDEX_NAME = -1;
+let INDEX_TYPE = -1;
+let INDEX_OTP_AUTH = -1;
+
+/**
+ * Takes the first line of the csv and checks the columns and sets the indexes correctly for later field extraction.
+ *
+ * @param {[]} line First line of the CSV
+ *
+ * @returns {*} The secrets object
+ */
+function identifyRows(line: CsvRow) {
+	INDEX_URL = -1;
+	INDEX_USERNAME = -1;
+	INDEX_PASSWORD = -1;
+	INDEX_NOTES = -1;
+	INDEX_NAME = -1;
+	INDEX_TYPE = -1;
+	INDEX_OTP_AUTH = -1;
+
+	for (let i = 0; i < line.length; i++) {
+		const column_description = line[i].trim().toLowerCase();
+		if (column_description === "notes") {
+			INDEX_NOTES = i;
+		} else if (column_description === "password") {
+			INDEX_PASSWORD = i;
+		} else if (column_description === "title") {
+			INDEX_NAME = i;
+		} else if (column_description === "type") {
+			INDEX_TYPE = i;
+		} else if (column_description === "url") {
+			INDEX_URL = i;
+		} else if (column_description === "username") {
+			INDEX_USERNAME = i;
+		} else if (column_description === "otpauth") {
+			INDEX_OTP_AUTH = i;
+		}
+	}
+}
+
+/**
+ * Returns the type of a line.
+ *
+ * Known types are:
+ *      Secure Note -> note
+ *      Identity
+ *      Password
+ *      Login
+ *      Credit Card
+ *      Server
+ *
+ * @param {[]} line One line of the CSV import
+ *
+ * @returns {string} Returns the appropriate type (note or website_password)
+ */
+function getType(line: CsvRow) {
+	const type = line[INDEX_TYPE] ? line[INDEX_TYPE].trim().toLowerCase() : "";
+	if (INDEX_TYPE !== -1) {
+		if (type === "password" || type === "login") {
+			return "website_password";
+		}
+		if (type === "server") {
+			return "application_password";
+		}
+		if (
+			type === "secure note" ||
+			type === "identity" ||
+			type === "credit card"
+		) {
+			return "note";
+		}
+
+		// Preserve the legacy fallback for unknown types.
+		return "note";
+	}
+
+	const containsUrl = Boolean(line[INDEX_URL]?.trim());
+	const containsUsername = Boolean(line[INDEX_USERNAME]?.trim());
+	const containsPassword = Boolean(line[INDEX_PASSWORD]?.trim());
+	const containsTotp = Boolean(line[INDEX_OTP_AUTH]?.trim());
+
+	if (containsUrl || (containsPassword && containsTotp)) {
+		return "website_password";
+	}
+	if (containsUsername || containsPassword) {
+		return "application_password";
+	}
+
+	return "note";
+}
+
+/**
+ * Takes a line that should represent a note and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV that represents a note
+ *
+ * @returns {*} The note secret object
+ */
+function transferIntoNote(line: CsvRow): ImportedSecret | null {
+	let note_notes = "";
+	if (line[INDEX_USERNAME]) {
+		note_notes = note_notes + line[INDEX_USERNAME] + "\n";
+	}
+	if (line[INDEX_PASSWORD]) {
+		note_notes = note_notes + line[INDEX_PASSWORD] + "\n";
+	}
+	if (line[INDEX_URL]) {
+		note_notes = note_notes + line[INDEX_URL] + "\n";
+	}
+	if (line[INDEX_NOTES]) {
+		note_notes = note_notes + line[INDEX_NOTES] + "\n";
+	}
+
+	if (!line[INDEX_NAME] && !note_notes) {
+		return null;
+	}
+
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "note",
+		name: line[INDEX_NAME],
+		note_title: line[INDEX_NAME],
+		note_notes: note_notes,
+	};
+}
+
+/**
+ * Takes a line that should represent a website passwords and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV that represents a website password
+ *
+ * @returns {*} The website_password secret object
+ */
+function transferIntoWebsitePassword(line: CsvRow): ImportedSecret {
+	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
+
+	const websitePassword: ImportedSecret = {
+		id: cryptoLibrary.generateUuid(),
+		type: "website_password",
+		name: line[INDEX_NAME],
+		description: line[INDEX_USERNAME],
+		urlfilter: parsed_url.authority || undefined,
+		website_password_url_filter: parsed_url.authority || undefined,
+		website_password_password: line[INDEX_PASSWORD],
+		website_password_username: line[INDEX_USERNAME],
+		website_password_notes: line[INDEX_NOTES],
+		website_password_url: line[INDEX_URL],
+		website_password_title: line[INDEX_NAME],
+	};
+
+	if (line[INDEX_OTP_AUTH]) {
+		try {
+			const label = encodeURIComponent(line[INDEX_NAME] || "1Password");
+			const otpAuthUri = line[INDEX_OTP_AUTH]
+				.trim()
+				.replace(/^otpauth:\/\/totp\/\?/i, `otpauth://totp/${label}?`);
+			const parsedTotp = OTPAuth.URI.parse(otpAuthUri);
+
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+		} catch {
+			// Keep the password importable if the OTP URI is malformed.
+		}
+	}
+
+	return websitePassword;
+}
+
+/**
+ * Takes a line that should represent an application passwords and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV that represents a application password
+ *
+ * @returns {*} The application_password secret object
+ */
+function transferIntoApplicationPassword(line: CsvRow): ImportedSecret {
+	return {
+		id: cryptoLibrary.generateUuid(),
+		type: "application_password",
+		name: line[INDEX_NAME],
+		description: line[INDEX_USERNAME],
+		application_password_password: line[INDEX_PASSWORD],
+		application_password_username: line[INDEX_USERNAME],
+		application_password_notes: line[INDEX_NOTES],
+		application_password_title: line[INDEX_NAME],
+	};
+}
+
+/**
+ * Takes a line, checks its type and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV
+ *
+ * @returns {*} The secrets object
+ */
+function transformToSecret(line: CsvRow): ImportedSecret | null {
+	const type = getType(line);
+	if (type === "note") {
+		return transferIntoNote(line);
+	} else if (type === "website_password") {
+		return transferIntoWebsitePassword(line);
+	} else {
+		return transferIntoApplicationPassword(line);
+	}
+}
+
+/**
+ * Fills the datastore with folders their content and together with the secrets object
+ *
+ * @param {object} datastore The datastore structure to search recursive
+ * @param {[]} secrets The array containing all the found secrets
+ * @param {[]} csv The array containing all the found secrets
+ */
+function gather_secrets(
+	datastore: ImportItemsFolder,
+	secrets: ImportedSecret[],
+	csv: CsvRow[],
+) {
+	let line;
+
+	for (let i = 0; i < csv.length; i++) {
+		line = csv[i];
+
+		if (i === 0) {
+			identifyRows(line);
+			continue;
+		}
+
+		if (line.length < 2) {
+			continue;
+		}
+
+		const secret = transformToSecret(line);
+
+		if (secret === null) {
+			//empty line
+			continue;
+		}
+		secrets.push(secret);
+		datastore["items"].push(secret);
+	}
+}
+
+/**
+ * Parse the raw data into an array of arrays
+ *
+ * @param {string} data The raw data to parse
+ * @returns {Array} The array of arrays representing the CSV
+ */
+function parse_csv(data: string): CsvRow[] {
+	const csv = Papa.parse<CsvRow>(data);
+
+	if (csv["errors"].length > 0) {
+		throw new Error(csv["errors"][0]["message"]);
+	}
+
+	return csv["data"];
+}
+
+/**
+ * The main function of this parser. Will take the content of the JSON export of a psono.pw client and will
+ * return the usual output of a parser (or null):
+ *     {
+ *         datastore: {
+ *             name: 'Import TIMESTAMP'
+ *         },
+ *         secrets: Array
+ *     }
+ *
+ * @param {string} data The JSON export of a psono.pw client
+ *
+ * @returns {{datastore, secrets: Array} | null}
+ */
+function parser(data: string): ImportResult<ImportItemsFolder> | null {
+	const d = new Date();
+	const n = d.toISOString();
+
+	const secrets: ImportedSecret[] = [];
+	const datastore: ImportItemsFolder = {
+		id: cryptoLibrary.generateUuid(),
+		name: "Import " + n,
+		items: [],
+	};
+
+	let csv;
+	try {
+		csv = parse_csv(data);
+	} catch (err) {
+		return null;
+	}
+
+	gather_secrets(datastore, secrets, csv);
+
+	return {
+		datastore: datastore,
+		secrets: secrets,
+	};
+}
+
+const import1passwordCsvService = {
+	parser,
+};
+
+export default import1passwordCsvService;

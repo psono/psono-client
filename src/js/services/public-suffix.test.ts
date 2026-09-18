@@ -1,0 +1,47 @@
+import publicSuffixService, { type PublicSuffixList } from "./public-suffix";
+
+function mockFetch() {
+	return jest.fn().mockImplementation(() =>
+		Promise.resolve({
+			ok: true,
+			json: (): PublicSuffixList => ({
+				icann: {
+					com: 1,
+					de: 1,
+					app: 1,
+					uk: 1,
+					"gov.uk": 2,
+				},
+				private: {
+					"netlify.app": 2,
+					"compute.amazonaws.com": 4,
+				},
+			}),
+		}),
+	);
+}
+
+describe("Service: public-suffix test suite", () => {
+	it("public-suffix exists", () => {
+		expect(publicSuffixService).toBeDefined();
+	});
+
+	it("getPublicSuffix test.gov.uk -> gov.uk", async () => {
+		window.fetch = mockFetch();
+		expect(await publicSuffixService.getPublicSuffix("test.gov.uk")).toEqual(
+			"gov.uk",
+		);
+	});
+
+	it("getPublicSuffix test.uk -> uk", async () => {
+		window.fetch = mockFetch();
+		expect(await publicSuffixService.getPublicSuffix("test.uk")).toEqual("uk");
+	});
+
+	it("getPublicSuffix test.compute.amazonaws.com -> compute.amazonaws.com", async () => {
+		window.fetch = mockFetch();
+		expect(
+			await publicSuffixService.getPublicSuffix("test.compute.amazonaws.com"),
+		).toEqual("compute.amazonaws.com");
+	});
+});

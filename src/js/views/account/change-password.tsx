@@ -1,0 +1,143 @@
+import { Grid } from "@mui/material";
+import type { AccountViewProps } from "../../../types/account-ui";
+import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from "@mui/styles";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import GridContainerErrors from "../../components/grid-container-errors";
+import user from "../../services/user";
+
+const useStyles = makeStyles((theme) => ({
+	textField: {
+		width: "100%",
+		[theme.breakpoints.up("md")]: {
+			width: "440px",
+		},
+	},
+}));
+
+const AccountChangePasswordView = (props: AccountViewProps) => {
+	const { t } = useTranslation();
+	const classes = useStyles();
+	const requirePasswordChange = useSelector(
+		(state) => state.user.requirePasswordChange,
+	);
+	const [password, setPassword] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [passwordRepeat, setPasswordRepeat] = useState("");
+	const [errors, setErrors] = useState<string[]>([]);
+
+	const save = () => {
+		setErrors([]);
+		return user.saveNewPassword(password, passwordRepeat, oldPassword).then(
+			() => {
+				setPassword("");
+				setOldPassword("");
+				setPasswordRepeat("");
+			},
+			(data: { errors: string[] }) => {
+				setOldPassword("");
+				setErrors(data.errors);
+			},
+		);
+	};
+
+	return (
+		<>
+			{requirePasswordChange && (
+				<Grid container style={{ marginBottom: "16px" }}>
+					<Grid item xs={12} sm={12} md={12}>
+						<MuiAlert severity="error">
+							{t("ADMINISTRATOR_REQUIRES_PASSWORD_CHANGE")}
+						</MuiAlert>
+					</Grid>
+				</Grid>
+			)}
+			<Grid container>
+				<Grid item xs={12} sm={12} md={12}>
+					<h2>{t("CHANGE_PASSWORD")}</h2>
+					<p>{t("CHANGE_PASSWORD_DESCRIPTION")}</p>
+					<Divider style={{ marginBottom: "20px" }} />
+				</Grid>
+			</Grid>
+			<Grid container style={{ marginBottom: "8px" }}>
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="oldPassword"
+						label={t("OLD_PASSWORD")}
+						InputProps={{
+							type: "password",
+						}}
+						name="oldPassword"
+						autoComplete="off"
+						value={oldPassword}
+						onChange={(event) => {
+							setOldPassword(event.target.value);
+						}}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="password"
+						label={t("NEW_PASSWORD")}
+						InputProps={{
+							type: "password",
+						}}
+						name="password"
+						autoComplete="off"
+						value={password}
+						onChange={(event) => {
+							setPassword(event.target.value);
+						}}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="passwordRepeat"
+						label={t("NEW_PASSWORD_REPEAT")}
+						InputProps={{
+							type: "password",
+						}}
+						name="passwordRepeat"
+						autoComplete="off"
+						value={passwordRepeat}
+						onChange={(event) => {
+							setPasswordRepeat(event.target.value);
+						}}
+					/>
+				</Grid>
+			</Grid>
+			<GridContainerErrors errors={errors} setErrors={setErrors} />
+			<Grid container style={{ marginBottom: "8px" }}>
+				<Grid item xs={12} sm={12} md={12}>
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={save}
+						disabled={!passwordRepeat || !password || !oldPassword}
+					>
+						{t("SAVE")}
+					</Button>
+				</Grid>
+			</Grid>
+		</>
+	);
+};
+
+export default AccountChangePasswordView;

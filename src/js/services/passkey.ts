@@ -1,0 +1,1137 @@
+import i18n from "../i18n";
+import converterService from "./converter";
+import cryptoLibrary from "./crypto-library";
+import datastorePasswordService from "./datastore-password";
+import helperService from "./helper";
+import notificationBarService from "./notification-bar";
+import publicSuffixService from "./public-suffix";
+import secretService from "./secret";
+import storage from "./storage";
+import { getStore } from "./store";
+import user from "./user";
+import type {
+	PasskeyCreationOptions,
+	PasskeyRequestOptions,
+	PasskeySecret,
+	PasskeyErrorType,
+	PasskeyErrorMetadata,
+	PasskeyMessage,
+	PasskeyMessageResponse,
+	SerializedPasskeyCredential,
+	SerializedAssertionResponse,
+	SerializedAttestationResponse,
+} from "../../types/auth";
+
+interface PasskeyLeaf {
+	type: string;
+	urlfilter?: string;
+	autosubmit?: boolean;
+	secret_id: string;
+	secret_key: string;
+}
+
+type PasskeySender = { origin?: string } | null | undefined;
+
+class PasskeyException extends Error {
+	errorType: PasskeyErrorType;
+	metadata?: PasskeyErrorMetadata;
+
+	constructor(
+		errorType: PasskeyErrorType,
+		message: string,
+		metadata?: PasskeyErrorMetadata,
+	) {
+		super(message);
+		this.name = this.constructor.name;
+		this.errorType = errorType;
+		this.metadata = metadata;
+	}
+}
+
+function createBypassPsonoException(
+	reason: PasskeyErrorMetadata["reason"],
+	metadata?: PasskeyErrorMetadata,
+): PasskeyException {
+	return new PasskeyException("BYPASS_PSONO", i18n.t("BYPASS_PSONO"), {
+		reason: reason,
+		...(metadata || {}),
+	});
+}
+
+function getSenderOrigin(sender: PasskeySender): string {
+	try {
+		// Missing sender/origin must take the existing ORIGIN_NOT_SUPPORTED path.
+		return new URL(sender!.origin!).origin;
+	} catch {
+		throw new PasskeyException(
+			"ORIGIN_NOT_SUPPORTED",
+			i18n.t("ORIGIN_NOT_SUPPORTED"),
+		);
+	}
+}
+
+/**
+ * Checks whether a provided hostSuffixString is an allowed host suffix string for the originalHost
+ *
+ * @param {string} hostSuffixString
+ * @param {string} originalHost
+ *
+ * @returns {Promise} The provided hostSuffixString is an allowed host suffix string for the originalHost
+ */
+async function isRegistrableDomainSuffix(
+	hostSuffixString: string,
+	originalHost: string,
+): Promise<boolean> {
+	// If hostSuffixString is the empty string, then return false.
+	if (!hostSuffixString) {
+		return false;
+	}
+
+	const parsedHostSuffixString = new URL("http://" + hostSuffixString);
+	if (parsedHostSuffixString.hostname !== hostSuffixString) {
+		return false;
+	}
+
+	const parsedOriginalHost = new URL("http://" + originalHost);
+	if (parsedOriginalHost.hostname !== originalHost) {
+		return false;
+	}
+
+	if (hostSuffixString === originalHost) {
+		return true;
+	}
+	if (!originalHost.endsWith("." + hostSuffixString)) {
+		return false;
+	}
+
+	const publicSuffixList = await publicSuffixService.getPublicSuffixList();
+
+	if (Object.hasOwn(publicSuffixList.icann, hostSuffixString)) {
+		return false;
+	}
+
+	if (Object.hasOwn(publicSuffixList.private, hostSuffixString)) {
+		return false;
+	}
+
+	const originalHostPublicSuffix = await publicSuffixService.getPublicSuffix(
+		originalHost,
+		true,
+	);
+	if (
+		originalHostPublicSuffix &&
+		originalHostPublicSuffix.endsWith("." + hostSuffixString)
+	) {
+		// hostSuffixString for amazonaws.com on an origin of www.example.compute.amazonaws.com should not be possible,
+		// because the compute.amazonaws.com is a public suffix
+		return false;
+	}
+	if (
+		originalHostPublicSuffix &&
+		hostSuffixString.endsWith("." + originalHostPublicSuffix)
+	) {
+		// hostSuffixString for compute.amazonaws.com on an origin of www.example.compute.amazonaws.com should not be possible,
+		// because the compute.amazonaws.com is a public suffix
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Returns all passkeys for a given rpId and an optiona filter array of allwoed ids
+ *
+ * @param {string} rpId The rpId
+ * @param {string[]} [allowedIds] The optional filter array of allowed ids in Hex Format
+ *
+ * @returns {Promise} The filtered database objects
+ */
+function searchPasskeys(
+	rpId: string,
+	allowedIds?: string[],
+): Promise<PasskeyLeaf[]> {
+	const filter = (leaf: PasskeyLeaf) => {
+		if (leaf.type !== "passkey") {
+			return false;
+		}
+
+		if (typeof leaf.urlfilter === "undefined") {
+			return false;
+		}
+
+		if (!allowedIds || allowedIds.length === 0) {
+			return leaf.urlfilter.startsWith(rpId + "#");
+		}
+
+		for (var i = 0; i < allowedIds.length; i++) {
+			if (leaf.urlfilter === rpId + "#" + allowedIds[i]) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	return storage.where("datastore-password-leafs", filter);
+}
+
+/**
+ * Converts a p1363Signature to DER
+ *
+ * @param {Uint8Array} p1363Signature
+ * @returns {Uint8Array} DER encoded signature
+ */
+function p1363ToDer(p1363Signature: Uint8Array): Uint8Array<ArrayBuffer> {
+	// Helper function to find the index of the first non-zero byte
+	function findFirstNonZeroIndex(arr: Uint8Array): number {
+		for (let i = 0; i < arr.length; i++) {
+			if (arr[i] !== 0) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	// Helper function to encode an integer in DER format
+	function encodeInteger(value: Uint8Array): Uint8Array<ArrayBuffer> {
+		// If the first bit is set, prepend a zero byte (to signify a positive number in two's complement)
+		if (value[0] & 0x80) {
+			value = Uint8Array.from([0x00, ...value]);
+		}
+		// DER Integer tag
+		const tag = 0x02;
+		// Length of the integer
+		const length = value.length;
+		return Uint8Array.from([tag, length, ...value]);
+	}
+
+	// Split the P-1363 signature into r and s components (assuming they are of equal length)
+	const elementLength = p1363Signature.length / 2;
+	const r = p1363Signature.slice(0, elementLength);
+	const s = p1363Signature.slice(elementLength);
+
+	// Remove leading zeros
+	const rIndex = findFirstNonZeroIndex(r);
+	const sIndex = findFirstNonZeroIndex(s);
+	const rValue = rIndex !== -1 ? r.slice(rIndex) : new Uint8Array([0]);
+	const sValue = sIndex !== -1 ? s.slice(sIndex) : new Uint8Array([0]);
+
+	// Encode r and s as DER integers
+	const rEncoded = encodeInteger(rValue);
+	const sEncoded = encodeInteger(sValue);
+
+	// Construct the overall sequence
+	const sequenceLength = rEncoded.length + sEncoded.length;
+	const sequence = Uint8Array.from([
+		0x30,
+		sequenceLength,
+		...rEncoded,
+		...sEncoded,
+	]);
+	return sequence;
+}
+
+/**
+ * Fake navigatorCredentialsGet which takes options and returns async
+ *
+ * @param options
+ * @param origin
+ * @returns A serialized WebAuthn assertion with base64url-encoded binary fields.
+ */
+async function navigatorCredentialsGet(
+	options: PasskeyRequestOptions,
+	origin: string,
+	eventId?: string,
+): Promise<SerializedPasskeyCredential<SerializedAssertionResponse>> {
+	/**
+	 * Receives something like:
+	 *
+	 * {
+	 *   "challenge": "bHxPtC7pGM64ltwPZR8S067Ug3VxjKJr8b1wbZ5EhUZsP1I6OcM1eDQduWKeOGL-UHzZObnfbCHME1hInKRv-Q",
+	 *   "timeout": 60000,
+	 *   "rpId": "webauthn.io",
+	 *   "allowCredentials": [
+	 *     {
+	 *       "id": "5QciHCwUFwyQhUESR1jT6vL9bJkc558ZtTNuhMc3GwvNlKZJGY7GTYPJvxrMjjwm",
+	 *       "type": "public-key",
+	 *       "transports": [
+	 *         "usb"
+	 *       ]
+	 *     }
+	 *   ],
+	 *   "userVerification": "preferred"
+	 * }
+	 *
+	 * And is supposed to return something like:
+	 *
+	 * {
+	 *   "id": "5QciHCwUFwyQhUESR1jT6vL9bJkc558ZtTNuhMc3GwvNlKZJGY7GTYPJvxrMjjwm",
+	 *   "rawId": "5QciHCwUFwyQhUESR1jT6vL9bJkc558ZtTNuhMc3GwvNlKZJGY7GTYPJvxrMjjwm",
+	 *   "response": {
+	 *     "authenticatorData": "dKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvAFAAAABA",
+	 *     "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiYkh4UHRDN3BHTTY0bHR3UFpSOFMwNjdVZzNWeGpLSnI4YjF3Ylo1RWhVWnNQMUk2T2NNMWVEUWR1V0tlT0dMLVVIelpPYm5mYkNITUUxaEluS1J2LVEiLCJvcmlnaW4iOiJodHRwczovL3dlYmF1dGhuLmlvIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ",
+	 *     "signature": "MEUCIED7P-w7UYLAjZSoJc8hXXwS9U-QANI-jn_FwVXe8xMIAiEA49d4nrTVtj2Q8weAK99MeLog-e6KBg_kVdQLNvKnvzM",
+	 *     "userHandle": "cGhqb250ZThh"
+	 *   },
+	 *   "type": "public-key",
+	 *   "clientExtensionResults": {},
+	 *   "authenticatorAttachment": "cross-platform"
+	 * }
+	 *
+	 */
+
+	if (!origin.startsWith("https://")) {
+		throw new PasskeyException(
+			"ORIGIN_NOT_SUPPORTED",
+			i18n.t("ORIGIN_NOT_SUPPORTED"),
+		);
+	}
+
+	const parsedOrigin = helperService.parseUrl(origin);
+
+	let rpId = options.publicKey.rpId;
+	if (!rpId) {
+		// https://www.w3.org/TR/webauthn-2/#relying-party-identifier
+		// By default, the RP ID for a WebAuthn operation is set to the caller’s origin's effective domain. This default
+		// MAY be overridden by the caller, as long as the caller-specified RP ID value is a registrable domain suffix
+		// of or is equal to the caller’s origin's effective domain.
+		//
+		// Note: An RP ID is based on a host's domain name. It does not itself include a scheme or port, as an origin does.
+		rpId = parsedOrigin.full_domain!;
+	}
+	if (!(await isRegistrableDomainSuffix(rpId, parsedOrigin.full_domain!))) {
+		throw new PasskeyException(
+			"RP_ID_NOT_ALLOWED",
+			i18n.t("RP_ID_NOT_ALLOWED"),
+		);
+	}
+
+	const allowCredentials = options.publicKey.allowCredentials || [];
+	const allowCredentialIds = allowCredentials.map((cred) =>
+		converterService.toHex(
+			new Uint8Array(converterService.base64UrlToArrayBuffer(cred.id)),
+		),
+	);
+	const discoverableCredentialsOnly =
+		allowCredentials.length === 0 ||
+		(options.mediation && options.mediation === "conditional");
+	const isConditional =
+		options.mediation && options.mediation === "conditional";
+	const isLoggedIn = user.isLoggedIn();
+
+	if (!isLoggedIn && !isConditional) {
+		// we only show a notification when the user did click on a sign in and expects a sign in to happen
+		// and not when the site just wants to autologin the user
+		notificationBarService.create(
+			i18n.t("SIGN_IN_REQUIRED"),
+			i18n.t("NOT_LOGGED_IN_PLEASE_SIGN_IN_TO_USE_FUNCTION"),
+			[],
+			12 * 1000,
+		);
+	}
+	if (!isLoggedIn) {
+		throw createBypassPsonoException("NOT_LOGGED_IN", {
+			eventId: eventId,
+			origin: origin,
+			rpId: rpId,
+			isConditional: isConditional,
+		});
+	}
+	let credentials = await searchPasskeys(rpId, allowCredentialIds);
+	if (discoverableCredentialsOnly) {
+		credentials = credentials.filter((cred) => cred.autosubmit);
+	}
+	if (credentials.length === 0) {
+		if (!isConditional) {
+			notificationBarService.create(
+				i18n.t("AUTHENTICATION"),
+				i18n.t("NO_PASSKEY_FOUND_FOR_THIS_WEBSITE"),
+				[],
+				12 * 1000,
+			);
+		}
+		throw createBypassPsonoException("NO_MATCHING_PASSKEY", {
+			eventId: eventId,
+			origin: origin,
+			rpId: rpId,
+			isConditional: isConditional,
+			allowCredentialsCount: allowCredentials.length,
+			discoverableCredentialsOnly: discoverableCredentialsOnly,
+		});
+	}
+
+	await createNotificationAsync(
+		i18n.t("AUTHENTICATION"),
+		i18n.t("WEBSITE_WANTS_TO_AUTHENTICATE_WITH_PASSKEY_ALLOW_OR_DENY"),
+		options.publicKey.timeout || 30 * 1000,
+		{
+			eventId: eventId,
+			origin: origin,
+			rpId: rpId,
+			operation: "navigator.credentials.get",
+		},
+	);
+
+	// The selected leaf identifies the encrypted passkey schema; Web Crypto validates its JWKs.
+	const decryptedSecret = await secretService.readSecret<PasskeySecret>(
+		credentials[0]["secret_id"],
+		credentials[0]["secret_key"],
+	);
+	if (!Object.hasOwn(decryptedSecret, "read_count")) {
+		console.log("Server incompatible, update Server");
+		throw new PasskeyException(
+			"SERVER_INCOMPATIBLE",
+			i18n.t("SERVER_INCOMPATIBLE"),
+		);
+	}
+
+	const rawId = converterService.fromHex(decryptedSecret.passkey_id);
+	decryptedSecret.passkey_public_key.key_ops = ["verify"];
+	await crypto.subtle.importKey(
+		"jwk", // the format
+		decryptedSecret.passkey_public_key,
+		decryptedSecret.passkey_algorithm,
+		true,
+		["verify"],
+	);
+	decryptedSecret.passkey_private_key.key_ops = ["sign"];
+	const privateKey = await crypto.subtle.importKey(
+		"jwk",
+		decryptedSecret.passkey_private_key,
+		decryptedSecret.passkey_algorithm,
+		false,
+		["sign"],
+	);
+
+	const clientDataJSON = JSON.stringify({
+		type: "webauthn.get",
+		challenge: options.publicKey.challenge,
+		origin: origin,
+		crossOrigin: false,
+	});
+	const clientDataJSONUint8Array = converterService.encodeUtf8(clientDataJSON);
+	const clientDataJSONHash = converterService.fromHex(
+		cryptoLibrary.sha256(clientDataJSONUint8Array),
+	);
+
+	const authenticatorData = createAssertionAuthenticatorData(
+		rpId,
+		decryptedSecret.read_count,
+		true,
+	);
+	// calculate signature
+	const encoded = new Uint8Array(
+		authenticatorData.byteLength + clientDataJSONHash.byteLength,
+	);
+	encoded.set(authenticatorData, 0);
+	encoded.set(clientDataJSONHash, 0 + authenticatorData.byteLength);
+	const signature = await crypto.subtle.sign(
+		{
+			name: "ECDSA",
+			hash: { name: "SHA-256" },
+		},
+		privateKey,
+		encoded,
+	);
+	const signatureDerEncoded = p1363ToDer(new Uint8Array(signature));
+
+	const credential: SerializedPasskeyCredential<SerializedAssertionResponse> = {
+		id: converterService.arrayBufferToBase64Url(rawId),
+		rawId: converterService.arrayBufferToBase64Url(rawId),
+		response: {
+			authenticatorData:
+				converterService.arrayBufferToBase64Url(authenticatorData),
+			clientDataJSON: converterService.arrayBufferToBase64Url(
+				clientDataJSONUint8Array,
+			),
+			signature: converterService.arrayBufferToBase64Url(signatureDerEncoded),
+			userHandle: decryptedSecret.passkey_user_handle,
+		},
+		type: "public-key",
+		clientExtensionResults: {
+			// "credProps": {
+			//     "rk": true
+			// }
+		},
+		authenticatorAttachment: "platform",
+	};
+
+	return credential;
+}
+
+/**
+ * Triggers on a navigator-credentials-create event, whenever someone called navigator.credentials.create
+ * We will check whether Psono is responsible to deal with Webauthn / Passkeys
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onNavigatorCredentialsGet(
+	request: PasskeyMessage<PasskeyRequestOptions>,
+	sender: PasskeySender,
+	sendResponse: (
+		response: PasskeyMessageResponse<SerializedAssertionResponse>,
+	) => void,
+): true {
+	async function asyncResponse() {
+		let credential;
+		try {
+			const origin = getSenderOrigin(sender);
+			credential = await navigatorCredentialsGet(
+				request.data.options,
+				origin,
+				request.data.eventId,
+			);
+		} catch (e) {
+			if (e instanceof PasskeyException) {
+				if (e.errorType === "BYPASS_PSONO") {
+					console.info("[Psono Passkey] navigator-credentials-get bypass", {
+						eventId: request.data.eventId,
+						reason: e.metadata && e.metadata.reason,
+						metadata: e.metadata,
+					});
+				}
+				sendResponse({
+					event: "navigator-credentials-get-response",
+					data: {
+						error: {
+							errorType: e.errorType,
+							message: e.message,
+							metadata: e.metadata,
+						},
+						eventId: request.data.eventId,
+					},
+				});
+				return;
+			} else {
+				throw e; // let others bubble up
+			}
+		}
+		sendResponse({
+			event: "navigator-credentials-get-response",
+			data: {
+				credential: credential,
+				eventId: request.data.eventId,
+			},
+		});
+	}
+
+	asyncResponse();
+
+	return true;
+}
+
+/**
+ * Converts a given public key to the COSE_Key format with the "CTAP2 canonical CBOR encoding form"
+ * Attention the parameters are hardcoded for EC2 and ES256 signature algorithm and a P-256 curve
+ *
+ * @param {CryptoKey} publicKey
+ * @returns {Promise<Uint8Array>}
+ */
+async function convertPublicKeyToCose(
+	publicKey: CryptoKey,
+): Promise<Uint8Array<ArrayBuffer>> {
+	// https://www.w3.org/TR/webauthn/#sctn-attested-credential-data
+	// example 6 / 7 for the CTAP2 canonical CBOR encoding form
+	// {
+	//   1:   2,  ; kty: EC2 key type
+	//   3:  -7,  ; alg: ES256 signature algorithm
+	//  -1:   1,  ; crv: P-256 curve
+	//  -2:   x,  ; x-coordinate as byte string 32 bytes in length
+	//            ; e.g., in hex: 65eda5a12577c2bae829437fe338701a10aaa375e1bb5b5de108de439c08551d
+	//  -3:   y   ; y-coordinate as byte string 32 bytes in length
+	//            ; e.g., in hex: 1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c
+	// }
+	//
+	// And that should output the following:
+	// A5
+	//    01  02
+	//
+	//    03  26
+	//
+	//    20  01
+	//
+	//    21  58 20   65eda5a12577c2bae829437fe338701a10aaa375e1bb5b5de108de439c08551d
+	//
+	//    22  58 20   1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c
+
+	const publicKeyJwkFormat = await crypto.subtle.exportKey("jwk", publicKey);
+	// This key was generated as P-256, so the exported EC JWK has both coordinates.
+
+	const start = new Uint8Array([0xa5]);
+	const kty = new Uint8Array([0x01, 0x02]);
+	const alg = new Uint8Array([0x03, 0x26]);
+	const crv = new Uint8Array([0x20, 0x01]);
+	const xCoordinateStart = new Uint8Array([0x21, 0x58, 0x20]);
+	const xCoordinate = new Uint8Array(
+		converterService.base64UrlToArrayBuffer(publicKeyJwkFormat.x!),
+	);
+	const yCoordinateStart = new Uint8Array([0x22, 0x58, 0x20]);
+	const yCoordinate = new Uint8Array(
+		converterService.base64UrlToArrayBuffer(publicKeyJwkFormat.y!),
+	);
+
+	const coseBytes = new Uint8Array(
+		start.byteLength +
+			kty.byteLength +
+			alg.byteLength +
+			crv.byteLength +
+			xCoordinateStart.byteLength +
+			xCoordinate.byteLength +
+			yCoordinateStart.byteLength +
+			yCoordinate.byteLength,
+	);
+
+	coseBytes.set(start, 0);
+	coseBytes.set(kty, 0 + start.byteLength);
+	coseBytes.set(alg, 0 + start.byteLength + kty.byteLength);
+	coseBytes.set(crv, 0 + start.byteLength + kty.byteLength + alg.byteLength);
+	coseBytes.set(
+		xCoordinateStart,
+		0 + start.byteLength + kty.byteLength + alg.byteLength + crv.byteLength,
+	);
+	coseBytes.set(
+		xCoordinate,
+		0 +
+			start.byteLength +
+			kty.byteLength +
+			alg.byteLength +
+			crv.byteLength +
+			xCoordinateStart.byteLength,
+	);
+	coseBytes.set(
+		yCoordinateStart,
+		0 +
+			start.byteLength +
+			kty.byteLength +
+			alg.byteLength +
+			crv.byteLength +
+			xCoordinateStart.byteLength +
+			xCoordinate.byteLength,
+	);
+	coseBytes.set(
+		yCoordinate,
+		0 +
+			start.byteLength +
+			kty.byteLength +
+			alg.byteLength +
+			crv.byteLength +
+			xCoordinateStart.byteLength +
+			xCoordinate.byteLength +
+			yCoordinateStart.byteLength,
+	);
+
+	return coseBytes;
+}
+
+/**
+ * Creates the fixed 37-byte authenticator data header.
+ * https://www.w3.org/TR/webauthn/#sctn-authenticator-data
+ *
+ * @param {string} rpId
+ * @param {number} flags
+ * @param {number} signCountInt
+ * @returns {Uint8Array}
+ */
+function createAuthenticatorDataHeader(
+	rpId: string,
+	flags: number,
+	signCountInt: number,
+): Uint8Array<ArrayBuffer> {
+	// RP ID Hash
+	const rpIdHash = converterService.fromHex(cryptoLibrary.sha256(rpId));
+
+	// Sign Count (4 bytes, big-endian)
+	const signCount = new Uint8Array([
+		(signCountInt & 0xff000000) >> 24,
+		(signCountInt & 0x00ff0000) >> 16,
+		(signCountInt & 0x0000ff00) >> 8,
+		signCountInt & 0x000000ff,
+	]);
+
+	const authData = new Uint8Array(37);
+	authData.set(rpIdHash, 0);
+	authData[32] = flags;
+	authData.set(signCount, 33);
+
+	return authData;
+}
+
+/**
+ * Creates assertion authenticator data without attested credential data.
+ *
+ * @param {string} rpId
+ * @param {number} signCountInt
+ * @param {boolean} userPresent
+ * @returns {Uint8Array}
+ */
+function createAssertionAuthenticatorData(
+	rpId: string,
+	signCountInt: number,
+	userPresent: boolean,
+): Uint8Array<ArrayBuffer> {
+	let flags = 0x04; // User verified
+	if (userPresent) {
+		flags |= 0x01;
+	}
+
+	return createAuthenticatorDataHeader(rpId, flags, signCountInt);
+}
+
+/**
+ * Creates registration authenticator data including attested credential data.
+ * https://www.w3.org/TR/webauthn/#sctn-attested-credential-data
+ *
+ * @param {string} rpId
+ * @param {Uint8Array} rawId
+ * @param {CryptoKey} publicKey
+ * @param {number} signCountInt
+ * @param {boolean} userPresent
+ * @returns {Promise<Uint8Array>}
+ */
+async function createRegistrationAuthenticatorData(
+	rpId: string,
+	rawId: Uint8Array,
+	publicKey: CryptoKey,
+	signCountInt: number,
+	userPresent: boolean,
+): Promise<Uint8Array<ArrayBuffer>> {
+	let flags = 0x44; // User verified and attested credential data included
+	if (userPresent) {
+		flags |= 0x01;
+	}
+	const header = createAuthenticatorDataHeader(rpId, flags, signCountInt);
+
+	const aaguid = new Uint8Array(16); // 16-byte AAGUID
+	aaguid.set(new Uint8Array([0x50, 0x73, 0x6f, 0x6e, 0x6f]));
+
+	// The byte length of the credential ID encoded as 2 bytes, big endian.
+	const credentialIdLengthView = new Uint8Array(2);
+	credentialIdLengthView[0] = (rawId.length >> 8) & 0xff; // High byte
+	credentialIdLengthView[1] = rawId.length & 0xff; // Low byte
+
+	const publicKeyCose = await convertPublicKeyToCose(publicKey);
+
+	// Concatenate to form authData
+	const authData = new Uint8Array(
+		header.byteLength +
+			aaguid.byteLength +
+			credentialIdLengthView.byteLength +
+			rawId.byteLength +
+			publicKeyCose.byteLength,
+	);
+	authData.set(header, 0);
+	authData.set(aaguid, header.byteLength);
+	authData.set(credentialIdLengthView, header.byteLength + aaguid.byteLength);
+	authData.set(
+		rawId,
+		header.byteLength + aaguid.byteLength + credentialIdLengthView.byteLength,
+	);
+	authData.set(
+		publicKeyCose,
+		header.byteLength +
+			aaguid.byteLength +
+			credentialIdLengthView.byteLength +
+			rawId.byteLength,
+	);
+
+	return authData;
+}
+
+/**
+ * Tells the user that the website wants to create a new passkey and asks him whether he wants to allow or deny the request
+ * Will return a promise reflecting the user's decision.
+ *
+ * @param {int} timeout A time in milliseconds when the notification bar should disappear again.
+ *
+ * @returns {Promise}
+ */
+function createNotificationAsync(
+	title: string,
+	description: string,
+	timeout: number,
+	metadata?: PasskeyErrorMetadata,
+): Promise<void> {
+	return new Promise<void>((resolve, reject) => {
+		notificationBarService.create(
+			title,
+			description,
+			[
+				{
+					title: i18n.t("ALLOW"),
+					onClick: resolve,
+					color: "primary",
+				},
+				{
+					title: i18n.t("NO"),
+					onClick: () =>
+						reject(
+							new PasskeyException(
+								"USER_DENIED_REQUEST",
+								i18n.t("USER_DENIED_REQUEST"),
+							),
+						),
+				},
+				{
+					title: i18n.t("BYPASS_PSONO"),
+					onClick: () =>
+						reject(createBypassPsonoException("USER_CLICKED_BYPASS", metadata)),
+				},
+			],
+			timeout,
+			reject,
+		);
+	});
+}
+
+/**
+ * Determines if a passkey should be discoverable (autosubmit) based on WebAuthn options
+ *
+ * @param {object} authenticatorSelection The authenticatorSelection object from publicKeyCredentialCreationOptions
+ * @returns {boolean} True if the credential should be discoverable, false otherwise
+ */
+function determineAutoSubmit(
+	authenticatorSelection?: AuthenticatorSelectionCriteria,
+): boolean {
+	if (!authenticatorSelection) {
+		return false;
+	}
+
+	// Prioritize modern 'residentKey' field (WebAuthn Level 2)
+	if (Object.hasOwn(authenticatorSelection, "residentKey")) {
+		const residentKey = authenticatorSelection.residentKey;
+
+		if (residentKey === "required") {
+			return true;
+		} else if (residentKey === "preferred") {
+			// Honor 'preferred' by creating discoverable credential
+			return true;
+		} else if (residentKey === "discouraged") {
+			return false;
+		}
+	}
+
+	// Fall back to legacy 'requireResidentKey' field (WebAuthn Level 1)
+	if (Object.hasOwn(authenticatorSelection, "requireResidentKey")) {
+		return authenticatorSelection.requireResidentKey === true;
+	}
+
+	// Default: non-discoverable
+	return false;
+}
+
+/**
+ * Fake navigatorCredentialsCreate which takes options and returns async
+ *
+ * @param options
+ * @param origin
+ * @returns A serialized WebAuthn attestation with base64url-encoded binary fields.
+ */
+async function navigatorCredentialsCreate(
+	options: PasskeyCreationOptions,
+	origin: string,
+	eventId?: string,
+): Promise<SerializedPasskeyCredential<SerializedAttestationResponse>> {
+	/**
+	 * Receives something like:
+	 *
+	 * {
+	 *   "rp": {
+	 *     "name": "webauthn.io",
+	 *     "id": "webauthn.io"
+	 *   },
+	 *   "user": {
+	 *     "id": "YXNk",
+	 *     "name": "asd",
+	 *     "displayName": "asd"
+	 *   },
+	 *   "challenge": "jYT1WS2a40nQvyBoHhIXxYhUBfaJC3asJLWy2NUEPy6TQT3qXC_Vio7GJ1hJ3IgT84fGH9l99BZKRYe1-lv3JQ",
+	 *   "pubKeyCredParams": [
+	 *     {
+	 *       "type": "public-key",
+	 *       "alg": -7
+	 *     },
+	 *     {
+	 *       "type": "public-key",
+	 *       "alg": -257
+	 *     }
+	 *   ],
+	 *   "timeout": 60000,
+	 *   "excludeCredentials": [],
+	 *   "authenticatorSelection": {
+	 *     "residentKey": "preferred",
+	 *     "requireResidentKey": false,
+	 *     "userVerification": "preferred"
+	 *   },
+	 *   "attestation": "none",
+	 *   "hints": [],
+	 *   "extensions": {
+	 *     "credProps": true
+	 *   }
+	 * }
+	 *
+	 *
+	 * And is supposed to return something like:
+	 *
+	 * {
+	 *   "id": "DdHkix-t8qQ5x47Pny7zgDvZjCmqxG8eKMuiJg7B4b0QpCMvIVwIJQ5qPI2e2qyR",
+	 *   "rawId": "DdHkix-t8qQ5x47Pny7zgDvZjCmqxG8eKMuiJg7B4b0QpCMvIVwIJQ5qPI2e2qyR",
+	 *   "response": {
+	 *     "attestationObject": "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVjCdKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvDFAAAAAgAAAAAAAAAAAAAAAAAAAAAAMA3R5IsfrfKkOceOz58u84A72YwpqsRvHijLoiYOweG9EKQjLyFcCCUOajyNntqskaUBAgMmIAEhWCAN0eSLH63ypDnHjs-fhIQhla9vBjn9mmqgo4SOPhTQ7iJYIAW1DN4LgU9FLTHsBsMOf_65gLPkDe82LVu3lAEpMcjSoWtjcmVkUHJvdGVjdAI",
+	 *     "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiallUMVdTMmE0MG5RdnlCb0hoSVh4WWhVQmZhSkMzYXNKTFd5Mk5VRVB5NlRRVDNxWENfVmlvN0dKMWhKM0lnVDg0ZkdIOWw5OUJaS1JZZTEtbHYzSlEiLCJvcmlnaW4iOiJodHRwczovL3dlYmF1dGhuLmlvIiwiY3Jvc3NPcmlnaW4iOmZhbHNlLCJvdGhlcl9rZXlzX2Nhbl9iZV9hZGRlZF9oZXJlIjoiZG8gbm90IGNvbXBhcmUgY2xpZW50RGF0YUpTT04gYWdhaW5zdCBhIHRlbXBsYXRlLiBTZWUgaHR0cHM6Ly9nb28uZ2wveWFiUGV4In0",
+	 *     "transports": [
+	 *       "usb"
+	 *     ],
+	 *     "publicKeyAlgorithm": -7,
+	 *     "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDdHkix-t8qQ5x47Pn4SEIZWvbwY5_ZpqoKOEjj4U0O4FtQzeC4FPRS0x7AbDDn_-uYCz5A3vNi1bt5QBKTHI0g",
+	 *     "authenticatorData": "dKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvDFAAAAAgAAAAAAAAAAAAAAAAAAAAAAMA3R5IsfrfKkOceOz58u84A72YwpqsRvHijLoiYOweG9EKQjLyFcCCUOajyNntqskaUBAgMmIAEhWCAN0eSLH63ypDnHjs-fhIQhla9vBjn9mmqgo4SOPhTQ7iJYIAW1DN4LgU9FLTHsBsMOf_65gLPkDe82LVu3lAEpMcjSoWtjcmVkUHJvdGVjdAI"
+	 *   },
+	 *   "type": "public-key",
+	 *   "clientExtensionResults": {
+	 *     "credProps": {
+	 *       "rk": true
+	 *     }
+	 *   },
+	 *   "authenticatorAttachment": "cross-platform"
+	 * }
+	 */
+
+	if (!origin.startsWith("https://")) {
+		throw new PasskeyException(
+			"ORIGIN_NOT_SUPPORTED",
+			i18n.t("ORIGIN_NOT_SUPPORTED"),
+		);
+	}
+
+	const isLoggedIn = user.isLoggedIn();
+
+	if (isLoggedIn && !getStore().getState().settingsDatastore.showPasskey) {
+		throw new PasskeyException("PASSKEY_DISABLED", i18n.t("PASSKEY_DISABLED"));
+	}
+
+	if (!isLoggedIn) {
+		notificationBarService.create(
+			i18n.t("SIGN_IN_REQUIRED"),
+			i18n.t("NOT_LOGGED_IN_PLEASE_SIGN_IN_TO_USE_FUNCTION"),
+			[],
+			12 * 1000,
+		);
+		throw new PasskeyException(
+			"USER_NOT_LOGGED_IN",
+			i18n.t("USER_NOT_LOGGED_IN"),
+		);
+	}
+
+	const parsedOrigin = helperService.parseUrl(origin);
+
+	await createNotificationAsync(
+		i18n.t("NEW_PASSKEY"),
+		i18n.t("WEBSITE_WANTS_TO_CREATE_NEW_PASSKEY_ALLOW_OR_DENY"),
+		options.publicKey.timeout || 30 * 1000,
+		{
+			eventId: eventId,
+			origin: origin,
+			operation: "navigator.credentials.create",
+		},
+	);
+
+	// https://w3c.github.io/webauthn/#dom-publickeycredentialcreationoptions-pubkeycredparams
+	let foundSupportedPublicKeyParams = false;
+	for (let i = 0; i < options.publicKey.pubKeyCredParams.length; i++) {
+		const hasType =
+			options.publicKey.pubKeyCredParams[i]["type"] === "public-key";
+		const hasAlg = options.publicKey.pubKeyCredParams[i]["alg"] === -7;
+
+		if (hasType && hasAlg) {
+			foundSupportedPublicKeyParams = true;
+			break;
+		}
+	}
+	if (!foundSupportedPublicKeyParams) {
+		throw new PasskeyException(
+			"PUBLIC_KEY_PARAMS_NOT_SUPPORTED",
+			i18n.t("PUBLIC_KEY_PARAMS_NOT_SUPPORTED"),
+		);
+	}
+
+	let rpId = options.publicKey.rp.id;
+	if (!rpId) {
+		// https://www.w3.org/TR/webauthn-2/#relying-party-identifier
+		// By default, the RP ID for a WebAuthn operation is set to the caller’s origin's effective domain. This default
+		// MAY be overridden by the caller, as long as the caller-specified RP ID value is a registrable domain suffix
+		// of or is equal to the caller’s origin's effective domain.
+		//
+		// Note: An RP ID is based on a host's domain name. It does not itself include a scheme or port, as an origin does.
+		rpId = parsedOrigin.full_domain!;
+	}
+
+	if (!(await isRegistrableDomainSuffix(rpId, parsedOrigin.full_domain!))) {
+		throw new PasskeyException(
+			"RP_ID_NOT_ALLOWED",
+			i18n.t("RP_ID_NOT_ALLOWED"),
+		);
+	}
+
+	const keyPair = await crypto.subtle.generateKey(
+		{
+			name: "ECDSA",
+			namedCurve: "P-256",
+		},
+		true,
+		["sign"],
+	);
+	const publicKey = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+
+	const rawId = cryptoLibrary.randomBytes(16); // 16 bytes or 128 bits long random credential id
+
+	const authData = await createRegistrationAuthenticatorData(
+		rpId,
+		rawId,
+		keyPair.publicKey,
+		0,
+		true,
+	);
+
+	// IMPORTANT: Key order matters for CBOR encoding!
+	const attestationObject = {
+		fmt: "none",
+		attStmt: {}, // Empty for 'none' attestation format
+		authData: authData,
+	};
+
+	const attestationObjectCBOREncoded =
+		converterService.cborEncode(attestationObject);
+
+	const clientDataJSON = JSON.stringify({
+		type: "webauthn.create",
+		challenge: options.publicKey.challenge,
+		origin: origin,
+		crossOrigin: false,
+	});
+	const clientDataJSONUint8Array = converterService.encodeUtf8(clientDataJSON);
+
+	const publicKeyJwkFormat = await crypto.subtle.exportKey(
+		"jwk",
+		keyPair.publicKey,
+	);
+	const privateKeyJwkFormat = await crypto.subtle.exportKey(
+		"jwk",
+		keyPair.privateKey,
+	);
+
+	const autosubmit = determineAutoSubmit(
+		options.publicKey.authenticatorSelection,
+	);
+
+	await datastorePasswordService.savePasskey(
+		converterService.toHex(rawId),
+		rpId,
+		publicKeyJwkFormat,
+		privateKeyJwkFormat,
+		options.publicKey.user.id,
+		options.publicKey.user.displayName ||
+			options.publicKey.user.name ||
+			options.publicKey.user.id,
+		{
+			name: "ECDSA",
+			namedCurve: "P-256",
+		},
+		autosubmit,
+	);
+
+	const credential: SerializedPasskeyCredential<SerializedAttestationResponse> =
+		{
+			id: converterService.arrayBufferToBase64Url(rawId),
+			rawId: converterService.arrayBufferToBase64Url(rawId),
+			response: {
+				attestationObject: converterService.arrayBufferToBase64Url(
+					attestationObjectCBOREncoded,
+				),
+				clientDataJSON: converterService.arrayBufferToBase64Url(
+					clientDataJSONUint8Array,
+				),
+				transports: [
+					"internal", // https://www.w3.org/TR/webauthn-2/#enum-transport
+				],
+				publicKeyAlgorithm: -7,
+				publicKey: converterService.arrayBufferToBase64Url(publicKey),
+				authenticatorData: converterService.arrayBufferToBase64Url(authData),
+			},
+			type: "public-key",
+			clientExtensionResults:
+				options.publicKey.extensions && options.publicKey.extensions.credProps
+					? { credProps: { rk: autosubmit } }
+					: {},
+			authenticatorAttachment: "platform",
+		};
+
+	return credential;
+}
+
+/**
+ * Triggers on a navigator-credentials-get event, whenever someone called navigator.credentials.get
+ * We will check whether Psono is responsible to deal with Webauthn / Passkeys
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onNavigatorCredentialsCreate(
+	request: PasskeyMessage<PasskeyCreationOptions>,
+	sender: PasskeySender,
+	sendResponse: (
+		response: PasskeyMessageResponse<SerializedAttestationResponse>,
+	) => void,
+): true {
+	async function asyncResponse() {
+		let credential;
+		try {
+			const origin = getSenderOrigin(sender);
+			credential = await navigatorCredentialsCreate(
+				request.data.options,
+				origin,
+				request.data.eventId,
+			);
+		} catch (e) {
+			if (e instanceof PasskeyException) {
+				sendResponse({
+					event: "navigator-credentials-create-response",
+					data: {
+						error: {
+							errorType: e.errorType,
+							message: e.message,
+							metadata: e.metadata,
+						},
+						eventId: request.data.eventId,
+					},
+				});
+				return;
+			} else {
+				throw e; // let others bubble up
+			}
+		}
+
+		sendResponse({
+			event: "navigator-credentials-create-response",
+			data: {
+				credential: credential,
+				eventId: request.data.eventId,
+			},
+		});
+	}
+
+	asyncResponse();
+
+	return true;
+}
+
+const passkeyService = {
+	isRegistrableDomainSuffix,
+	onNavigatorCredentialsGet,
+	onNavigatorCredentialsCreate,
+	//for easier unit testing
+	navigatorCredentialsCreate,
+};
+
+export default passkeyService;
