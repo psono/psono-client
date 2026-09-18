@@ -4,11 +4,13 @@
 
 import action from "../actions/bound-action-creators";
 import datastore from "./datastore";
+import notification from "./notification";
 import { getStore } from "./store";
 import type {
 	DatastoreMetadata,
 	SettingsDatastore,
 	SettingsEntry,
+	WriteResult,
 } from "../../types/datastore";
 import type {
 	ConnectionAuthentication,
@@ -137,27 +139,36 @@ function serializeSettingsDatastore(
 		},
 		{
 			key: "setting_custom_domain_synonyms",
-			value: JSON.stringify(settings.customDomainSynonyms || []),
+			value:
+				settings.customDomainSynonyms === undefined
+					? undefined
+					: JSON.stringify(settings.customDomainSynonyms || []),
 		},
 		{
 			key: "setting_connection_authentication",
-			value: JSON.stringify(
-				settings.connectionAuthentication || {
-					schema_version: 1,
-					by_connection_secret_id: {},
-				},
-			),
+			value:
+				settings.connectionAuthentication === undefined
+					? undefined
+					: JSON.stringify(
+							settings.connectionAuthentication || {
+								schema_version: 1,
+								by_connection_secret_id: {},
+							},
+						),
 		},
 		{
 			key: "setting_gateway_cluster_selection",
-			value: JSON.stringify(
-				settings.gatewayClusterSelection || {
-					schema_version: 1,
-					by_connection_secret_id: {},
-				},
-			),
+			value:
+				settings.gatewayClusterSelection === undefined
+					? undefined
+					: JSON.stringify(
+							settings.gatewayClusterSelection || {
+								schema_version: 1,
+								by_connection_secret_id: {},
+							},
+						),
 		},
-	];
+	].filter(({ value }) => value !== undefined);
 }
 
 /**
@@ -292,16 +303,73 @@ function getSettingsDatastore() {
 }
 
 /**
- * Saves the settings datastore with given content
+ * Merges changed settings into the current datastore. Unrelated settings belong
+ * to other screens, clients, or future versions and must be retained verbatim.
  *
- * @param {TreeObject} content The real object you want to encrypt in the datastore
+ * @param content The changed key/value entries
  * @returns {Promise} Promise with the status of the save
  */
-function saveSettingsDatastore(content: SettingsEntry[] & DatastoreMetadata) {
-	const type = "settings";
-	const description = "key-value-settings";
+async function saveSettingsDatastore(
+	content: SettingsEntry[],
+): Promise<WriteResult | undefined> {
+	const state = getStore().getState();
+	const userId = state.user.userId;
+	const token = state.user.token;
+	const serverUrl = state.server.url;
+	let current: SettingsDatastore | DatastoreMetadata | undefined;
+	try {
+		// Read the raw datastore: the settings loader dispatches Redux updates and
+		// would overwrite pending UI edits while preparing this save.
+		current = await datastore.getDatastore<
+			SettingsDatastore | DatastoreMetadata
+		>("settings");
+	} catch {
+		notification.errorSend("DATASTORE_SAVE_FAILED");
+		return undefined;
+	}
 
-	return datastore.saveDatastoreContent(type, description, content);
+	const activeState = getStore().getState();
+	if (
+		activeState.user.userId !== userId ||
+		activeState.user.token !== token ||
+		activeState.server.url !== serverUrl
+	) {
+		return undefined;
+	}
+
+	if (
+		!current?.datastore_id ||
+		(!Array.isArray(current) &&
+			Object.keys(current).some(
+				(key) => key !== "datastore_id" && key !== "write_date",
+			))
+	) {
+		// A failed or unrecognized read must never turn into a replacement write.
+		notification.errorSend("DATASTORE_SAVE_FAILED");
+		return undefined;
+	}
+
+	// An empty/new datastore is returned as a metadata-only object.
+	const existing = Array.isArray(current) ? current : [];
+	const updates = new Map(content.map((entry) => [entry.key, entry]));
+	const existingKeys = new Set(existing.map(({ key }) => key));
+	const merged: SettingsDatastore = existing.map((entry) => {
+		const update = updates.get(entry.key);
+		return update ? { ...entry, ...update } : entry;
+	});
+	for (const [key, entry] of updates) {
+		if (!existingKeys.has(key)) {
+			merged.push(entry);
+		}
+	}
+
+	// Keep the revision from the read so a concurrent app write produces a
+	// conflict instead of silently replacing newer settings.
+	return datastore.saveDatastoreContentWithId(
+		current.datastore_id,
+		merged,
+		current.write_date,
+	);
 }
 
 const datastoreSettingService = {

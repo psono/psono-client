@@ -128,7 +128,9 @@ export interface WriteResult {
 
 export interface SettingsEntry {
 	key: string;
-	value: string | number | boolean | GpgKeySelection | null | undefined;
+	/** Other clients and future versions may store arbitrary JSON settings. */
+	value: unknown;
+	[field: string]: unknown;
 }
 
 export interface GpgKeySelection {

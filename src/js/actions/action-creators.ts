@@ -349,13 +349,8 @@ function enqueueSettingsPersistence<Result>(
 
 function persistSettingsDatastore(overrides: Partial<SettingsState>) {
 	return enqueueSettingsPersistence(() => {
-		const settings = Object.assign(
-			{},
-			getStore().getState().settingsDatastore,
-			overrides,
-		);
 		return datastoreSettingService.saveSettingsDatastore(
-			datastoreSettingService.serializeSettingsDatastore(settings),
+			datastoreSettingService.serializeSettingsDatastore(overrides),
 		);
 	});
 }
@@ -526,15 +521,11 @@ function setConnectionAuthentication(
 				schema_version: 1,
 				by_connection_secret_id: byConnectionSecretId,
 			});
-			const settings = Object.assign(
-				{},
-				getStore().getState().settingsDatastore,
-				{ connectionAuthentication },
-			);
-
 			return datastoreSettingService
 				.saveSettingsDatastore(
-					datastoreSettingService.serializeSettingsDatastore(settings),
+					datastoreSettingService.serializeSettingsDatastore({
+						connectionAuthentication,
+					}),
 				)
 				.then((result) => {
 					if (
@@ -579,15 +570,11 @@ function setGatewayClusterSelection(
 				schema_version: 1,
 				by_connection_secret_id: byConnectionSecretId,
 			});
-			const settings = Object.assign(
-				{},
-				getStore().getState().settingsDatastore,
-				{ gatewayClusterSelection },
-			);
-
 			return datastoreSettingService
 				.saveSettingsDatastore(
-					datastoreSettingService.serializeSettingsDatastore(settings),
+					datastoreSettingService.serializeSettingsDatastore({
+						gatewayClusterSelection,
+					}),
 				)
 				.then((result) => {
 					if (
