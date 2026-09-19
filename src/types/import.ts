@@ -1,6 +1,6 @@
 import type { Datastore, DatastoreFolder, DatastoreItem } from "./datastore";
 import type { PasskeySecret } from "./auth";
-import type { CustomField, SecretMetadata } from "./vault";
+import type { CustomField, SecretContent, SecretMetadata } from "./vault";
 
 /** CSV parsers disable dynamic typing; column positions are format-specific. */
 export type CsvRow = string[];
@@ -59,6 +59,7 @@ type TextFields =
 
 /** Decrypted fields carried by native exports and format-specific importers. */
 export type ImportSecretContent = Partial<Record<TextFields, string>> &
+	Pick<SecretContent, "identity_notes" | "attachments"> &
 	Partial<
 		Pick<
 			PasskeySecret,
