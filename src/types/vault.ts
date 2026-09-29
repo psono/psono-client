@@ -328,6 +328,8 @@ export interface ApiKey {
 	allow_insecure_access: boolean;
 	allow_api_key_management: boolean;
 	allow_admin_access: boolean;
+	allow_recovery_access: boolean;
+	allow_emergency_access: boolean;
 	read: boolean;
 	write: boolean;
 	active: boolean;

@@ -160,6 +160,8 @@ function addSecretsToApiKey(
  * @param {bool} allowInsecureAccess
  * @param {bool} allowApiKeyManagement
  * @param {bool} allowAdminAccess
+ * @param {bool} allowRecoveryAccess
+ * @param {bool} allowEmergencyAccess
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  * @param {array} secrets Array of secrets
@@ -172,6 +174,8 @@ function createApiKey(
 	allowInsecureAccess: boolean,
 	allowApiKeyManagement: boolean,
 	allowAdminAccess: boolean,
+	allowRecoveryAccess: boolean,
+	allowEmergencyAccess: boolean,
 	allowReadAccess: boolean,
 	allowWriteAccess: boolean,
 	secrets: NamedSecretReference[],
@@ -229,6 +233,8 @@ function createApiKey(
 			allowInsecureAccess,
 			allowApiKeyManagement,
 			allowAdminAccess,
+			allowRecoveryAccess,
+			allowEmergencyAccess,
 			allowReadAccess,
 			allowWriteAccess,
 			verify_key,
@@ -245,6 +251,8 @@ function createApiKey(
  * @param {bool} allowInsecureAccess
  * @param {bool} allowApiKeyManagement
  * @param {bool} allowAdminAccess
+ * @param {bool} allowRecoveryAccess
+ * @param {bool} allowEmergencyAccess
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  *
@@ -257,6 +265,8 @@ function updateApiKey(
 	allowInsecureAccess: boolean,
 	allowApiKeyManagement: boolean,
 	allowAdminAccess: boolean,
+	allowRecoveryAccess: boolean,
+	allowEmergencyAccess: boolean,
 	allowReadAccess: boolean,
 	allowWriteAccess: boolean,
 ) {
@@ -272,6 +282,8 @@ function updateApiKey(
 		allowInsecureAccess,
 		allowApiKeyManagement,
 		allowAdminAccess,
+		allowRecoveryAccess,
+		allowEmergencyAccess,
 		allowReadAccess,
 		allowWriteAccess,
 	);

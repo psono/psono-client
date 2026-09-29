@@ -61,6 +61,8 @@ describe("API client: API keys", () => {
 			true,
 			true,
 			false,
+			true,
+			false,
 			"verify",
 		);
 
@@ -68,6 +70,8 @@ describe("API client: API keys", () => {
 			expect.objectContaining({
 				allow_api_key_management: true,
 				allow_admin_access: true,
+				allow_recovery_access: true,
+				allow_emergency_access: false,
 			}),
 		);
 		expect(encryptDataMock.mock.calls[0][1]).toBe("session-key");
@@ -85,6 +89,8 @@ describe("API client: API keys", () => {
 			true,
 			true,
 			false,
+			true,
+			false,
 		);
 
 		expect(cryptoLibrary.encryptData).toHaveBeenCalledWith(
@@ -96,6 +102,8 @@ describe("API client: API keys", () => {
 				allow_insecure_access: false,
 				allow_api_key_management: true,
 				allow_admin_access: true,
+				allow_recovery_access: true,
+				allow_emergency_access: false,
 				write: false,
 			}),
 			"session-key",

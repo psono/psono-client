@@ -84,6 +84,8 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 	const [allowInsecureUsage, setAllowInsecureUsage] = useState(false);
 	const [allowApiKeyManagement, setAllowApiKeyManagement] = useState(false);
 	const [allowAdminAccess, setAllowAdminAccess] = useState(false);
+	const [allowRecoveryAccess, setAllowRecoveryAccess] = useState(false);
+	const [allowEmergencyAccess, setAllowEmergencyAccess] = useState(false);
 	const [rightToRead, setRightToRead] = useState(true);
 	const [rightToWrite, setRightToWrite] = useState(false);
 	const [secrets, setSecrets] = useState<EditApiKeySecretRow[]>([]);
@@ -108,6 +110,8 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 				setAllowInsecureUsage(data.allow_insecure_access);
 				setAllowApiKeyManagement(data.allow_api_key_management);
 				setAllowAdminAccess(data.allow_admin_access);
+				setAllowRecoveryAccess(data.allow_recovery_access === true);
+				setAllowEmergencyAccess(data.allow_emergency_access === true);
 				setRightToRead(data.read);
 				setRightToWrite(data.write);
 			},
@@ -153,6 +157,8 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 				allowInsecureUsage,
 				allowApiKeyManagement,
 				allowAdminAccess,
+				allowRecoveryAccess,
+				allowEmergencyAccess,
 				rightToRead,
 				rightToWrite,
 			)
@@ -363,6 +369,32 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 							}}
 						/>{" "}
 						{t("ALLOW_ADMIN_API_ACCESS")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowRecoveryAccess}
+							onChange={(event) => {
+								setAllowRecoveryAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{ checked: classes.checked }}
+						/>{" "}
+						{t("ALLOW_RECOVERY_API_ACCESS")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowEmergencyAccess}
+							onChange={(event) => {
+								setAllowEmergencyAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{ checked: classes.checked }}
+						/>{" "}
+						{t("ALLOW_EMERGENCY_API_ACCESS")}
 					</Grid>
 					<Grid item xs={12} sm={12} md={12}>
 						<Checkbox

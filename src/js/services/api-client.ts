@@ -3026,6 +3026,8 @@ const readApiKeySecrets = (
  * @param {bool} allow_insecure_access Allow insecure access
  * @param {bool} allow_api_key_management Allow API key management
  * @param {bool} allow_admin_access Allow administration API access
+ * @param {bool} allow_recovery_access Allow recovery credential management
+ * @param {bool} allow_emergency_access Allow emergency code management
  * @param {bool} read Allow read access
  * @param {bool} write Allow write access
  * @param {string} verify_key The verify key as a derivat of the private key
@@ -3049,6 +3051,8 @@ const createApiKey = (
 	allow_insecure_access: boolean,
 	allow_api_key_management: boolean,
 	allow_admin_access: boolean,
+	allow_recovery_access: boolean,
+	allow_emergency_access: boolean,
 	read: boolean,
 	write: boolean,
 	verify_key: string,
@@ -3070,6 +3074,8 @@ const createApiKey = (
 		allow_insecure_access: allow_insecure_access,
 		allow_api_key_management: allow_api_key_management,
 		allow_admin_access: allow_admin_access,
+		allow_recovery_access: allow_recovery_access,
+		allow_emergency_access: allow_emergency_access,
 		read: read,
 		write: write,
 		verify_key: verify_key,
@@ -3141,6 +3147,8 @@ const addSecretToApiKey = (
  * @param {bool} allow_insecure_access Allow insecure access
  * @param {bool} allow_api_key_management Allow API key management
  * @param {bool} allow_admin_access Allow administration API access
+ * @param {bool} allow_recovery_access Allow recovery credential management
+ * @param {bool} allow_emergency_access Allow emergency code management
  * @param {bool} read Allow read access
  * @param {bool} write Allow write access
  *
@@ -3155,6 +3163,8 @@ const updateApiKey = (
 	allow_insecure_access: boolean,
 	allow_api_key_management: boolean,
 	allow_admin_access: boolean,
+	allow_recovery_access: boolean,
+	allow_emergency_access: boolean,
 	read: boolean,
 	write: boolean,
 ) => {
@@ -3168,6 +3178,8 @@ const updateApiKey = (
 		allow_insecure_access: allow_insecure_access,
 		allow_api_key_management: allow_api_key_management,
 		allow_admin_access: allow_admin_access,
+		allow_recovery_access: allow_recovery_access,
+		allow_emergency_access: allow_emergency_access,
 		write: write,
 	};
 
