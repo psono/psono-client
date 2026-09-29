@@ -181,7 +181,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 								}),
 								fileTransferId,
 								fileTransferSecretKey,
-								chunkSize,
+								encryptedBytes.byteLength,
 								chunkPosition,
 								shard,
 								fileRepository,

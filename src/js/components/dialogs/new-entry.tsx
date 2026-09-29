@@ -570,7 +570,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 								}),
 								fileTransferId,
 								fileTransferSecretKey,
-								chunkSize,
+								encryptedBytes.byteLength,
 								chunkPosition,
 								shard,
 								fileRepository,
