@@ -27,7 +27,6 @@ import type {
 import type { SecretReference } from "../../../types/vault";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
-import widgetService from "../../services/widget";
 import EntryIcon from "../entry-icon";
 import ContentCopy from "../icons/ContentCopy";
 import GatewayLaunchButton from "../gateway-launch-button";
@@ -45,9 +44,8 @@ const useStyles = makeStyles((theme) => ({
 		textDecoration: "none",
 		flexGrow: 1,
 		paddingRight: "120px",
-		"&:hover, &:focus": {
+		"&:hover": {
 			backgroundColor: "#F0F7FC",
-			outline: "none",
 			textDecoration: "none",
 		},
 		"&::before": {
@@ -73,8 +71,24 @@ const useStyles = makeStyles((theme) => ({
 	treeItemObject: {
 		display: "block",
 		position: "relative",
+		width: "100%",
+		padding: 0,
+		border: 0,
+		background: "transparent",
+		color: "inherit",
+		font: "inherit",
+		textAlign: "left",
+		cursor: "pointer",
 		whiteSpace: "nowrap",
 		overflow: "hidden",
+		"&:focus-visible": {
+			outline: `2px solid ${theme.palette.secondary.main}`,
+			outlineOffset: "-2px",
+		},
+		"&:disabled": {
+			color: "inherit",
+			cursor: "default",
+		},
 	},
 	treeItemName: {
 		display: "inline-block",
@@ -359,15 +373,22 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 
 	return (
 		<div className={classes.treeItem}>
-			<div
+			<button
+				type="button"
 				className={
 					classes.treeItemObject + (isSelectable ? "" : " notSelectable")
 				}
 				onClick={selectItem}
 				onContextMenu={onContextMenu}
+				disabled={!props.onSelectItem || !isSelectable}
+				aria-label={`${content.name || ""}${description ? `, ${description}` : ""}`}
+				aria-pressed={
+					props.allowMultiselect ? props.isSelected!(content) : undefined
+				}
 			>
 				<span className={`fa-stack ${classes.faStack}`}>
 					<EntryIcon
+						aria-hidden="true"
 						key={content.secret_id || content.file_id}
 						entry={content}
 					/>
@@ -386,14 +407,14 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 				{props.allowMultiselect && !props.isSelected!(content) && (
 					<i className={"fa fa-square-o" + " " + classes.iconCheckbox} />
 				)}
-				<div className={classes.treeItemName}>
+				<span className={classes.treeItemName}>
 					{content.name}
 					<br />
 					<span className={classes.treeItemDescription}>
 						{description ? ` ${description}` : ""}
 					</span>
-				</div>
-			</div>
+				</span>
+			</button>
 			<ButtonGroup
 				variant="text"
 				aria-label="outlined button group"

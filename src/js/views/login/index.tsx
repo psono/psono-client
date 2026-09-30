@@ -1,5 +1,6 @@
 import { makeStyles } from "@mui/styles";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import type { LoginViewProps, SsoRouteParams } from "../../../types/auth-ui";
 import ConfigLogo from "../../components/config-logo";
@@ -27,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 
 const LoginView = ({ fullWidth = false }: LoginViewProps) => {
 	const classes = useStyles();
+	const { t } = useTranslation();
 	const { samlTokenId, oidcTokenId } = useParams<SsoRouteParams>();
 
 	return (
@@ -40,6 +42,7 @@ const LoginView = ({ fullWidth = false }: LoginViewProps) => {
 				/>
 				<a
 					href="https://psono.com/"
+					aria-label={`${t("INFO")}: Psono`}
 					target="_blank"
 					rel="noopener"
 					className="infolabel"

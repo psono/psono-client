@@ -44,11 +44,18 @@ const useStyles = makeStyles((theme) => ({
 	},
 	treeFolderHeader: {
 		position: "relative",
-		height: "34px",
+		height: "44px",
 		lineHeight: "34px",
 		cursor: "pointer",
 		display: "flex",
 		alignItems: "center",
+		width: "100%",
+		boxSizing: "border-box",
+		border: 0,
+		background: "transparent",
+		color: "inherit",
+		font: "inherit",
+		textAlign: "left",
 		padding: "5px 3px",
 		paddingRight: "120px",
 		"&.selected": {
@@ -56,9 +63,12 @@ const useStyles = makeStyles((theme) => ({
 			borderRadius: "4px",
 			borderColor: theme.palette.lightBackground.main,
 		},
-		"&:hover, &:focus": {
+		"&:hover": {
 			backgroundColor: "#F0F7FC",
-			outline: "none",
+		},
+		"&:focus-visible": {
+			outline: `2px solid ${theme.palette.secondary.main}`,
+			outlineOffset: "-2px",
 		},
 		"&.notSelectable": {
 			color: "#bbbbbb",
@@ -276,12 +286,24 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 		<>
 			<div className={classes.treeFolder}>
 				<div>
-					<div
+					<button
+						type="button"
 						className={
 							classes.treeFolderHeader + (isSelectable ? "" : " notSelectable")
 						}
 						onClick={selectNode}
 						onContextMenu={onContextMenu}
+						aria-label={content.name}
+						aria-expanded={
+							props.allowMultiselect && props.onSelectItem && isSelectable
+								? undefined
+								: isExpanded
+						}
+						aria-pressed={
+							props.allowMultiselect && props.onSelectItem && isSelectable
+								? props.isSelected!(content)
+								: undefined
+						}
 					>
 						<span className={`fa-stack ${classes.faStack}`}>
 							{isExpanded && (
@@ -316,7 +338,7 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 							<i className={"fa fa-square-o" + " " + classes.iconCheckbox} />
 						)}
 						<span className={classes.treeFolderName}>{content.name}</span>
-					</div>
+					</button>
 					<ButtonGroup
 						variant="text"
 						aria-label="text button group"

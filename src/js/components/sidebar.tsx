@@ -58,10 +58,14 @@ const useStyles = makeStyles((theme) => ({
 		},
 		"&.Mui-selected": {
 			backgroundColor: theme.palette.primary.main,
-			color: theme.palette.lightBackground.main,
+			color: theme.palette.blueBackground.main,
 			"& .MuiListItemIcon-root": {
-				color: theme.palette.lightBackground.main,
+				color: theme.palette.blueBackground.main,
 			},
+		},
+		"&&.Mui-selected:hover, &&.Mui-selected.Mui-focusVisible": {
+			backgroundColor: theme.palette.primary.main,
+			color: theme.palette.blueBackground.main,
 		},
 	},
 	listItemRoot: {
@@ -74,10 +78,14 @@ const useStyles = makeStyles((theme) => ({
 		},
 		"&.Mui-selected": {
 			backgroundColor: theme.palette.primary.main,
-			color: theme.palette.lightBackground.main,
+			color: theme.palette.blueBackground.main,
 			"& .MuiListItemIcon-root": {
-				color: theme.palette.lightBackground.main,
+				color: theme.palette.blueBackground.main,
 			},
+		},
+		"&&.Mui-selected:hover, &&.Mui-selected.Mui-focusVisible": {
+			backgroundColor: theme.palette.primary.main,
+			color: theme.palette.blueBackground.main,
 		},
 	},
 	listItemText: {
@@ -87,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 			height: "15px",
 			minWidth: "15px",
 			color: theme.palette.lightBackground.main,
-			backgroundColor: theme.palette.badgeBackground.main,
+			backgroundColor: theme.palette.greyText.main,
 			right: "-8px",
 		},
 	},
@@ -96,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
 		minWidth: theme.spacing(4),
 	},
 	listItemIconSelected: {
-		color: theme.palette.lightBackground.main,
+		color: theme.palette.blueBackground.main,
 		minWidth: theme.spacing(4),
 	},
 	icon: {
@@ -404,7 +412,7 @@ const Sidebar = (props: SidebarProps) => {
 	);
 
 	return (
-		<nav className={classes.drawer} aria-label="mailbox folders">
+		<nav className={classes.drawer} aria-label={t("NAVIGATION")}>
 			{isSmUp ? (
 				<Drawer
 					classes={{

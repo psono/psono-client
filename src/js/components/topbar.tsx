@@ -294,6 +294,7 @@ const Topbar = (props: TopbarProps) => {
 									<IconButton
 										{...{ variant: "contained" }}
 										onClick={openDatastoreMenu}
+										aria-label={t("DATASTORE")}
 										color="primary"
 										className={classes.topMenuButton}
 										size="large"
@@ -385,10 +386,10 @@ const Topbar = (props: TopbarProps) => {
 										<Tooltip title={t("NO_SAVE_MODE")}>
 											<Switch
 												checked={settingsDatastore.noSaveMode}
+												inputProps={{ "aria-label": t("NO_SAVE_MODE") }}
 												onChange={(event) => {
 													toggleNoSaveMode(event.target.checked);
 												}}
-												//inputProps={{ 'aria-label': 'controlled' }}
 												disabled={!settingsDatastore.showNoSaveToggle}
 											/>
 										</Tooltip>
@@ -396,6 +397,7 @@ const Topbar = (props: TopbarProps) => {
 									<IconButton
 										{...{ variant: "contained" }}
 										onClick={openTopMenu}
+										aria-label={t("ACCOUNT")}
 										color="primary"
 										className={classes.topMenuButton}
 										size="large"
@@ -415,6 +417,7 @@ const Topbar = (props: TopbarProps) => {
 									<IconButton
 										{...{ variant: "contained" }}
 										onClick={openChangeAccount}
+										aria-label={t("CHANGE_ACCOUNT")}
 										color="primary"
 										className={classes.topMenuButton}
 										size="large"
@@ -447,10 +450,10 @@ const Topbar = (props: TopbarProps) => {
 													control={
 														<Switch
 															checked={settingsDatastore.noSaveMode}
+															inputProps={{ "aria-label": t("NO_SAVE_MODE") }}
 															onChange={(event) => {
 																toggleNoSaveMode(event.target.checked);
 															}}
-															//inputProps={{ 'aria-label': 'controlled' }}
 															disabled={!settingsDatastore.showNoSaveToggle}
 														/>
 													}
