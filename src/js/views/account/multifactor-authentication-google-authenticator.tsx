@@ -3,7 +3,7 @@ import type { TableColumn, TableOptions } from "../../../types/table";
 import type { AccountDialogProps, FactorRow } from "../../../types/account-ui";
 import type { FactorEnrollment } from "../../../types/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -20,6 +20,7 @@ import Table from "../../components/table";
 import TextFieldPassword from "../../components/text-field/password";
 import TextFieldQrCode from "../../components/text-field/qr";
 import googleAuthenticator from "../../services/google-authenticator";
+import SecondFactorOverview from "./second-factor-overview";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {
@@ -37,11 +38,13 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 	const [uri, setUri] = React.useState("");
 	const [newGa, setNewGa] = React.useState<Partial<FactorEnrollment>>({});
 	const [view, setView] = React.useState<
-		"default" | "create_step0" | "create_step1" | "create_step2"
+		"default" | "create_step0" | "create_step1"
 	>("default");
+	const [generating, setGenerating] = useState(false);
 	const [googleAuthenticators, setGoogleAuthenticators] = React.useState<
-		FactorRow[]
-	>([]);
+		FactorRow[] | null
+	>(null);
+	const [listError, setListError] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
 	React.useEffect(() => {
@@ -51,6 +54,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 	const loadGoogleAuthenticators = () => {
 		googleAuthenticator.readGa().then(
 			(authenticators) => {
+				setListError(false);
 				setGoogleAuthenticators(
 					authenticators!.map((authenticator): FactorRow => {
 						return [
@@ -62,26 +66,34 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 				);
 			},
 			(error) => {
+				setListError(true);
 				console.log(error);
 			},
 		);
 	};
 	const generate = () => {
-		setView("create_step1");
+		setErrors([]);
+		setGenerating(true);
 
 		googleAuthenticator.createGa(title).then(
 			(ga) => {
-				setNewGa(ga!);
+				setGenerating(false);
+				if (!ga?.id || !ga.uri) {
+					setErrors(["TOTP_SETUP_GENERATION_FAILED"]);
+					return;
+				}
+				setNewGa(ga);
 				setTitle("");
-				setUri(ga!.uri);
+				setCode("");
+				setUri(ga.uri);
+				setView("create_step1");
 			},
 			(error) => {
 				console.log(error);
+				setGenerating(false);
+				setErrors(["TOTP_SETUP_GENERATION_FAILED"]);
 			},
 		);
-	};
-	const showStep2 = () => {
-		setView("create_step2");
 	};
 	const validate = () => {
 		setErrors([]);
@@ -89,6 +101,9 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 		const onSuccess = (successful: boolean) => {
 			if (successful) {
 				setNewGa({});
+				setCode("");
+				setUri("");
+				setGoogleAuthenticators(null);
 				setView("default");
 				loadGoogleAuthenticators();
 			} else {
@@ -176,14 +191,18 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 		>
 			<DialogTitle id="alert-dialog-title">{t("TOTP")}</DialogTitle>
 			{view === "default" && (
-				<DialogContent>
+				<SecondFactorOverview
+					rows={googleAuthenticators}
+					loadError={listError}
+					onCreate={onCreate}
+				>
 					<Table
-						data={googleAuthenticators}
+						data={googleAuthenticators || []}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}
 					/>
-				</DialogContent>
+				</SecondFactorOverview>
 			)}
 			{view === "create_step0" && (
 				<DialogContent>
@@ -210,17 +229,31 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 								variant="contained"
 								color="primary"
 								onClick={generate}
-								disabled={!title}
+								disabled={!title || generating}
+								startIcon={
+									generating ? (
+										<CircularProgress size={16} color="inherit" />
+									) : undefined
+								}
 							>
 								{t("GENERATE")}
 							</Button>
 						</Grid>
+						<GridContainerErrors errors={errors} setErrors={setErrors} />
 					</Grid>
 				</DialogContent>
 			)}
 			{view === "create_step1" && (
 				<DialogContent>
-					<Grid container>
+					<Grid container spacing={2}>
+						<Grid item xs={12}>
+							<Typography variant="h6" component="h3" gutterBottom>
+								{t("TOTP_SETUP_STEP_1_TITLE")}
+							</Typography>
+							<Typography color="textSecondary">
+								{t("TOTP_SETUP_STEP_1_DESCRIPTION")}
+							</Typography>
+						</Grid>
 						<Grid item xs={12} sm={12} md={12}>
 							<TextFieldQrCode
 								className={classes.textField}
@@ -241,19 +274,17 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 								name="uri"
 								autoComplete="off"
 								value={uri}
+								InputProps={{ readOnly: true }}
 							/>
 						</Grid>
-						<Grid item xs={12} sm={12} md={12}>
-							<Button variant="contained" color="primary" onClick={showStep2}>
-								{t("SCAN_THE_CODE_THEN_CLICK_HERE")}
-							</Button>
+						<Grid item xs={12}>
+							<Typography variant="h6" component="h3" gutterBottom>
+								{t("TOTP_SETUP_STEP_2_TITLE")}
+							</Typography>
+							<Typography color="textSecondary">
+								{t("TOTP_SETUP_STEP_2_DESCRIPTION")}
+							</Typography>
 						</Grid>
-					</Grid>
-				</DialogContent>
-			)}
-			{view === "create_step2" && (
-				<DialogContent>
-					<Grid container>
 						<Grid item xs={12} sm={12} md={12}>
 							<TextField
 								className={classes.textField}
@@ -261,10 +292,10 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 								margin="dense"
 								size="small"
 								id="code"
-								label={t("CODE")}
+								label={t("TOTP_CODE")}
 								name="code"
-								autoComplete="off"
-								helperText={t("ONE_CODE_FOR_VALIDATION")}
+								autoComplete="one-time-code"
+								inputProps={{ inputMode: "numeric" }}
 								required
 								value={code}
 								onChange={(event) => {
@@ -278,9 +309,9 @@ const MultifactorAuthenticatorGoogleAuthenticator = (
 								variant="contained"
 								color="primary"
 								onClick={validate}
-								disabled={!code || code.length < 6}
+								disabled={!newGa.id || code.length < 6}
 							>
-								{t("VALIDATE")}
+								{t("ACTIVATE")}
 							</Button>
 						</Grid>
 					</Grid>

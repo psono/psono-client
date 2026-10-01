@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
 import yubikeyOtp from "../../services/yubikey-otp";
+import SecondFactorOverview from "./second-factor-overview";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {
@@ -31,7 +32,10 @@ const MultifactorAuthenticatorYubikeyOtp = (props: AccountDialogProps) => {
 	const [title, setTitle] = React.useState("");
 	const [view, setView] = React.useState<"default" | "create_step0">("default");
 	const [yubikeyOtpCode, setYubikeyOtpCode] = React.useState("");
-	const [yubikeyOtps, setYubikeyOtps] = React.useState<FactorRow[]>([]);
+	const [yubikeyOtps, setYubikeyOtps] = React.useState<FactorRow[] | null>(
+		null,
+	);
+	const [listError, setListError] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
 	React.useEffect(() => {
@@ -41,6 +45,7 @@ const MultifactorAuthenticatorYubikeyOtp = (props: AccountDialogProps) => {
 	const loadYubikeyOtps = () => {
 		yubikeyOtp.readYubikeyOtp().then(
 			(keys) => {
+				setListError(false);
 				setYubikeyOtps(
 					keys!.map((key): FactorRow => {
 						return [key.id, key.title, key.active];
@@ -48,6 +53,7 @@ const MultifactorAuthenticatorYubikeyOtp = (props: AccountDialogProps) => {
 				);
 			},
 			(error) => {
+				setListError(true);
 				console.log(error);
 			},
 		);
@@ -141,14 +147,18 @@ const MultifactorAuthenticatorYubikeyOtp = (props: AccountDialogProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">{t("YUBIKEY_OTP")}</DialogTitle>
 			{view === "default" && (
-				<DialogContent>
+				<SecondFactorOverview
+					rows={yubikeyOtps}
+					loadError={listError}
+					onCreate={onCreate}
+				>
 					<Table
-						data={yubikeyOtps}
+						data={yubikeyOtps || []}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}
 					/>
-				</DialogContent>
+				</SecondFactorOverview>
 			)}
 			{view === "create_step0" && (
 				<DialogContent>

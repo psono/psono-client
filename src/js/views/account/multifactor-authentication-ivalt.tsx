@@ -25,6 +25,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
 import countries from "../../countries";
 import ivalt from "../../services/ivalt";
+import SecondFactorOverview from "./second-factor-overview";
 
 const FlagImage = ({ option }: { option: (typeof countries)[number] }) => {
 	const flagW20 = `img/flags/${option.code.toLowerCase()}.png`;
@@ -123,7 +124,8 @@ const MultifactorAuthenticatorIvalt = (props: AccountDialogProps) => {
 	const classes = useStyles();
 	const [mobile, setMobile] = useState("");
 	const [view, setView] = useState<"default" | "create_step0">("default");
-	const [ivalts, setIvalts] = useState<IvaltRow[]>([]);
+	const [ivalts, setIvalts] = useState<IvaltRow[] | null>(null);
+	const [listError, setListError] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [ivaltLoading, setIvaltLoading] = useState(false);
 	const [timer, setTimer] = useState(defaultTimer);
@@ -175,6 +177,7 @@ const MultifactorAuthenticatorIvalt = (props: AccountDialogProps) => {
 	const loadivalts = () => {
 		ivalt.readIvalt().then(
 			(keys) => {
+				setListError(false);
 				setIvalts(
 					keys!.map((key): IvaltRow => {
 						return [key.id, key.mobile, key.active];
@@ -182,6 +185,7 @@ const MultifactorAuthenticatorIvalt = (props: AccountDialogProps) => {
 				);
 			},
 			(error) => {
+				setListError(true);
 				console.error(error);
 			},
 		);
@@ -301,14 +305,18 @@ const MultifactorAuthenticatorIvalt = (props: AccountDialogProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">iVALT</DialogTitle>
 			{view === "default" && (
-				<DialogContent>
+				<SecondFactorOverview
+					rows={ivalts}
+					loadError={listError}
+					onCreate={onCreate}
+				>
 					<Table
-						data={ivalts}
+						data={ivalts || []}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}
 					/>
-				</DialogContent>
+				</SecondFactorOverview>
 			)}
 
 			{view === "create_step0" && (

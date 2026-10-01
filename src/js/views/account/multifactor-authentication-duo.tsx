@@ -20,6 +20,7 @@ import Table from "../../components/table";
 import TextFieldQrCode from "../../components/text-field/qr";
 import duo from "../../services/duo";
 import { getStore } from "../../services/store";
+import SecondFactorOverview from "./second-factor-overview";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {
@@ -41,7 +42,8 @@ const MultifactorAuthenticatorDuo = (props: AccountDialogProps) => {
 	const [view, setView] = React.useState<
 		"default" | "create_step0" | "step2" | "step3"
 	>("default");
-	const [duos, setDuos] = React.useState<FactorRow[]>([]);
+	const [duos, setDuos] = React.useState<FactorRow[] | null>(null);
+	const [listError, setListError] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
 	React.useEffect(() => {
@@ -51,6 +53,7 @@ const MultifactorAuthenticatorDuo = (props: AccountDialogProps) => {
 	const loadDuos = () => {
 		duo.readDuo().then(
 			(keys) => {
+				setListError(false);
 				setDuos(
 					keys!.map((key): FactorRow => {
 						return [key.id, key.title, key.active];
@@ -58,6 +61,7 @@ const MultifactorAuthenticatorDuo = (props: AccountDialogProps) => {
 				);
 			},
 			(error) => {
+				setListError(true);
 				console.log(error);
 			},
 		);
@@ -203,14 +207,18 @@ const MultifactorAuthenticatorDuo = (props: AccountDialogProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">{t("DUO")}</DialogTitle>
 			{view === "default" && (
-				<DialogContent>
+				<SecondFactorOverview
+					rows={duos}
+					loadError={listError}
+					onCreate={onCreate}
+				>
 					<Table
-						data={duos}
+						data={duos || []}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}
 					/>
-				</DialogContent>
+				</SecondFactorOverview>
 			)}
 
 			{view === "create_step0" && (

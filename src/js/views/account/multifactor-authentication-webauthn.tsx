@@ -20,6 +20,7 @@ import { BarLoader } from "react-spinners";
 import Table from "../../components/table";
 import converterService from "../../services/converter";
 import webauthnService from "../../services/webauthn";
+import SecondFactorOverview from "./second-factor-overview";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {
@@ -33,7 +34,8 @@ const MultifactorAuthenticatorWebauthn = (props: AccountDialogProps) => {
 	const [title, setTitle] = React.useState("");
 	const [loading, setLoading] = React.useState(false);
 	const [view, setView] = React.useState<"default" | "create_step0">("default");
-	const [webauthns, setWebauthns] = React.useState<FactorRow[]>([]);
+	const [webauthns, setWebauthns] = React.useState<FactorRow[] | null>(null);
+	const [listError, setListError] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
 	React.useEffect(() => {
@@ -43,6 +45,7 @@ const MultifactorAuthenticatorWebauthn = (props: AccountDialogProps) => {
 	const loadWebauthns = () => {
 		webauthnService.readWebauthn().then(
 			(webauthns) => {
+				setListError(false);
 				setWebauthns(
 					webauthns!.map((webauthn): FactorRow => {
 						return [webauthn.id, webauthn.title, webauthn.active];
@@ -50,6 +53,7 @@ const MultifactorAuthenticatorWebauthn = (props: AccountDialogProps) => {
 				);
 			},
 			(error) => {
+				setListError(true);
 				console.log(error);
 			},
 		);
@@ -201,14 +205,18 @@ const MultifactorAuthenticatorWebauthn = (props: AccountDialogProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">{t("FIDO2_WEBAUTHN")}</DialogTitle>
 			{view === "default" && (
-				<DialogContent>
+				<SecondFactorOverview
+					rows={webauthns}
+					loadError={listError}
+					onCreate={onCreate}
+				>
 					<Table
-						data={webauthns}
+						data={webauthns || []}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}
 					/>
-				</DialogContent>
+				</SecondFactorOverview>
 			)}
 			{view === "create_step0" && (
 				<DialogContent>
