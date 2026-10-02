@@ -165,6 +165,11 @@ export interface ActionPayloads {
 		| "token"
 		| "userSauce"
 		| "authentication"
+		| "passwordSha1Prefix"
+	>;
+	[ActionTypes.SET_USER_PASSWORD_SHA1_PREFIX]: Pick<
+		UserState,
+		"passwordSha1Prefix"
 	>;
 	[ActionTypes.SET_USER_INFO_3]: Pick<
 		UserState,

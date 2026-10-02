@@ -11,6 +11,7 @@ import {
 	SET_USER_INFO_1,
 	SET_USER_INFO_2,
 	SET_USER_INFO_3,
+	SET_USER_PASSWORD_SHA1_PREFIX,
 	SET_USER_USERNAME,
 } from "../actions/action-types";
 
@@ -29,6 +30,7 @@ function user(
 		trustDevice: defaultTrustDevice,
 		hasTwoFactor: false,
 		authentication: "",
+		passwordSha1Prefix: "",
 		hashingAlgorithm: "scrypt",
 		hashingParameters: {
 			u: 14,
@@ -69,6 +71,11 @@ function user(
 				token: action.token,
 				userSauce: action.userSauce,
 				authentication: action.authentication,
+				passwordSha1Prefix: action.passwordSha1Prefix,
+			});
+		case SET_USER_PASSWORD_SHA1_PREFIX:
+			return Object.assign({}, state, {
+				passwordSha1Prefix: action.passwordSha1Prefix,
 			});
 		case SET_USER_INFO_3:
 			return Object.assign({}, state, {
@@ -112,6 +119,7 @@ function user(
 				trustDevice: state.rememberMe ? state.trustDevice : defaultTrustDevice,
 				hasTwoFactor: false,
 				authentication: "",
+				passwordSha1Prefix: "",
 				hashingAlgorithm: "scrypt",
 				hashingParameters: {
 					u: 14,

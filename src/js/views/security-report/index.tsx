@@ -4,7 +4,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import EditIcon from "@mui/icons-material/Edit";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { Checkbox, Grid } from "@mui/material";
+import { Checkbox, FormControlLabel, Grid } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -33,6 +33,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
 import TextFieldColored from "../../components/text-field/colored";
 import browserClient from "../../services/browser-client";
+import cryptoLibrary from "../../services/crypto-library";
 import securityReportService from "../../services/security-report";
 import { getStore } from "../../services/store";
 
@@ -126,8 +127,9 @@ const SecurityReportView = (
 	const classes = useStyles();
 	const { t } = useTranslation();
 	const [password, setPassword] = useState("");
-	const [passwordRepeat, setPasswordRepeat] = useState("");
+	const [passwordTouched, setPasswordTouched] = useState(false);
 	const userAuthentication = getStore().getState().user.authentication;
+	const passwordSha1Prefix = getStore().getState().user.passwordSha1Prefix;
 	const hideSendToServer =
 		getStore().getState().server.disableCentralSecurityReports;
 	const showRecoveryCodeAdvise =
@@ -137,6 +139,10 @@ const SecurityReportView = (
 		getStore().getState().server.complianceEnforceCentralSecurityReports;
 	const requireMasterPassword =
 		["LDAP", "AUTHKEY"].indexOf(userAuthentication) !== -1;
+	const passwordMismatch =
+		Boolean(password) &&
+		Boolean(passwordSha1Prefix) &&
+		cryptoLibrary.sha1(password).substring(0, 2) !== passwordSha1Prefix;
 	const [passwordStrengthData, setPasswordStrengthData] = React.useState<
 		Partial<ChartData<"doughnut">>
 	>({});
@@ -279,12 +285,18 @@ const SecurityReportView = (
 	}
 
 	const generateSecurityReport = () => {
+		if (
+			requireMasterPassword &&
+			(!password || !passwordSha1Prefix || passwordMismatch)
+		) {
+			return;
+		}
 		const masterPassword = password;
 
 		setErrors([]);
 		setMsgs([]);
 		setPassword("");
-		setPasswordRepeat("");
+		setPasswordTouched(false);
 
 		const onSuccess = (data: ReportResult) => {
 			setErrors([]);
@@ -739,7 +751,21 @@ const SecurityReportView = (
 									</MuiAlert>
 								</Grid>
 								{requireMasterPassword && (
-									<Grid item xs={12} sm={12} md={12}>
+									<Grid
+										item
+										xs={12}
+										sm={12}
+										md={12}
+										className={classes.muiInfo}
+									>
+										<Typography variant="body2">
+											{t("SECURITY_REPORT_PASSWORD_EXPLANATION")}
+										</Typography>
+										{!passwordSha1Prefix && (
+											<MuiAlert severity="info" className={classes.muiWarning}>
+												{t("SECURITY_REPORT_SIGN_IN_AGAIN")}
+											</MuiAlert>
+										)}
 										<TextField
 											className={classes.textField}
 											variant="outlined"
@@ -749,33 +775,17 @@ const SecurityReportView = (
 											label={t("YOUR_PASSWORD")}
 											name="password"
 											autoComplete="off"
+											disabled={!passwordSha1Prefix}
 											value={password}
 											onChange={(event) => {
 												setPassword(event.target.value);
 											}}
-											InputProps={{
-												type: "password",
-											}}
-										/>
-									</Grid>
-								)}
-								{requireMasterPassword && password && (
-									<Grid item xs={12} sm={12} md={12}>
-										<TextField
-											className={classes.textField}
-											variant="outlined"
-											margin="dense"
-											size="small"
-											id="passwordRepeat"
-											label={t("PASSWORD_REPEAT")}
-											name="passwordRepeat"
-											autoComplete="off"
-											value={passwordRepeat}
-											onChange={(event) => {
-												setPasswordRepeat(event.target.value);
-											}}
-											error={
-												Boolean(passwordRepeat) && password !== passwordRepeat
+											onBlur={() => setPasswordTouched(true)}
+											error={passwordTouched && passwordMismatch}
+											helperText={
+												passwordTouched && passwordMismatch
+													? t("SECURITY_REPORT_PASSWORD_MISMATCH")
+													: undefined
 											}
 											InputProps={{
 												type: "password",
@@ -784,61 +794,62 @@ const SecurityReportView = (
 									</Grid>
 								)}
 								<Grid item xs={12} sm={12} md={12}>
-									<Checkbox
-										checked={checkHaveibeenpwned}
-										onChange={(event) => {
-											if (
-												getStore().getState().server
-													.complianceEnforceBreachDetection
-											) {
-												setCheckHaveibeenpwned(true);
-											} else {
-												setCheckHaveibeenpwned(event.target.checked);
-											}
-										}}
-										disabled={
-											getStore().getState().server
-												.complianceEnforceBreachDetection
+									<FormControlLabel
+										label={t("SECURITY_REPORT_CHECK_BREACHES")}
+										control={
+											<Checkbox
+												checked={checkHaveibeenpwned}
+												onChange={(event) =>
+													setCheckHaveibeenpwned(event.target.checked)
+												}
+												disabled={
+													getStore().getState().server
+														.complianceEnforceBreachDetection
+												}
+												checkedIcon={<Check className={classes.checkedIcon} />}
+												icon={<Check className={classes.uncheckedIcon} />}
+												classes={{
+													checked: classes.checked,
+												}}
+											/>
 										}
-										checkedIcon={<Check className={classes.checkedIcon} />}
-										icon={<Check className={classes.uncheckedIcon} />}
-										classes={{
-											checked: classes.checked,
-										}}
-									/>{" "}
-									{t("CHECK_AGAINST")}{" "}
-									<a
-										href="https://haveibeenpwned.com/Passwords"
-										target="_blank"
-										rel="noopener"
-									>
-										haveibeenpwned.com
-									</a>{" "}
-									(
-									<a
-										href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange"
-										target="_blank"
-										rel="noopener"
-									>
-										/range API
-									</a>
-									)?
+									/>
+									<Typography variant="body2">
+										{t("SECURITY_REPORT_BREACH_CHECK_DETAILS")}{" "}
+										<a
+											href="https://haveibeenpwned.com/Passwords"
+											target="_blank"
+											rel="noopener"
+										>
+											haveibeenpwned.com
+										</a>
+										.
+									</Typography>
 								</Grid>
 								{!hideSendToServer && (
 									<Grid item xs={12} sm={12} md={12}>
-										<Checkbox
-											checked={sendToServer}
-											disabled={disableSendToSeverChoice}
-											onChange={(event) => {
-												setSendToServer(event.target.checked);
-											}}
-											checkedIcon={<Check className={classes.checkedIcon} />}
-											icon={<Check className={classes.uncheckedIcon} />}
-											classes={{
-												checked: classes.checked,
-											}}
-										/>{" "}
-										{t("SEND_SECURITY_REPORT_TO_SERVER")}
+										<FormControlLabel
+											label={t("SECURITY_REPORT_SEND_SUMMARY")}
+											control={
+												<Checkbox
+													checked={sendToServer}
+													disabled={disableSendToSeverChoice}
+													onChange={(event) => {
+														setSendToServer(event.target.checked);
+													}}
+													checkedIcon={
+														<Check className={classes.checkedIcon} />
+													}
+													icon={<Check className={classes.uncheckedIcon} />}
+													classes={{
+														checked: classes.checked,
+													}}
+												/>
+											}
+										/>
+										<Typography variant="body2">
+											{t("SECURITY_REPORT_SEND_DETAILS")}
+										</Typography>
 									</Grid>
 								)}
 								<Grid item xs={12} sm={12} md={12}>
@@ -850,7 +861,7 @@ const SecurityReportView = (
 										}}
 										disabled={
 											requireMasterPassword &&
-											(!password || password !== passwordRepeat)
+											(!password || !passwordSha1Prefix || passwordMismatch)
 										}
 									>
 										{t("START_ANALYSIS")}

@@ -35,6 +35,8 @@ export interface UserState {
 	trustDevice: boolean;
 	hasTwoFactor: boolean;
 	authentication: AuthenticationMethod | "";
+	/** Short, non-authenticating check for mistyped report passwords. */
+	passwordSha1Prefix: string;
 	hashingAlgorithm: string | undefined;
 	hashingParameters: HashingParameters | undefined;
 	userSecretKey: string;

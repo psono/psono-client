@@ -618,6 +618,7 @@ function handleLoginResponse(
 		decrypted_response_data.token,
 		decrypted_response_data.user.user_sauce,
 		authentication,
+		sessionPassword ? cryptoLibrary.sha1(sessionPassword).substring(0, 2) : "",
 	);
 
 	if (
@@ -1021,6 +1022,9 @@ function saveNewPassword(
 
 			onSuccess = () => {
 				action().setRequirePasswordChange(false);
+				action().setUserPasswordSha1Prefix(
+					cryptoLibrary.sha1(newPassword).substring(0, 2),
+				);
 				return { msgs: ["SAVE_SUCCESS"] };
 			};
 			onError = () => Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });

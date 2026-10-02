@@ -60,6 +60,7 @@ import {
 	SET_USER_INFO_1,
 	SET_USER_INFO_2,
 	SET_USER_INFO_3,
+	SET_USER_PASSWORD_SHA1_PREFIX,
 	SET_USER_USERNAME,
 	SETTINGS_DATASTORE_LOADED,
 } from "./action-types";
@@ -94,6 +95,7 @@ function setUserInfo2(
 	token: string,
 	userSauce: string,
 	authentication: UserState["authentication"],
+	passwordSha1Prefix = "",
 ): AppThunk {
 	return (dispatch) => {
 		dispatch({
@@ -104,7 +106,13 @@ function setUserInfo2(
 			token,
 			userSauce: userSauce,
 			authentication: authentication,
+			passwordSha1Prefix,
 		});
+	};
+}
+function setUserPasswordSha1Prefix(passwordSha1Prefix: string): AppThunk {
+	return (dispatch) => {
+		dispatch({ type: SET_USER_PASSWORD_SHA1_PREFIX, passwordSha1Prefix });
 	};
 }
 function setUserInfo3(
@@ -698,6 +706,7 @@ const actionCreators = {
 	setUserUsername,
 	setUserInfo1,
 	setUserInfo2,
+	setUserPasswordSha1Prefix,
 	setUserInfo3,
 	setRequirePasswordChange,
 	sethashingParameters,
