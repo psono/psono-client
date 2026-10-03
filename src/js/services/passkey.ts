@@ -4,6 +4,7 @@ import cryptoLibrary from "./crypto-library";
 import datastorePasswordService from "./datastore-password";
 import helperService from "./helper";
 import notificationBarService from "./notification-bar";
+import passkeySelectorService from "./passkey-selector";
 import publicSuffixService from "./public-suffix";
 import secretService from "./secret";
 import storage from "./storage";
@@ -24,13 +25,18 @@ import type {
 
 interface PasskeyLeaf {
 	type: string;
+	name?: string;
+	description?: string;
 	urlfilter?: string;
 	autosubmit?: boolean;
 	secret_id: string;
 	secret_key: string;
 }
 
-type PasskeySender = { origin?: string } | null | undefined;
+type PasskeySender =
+	| { origin?: string; tab?: { id?: number; url?: string } }
+	| null
+	| undefined;
 
 class PasskeyException extends Error {
 	errorType: PasskeyErrorType;
@@ -242,6 +248,8 @@ async function navigatorCredentialsGet(
 	options: PasskeyRequestOptions,
 	origin: string,
 	eventId?: string,
+	tabId?: number,
+	tabOrigin?: string,
 ): Promise<SerializedPasskeyCredential<SerializedAssertionResponse>> {
 	/**
 	 * Receives something like:
@@ -313,8 +321,7 @@ async function navigatorCredentialsGet(
 		),
 	);
 	const discoverableCredentialsOnly =
-		allowCredentials.length === 0 ||
-		(options.mediation && options.mediation === "conditional");
+		allowCredentials.length === 0 || options.mediation === "conditional";
 	const isConditional =
 		options.mediation && options.mediation === "conditional";
 	const isLoggedIn = user.isLoggedIn();
@@ -360,22 +367,75 @@ async function navigatorCredentialsGet(
 		});
 	}
 
+	const metadata: PasskeyErrorMetadata = {
+		eventId: eventId,
+		origin: origin,
+		rpId: rpId,
+		operation: "navigator.credentials.get",
+	};
 	await createNotificationAsync(
 		i18n.t("AUTHENTICATION"),
 		i18n.t("WEBSITE_WANTS_TO_AUTHENTICATE_WITH_PASSKEY_ALLOW_OR_DENY"),
 		options.publicKey.timeout || 30 * 1000,
-		{
-			eventId: eventId,
-			origin: origin,
-			rpId: rpId,
-			operation: "navigator.credentials.get",
-		},
+		metadata,
 	);
+	let selectedCredential = credentials[0];
+	if (credentials.length > 1) {
+		if (tabId === undefined || !tabOrigin) {
+			throw new PasskeyException(
+				"ORIGIN_NOT_SUPPORTED",
+				i18n.t("ORIGIN_NOT_SUPPORTED"),
+			);
+		}
+		try {
+			const index = await passkeySelectorService.select(
+				tabId,
+				tabOrigin,
+				origin,
+				credentials.map((credential) =>
+					[credential.name || i18n.t("UNKNOWN"), credential.description]
+						.filter(Boolean)
+						.join(" — "),
+				),
+				options.publicKey.timeout || 30 * 1000,
+			);
+			if (
+				!Number.isInteger(index) ||
+				index < 0 ||
+				index >= credentials.length
+			) {
+				throw new Error("Invalid passkey selection");
+			}
+			selectedCredential = credentials[index];
+		} catch {
+			throw new PasskeyException(
+				"USER_DENIED_REQUEST",
+				i18n.t("USER_DENIED_REQUEST"),
+			);
+		}
+	}
+	if (!user.isLoggedIn()) {
+		throw createBypassPsonoException("NOT_LOGGED_IN", metadata);
+	}
+	// The datastore may have changed while the user was choosing an account.
+	// Never sign with a stale leaf from a different vault or a removed entry.
+	const currentCredentials = await searchPasskeys(rpId, allowCredentialIds);
+	if (
+		!currentCredentials.some(
+			(credential) =>
+				credential.secret_id === selectedCredential.secret_id &&
+				credential.secret_key === selectedCredential.secret_key &&
+				credential.urlfilter === selectedCredential.urlfilter &&
+				(!discoverableCredentialsOnly || credential.autosubmit),
+		)
+	) {
+		throw createBypassPsonoException("NO_MATCHING_PASSKEY", metadata);
+	}
 
 	// The selected leaf identifies the encrypted passkey schema; Web Crypto validates its JWKs.
 	const decryptedSecret = await secretService.readSecret<PasskeySecret>(
-		credentials[0]["secret_id"],
-		credentials[0]["secret_key"],
+		selectedCredential.secret_id,
+		selectedCredential.secret_key,
 	);
 	if (!Object.hasOwn(decryptedSecret, "read_count")) {
 		console.log("Server incompatible, update Server");
@@ -386,6 +446,20 @@ async function navigatorCredentialsGet(
 	}
 
 	const rawId = converterService.fromHex(decryptedSecret.passkey_id);
+	// The leaf index is only a hint: enforce the RP and the website's allow list
+	// again against the decrypted credential before using its private key.
+	if (
+		selectedCredential.urlfilter !== rpId + "#" + decryptedSecret.passkey_id ||
+		(typeof decryptedSecret.passkey_rp_id === "string" &&
+			decryptedSecret.passkey_rp_id !== rpId) ||
+		(allowCredentials.length > 0 &&
+			!allowCredentialIds.includes(decryptedSecret.passkey_id))
+	) {
+		throw new PasskeyException(
+			"RP_ID_NOT_ALLOWED",
+			i18n.t("RP_ID_NOT_ALLOWED"),
+		);
+	}
 	decryptedSecret.passkey_public_key.key_ops = ["verify"];
 	await crypto.subtle.importKey(
 		"jwk", // the format
@@ -482,6 +556,8 @@ function onNavigatorCredentialsGet(
 				request.data.options,
 				origin,
 				request.data.eventId,
+				sender?.tab?.id,
+				sender?.tab?.url ? new URL(sender.tab.url).origin : undefined,
 			);
 		} catch (e) {
 			if (e instanceof PasskeyException) {

@@ -2,6 +2,69 @@ const ClassWorkerContentScriptBase = require("./worker-content-script-base");
 const ClassWorkerContentScript = require("./worker-content-script");
 
 describe("content script shadow DOM autofill", () => {
+	it("renders passkey choices as text in the protected password-style dropdown", () => {
+		document.body.innerHTML = "";
+		const handlers = {};
+		const emit = jest.fn();
+		const base = {
+			ready: (fn) => fn(),
+			inIframe: () => false,
+			on: (event, handler) => {
+				handlers[event] = handler;
+			},
+			emit,
+			getAllDocuments: () => {},
+			registerObserver: () => {},
+		};
+		const originalAttachShadow = Element.prototype.attachShadow;
+		let selectorRoot;
+		const shadowSpy = jest
+			.spyOn(Element.prototype, "attachShadow")
+			.mockImplementation(function (options) {
+				selectorRoot = originalAttachShadow.call(this, options);
+				return selectorRoot;
+			});
+		global.uuid = { v4: jest.fn(() => "selector-id") };
+		ClassWorkerContentScript(base, {}, setTimeout);
+		handlers["show-passkey-selector"]({
+			id: "private-session",
+			tabOrigin: document.location.origin,
+			origin: "https://example.com",
+			labels: [
+				'<img src=x onerror="alert(1)">',
+				"Second account",
+				"Third",
+				"Fourth",
+				"Fifth",
+				"Sixth",
+			],
+		});
+		const host = document.querySelector('[id^="psono_drop-"]');
+		expect(host.shadowRoot).toBeNull();
+		expect(selectorRoot.querySelector("img")).toBeNull();
+		expect(selectorRoot.textContent).toContain(
+			'<img src=x onerror="alert(1)">',
+		);
+		const list = selectorRoot.querySelector(".navigations");
+		expect(list.style.overflowY).toBe("auto");
+		expect(list.style.maxHeight).toBe("min(360px, 75vh)");
+		expect(list.querySelector('input[type="search"]')).not.toBeNull();
+		expect(
+			list.contains(selectorRoot.querySelector(".psono-passkey-cancel")),
+		).toBe(false);
+		const choices = selectorRoot.querySelectorAll(
+			'.psono-passkey-entry [role="button"]',
+		);
+		choices[0].click(); // Synthetic page events cannot approve an account.
+		expect(emit).not.toHaveBeenCalledWith(
+			"passkey-selector-select",
+			expect.anything(),
+		);
+		handlers["hide-passkey-selector"]({ id: "private-session" });
+		expect(document.querySelector('[id^="psono_drop-"]')).toBeNull();
+		shadowSpy.mockRestore();
+	});
+
 	it("discovers delayed nested shadow forms and fills them without waiting for the observer", async () => {
 		jest.useFakeTimers();
 		Object.defineProperty(document, "readyState", {
@@ -10,6 +73,9 @@ describe("content script shadow DOM autofill", () => {
 		});
 
 		const messageListeners = [];
+		let availablePasswords = [
+			{ secret_id: "password-id", name: "Example account" },
+		];
 		const browser = {
 			runtime: {
 				onMessage: {
@@ -17,7 +83,7 @@ describe("content script shadow DOM autofill", () => {
 				},
 				sendMessage: (message, callback) => {
 					if (message.event === "website-password-refresh") {
-						callback({ data: [] });
+						callback({ data: availablePasswords });
 						return;
 					}
 					if (message.event === "is-logged-in") {
@@ -137,6 +203,45 @@ describe("content script shadow DOM autofill", () => {
 		const dropdown = document.querySelector('[id^="psono_drop-"]');
 		expect(dropdown.style.transform).toContain("translateX(320px)");
 		expect(dropdown.style.transform).toContain("translateY(296px)");
+		expect(
+			dropdown._psonoShadowRoot.querySelector(".psono-entry-dot"),
+		).not.toBeNull();
+		expect(
+			dropdown._psonoShadowRoot.querySelector(".psono-entry-label"),
+		).not.toBeNull();
+		const datastoreButton = dropdown._psonoShadowRoot.querySelector(
+			".psono-selector-actions button",
+		);
+		expect(datastoreButton.getAttribute("aria-label")).toBe("Open Datastore");
+		expect(datastoreButton.getAttribute("type")).toBe("button");
+		expect(datastoreButton.querySelector("svg path")).not.toBeNull();
+		expect(
+			Array.from(
+				dropdown._psonoShadowRoot.querySelectorAll(
+					".psono-selector-actions button",
+				),
+				(button) => button.getAttribute("aria-label"),
+			),
+		).toEqual(["Open Datastore", "Generate Password"]);
+
+		availablePasswords = [];
+		passwordClickListener.call(password, {
+			pageX: 550,
+			target: document.querySelector("ba-modal"),
+		});
+		await Promise.resolve();
+		await Promise.resolve();
+		const dropdowns = document.querySelectorAll('[id^="psono_drop-"]');
+		const emptyDropdown = dropdowns[dropdowns.length - 1]._psonoShadowRoot;
+		expect(
+			emptyDropdown.querySelector(".psono-password-empty").textContent,
+		).toBe("No passwords found");
+		expect(
+			Array.from(
+				emptyDropdown.querySelectorAll(".psono-selector-actions button"),
+				(button) => button.getAttribute("aria-label"),
+			),
+		).toEqual(["Open Datastore", "Generate Password"]);
 
 		jest.useRealTimers();
 	});

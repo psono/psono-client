@@ -28,6 +28,7 @@ import helper from "./helper";
 import notificationBarService from "./notification-bar";
 import offlineCache from "./offline-cache";
 import passkeyService from "./passkey";
+import passkeySelectorService from "./passkey-selector";
 import secretService from "./secret";
 import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
@@ -544,6 +545,8 @@ function onMessage(
 		"language-changed": languageChanged,
 		"clear-clipboard": clearClipboard,
 		"navigator-credentials-get": passkeyService.onNavigatorCredentialsGet,
+		"passkey-selector-select": passkeySelectorService.onSelect,
+		"passkey-selector-cancel": passkeySelectorService.onCancel,
 		"navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
 		"get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
 		"set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen

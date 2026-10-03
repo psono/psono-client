@@ -1,6 +1,7 @@
 import converterService from "./converter";
 import datastorePasswordService from "./datastore-password";
 import notificationBarService from "./notification-bar";
+import passkeySelectorService from "./passkey-selector";
 import passkeyService from "./passkey";
 import secretService from "./secret";
 import storage from "./storage";
@@ -580,5 +581,248 @@ describe("Service: passkey test suite", () => {
 			...authenticatorData,
 			...clientDataJSONHash,
 		]);
+	});
+
+	it("offers only allowed passkeys and signs with the selected entry", async () => {
+		window.fetch = mockFetch();
+		user.isLoggedIn = jest.fn(() => true);
+		const ids = ["01", "02", "03"];
+		const keyPair = await crypto.subtle.generateKey(
+			{ name: "ECDSA", namedCurve: "P-256" },
+			true,
+			["sign", "verify"],
+		);
+		const publicKey = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+		const privateKey = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+		jest.spyOn(storage, "where").mockImplementation(async (_db, filter) =>
+			ids
+				.map((id) => ({
+					key: id,
+					type: "passkey",
+					name: `Account ${id}`,
+					urlfilter: `webauthn.io#${id}`,
+					secret_id: id,
+					secret_key: id,
+				}))
+				.filter((leaf) => filter(leaf)),
+		);
+		const readSecret = jest
+			.spyOn(secretService, "readSecret")
+			.mockImplementation(
+				async (id) =>
+					({
+						passkey_id: id,
+						passkey_public_key: { ...publicKey },
+						passkey_private_key: { ...privateKey },
+						passkey_algorithm: { name: "ECDSA", namedCurve: "P-256" },
+						passkey_user_handle: id,
+						read_count: 0,
+					}) as PasskeySecret,
+			);
+		readSecret.mockClear();
+		const create = jest
+			.spyOn(notificationBarService, "create")
+			.mockImplementation(async (_title, _description, buttons) => {
+				expect(buttons?.map((button) => button.title)).toHaveLength(3);
+				buttons![0].onClick();
+			});
+		create.mockClear();
+		const select = jest
+			.spyOn(passkeySelectorService, "select")
+			.mockImplementation(async (_tabId, _tabOrigin, _origin, labels) => {
+				expect(labels).toEqual(["Account 01", "Account 03"]);
+				return 1;
+			});
+
+		const response = await new Promise<AssertionMessage>((resolve) => {
+			passkeyService.onNavigatorCredentialsGet(
+				{
+					data: {
+						options: {
+							publicKey: {
+								challenge: "dGVzdA",
+								rpId: "webauthn.io",
+								allowCredentials: ["01", "03"].map((id) => ({
+									id: converterService.arrayBufferToBase64Url(
+										converterService.fromHex(id),
+									),
+									type: "public-key" as const,
+								})),
+							},
+						},
+						eventId: "selection-test",
+					},
+				},
+				{
+					origin: "https://webauthn.io",
+					tab: { id: 17, url: "https://webauthn.io" },
+				},
+				resolve,
+			);
+		});
+		expect(response.data.credential?.id).toBe(
+			converterService.arrayBufferToBase64Url(converterService.fromHex("03")),
+		);
+		expect(readSecret).toHaveBeenCalledTimes(1);
+		expect(readSecret).toHaveBeenCalledWith("03", "03");
+		expect(create).toHaveBeenCalledTimes(1);
+		expect(select).toHaveBeenCalledWith(
+			17,
+			"https://webauthn.io",
+			"https://webauthn.io",
+			["Account 01", "Account 03"],
+			30000,
+		);
+	});
+
+	it("does not decrypt a passkey when selection is denied", async () => {
+		window.fetch = mockFetch();
+		user.isLoggedIn = jest.fn(() => true);
+		jest.spyOn(storage, "where").mockResolvedValue([
+			{
+				key: "one",
+				type: "passkey",
+				name: "One",
+				urlfilter: "webauthn.io#01",
+				autosubmit: true,
+				secret_id: "one",
+				secret_key: "one",
+			},
+			{
+				key: "two",
+				type: "passkey",
+				name: "Two",
+				urlfilter: "webauthn.io#02",
+				autosubmit: true,
+				secret_id: "two",
+				secret_key: "two",
+			},
+		]);
+		const readSecret = jest.spyOn(secretService, "readSecret");
+		readSecret.mockClear();
+		jest
+			.spyOn(notificationBarService, "create")
+			.mockImplementation(async (_title, _description, buttons) => {
+				buttons![0].onClick();
+			});
+		jest
+			.spyOn(passkeySelectorService, "select")
+			.mockRejectedValue(new Error("Cancelled"));
+		const response = await new Promise<AssertionMessage>((resolve) => {
+			passkeyService.onNavigatorCredentialsGet(
+				{
+					data: {
+						options: {
+							publicKey: { challenge: "dGVzdA", rpId: "webauthn.io" },
+						},
+						eventId: "denied-test",
+					},
+				},
+				{
+					origin: "https://webauthn.io",
+					tab: { id: 17, url: "https://webauthn.io" },
+				},
+				resolve,
+			);
+		});
+		expect(response.data.error?.errorType).toBe("USER_DENIED_REQUEST");
+		expect(readSecret).not.toHaveBeenCalled();
+	});
+
+	it("keeps the normal approval bar before opening the selector", async () => {
+		window.fetch = mockFetch();
+		user.isLoggedIn = jest.fn(() => true);
+		jest.spyOn(storage, "where").mockResolvedValue([
+			{
+				key: "one",
+				type: "passkey",
+				name: "One",
+				urlfilter: "webauthn.io#01",
+				autosubmit: true,
+				secret_id: "one",
+				secret_key: "one",
+			},
+			{
+				key: "two",
+				type: "passkey",
+				name: "Two",
+				urlfilter: "webauthn.io#02",
+				autosubmit: true,
+				secret_id: "two",
+				secret_key: "two",
+			},
+		]);
+		const select = jest.spyOn(passkeySelectorService, "select");
+		select.mockClear();
+		jest
+			.spyOn(notificationBarService, "create")
+			.mockImplementation(async (_title, _description, buttons) => {
+				buttons![1].onClick();
+			});
+		const response = await new Promise<AssertionMessage>((resolve) => {
+			passkeyService.onNavigatorCredentialsGet(
+				{
+					data: {
+						options: {
+							publicKey: { challenge: "dGVzdA", rpId: "webauthn.io" },
+						},
+						eventId: "approval-denied",
+					},
+				},
+				{
+					origin: "https://webauthn.io",
+					tab: { id: 17, url: "https://webauthn.io" },
+				},
+				resolve,
+			);
+		});
+		expect(response.data.error?.errorType).toBe("USER_DENIED_REQUEST");
+		expect(select).not.toHaveBeenCalled();
+	});
+
+	it("rejects a selected leaf whose decrypted credential does not match", async () => {
+		window.fetch = mockFetch();
+		user.isLoggedIn = jest.fn(() => true);
+		jest.spyOn(storage, "where").mockResolvedValue([
+			{
+				key: "one",
+				type: "passkey",
+				name: "One",
+				urlfilter: "webauthn.io#01",
+				secret_id: "one",
+				secret_key: "one",
+			},
+		]);
+		jest
+			.spyOn(notificationBarService, "create")
+			.mockImplementation(async (_title, _description, buttons) => {
+				buttons![0].onClick();
+			});
+		jest.spyOn(secretService, "readSecret").mockResolvedValue({
+			passkey_id: "02",
+			read_count: 0,
+		} as PasskeySecret);
+		const sign = jest.spyOn(crypto.subtle, "sign");
+		sign.mockClear();
+		const response = await new Promise<AssertionMessage>((resolve) => {
+			passkeyService.onNavigatorCredentialsGet(
+				{
+					data: {
+						options: {
+							publicKey: {
+								challenge: "dGVzdA",
+								rpId: "webauthn.io",
+								allowCredentials: [{ id: "AQ", type: "public-key" }],
+							},
+						},
+						eventId: "mismatched-secret",
+					},
+				},
+				{ origin: "https://webauthn.io", tab: { id: 17 } },
+				resolve,
+			);
+		});
+		expect(response.data.error?.errorType).toBe("RP_ID_NOT_ALLOWED");
+		expect(sign).not.toHaveBeenCalled();
 	});
 });
