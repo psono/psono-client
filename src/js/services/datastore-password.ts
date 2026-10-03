@@ -9,6 +9,7 @@ import datastoreService from "./datastore";
 import domainSynonymsService from "./domain-synonyms";
 import helperService from "./helper";
 import notificationBarService from "./notification-bar";
+import { getPasskeyUrl } from "./passkey-url";
 import secretService from "./secret";
 import shareService from "./share";
 import shareLinkService from "./share-link";
@@ -1202,6 +1203,7 @@ function savePasskey(
 
 	const secret_object = {
 		passkey_title: title,
+		passkey_url: getPasskeyUrl({ passkey_rp_id }),
 		passkey_rp_id: passkey_rp_id,
 		passkey_id: passkey_id,
 		passkey_public_key: passkey_public_key,

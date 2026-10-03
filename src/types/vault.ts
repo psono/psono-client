@@ -40,6 +40,8 @@ export interface SecretContent {
 	identity_email?: string;
 	identity_notes?: string;
 	passkey_title?: string;
+	passkey_url?: string;
+	passkey_notes?: string;
 	passkey_rp_id?: string;
 	passkey_id?: string;
 	passkey_public_key?: string | JsonWebKey;

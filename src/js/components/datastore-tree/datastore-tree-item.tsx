@@ -299,7 +299,7 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights!.read !== true) ||
 		!Object.hasOwn(content, "type") ||
-		!["website_password", "bookmark"].includes(content["type"]!);
+		!["website_password", "bookmark", "passkey"].includes(content["type"]!);
 	const hideEdit =
 		offline ||
 		(Object.hasOwn(content, "share_rights") &&
@@ -422,9 +422,12 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 			>
 				<GatewayLaunchButton item={content} offline={offline} />
 				{Boolean(props.onLinkItem) &&
-					["bookmark", "website_password", "elster_certificate"].indexOf(
-						content.type!,
-					) !== -1 && (
+					[
+						"bookmark",
+						"website_password",
+						"passkey",
+						"elster_certificate",
+					].indexOf(content.type!) !== -1 && (
 						<Button aria-label="open" onClick={linkItem}>
 							<OpenInNewIcon fontSize="small" />
 						</Button>

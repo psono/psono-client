@@ -43,7 +43,7 @@ type TextFields =
 	| `${"ssh" | "rdp" | "vnc"}_connection_${"title" | "host" | "username" | "password" | "notes"}`
 	| `ssh_connection_${"authentication_type" | "private_key"}`
 	| `rdp_connection_${"domain" | "resize_method" | "server_layout"}`
-	| `passkey_${"title" | "rp_id" | "id" | "user_handle" | "url_filter"}`
+	| `passkey_${"title" | "url" | "notes" | "rp_id" | "id" | "user_handle" | "url_filter"}`
 	| `identity_${
 			| "title"
 			| "first_name"

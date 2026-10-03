@@ -133,6 +133,8 @@ const OtherExportView = (_props: ManagementViewProps) => {
 		{ key: "vnc_connection_password", label: t("PASSWORD") },
 		{ key: "vnc_connection_notes", label: t("NOTES") },
 		{ key: "passkey_title", label: t("TITLE") },
+		{ key: "passkey_url", label: t("URL") },
+		{ key: "passkey_notes", label: t("NOTES") },
 		{ key: "passkey_rp_id", label: t("RP_ID") },
 		{ key: "passkey_id", label: t("ID") },
 		{ key: "passkey_public_key", label: t("PUBLIC_KEY") },

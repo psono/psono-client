@@ -11,6 +11,7 @@ import cryptoLibrary from "../services/crypto-library";
 import offlineCache from "../services/offline-cache";
 import deviceService from "./device";
 import notification from "./notification";
+import { getPasskeyUrl } from "./passkey-url";
 import storage from "./storage";
 import { getStore } from "./store";
 import type {
@@ -324,8 +325,9 @@ function redirectSecret(type: string, secretId: string) {
 					url = "about:blank";
 				}
 				window.location.href = url;
-			} else if (type === "bookmark") {
-				let url = content.bookmark_url;
+			} else if (type === "bookmark" || type === "passkey") {
+				let url =
+					type === "passkey" ? getPasskeyUrl(content) : content.bookmark_url;
 
 				if (!url) {
 					console.log("redirectSecret: URL_EMPTY");
@@ -366,7 +368,7 @@ function redirectSecret(type: string, secretId: string) {
  */
 function onItemClick(item: SecretReference) {
 	if (
-		["website_password", "bookmark", "elster_certificate"].indexOf(
+		["website_password", "bookmark", "passkey", "elster_certificate"].indexOf(
 			item.type,
 		) !== -1
 	) {
@@ -376,6 +378,8 @@ function onItemClick(item: SecretReference) {
 					browserClient.openTab(content.website_password_url!);
 				} else if (item.type === "bookmark") {
 					browserClient.openTab(content.bookmark_url!);
+				} else if (item.type === "passkey") {
+					browserClient.openTab(getPasskeyUrl(content));
 				} else if (item.type === "elster_certificate") {
 					browserClient.openTab("https://www.elster.de/eportal/login/softpse");
 				}
@@ -506,6 +510,10 @@ function copyUrl(item: SecretReference) {
 			readSecret(item.secret_id, item.secret_key).then(
 				(decryptedSecret) => decryptedSecret["website_password_url"]!,
 			),
+		);
+	} else if (item["type"] === "passkey") {
+		browserClient.copyToClipboard(() =>
+			readSecret(item.secret_id, item.secret_key).then(getPasskeyUrl),
 		);
 	} else if (item["type"] === "bookmark") {
 		browserClient.copyToClipboard(() =>

@@ -70,6 +70,7 @@ import hostService from "../../services/host";
 import itemBlueprintService from "../../services/item-blueprint";
 import notification from "../../services/notification";
 import offlineCache from "../../services/offline-cache";
+import { getPasskeyUrl } from "../../services/passkey-url";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import ConnectionEntryFields from "../connection-entry-fields";
@@ -232,6 +233,8 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	const [websitePasswordTotpCode, setWebsitePasswordTotpCode] = useState("");
 
 	const [passkeyTitle, setPasskeyTitle] = useState("");
+	const [passkeyUrl, setPasskeyUrl] = useState("");
+	const [passkeyNotes, setPasskeyNotes] = useState("");
 	const [passkeyRpId, setPasskeyRpId] = useState("");
 	const [passkeyId, setPasskeyId] = useState("");
 	const [passkeyPublicKey, setPasskeyPublicKey] =
@@ -639,6 +642,8 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			}
 
 			// passkey
+			setPasskeyUrl(getPasskeyUrl(data));
+			setPasskeyNotes(data.passkey_notes || "");
 			if (Object.hasOwn(data, "passkey_title")) {
 				setPasskeyTitle(data["passkey_title"]!);
 			} else {
@@ -1132,6 +1137,17 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		if (item.type === "passkey") {
 			item["name"] = passkeyTitle;
 			secretObject["passkey_title"] = passkeyTitle;
+			const url = getPasskeyUrl({
+				passkey_url: passkeyUrl,
+				passkey_rp_id: passkeyRpId,
+				passkey_url_filter: passkeyUrlFilter,
+			});
+			if (url) {
+				secretObject["passkey_url"] = url;
+			}
+			if (passkeyNotes) {
+				secretObject["passkey_notes"] = passkeyNotes;
+			}
 			if (passkeyRpId) {
 				secretObject["passkey_rp_id"] = passkeyRpId;
 			}
@@ -2282,6 +2298,55 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 					/>
 				</Grid>
 			)}
+			{item.type === "passkey" && (
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="passkeyUrl"
+						label={t("URL")}
+						name="passkeyUrl"
+						autoComplete="off"
+						value={passkeyUrl}
+						InputProps={{
+							readOnly: readOnly,
+							endAdornment: (
+								<InputAdornment position="end">
+									<IconButton
+										className={classes.iconButton}
+										aria-label={t("LAUNCH")}
+										onClick={() => {
+											browserClientService.openTab(
+												getPasskeyUrl({
+													passkey_url: passkeyUrl,
+													passkey_rp_id: passkeyRpId,
+													passkey_url_filter: passkeyUrlFilter,
+												}),
+											);
+										}}
+										size="large"
+									>
+										<OpenInNewIcon fontSize="small" />
+									</IconButton>
+								</InputAdornment>
+							),
+						}}
+						onChange={(event) => {
+							setDirty(true);
+							setPasskeyUrl(event.target.value);
+						}}
+					/>
+				</Grid>
+			)}
+			{item.type === "passkey" &&
+				renderNotesField(
+					"passkeyNotes",
+					"passkeyNotes",
+					passkeyNotes,
+					setPasskeyNotes,
+				)}
 			{item.type === "website_password" && (
 				<Grid item xs={12} sm={12} md={12}>
 					<TextField

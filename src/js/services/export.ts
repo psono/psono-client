@@ -672,6 +672,8 @@ async function composeExport(
 				vnc_connection_notes: "vnc_connection_notes",
 
 				passkey_title: "passkey_title",
+				passkey_url: "passkey_url",
+				passkey_notes: "passkey_notes",
 				passkey_rp_id: "passkey_rp_id",
 				passkey_id: "passkey_id",
 				passkey_public_key: "passkey_public_key",
