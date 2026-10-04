@@ -151,11 +151,6 @@ const useStyles = makeStyles((theme) => ({
 		height: deviceService.hasTitlebar()
 			? "calc(100vh - 232px)"
 			: "calc(100vh - 200px)",
-		"& *": {
-			"-webkit-box-sizing": "content-box",
-			"-moz-box-sizing": "content-box",
-			"box-sizing": "content-box",
-		},
 	},
 }));
 

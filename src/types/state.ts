@@ -107,6 +107,7 @@ export interface ServerState {
 	complianceMinClipboardClearDelay: number;
 	complianceMaxClipboardClearDelay: number;
 	compliancePasswordGeneratorDefaultPasswordLength: number | undefined;
+	compliancePasswordGeneratorDefaultWordLength?: number;
 	compliancePasswordGeneratorDefaultLettersUppercase: string | undefined;
 	compliancePasswordGeneratorDefaultLettersLowercase: string | undefined;
 	compliancePasswordGeneratorDefaultNumbers: string | undefined;
@@ -161,6 +162,9 @@ export interface GatewayClusterSelection {
 export interface SettingsState {
 	/** The settings form dispatches its text input without numeric coercion. */
 	passwordLength: number | string;
+	passphraseWordCount?: number;
+	passphraseLanguage?: string;
+	defaultPasswordGenerator?: "password" | "passphrase";
 	passwordLettersUppercase: string;
 	passwordLettersLowercase: string;
 	passwordNumbers: string;

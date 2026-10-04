@@ -2,8 +2,28 @@ import {
 	LOGOUT,
 	SET_SERVER_INFO,
 	SET_SERVER_URL,
+	SET_SERVER_POLICY,
 } from "../actions/action-types";
 import server from "./server";
+
+describe("Reducer: passphrase compliance defaults", () => {
+	it("loads the server default, applies policy overrides and resets it on logout", () => {
+		const configured = server(undefined, {
+			type: SET_SERVER_INFO,
+			info: { compliance_password_generator_default_word_length: 6 },
+		});
+		expect(configured.compliancePasswordGeneratorDefaultWordLength).toBe(6);
+		const policy = server(configured, {
+			type: SET_SERVER_POLICY,
+			policy: { compliance_password_generator_default_word_length: 8 },
+		});
+		expect(policy.compliancePasswordGeneratorDefaultWordLength).toBe(8);
+		expect(
+			server(policy, { type: LOGOUT, rememberMe: true })
+				.compliancePasswordGeneratorDefaultWordLength,
+		).toBeUndefined();
+	});
+});
 
 describe("Reducer: server gateway capability", () => {
 	it("defaults gateway support to false and only accepts an explicit signed true", () => {

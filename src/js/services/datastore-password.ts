@@ -10,6 +10,8 @@ import domainSynonymsService from "./domain-synonyms";
 import helperService from "./helper";
 import notificationBarService from "./notification-bar";
 import { getPasskeyUrl } from "./passkey-url";
+import { generatePassphrase, normalizeWordCount } from "./passphrase";
+import { passwordCharacterClasses } from "./password-entropy";
 import secretService from "./secret";
 import shareService from "./share";
 import shareLinkService from "./share-link";
@@ -59,48 +61,17 @@ function isStrongEnough(
 		return true;
 	}
 
-	const hasUppercaseCharacters = /[A-Z]/.test(characters); // check if characters contain uppercase characters
-	const hasLowercaseCharacters = /[a-z]/.test(characters); // check if characters contain lowercase characters
-	const hasNumbers = /[0-9]/.test(characters); // check if characters contain numbers
-	const hasSpecialCharacters = /[!§@#$%^&*()_+\-=[\]{};:'",<>.?/\\|`~]/.test(
-		characters,
-	); // check if characters contain special chars
-
-	let minLength = 0;
-
-	if (hasUppercaseCharacters) {
-		minLength += 1;
-	}
-	if (hasLowercaseCharacters) {
-		minLength += 1;
-	}
-	if (hasNumbers) {
-		minLength += 1;
-	}
-	if (hasSpecialCharacters) {
-		minLength += 1;
-	}
+	const requiredClasses = passwordCharacterClasses.filter((pattern) =>
+		pattern.test(characters),
+	);
 
 	// The assertion is erased: form strings retain JS numeric comparison semantics.
-	if (minLength > (length as number)) {
+	if (requiredClasses.length > (length as number)) {
 		// password can never comply, so we skip check as user asked for length=3 character password.
 		return true;
 	}
 
-	const passwordHasUppercaseCharacters = /[A-Z]/.test(password); // check if password contains uppercase characters
-	const passwordHasLowercaseCharacters = /[a-z]/.test(password); // check if password contains lowercase characters
-	const passwordHasNumbers = /[0-9]/.test(password); // check if password contains numbers
-	const passwordHasSpecialCharacters =
-		/[!§@#$%^&*()_+\-=[\]{};:'",<>.?/\\|`~]/.test(password); // check if password contains special chars
-
-	const ucTestResult =
-		!hasUppercaseCharacters || passwordHasUppercaseCharacters;
-	const lcTestResult =
-		!hasLowercaseCharacters || passwordHasLowercaseCharacters;
-	const nTestResult = !hasNumbers || passwordHasNumbers;
-	const scTestResult = !hasSpecialCharacters || passwordHasSpecialCharacters;
-
-	return ucTestResult && lcTestResult && nTestResult && scTestResult;
+	return requiredClasses.every((pattern) => pattern.test(password));
 }
 
 /**
@@ -160,6 +131,27 @@ function generate(
 	passwordSpecialChars?: string,
 ) {
 	let password = "";
+	// Quick generation in the extension uses the user's default generator too.
+	if (
+		[
+			passwordLength,
+			passwordLettersUppercase,
+			passwordLettersLowercase,
+			passwordNumbers,
+			passwordSpecialChars,
+		].every((value) => value === undefined)
+	) {
+		const { settingsDatastore, server } = getStore().getState();
+		if (settingsDatastore.defaultPasswordGenerator === "passphrase") {
+			return generatePassphrase(
+				normalizeWordCount(
+					settingsDatastore.passphraseWordCount ??
+						server.compliancePasswordGeneratorDefaultWordLength,
+				),
+				settingsDatastore.passphraseLanguage || i18n.language,
+			);
+		}
+	}
 
 	if (typeof passwordLength === "undefined") {
 		passwordLength = getStore().getState().settingsDatastore.passwordLength;

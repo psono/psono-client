@@ -11,6 +11,17 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import action from "../../actions/bound-action-creators";
+import {
+	GeneratorTypeSelect,
+	WordlistSelect,
+} from "../../components/passphrase-generator";
+import {
+	isValidWordCount,
+	MAX_WORD_COUNT,
+	MIN_WORD_COUNT,
+	normalizeWordCount,
+	resolveWordlistLanguage,
+} from "../../services/passphrase";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {
@@ -44,6 +55,24 @@ const SettingsPasswordGeneratorView = (props: SettingsViewProps) => {
 	const [passwordSpecialChars, setPasswordSpecialChars] = useState(
 		settingsDatastore.passwordSpecialChars,
 	);
+	const [wordCount, setWordCount] = useState<number | string>(
+		normalizeWordCount(
+			settingsDatastore.passphraseWordCount ??
+				server.compliancePasswordGeneratorDefaultWordLength,
+		),
+	);
+	const [wordlistLanguage, setWordlistLanguage] = useState(
+		settingsDatastore.passphraseLanguage
+			? resolveWordlistLanguage(settingsDatastore.passphraseLanguage)
+			: "",
+	);
+	const [defaultGenerator, setDefaultGenerator] = useState<
+		"password" | "passphrase"
+	>(
+		settingsDatastore.defaultPasswordGenerator === "passphrase"
+			? "passphrase"
+			: "password",
+	);
 
 	React.useEffect(() => {
 		setPasswordLength(settingsDatastore.passwordLength);
@@ -51,7 +80,39 @@ const SettingsPasswordGeneratorView = (props: SettingsViewProps) => {
 		setPasswordLettersLowercase(settingsDatastore.passwordLettersLowercase);
 		setPasswordNumbers(settingsDatastore.passwordNumbers);
 		setPasswordSpecialChars(settingsDatastore.passwordSpecialChars);
-	}, [settingsDatastore]);
+	}, [
+		settingsDatastore.passwordLength,
+		settingsDatastore.passwordLettersUppercase,
+		settingsDatastore.passwordLettersLowercase,
+		settingsDatastore.passwordNumbers,
+		settingsDatastore.passwordSpecialChars,
+	]);
+
+	React.useEffect(() => {
+		setWordCount(
+			normalizeWordCount(
+				settingsDatastore.passphraseWordCount ??
+					server.compliancePasswordGeneratorDefaultWordLength,
+			),
+		);
+		setWordlistLanguage(
+			settingsDatastore.passphraseLanguage
+				? resolveWordlistLanguage(settingsDatastore.passphraseLanguage)
+				: "",
+		);
+	}, [
+		settingsDatastore.passphraseWordCount,
+		settingsDatastore.passphraseLanguage,
+		server.compliancePasswordGeneratorDefaultWordLength,
+	]);
+
+	React.useEffect(() => {
+		setDefaultGenerator(
+			settingsDatastore.defaultPasswordGenerator === "passphrase"
+				? "passphrase"
+				: "password",
+		);
+	}, [settingsDatastore.defaultPasswordGenerator]);
 
 	const getDefaultValues = () => {
 		// Use compliance defaults if available, otherwise use hardcoded defaults
@@ -98,6 +159,52 @@ const SettingsPasswordGeneratorView = (props: SettingsViewProps) => {
 
 	return (
 		<Grid container>
+			<Grid
+				item
+				xs={12}
+				component="section"
+				aria-labelledby="default-password-generator-title"
+			>
+				<h2 id="default-password-generator-title">
+					{t("DEFAULT_PASSWORD_GENERATOR")}
+				</h2>
+				<p>{t("DEFAULT_PASSWORD_GENERATOR_DESCRIPTION")}</p>
+				<GeneratorTypeSelect
+					id="defaultPasswordGenerator"
+					className={classes.textField}
+					label="DEFAULT_PASSWORD_GENERATOR"
+					value={defaultGenerator}
+					onChange={setDefaultGenerator}
+				/>
+				<Grid
+					container
+					style={{ marginBottom: "20px", marginTop: "8px" }}
+					spacing={2}
+				>
+					<Grid item>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() =>
+								action().setDefaultPasswordGenerator(defaultGenerator)
+							}
+						>
+							{t("SAVE")}
+						</Button>
+					</Grid>
+					<Grid item>
+						<Button
+							onClick={() => {
+								setDefaultGenerator("password");
+								action().setDefaultPasswordGenerator("password");
+							}}
+						>
+							{t("RESET")}
+						</Button>
+					</Grid>
+				</Grid>
+				<Divider />
+			</Grid>
 			<Grid item xs={12} sm={12} md={12}>
 				<h2>{t("PASSWORD_GENERATOR")}</h2>
 				<p>{t("PASSWORD_GENERATOR_DESCRIPTION")}</p>
@@ -233,6 +340,73 @@ const SettingsPasswordGeneratorView = (props: SettingsViewProps) => {
 				</Grid>
 				<Grid item>
 					<Button onClick={resetToDefaults}>{t("RESET")}</Button>
+				</Grid>
+			</Grid>
+			<Grid item xs={12}>
+				<h2>{t("PASSPHRASE_GENERATOR")}</h2>
+				<p>{t("PASSPHRASE_GENERATOR_DESCRIPTION")}</p>
+				<Divider style={{ marginBottom: "20px" }} />
+			</Grid>
+			<Grid item xs={12}>
+				<TextField
+					className={classes.textField}
+					variant="outlined"
+					margin="dense"
+					size="small"
+					type="number"
+					label={t("PASSPHRASE_WORD_COUNT")}
+					value={wordCount}
+					inputProps={{ min: MIN_WORD_COUNT, max: MAX_WORD_COUNT, step: 1 }}
+					error={!isValidWordCount(wordCount)}
+					helperText={
+						!isValidWordCount(wordCount)
+							? t("PASSPHRASE_WORD_COUNT_ERROR", {
+									min: MIN_WORD_COUNT,
+									max: MAX_WORD_COUNT,
+								})
+							: undefined
+					}
+					onChange={(event) => setWordCount(event.target.value)}
+				/>
+			</Grid>
+			<Grid item xs={12}>
+				<WordlistSelect
+					className={classes.textField}
+					value={wordlistLanguage}
+					onChange={setWordlistLanguage}
+					allowAutomatic
+				/>
+			</Grid>
+			<Grid
+				container
+				style={{ marginBottom: "8px", marginTop: "8px" }}
+				spacing={2}
+			>
+				<Grid item>
+					<Button
+						variant="contained"
+						color="primary"
+						disabled={!isValidWordCount(wordCount)}
+						onClick={() =>
+							action().setPassphraseConfig(Number(wordCount), wordlistLanguage)
+						}
+					>
+						{t("SAVE")}
+					</Button>
+				</Grid>
+				<Grid item>
+					<Button
+						onClick={() => {
+							const count = normalizeWordCount(
+								server.compliancePasswordGeneratorDefaultWordLength,
+							);
+							setWordCount(count);
+							setWordlistLanguage("");
+							action().setPassphraseConfig(count, "");
+						}}
+					>
+						{t("RESET")}
+					</Button>
 				</Grid>
 			</Grid>
 		</Grid>

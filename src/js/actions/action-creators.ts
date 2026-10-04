@@ -46,6 +46,8 @@ import {
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
+	SET_PASSPHRASE_CONFIG,
+	SET_DEFAULT_PASSWORD_GENERATOR,
 	SET_REMOTE_CONFIG_JSON,
 	SET_REQUESTS_IN_PROGRESS,
 	SET_REQUIRE_PASSWORD_CHANGE,
@@ -361,6 +363,34 @@ function persistSettingsDatastore(overrides: Partial<SettingsState>) {
 			datastoreSettingService.serializeSettingsDatastore(overrides),
 		);
 	});
+}
+
+function setPassphraseConfig(
+	passphraseWordCount: number,
+	passphraseLanguage: string,
+	defaultPasswordGenerator?: "password" | "passphrase",
+): AppThunk {
+	const config = {
+		passphraseWordCount,
+		passphraseLanguage,
+		defaultPasswordGenerator,
+	};
+	persistSettingsDatastore(config);
+	return (dispatch) => {
+		dispatch({ type: SET_PASSPHRASE_CONFIG, ...config });
+	};
+}
+
+function setDefaultPasswordGenerator(
+	defaultPasswordGenerator: "password" | "passphrase",
+): AppThunk {
+	persistSettingsDatastore({ defaultPasswordGenerator });
+	return (dispatch) => {
+		dispatch({
+			type: SET_DEFAULT_PASSWORD_GENERATOR,
+			defaultPasswordGenerator,
+		});
+	};
 }
 
 function setPasswordConfig(
@@ -729,6 +759,8 @@ const actionCreators = {
 	setHideDownloadBanner,
 	setLastPopupSearch,
 	setPasswordConfig,
+	setPassphraseConfig,
+	setDefaultPasswordGenerator,
 	setShownEntriesConfig,
 	setGpgConfig,
 	settingsDatastoreLoaded,

@@ -76,6 +76,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	treeFolderName: {
 		display: "inline-block",
+		minWidth: 0,
 		marginLeft: "5px",
 		whiteSpace: "nowrap",
 		overflow: "hidden",

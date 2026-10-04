@@ -1,6 +1,8 @@
 import {
 	SET_CONNECTION_AUTHENTICATION,
 	SET_CLIENT_CONFIG,
+	SET_DEFAULT_PASSWORD_GENERATOR,
+	SET_PASSPHRASE_CONFIG,
 	SET_GATEWAY_CLUSTER_SELECTION,
 	SET_SHOWN_ENTRIES_CONFIG,
 	SETTINGS_DATASTORE_LOADED,
@@ -8,6 +10,58 @@ import {
 import settingsDatastore from "./settings-datastore";
 
 describe("Reducer: settings datastore", () => {
+	it("updates the default independently and preserves it when passphrase options change", () => {
+		const state = settingsDatastore(undefined, { type: "@@INIT" });
+		const selected = settingsDatastore(state, {
+			type: SET_DEFAULT_PASSWORD_GENERATOR,
+			defaultPasswordGenerator: "passphrase",
+		});
+		expect(selected).toEqual({
+			...state,
+			defaultPasswordGenerator: "passphrase",
+		});
+		const configured = settingsDatastore(selected, {
+			type: SET_PASSPHRASE_CONFIG,
+			passphraseWordCount: 6,
+			passphraseLanguage: "da",
+		});
+		expect(configured.defaultPasswordGenerator).toBe("passphrase");
+		expect(configured.passphraseWordCount).toBe(6);
+		expect(configured.passphraseLanguage).toBe("da");
+	});
+
+	it("loads passphrase preferences and retains backward-compatible defaults", () => {
+		const defaults = settingsDatastore(undefined, {
+			type: SETTINGS_DATASTORE_LOADED,
+			data: {},
+		});
+		expect(defaults.defaultPasswordGenerator).toBe("password");
+		expect(defaults.passphraseWordCount).toBe(4);
+		expect(defaults.passphraseLanguage).toBe("");
+		const loaded = settingsDatastore(defaults, {
+			type: SETTINGS_DATASTORE_LOADED,
+			data: {
+				setting_passphrase_word_count: "7",
+				setting_passphrase_language: "en",
+				setting_default_password_generator: "passphrase",
+			},
+		});
+		expect(loaded.defaultPasswordGenerator).toBe("passphrase");
+		expect(loaded.passphraseWordCount).toBe(7);
+		expect(loaded.passphraseLanguage).toBe("en");
+	});
+
+	it("ignores invalid persisted lengths and unknown default generators", () => {
+		const loaded = settingsDatastore(undefined, {
+			type: SETTINGS_DATASTORE_LOADED,
+			data: {
+				setting_passphrase_word_count: "1",
+				setting_default_password_generator: "unknown",
+			},
+		});
+		expect(loaded.passphraseWordCount).toBe(4);
+		expect(loaded.defaultPasswordGenerator).toBe("password");
+	});
 	it("defaults connection entry types to hidden and authentication to empty", () => {
 		const state = settingsDatastore(undefined, { type: "@@UNKNOWN" });
 

@@ -862,7 +862,7 @@ const DatastoreView = (
 	}
 
 	return (
-		<Base {...props}>
+		<Base {...props} disableBottomPadding>
 			<BaseTitle>{t("DATASTORE")}</BaseTitle>
 			<BaseContent>
 				<Grid container spacing={1}>

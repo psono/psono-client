@@ -34,7 +34,8 @@ import GatewayLaunchButton from "../gateway-launch-button";
 const useStyles = makeStyles((theme) => ({
 	treeItem: {
 		position: "relative",
-		height: "34px",
+		height: "46px",
+		boxSizing: "border-box",
 		lineHeight: "34px",
 		cursor: "pointer",
 		margin: 0,

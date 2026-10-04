@@ -47,6 +47,7 @@ export interface ServerInfoPayload extends Partial<DecodedServerInfo> {
 	compliance_min_clipboard_clear_delay?: number;
 	compliance_max_clipboard_clear_delay?: number;
 	compliance_password_generator_default_password_length?: number;
+	compliance_password_generator_default_word_length?: number;
 	compliance_password_generator_default_letters_uppercase?: string;
 	compliance_password_generator_default_letters_lowercase?: string;
 	compliance_password_generator_default_numbers?: string;
@@ -81,6 +82,9 @@ export type ServerPolicyPayload = ServerInfoPayload;
 export interface SettingsDatastorePayload {
 	[key: string]: unknown;
 	setting_password_length?: string | number;
+	setting_passphrase_word_count?: string | number;
+	setting_passphrase_language?: string;
+	setting_default_password_generator?: string;
 	setting_password_letters_uppercase?: string;
 	setting_password_letters_lowercase?: string;
 	setting_password_numbers?: string;
@@ -223,6 +227,14 @@ export interface ActionPayloads {
 	[ActionTypes.SET_LAST_POPUP_SEARCH]: Pick<ClientState, "lastPopupSearch">;
 	[ActionTypes.SETTINGS_DATASTORE_LOADED]: { data: SettingsDatastorePayload };
 	[ActionTypes.SET_PASSWORD_CONFIG]: PasswordConfig;
+	[ActionTypes.SET_PASSPHRASE_CONFIG]: Pick<
+		SettingsState,
+		"passphraseWordCount" | "passphraseLanguage" | "defaultPasswordGenerator"
+	>;
+	[ActionTypes.SET_DEFAULT_PASSWORD_GENERATOR]: Pick<
+		SettingsState,
+		"defaultPasswordGenerator"
+	>;
 	[ActionTypes.SET_CLIENT_CONFIG]: ClientOptionsConfig;
 	[ActionTypes.SET_DOMAIN_SYNONYMS_CONFIG]: Pick<
 		SettingsState,

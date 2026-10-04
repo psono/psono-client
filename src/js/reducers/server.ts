@@ -137,6 +137,7 @@ function server(
 		complianceMaxClipboardClearDelay: defaultComplianceMaxClipboardClearDelay,
 		compliancePasswordGeneratorDefaultPasswordLength:
 			defaultCompliancePasswordGeneratorDefaultPasswordLength,
+		compliancePasswordGeneratorDefaultWordLength: undefined,
 		compliancePasswordGeneratorDefaultLettersUppercase:
 			defaultCompliancePasswordGeneratorDefaultLettersUppercase,
 		compliancePasswordGeneratorDefaultLettersLowercase:
@@ -226,6 +227,7 @@ function server(
 					defaultComplianceMaxClipboardClearDelay,
 				compliancePasswordGeneratorDefaultPasswordLength:
 					defaultCompliancePasswordGeneratorDefaultPasswordLength,
+				compliancePasswordGeneratorDefaultWordLength: undefined,
 				compliancePasswordGeneratorDefaultLettersUppercase:
 					defaultCompliancePasswordGeneratorDefaultLettersUppercase,
 				compliancePasswordGeneratorDefaultLettersLowercase:
@@ -332,6 +334,8 @@ function server(
 						: action.info.compliance_max_clipboard_clear_delay,
 				compliancePasswordGeneratorDefaultPasswordLength:
 					action.info.compliance_password_generator_default_password_length,
+				compliancePasswordGeneratorDefaultWordLength:
+					action.info.compliance_password_generator_default_word_length,
 				compliancePasswordGeneratorDefaultLettersUppercase:
 					action.info.compliance_password_generator_default_letters_uppercase,
 				compliancePasswordGeneratorDefaultLettersLowercase:
@@ -511,6 +515,15 @@ function server(
 			) {
 				data["compliancePasswordGeneratorDefaultPasswordLength"] =
 					action.policy.compliance_password_generator_default_password_length;
+			}
+			if (
+				Object.hasOwn(
+					action.policy,
+					"compliance_password_generator_default_word_length",
+				)
+			) {
+				data["compliancePasswordGeneratorDefaultWordLength"] =
+					action.policy.compliance_password_generator_default_word_length;
 			}
 			if (
 				Object.hasOwn(

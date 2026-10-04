@@ -108,6 +108,15 @@ function serializeSettingsDatastore(
 		{ key: "setting_show_file", value: settings.showFile },
 		{ key: "setting_password_length", value: settings.passwordLength },
 		{
+			key: "setting_passphrase_word_count",
+			value: settings.passphraseWordCount,
+		},
+		{ key: "setting_passphrase_language", value: settings.passphraseLanguage },
+		{
+			key: "setting_default_password_generator",
+			value: settings.defaultPasswordGenerator,
+		},
+		{
 			key: "setting_password_letters_uppercase",
 			value: settings.passwordLettersUppercase,
 		},
@@ -189,6 +198,11 @@ function getSettingsDatastore() {
 			setting_clipboard_clear_delay: 30,
 			setting_use_markdown_for_notes: true,
 			setting_password_length: 16,
+			setting_passphrase_word_count:
+				getStore().getState().server
+					.compliancePasswordGeneratorDefaultWordLength ?? 4,
+			setting_passphrase_language: "",
+			setting_default_password_generator: "password",
 			setting_password_letters_uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 			setting_password_letters_lowercase: "abcdefghijklmnopqrstuvwxyz",
 			setting_password_numbers: "0123456789",

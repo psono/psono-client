@@ -12,9 +12,12 @@ import {
 	SET_GPG_CONFIG,
 	SET_GPG_DEFAULT_KEY,
 	SET_PASSWORD_CONFIG,
+	SET_PASSPHRASE_CONFIG,
+	SET_DEFAULT_PASSWORD_GENERATOR,
 	SET_SHOWN_ENTRIES_CONFIG,
 	SETTINGS_DATASTORE_LOADED,
 } from "../actions/action-types";
+import { normalizeWordCount } from "../services/passphrase-config";
 
 interface SettingsEnvelope {
 	schema_version?: unknown;
@@ -69,6 +72,9 @@ function normalizeGatewayClusterSelection(
 function settingsDatastore(
 	state: SettingsState = {
 		passwordLength: 16,
+		passphraseWordCount: 4,
+		passphraseLanguage: "",
+		defaultPasswordGenerator: "password",
 		passwordLettersUppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 		passwordLettersLowercase: "abcdefghijklmnopqrstuvwxyz",
 		passwordNumbers: "0123456789",
@@ -110,6 +116,14 @@ function settingsDatastore(
 		case SETTINGS_DATASTORE_LOADED:
 			// parseInt performs the existing conversion for both numbers and strings.
 			return Object.assign({}, state, {
+				passphraseWordCount: normalizeWordCount(
+					action.data.setting_passphrase_word_count,
+				),
+				passphraseLanguage: action.data.setting_passphrase_language || "",
+				defaultPasswordGenerator:
+					action.data.setting_default_password_generator === "passphrase"
+						? "passphrase"
+						: "password",
 				passwordLength: Object.hasOwn(action.data, "setting_password_length")
 					? parseInt(action.data.setting_password_length as string)
 					: 16,
@@ -263,6 +277,24 @@ function settingsDatastore(
 							action.data.setting_gateway_cluster_selection,
 						)
 					: { schema_version: 1, by_connection_secret_id: {} },
+			});
+		case SET_PASSPHRASE_CONFIG:
+			return Object.assign({}, state, {
+				passphraseWordCount: normalizeWordCount(action.passphraseWordCount),
+				passphraseLanguage: action.passphraseLanguage || "",
+				defaultPasswordGenerator:
+					action.defaultPasswordGenerator === undefined
+						? state.defaultPasswordGenerator
+						: action.defaultPasswordGenerator === "passphrase"
+							? "passphrase"
+							: "password",
+			});
+		case SET_DEFAULT_PASSWORD_GENERATOR:
+			return Object.assign({}, state, {
+				defaultPasswordGenerator:
+					action.defaultPasswordGenerator === "passphrase"
+						? "passphrase"
+						: "password",
 			});
 		case SET_PASSWORD_CONFIG:
 			return Object.assign({}, state, {

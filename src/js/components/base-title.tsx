@@ -16,7 +16,6 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: "15px",
 		color: theme.palette.background.default,
 		[theme.breakpoints.up("sm")]: {
-			maxWidth: `calc(100% - 240px)`,
 			fontSize: "20px",
 		},
 	},
@@ -28,9 +27,6 @@ const useStyles = makeStyles((theme) => ({
 		paddingLeft: "15px",
 		paddingRight: "15px",
 		color: "rgba(15,17,24,0.33)",
-		[theme.breakpoints.up("sm")]: {
-			maxWidth: `calc(100% - 240px)`,
-		},
 	},
 }));
 

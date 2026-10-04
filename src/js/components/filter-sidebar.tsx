@@ -84,13 +84,15 @@ const FilterSideBar = <Key extends string>({
 			ModalProps={{
 				keepMounted: true,
 			}}
-			sx={{
+			sx={(theme) => ({
 				position: "absolute",
+				overflow: "hidden",
 				right: 0,
 				top: 0,
 				height: "100%",
 				width: open ? "300px" : "0",
-				zIndex: 1300,
+				// Page filters belong below navigation drawers and modal backdrops.
+				zIndex: theme.zIndex.drawer - 1,
 				transition: "none",
 				"& .MuiDrawer-paper": {
 					position: "absolute",
@@ -101,7 +103,7 @@ const FilterSideBar = <Key extends string>({
 					transition: "none",
 					paddingLeft: 0,
 				},
-			}}
+			})}
 		>
 			<div className={classes.header}>
 				<Typography variant="h6" className={classes.title}>

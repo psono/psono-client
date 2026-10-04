@@ -2,10 +2,43 @@ import type { Datastore } from "../../types/datastore";
 import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
 import shareService from "./share";
+import * as storeService from "./store";
+import rootReducer from "../reducers";
+import { wordlists } from "./passphrase";
 
 describe("Service: datastorePasswordService test suite #1", () => {
 	it("datastorePasswordService exists", () => {
 		expect(datastorePasswordService).toBeDefined();
+	});
+
+	it("uses saved passphrase preferences for quick generation while explicit arguments still generate passwords", () => {
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		const configured: ReturnType<typeof rootReducer> = {
+			...state,
+			settingsDatastore: {
+				...state.settingsDatastore,
+				defaultPasswordGenerator: "passphrase",
+				passphraseWordCount: 6,
+				passphraseLanguage: "en",
+			},
+		};
+		const getStore = jest.spyOn(storeService, "getStore").mockReturnValue({
+			getState: () => configured,
+		} as ReturnType<typeof storeService.getStore>);
+		try {
+			const parts = datastorePasswordService.generate().split("-");
+			expect(parts).toHaveLength(6);
+			for (const part of parts) {
+				expect(wordlists.en).toContain(
+					part.replace(/[0-9]/g, "").toLowerCase(),
+				);
+			}
+			expect(datastorePasswordService.generate(12, "", "a", "", "")).toBe(
+				"a".repeat(12),
+			);
+		} finally {
+			getStore.mockRestore();
+		}
 	});
 
 	it.each<[number | string, number]>([

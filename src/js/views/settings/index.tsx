@@ -36,7 +36,7 @@ const SettingsView = (props: SettingsViewProps) => {
 							aria-label="scrollable auto tabs example"
 						>
 							<Tab
-								label={t("PASSWORD_GENERATOR")}
+								label={t("GENERATORS")}
 								value="/settings/password-generator"
 								component={Link}
 								to={"/settings/password-generator"}

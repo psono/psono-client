@@ -48,12 +48,17 @@ import DialogChangeAccount from "../../components/dialogs/change-account";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import EntryIcon from "../../components/entry-icon";
 import GatewayLaunchButton from "../../components/gateway-launch-button";
+import GeneratorStrength from "../../components/generator-strength";
 import ContentCopy from "../../components/icons/ContentCopy";
 import TextFieldColored from "../../components/text-field/colored";
+import PassphraseGenerator, {
+	GeneratorTypeSelect,
+} from "../../components/passphrase-generator";
 import accountService from "../../services/account";
 import browserClient from "../../services/browser-client";
 import datastoreService from "../../services/datastore";
 import datastorePassword from "../../services/datastore-password";
+import { passwordEntropy } from "../../services/password-entropy";
 import helper from "../../services/helper";
 import offlineCacheService from "../../services/offline-cache";
 import offlineCache from "../../services/offline-cache";
@@ -579,6 +584,9 @@ const PopupView = (
 	const [includeNumbers, setIncludeNumbers] = useState(true);
 	const [includeSpecialChars, setIncludeSpecialChars] = useState(true);
 	const settingsDatastore = useSelector((state) => state.settingsDatastore);
+	const [generator, setGenerator] = useState<"password" | "passphrase">(
+		"password",
+	);
 	const [passwordLength, setPasswordLength] = useState<number | string>(
 		settingsDatastore.passwordLength,
 	);
@@ -595,6 +603,11 @@ const PopupView = (
 		settingsDatastore.passwordSpecialChars,
 	);
 	const [password, setPassword] = React.useState("");
+	const [generated, setGenerated] = useState({ value: "", entropy: 0 });
+	const onPassphraseChange = React.useCallback((value: string) => {
+		browserClient.copyToClipboard(() => Promise.resolve(value));
+		setPassword(value);
+	}, []);
 	const search = useSelector((state) => state.client.lastPopupSearch);
 	const [items, setItems] = React.useState<PopupEntry[]>([]);
 	let isSubscribed = true;
@@ -833,17 +846,36 @@ const PopupView = (
 			passwordNumbers,
 			passwordSpecialChars,
 		);
+		setGenerated({
+			value: password,
+			entropy: passwordEntropy(
+				password.length,
+				passwordLettersUppercase +
+					passwordLettersLowercase +
+					passwordNumbers +
+					passwordSpecialChars,
+			),
+		});
 		copyToClipboard(password);
 		setPassword(password);
 	};
 	const showGeneratePassword = () => {
-		generatePassword(
-			passwordLength,
-			passwordLettersUppercase,
-			passwordLettersLowercase,
-			passwordNumbers,
-			passwordSpecialChars,
-		);
+		const defaultGenerator =
+			settingsDatastore.defaultPasswordGenerator === "passphrase"
+				? "passphrase"
+				: "password";
+		setGenerator(defaultGenerator);
+		if (defaultGenerator === "password") {
+			generatePassword(
+				passwordLength,
+				passwordLettersUppercase,
+				passwordLettersLowercase,
+				passwordNumbers,
+				passwordSpecialChars,
+			);
+		} else {
+			setPassword("");
+		}
 		setView("generate_password");
 	};
 	const saveGeneratePassword = () => {
@@ -985,164 +1017,202 @@ const PopupView = (
 		return (
 			<DarkBox className={classes.popupContainer}>
 				<Grid container>
-					<Grid item xs={12} sm={12} md={12}>
-						<TextFieldColored
+					<Grid item xs={12}>
+						<GeneratorTypeSelect
 							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="password"
-							label={t("PASSWORD")}
-							name="password"
-							autoComplete="off"
-							value={password}
-							onChange={(event) => {
-								setPassword(event.target.value);
-								copyToClipboard(event.target.value);
-							}}
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton
-											aria-label="generate"
-											onClick={() =>
-												generatePassword(
-													passwordLength,
-													includeLettersUppercase
-														? passwordLettersUppercase
-														: "",
-													includeLettersLowercase
-														? passwordLettersLowercase
-														: "",
-													includeNumbers ? passwordNumbers : "",
-													includeSpecialChars ? passwordSpecialChars : "",
-												)
-											}
-											edge="end"
-											className={classes.regularButtonText}
-											size="large"
-										>
-											<ReplayRoundedIcon fontSize="small" />
-										</IconButton>
-									</InputAdornment>
-								),
+							value={generator}
+							onChange={(value) => {
+								setGenerator(value);
+								if (value === "password") {
+									generatePassword(
+										passwordLength,
+										includeLettersUppercase ? passwordLettersUppercase : "",
+										includeLettersLowercase ? passwordLettersLowercase : "",
+										includeNumbers ? passwordNumbers : "",
+										includeSpecialChars ? passwordSpecialChars : "",
+									);
+								} else {
+									setPassword("");
+								}
 							}}
 						/>
 					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<Divider classes={{ root: classes.divider }} />
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="passwordLength"
-							label={t("PASSWORD_LENGTH")}
-							name="passwordLength"
-							autoComplete="off"
-							value={passwordLength}
-							onChange={(event) => {
-								generatePassword(
-									event.target.value,
-									includeLettersUppercase ? passwordLettersUppercase : "",
-									includeLettersLowercase ? passwordLettersLowercase : "",
-									includeNumbers ? passwordNumbers : "",
-									includeSpecialChars ? passwordSpecialChars : "",
-								);
-								setPasswordLength(event.target.value);
-							}}
-						/>
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<Checkbox
-							checked={includeLettersUppercase}
-							onChange={(event) => {
-								generatePassword(
-									passwordLength,
-									event.target.checked ? passwordLettersUppercase : "",
-									includeLettersLowercase ? passwordLettersLowercase : "",
-									includeNumbers ? passwordNumbers : "",
-									includeSpecialChars ? passwordSpecialChars : "",
-								);
-								setIncludeLettersUppercase(event.target.checked);
-							}}
-							checkedIcon={<Check className={classes.checkedIcon} />}
-							icon={<Check className={classes.uncheckedIcon} />}
-							classes={{
-								checked: classes.checked,
-							}}
-						/>{" "}
-						{t("LETTERS_UPPERCASE")}
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<Checkbox
-							checked={includeLettersLowercase}
-							onChange={(event) => {
-								generatePassword(
-									passwordLength,
-									includeLettersUppercase ? passwordLettersUppercase : "",
-									event.target.checked ? passwordLettersLowercase : "",
-									includeNumbers ? passwordNumbers : "",
-									includeSpecialChars ? passwordSpecialChars : "",
-								);
-								setIncludeLettersLowercase(event.target.checked);
-							}}
-							checkedIcon={<Check className={classes.checkedIcon} />}
-							icon={<Check className={classes.uncheckedIcon} />}
-							classes={{
-								checked: classes.checked,
-							}}
-						/>{" "}
-						{t("LETTERS_LOWERCASE")}
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<Checkbox
-							checked={includeNumbers}
-							onChange={(event) => {
-								generatePassword(
-									passwordLength,
-									includeLettersUppercase ? passwordLettersUppercase : "",
-									includeLettersLowercase ? passwordLettersLowercase : "",
-									event.target.checked ? passwordNumbers : "",
-									includeSpecialChars ? passwordSpecialChars : "",
-								);
-								setIncludeNumbers(event.target.checked);
-							}}
-							checkedIcon={<Check className={classes.checkedIcon} />}
-							icon={<Check className={classes.uncheckedIcon} />}
-							classes={{
-								checked: classes.checked,
-							}}
-						/>{" "}
-						{t("NUMBERS")}
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<Checkbox
-							checked={includeSpecialChars}
-							onChange={(event) => {
-								generatePassword(
-									passwordLength,
-									includeLettersUppercase ? passwordLettersUppercase : "",
-									includeLettersLowercase ? passwordLettersLowercase : "",
-									includeNumbers ? passwordNumbers : "",
-									event.target.checked ? passwordSpecialChars : "",
-								);
-								setIncludeSpecialChars(event.target.checked);
-							}}
-							checkedIcon={<Check className={classes.checkedIcon} />}
-							icon={<Check className={classes.uncheckedIcon} />}
-							classes={{
-								checked: classes.checked,
-							}}
-						/>{" "}
-						{t("SPECIAL_CHARS")}
-					</Grid>
+					{generator === "passphrase" ? (
+						<Grid item xs={12}>
+							<PassphraseGenerator
+								className={classes.textField}
+								onChange={onPassphraseChange}
+							/>
+						</Grid>
+					) : (
+						<>
+							<Grid item xs={12} sm={12} md={12}>
+								<TextFieldColored
+									className={classes.textField}
+									variant="outlined"
+									margin="dense"
+									size="small"
+									id="password"
+									label={t("PASSWORD")}
+									name="password"
+									autoComplete="off"
+									value={password}
+									onChange={(event) => {
+										setPassword(event.target.value);
+										copyToClipboard(event.target.value);
+									}}
+									InputProps={{
+										endAdornment: (
+											<InputAdornment position="end">
+												<IconButton
+													aria-label="generate"
+													onClick={() =>
+														generatePassword(
+															passwordLength,
+															includeLettersUppercase
+																? passwordLettersUppercase
+																: "",
+															includeLettersLowercase
+																? passwordLettersLowercase
+																: "",
+															includeNumbers ? passwordNumbers : "",
+															includeSpecialChars ? passwordSpecialChars : "",
+														)
+													}
+													edge="end"
+													className={classes.regularButtonText}
+													size="large"
+												>
+													<ReplayRoundedIcon fontSize="small" />
+												</IconButton>
+											</InputAdornment>
+										),
+									}}
+								/>
+								<GeneratorStrength
+									mode="password"
+									entropy={
+										password === generated.value ? generated.entropy : undefined
+									}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={12} md={12}>
+								<Divider classes={{ root: classes.divider }} />
+								<TextField
+									className={classes.textField}
+									variant="outlined"
+									margin="dense"
+									size="small"
+									id="passwordLength"
+									label={t("PASSWORD_LENGTH")}
+									name="passwordLength"
+									autoComplete="off"
+									value={passwordLength}
+									onChange={(event) => {
+										generatePassword(
+											event.target.value,
+											includeLettersUppercase ? passwordLettersUppercase : "",
+											includeLettersLowercase ? passwordLettersLowercase : "",
+											includeNumbers ? passwordNumbers : "",
+											includeSpecialChars ? passwordSpecialChars : "",
+										);
+										setPasswordLength(event.target.value);
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={12} md={12}>
+								<Checkbox
+									checked={includeLettersUppercase}
+									onChange={(event) => {
+										generatePassword(
+											passwordLength,
+											event.target.checked ? passwordLettersUppercase : "",
+											includeLettersLowercase ? passwordLettersLowercase : "",
+											includeNumbers ? passwordNumbers : "",
+											includeSpecialChars ? passwordSpecialChars : "",
+										);
+										setIncludeLettersUppercase(event.target.checked);
+									}}
+									checkedIcon={<Check className={classes.checkedIcon} />}
+									icon={<Check className={classes.uncheckedIcon} />}
+									classes={{
+										checked: classes.checked,
+									}}
+								/>{" "}
+								{t("LETTERS_UPPERCASE")}
+							</Grid>
+							<Grid item xs={12} sm={12} md={12}>
+								<Checkbox
+									checked={includeLettersLowercase}
+									onChange={(event) => {
+										generatePassword(
+											passwordLength,
+											includeLettersUppercase ? passwordLettersUppercase : "",
+											event.target.checked ? passwordLettersLowercase : "",
+											includeNumbers ? passwordNumbers : "",
+											includeSpecialChars ? passwordSpecialChars : "",
+										);
+										setIncludeLettersLowercase(event.target.checked);
+									}}
+									checkedIcon={<Check className={classes.checkedIcon} />}
+									icon={<Check className={classes.uncheckedIcon} />}
+									classes={{
+										checked: classes.checked,
+									}}
+								/>{" "}
+								{t("LETTERS_LOWERCASE")}
+							</Grid>
+							<Grid item xs={12} sm={12} md={12}>
+								<Checkbox
+									checked={includeNumbers}
+									onChange={(event) => {
+										generatePassword(
+											passwordLength,
+											includeLettersUppercase ? passwordLettersUppercase : "",
+											includeLettersLowercase ? passwordLettersLowercase : "",
+											event.target.checked ? passwordNumbers : "",
+											includeSpecialChars ? passwordSpecialChars : "",
+										);
+										setIncludeNumbers(event.target.checked);
+									}}
+									checkedIcon={<Check className={classes.checkedIcon} />}
+									icon={<Check className={classes.uncheckedIcon} />}
+									classes={{
+										checked: classes.checked,
+									}}
+								/>{" "}
+								{t("NUMBERS")}
+							</Grid>
+							<Grid item xs={12} sm={12} md={12}>
+								<Checkbox
+									checked={includeSpecialChars}
+									onChange={(event) => {
+										generatePassword(
+											passwordLength,
+											includeLettersUppercase ? passwordLettersUppercase : "",
+											includeLettersLowercase ? passwordLettersLowercase : "",
+											includeNumbers ? passwordNumbers : "",
+											event.target.checked ? passwordSpecialChars : "",
+										);
+										setIncludeSpecialChars(event.target.checked);
+									}}
+									checkedIcon={<Check className={classes.checkedIcon} />}
+									icon={<Check className={classes.uncheckedIcon} />}
+									classes={{
+										checked: classes.checked,
+									}}
+								/>{" "}
+								{t("SPECIAL_CHARS")}
+							</Grid>
+						</>
+					)}
 					<Grid item xs={12} sm={12} md={12}>
 						<Divider classes={{ root: classes.divider }} />
 						<Button
 							variant="contained"
 							color="primary"
 							onClick={saveGeneratePassword}
+							disabled={!password}
 						>
 							{t("SAVE")}
 						</Button>
