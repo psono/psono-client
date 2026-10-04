@@ -134,9 +134,7 @@ const DialogDeviceClaimConsent = ({ open, onClose }: DialogProps) => {
 				deviceCodeSecretBoxKey,
 			);
 			setSuccess(true);
-			// setTimeout(() => {
-			//     handleClose();
-			// }, 2000);
+			dispatch(actionCreators.clearDeviceCode());
 		} catch (err) {
 			const errorMessage = extractErrorMessage(err);
 			setErrors([errorMessage]);
@@ -157,8 +155,8 @@ const DialogDeviceClaimConsent = ({ open, onClose }: DialogProps) => {
 		handleClose();
 	};
 
-	// Don't render if no device code information
-	if (!deviceCodeId || !deviceCodeSecretBoxKey) {
+	// Keep the success confirmation visible after clearing the stored device code.
+	if (!success && (!deviceCodeId || !deviceCodeSecretBoxKey)) {
 		return null;
 	}
 
@@ -177,23 +175,25 @@ const DialogDeviceClaimConsent = ({ open, onClose }: DialogProps) => {
 
 			<DialogContent>
 				<Grid container spacing={2}>
-					<Grid item xs={12}>
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="device_code_id"
-							label={t("DEVICE_CODE")}
-							InputProps={{
-								readOnly: true,
-								multiline: true,
-							}}
-							name="device_code_id"
-							autoComplete="off"
-							value={deviceCodeId}
-						/>
-					</Grid>
+					{!success && (
+						<Grid item xs={12}>
+							<TextField
+								className={classes.textField}
+								variant="outlined"
+								margin="dense"
+								size="small"
+								id="device_code_id"
+								label={t("DEVICE_CODE")}
+								InputProps={{
+									readOnly: true,
+									multiline: true,
+								}}
+								name="device_code_id"
+								autoComplete="off"
+								value={deviceCodeId}
+							/>
+						</Grid>
+					)}
 
 					{!success && (
 						<Grid item xs={12}>
