@@ -7,7 +7,130 @@ import backgroundService from "./background";
 import browserClient from "./browser-client";
 import converterService from "./converter";
 import notificationBarService from "./notification-bar";
+import passkeyService from "./passkey";
 import ssoRedirect from "./sso-redirect";
+import storage from "./storage";
+import * as storeService from "./store";
+import user from "./user";
+import { createStore } from "redux";
+import rootReducer from "../reducers";
+
+describe("background message responses", () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("acknowledges notification-bar-ready on an ordinary page load", () => {
+		jest.spyOn(browserClient, "emitTab").mockImplementation(() => {});
+		const sendResponse = jest.fn();
+
+		expect(
+			backgroundService.onMessage(
+				{ event: "notification-bar-ready", data: "https://example.com/" },
+				{ tab: { id: 42 }, frameId: 0 },
+				sendResponse,
+			),
+		).toBe(false);
+
+		expect(sendResponse).toHaveBeenCalledTimes(1);
+		expect(sendResponse).toHaveBeenCalledWith({ event: "status", data: "ok" });
+	});
+
+	it("acknowledges login submissions without leaving a response port open", async () => {
+		jest.spyOn(user, "isLoggedIn").mockReturnValue(true);
+		jest
+			.spyOn(storeService, "getStore")
+			.mockReturnValue(createStore(rootReducer));
+		jest.spyOn(storage, "where").mockResolvedValue([]);
+		jest.spyOn(notificationBarService, "create").mockResolvedValue(undefined);
+		const sendResponse = jest.fn();
+
+		expect(
+			backgroundService.onMessage(
+				{
+					event: "login-form-submit",
+					data: { username: "user", password: "pw" },
+				},
+				{ tab: { id: 42 }, url: "https://example.com/" },
+				sendResponse,
+			),
+		).toBe(false);
+		expect(sendResponse).toHaveBeenCalledWith({ event: "status", data: "ok" });
+
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(notificationBarService.create).toHaveBeenCalled();
+		expect(sendResponse).toHaveBeenCalledTimes(1);
+	});
+
+	it("preserves asynchronous responses without sending an early acknowledgement", () => {
+		let respond:
+			| Parameters<typeof passkeyService.onNavigatorCredentialsGet>[2]
+			| undefined;
+		jest
+			.spyOn(passkeyService, "onNavigatorCredentialsGet")
+			.mockImplementation((request, sender, sendResponse) => {
+				respond = sendResponse;
+				return true;
+			});
+		const sendResponse = jest.fn();
+
+		expect(
+			backgroundService.onMessage(
+				{ event: "navigator-credentials-get", data: {} },
+				{ tab: { id: 42 } },
+				sendResponse,
+			),
+		).toBe(true);
+		expect(sendResponse).not.toHaveBeenCalled();
+		const response: Parameters<
+			Parameters<typeof passkeyService.onNavigatorCredentialsGet>[2]
+		>[0] = {
+			event: "navigator-credentials-get-response",
+			data: {
+				error: { errorType: "BYPASS_PSONO", message: "Use the browser" },
+			},
+		};
+		respond!(response);
+		expect(sendResponse).toHaveBeenCalledWith(response);
+	});
+
+	it("preserves a synchronous response without adding an acknowledgement", () => {
+		const sendResponse = jest.fn();
+		jest
+			.spyOn(notificationBarService, "onNotificationBarLoaded")
+			.mockImplementation((request, sender, respond) => {
+				respond({
+					id: "notification",
+					title: "Title",
+					description: "Text",
+					buttons: [],
+				});
+			});
+		backgroundService.onMessage(
+			{ event: "notification-bar-loaded", data: {} },
+			{ tab: { id: 42 } },
+			sendResponse,
+		);
+		expect(sendResponse).toHaveBeenCalledTimes(1);
+		expect(sendResponse).toHaveBeenCalledWith({
+			id: "notification",
+			title: "Title",
+			description: "Text",
+			buttons: [],
+		});
+	});
+
+	it.each([
+		"get-offline-cache-encryption-key-offscreen",
+		"set-offline-cache-encryption-key-offscreen",
+	])("leaves %s responses to the offscreen document", (event) => {
+		const sendResponse = jest.fn();
+		expect(
+			backgroundService.onMessage({ event, data: null }, {}, sendResponse),
+		).toBe(false);
+		expect(sendResponse).not.toHaveBeenCalled();
+	});
+});
 
 describe("Service: helper test suite", () => {
 	it("helper exists", () => {

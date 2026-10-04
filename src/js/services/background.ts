@@ -511,6 +511,13 @@ function onMessage(
 	sender: MessageSender,
 	sendResponse: SendResponse,
 ) {
+	let responded = false;
+	const respond: SendResponse = (response) => {
+		if (!responded) {
+			responded = true;
+			sendResponse(response);
+		}
+	};
 	const eventFunctions = {
 		fillpassword: onFillpassword,
 		fillelstercertificate: onFillElsterCertificate,
@@ -548,10 +555,15 @@ function onMessage(
 		"passkey-selector-select": passkeySelectorService.onSelect,
 		"passkey-selector-cancel": passkeySelectorService.onCancel,
 		"navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
-		"get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
-		"set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
 	};
 	try {
+		// Only the offscreen document may respond to these messages.
+		if (
+			request.event === "get-offline-cache-encryption-key-offscreen" ||
+			request.event === "set-offline-cache-encryption-key-offscreen"
+		) {
+			return false;
+		}
 		if (Object.hasOwn(eventFunctions, request.event)) {
 			// Wrap the handler call in try-catch to handle errors properly
 			try {
@@ -564,12 +576,16 @@ function onMessage(
 					sender: MessageSender,
 					sendResponse: SendResponse,
 				) => unknown;
-				const result = handler(request, sender, sendResponse);
+				const result = handler(request, sender, respond);
+				// Acknowledge handled notifications even when they have no response data.
+				if (result !== true && !responded) {
+					respond({ event: "status", data: "ok" });
+				}
 				// If the handler returns true, it means it will respond asynchronously
 				return result === true;
 			} catch (handlerError) {
 				console.error("Error in message handler:", handlerError);
-				sendResponse({ error: (handlerError as Error).message });
+				respond({ error: (handlerError as Error).message });
 				return false;
 			}
 		} else {
@@ -582,7 +598,7 @@ function onMessage(
 		}
 	} catch (error) {
 		console.error("Error in onMessage:", error);
-		sendResponse({ error: (error as Error).message });
+		respond({ error: (error as Error).message });
 		return false;
 	}
 }
@@ -1418,7 +1434,7 @@ function writeGpgComplete(
 		return false;
 	}
 
-	// Perform async work inside, return true to keep channel open
+	// The encryption result is sent through the original encrypt-gpg request.
 	Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })))
 		.then((publicKeysArray) => {
 			function finaliseEncryption(
@@ -1493,7 +1509,7 @@ function writeGpgComplete(
 			console.error("Error reading public keys:", error);
 		});
 
-	return true; // Important: keep channel open for async operations
+	return false;
 }
 
 /**
@@ -1586,7 +1602,7 @@ function loginFormSubmit(
 		return false;
 	}
 
-	// Perform async work inside, return true to keep channel open
+	// This notification has no asynchronous response; the lookup can run separately.
 	searchWebsitePasswordsByUrlfilter(sender.url!, false)
 		.then((existingPasswords) => {
 			if (existingPasswords.length === 0) {
@@ -1659,7 +1675,7 @@ function loginFormSubmit(
 			console.error("Error in loginFormSubmit:", error);
 		});
 
-	return true; // Important: keep channel open for async operations
+	return false;
 }
 
 /**
@@ -2013,6 +2029,7 @@ function updateLastLoginCredentials() {
 const backgroundService = {
 	activate,
 	activateAfterStore,
+	onMessage,
 	approveIframeLogin,
 	getSearchWebsitePasswordsByUrlfilter,
 	oidcSamlRedirectDetected,
