@@ -70,8 +70,8 @@ describe("Password and passphrase generator switching", () => {
 		});
 		container.remove();
 	});
-	function render() {
-		act(() => {
+	async function render() {
+		await act(async () => {
 			ReactDOM.render(
 				<ThemeProvider theme={theme}>
 					<DialogGeneratePassword
@@ -84,13 +84,13 @@ describe("Password and passphrase generator switching", () => {
 			);
 		});
 	}
-	function chooseGenerator(value: string) {
+	async function chooseGenerator(value: string) {
 		act(() => {
 			Simulate.mouseDown(document.querySelector('[aria-haspopup="listbox"]')!, {
 				button: 0,
 			});
 		});
-		act(() => {
+		await act(async () => {
 			Simulate.click(
 				document.querySelector(`[role="option"][data-value="${value}"]`)!,
 			);
@@ -106,8 +106,8 @@ describe("Password and passphrase generator switching", () => {
 		return onConfirm.mock.calls[onConfirm.mock.calls.length - 1][0] as string;
 	}
 
-	it("starts with the password generator when no preference is saved", () => {
-		render();
+	it("starts with the password generator when no preference is saved", async () => {
+		await render();
 		expect(document.querySelector("#passwordLength")).not.toBeNull();
 		expect(confirm()).toHaveLength(16);
 		expect(
@@ -117,7 +117,7 @@ describe("Password and passphrase generator switching", () => {
 		).not.toBeNull();
 	});
 
-	it("updates the strength estimate when length and character sets change", () => {
+	it("updates the strength estimate when length and character sets change", async () => {
 		Object.assign(mockState.settingsDatastore, {
 			passwordLength: 4,
 			passwordLettersUppercase: "A",
@@ -125,7 +125,7 @@ describe("Password and passphrase generator switching", () => {
 			passwordNumbers: "1",
 			passwordSpecialChars: "!",
 		});
-		render();
+		await render();
 		expect(document.body.textContent).toContain("PASSWORD_ENTROPY 4.6 WEAK");
 		const length = document.querySelector<HTMLInputElement>("#passwordLength")!;
 		act(() => {
@@ -143,8 +143,8 @@ describe("Password and passphrase generator switching", () => {
 		expect(document.body.textContent).toContain("PASSWORD_ENTROPY 12.5 WEAK");
 	});
 
-	it("hides the password entropy after manual edits and restores it on regeneration", () => {
-		render();
+	it("hides the password entropy after manual edits and restores it on regeneration", async () => {
+		await render();
 		const password = document.querySelector<HTMLInputElement>("#password")!;
 		act(() => {
 			password.value = "Edited1!";
@@ -162,20 +162,20 @@ describe("Password and passphrase generator switching", () => {
 		).not.toBeNull();
 	});
 
-	it("starts with the user's preferred passphrase generator", () => {
+	it("starts with the user's preferred passphrase generator", async () => {
 		mockState.settingsDatastore.defaultPasswordGenerator = "passphrase";
 		mockState.settingsDatastore.passphraseWordCount = 6;
-		render();
+		await render();
 		expect(document.querySelector("#passwordLength")).toBeNull();
 		expect(confirm().split("-")).toHaveLength(6);
 	});
 
-	it("switches in both directions and confirms the selected generator's value", () => {
-		render();
-		chooseGenerator("passphrase");
+	it("switches in both directions and confirms the selected generator's value", async () => {
+		await render();
+		await chooseGenerator("passphrase");
 		expect(confirm().split("-")).toHaveLength(4);
 		expect(document.querySelector('[role="progressbar"]')).not.toBeNull();
-		chooseGenerator("password");
+		await chooseGenerator("password");
 		expect(document.querySelector("#passwordLength")).not.toBeNull();
 		expect(confirm()).toHaveLength(16);
 	});

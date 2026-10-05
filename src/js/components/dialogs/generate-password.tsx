@@ -18,9 +18,8 @@ import datastorePassword from "../../services/datastore-password";
 import { passwordEntropy } from "../../services/password-entropy";
 import GeneratorStrength from "../generator-strength";
 import TextFieldColored from "../text-field/colored";
-import PassphraseGenerator, {
-	GeneratorTypeSelect,
-} from "../passphrase-generator";
+import { GeneratorTypeSelect } from "../generator-select";
+import PassphraseGenerator from "../passphrase-generator-lazy";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {

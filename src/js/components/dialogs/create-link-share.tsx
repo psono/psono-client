@@ -83,6 +83,7 @@ const DialogCreateLinkShare = (props: DialogCreateLinkShareProps) => {
 	);
 	const [showPassphrase, setShowPassphrase] = useState(false);
 	const [passphrase, setPassphrase] = useState("");
+	const [generatingPassphrase, setGeneratingPassphrase] = useState(false);
 	const [linkShareAccessUrl, setLinkShareAccessUrl] = useState("");
 	const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -100,10 +101,17 @@ const DialogCreateLinkShare = (props: DialogCreateLinkShareProps) => {
 		browserClientService.copyToClipboard(() => Promise.resolve(passphrase));
 		notification.push("password_copy", t("PASSPHRASE_COPY_NOTIFICATION"));
 	};
-	const onGeneratePassphrase = () => {
+	const onGeneratePassphrase = async () => {
 		handleClose();
-		const generatedPassphrase = datastorePasswordService.generate();
-		setPassphrase(generatedPassphrase);
+		setGeneratingPassphrase(true);
+		try {
+			setPassphrase(await datastorePasswordService.generateDefault());
+		} catch (error) {
+			console.error(error);
+			notification.errorSend(t("UNKNOWN_ERROR"));
+		} finally {
+			setGeneratingPassphrase(false);
+		}
 	};
 
 	const copyToClipbard = () => {
@@ -337,6 +345,7 @@ const DialogCreateLinkShare = (props: DialogCreateLinkShareProps) => {
 								name="passphrase"
 								autoComplete="off"
 								value={passphrase}
+								disabled={generatingPassphrase}
 								onChange={(event) => {
 									setPassphrase(event.target.value);
 								}}
@@ -379,7 +388,10 @@ const DialogCreateLinkShare = (props: DialogCreateLinkShareProps) => {
 														{t("COPY_PASSPHRASE")}
 													</Typography>
 												</MenuItem>
-												<MenuItem onClick={onGeneratePassphrase}>
+												<MenuItem
+													onClick={onGeneratePassphrase}
+													disabled={generatingPassphrase}
+												>
 													<ListItemIcon>
 														<PhonelinkSetupIcon fontSize="small" />
 													</ListItemIcon>
@@ -428,7 +440,7 @@ const DialogCreateLinkShare = (props: DialogCreateLinkShareProps) => {
 						onClick={onCreate}
 						variant="contained"
 						color="primary"
-						disabled={!publicTitle}
+						disabled={!publicTitle || generatingPassphrase}
 					>
 						{t("CREATE")}
 					</Button>

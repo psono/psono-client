@@ -2,8 +2,6 @@
 	"GENERATOR": "Generator",
 	"GENERATORS": "Generators",
 	"PASSPHRASE_GENERATOR": "Passphrase Generator",
-	"GENERATE_PASSPHRASE": "Generate passphrase",
-	"PASSPHRASE": "Passphrase",
 	"PASSPHRASE_WORD_COUNT": "Number of words",
 	"PASSPHRASE_WORD_COUNT_ERROR": "Enter a whole number from {{min}} to {{max}}.",
 	"WORDLIST_LANGUAGE": "Wordlist language",

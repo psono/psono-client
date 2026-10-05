@@ -1,100 +1,36 @@
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
-import { IconButton, InputAdornment, MenuItem, TextField } from "@mui/material";
+import {
+	IconButton,
+	InputAdornment,
+	LinearProgress,
+	TextField,
+	Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { generatePassphrase, passphraseEntropy } from "../services/passphrase";
 import {
-	generatePassphrase,
 	isValidWordCount,
 	MAX_WORD_COUNT,
 	MIN_WORD_COUNT,
 	normalizeWordCount,
-	passphraseEntropy,
 	resolveWordlistLanguage,
-	wordlistLanguages,
-} from "../services/passphrase";
+} from "../services/passphrase-config";
 import TextFieldColored from "./text-field/colored";
 import GeneratorStrength from "./generator-strength";
+import { WordlistSelect } from "./generator-select";
 
-export function GeneratorTypeSelect({
-	value,
-	onChange,
-	className,
-	label = "GENERATOR",
-	id,
-}: {
-	value: "password" | "passphrase";
-	onChange: (value: "password" | "passphrase") => void;
-	className?: string;
-	label?: string;
-	id?: string;
-}) {
-	const { t } = useTranslation();
-	return (
-		<TextField
-			select
-			fullWidth
-			className={className}
-			variant="outlined"
-			margin="dense"
-			size="small"
-			label={t(label)}
-			id={id}
-			value={value}
-			onChange={(event) =>
-				onChange(
-					event.target.value === "passphrase" ? "passphrase" : "password",
-				)
-			}
-		>
-			<MenuItem value="password">{t("PASSWORD_GENERATOR")}</MenuItem>
-			<MenuItem value="passphrase">{t("PASSPHRASE_GENERATOR")}</MenuItem>
-		</TextField>
-	);
-}
-
-export function WordlistSelect({
-	value,
-	onChange,
-	className,
-	allowAutomatic = false,
-}: {
-	value: string;
+export interface PassphraseGeneratorProps {
 	onChange: (value: string) => void;
 	className?: string;
-	allowAutomatic?: boolean;
-}) {
-	const { t } = useTranslation();
-	return (
-		<TextField
-			select
-			fullWidth
-			className={className}
-			variant="outlined"
-			margin="dense"
-			size="small"
-			label={t("WORDLIST_LANGUAGE")}
-			value={value}
-			onChange={(event) => onChange(event.target.value)}
-		>
-			{allowAutomatic && <MenuItem value="">{t("FRONTEND_LANGUAGE")}</MenuItem>}
-			{Object.entries(wordlistLanguages).map(([language, name]) => (
-				<MenuItem key={language} value={language}>
-					{name}
-				</MenuItem>
-			))}
-		</TextField>
-	);
 }
 
 /** Shared by the entry dialog and the browser extension popup. */
 export default function PassphraseGenerator({
 	onChange,
 	className,
-}: {
-	onChange: (value: string) => void;
-	className?: string;
-}) {
+}: PassphraseGeneratorProps) {
 	const { t, i18n } = useTranslation();
 	const settings = useSelector((state) => state.settingsDatastore);
 	const server = useSelector((state) => state.server);
@@ -107,26 +43,52 @@ export default function PassphraseGenerator({
 	const [language, setLanguage] = useState(
 		resolveWordlistLanguage(settings.passphraseLanguage || i18n.language),
 	);
-	const [generated, setGenerated] = useState(() => ({
-		value: generatePassphrase(count, language),
-		entropy: passphraseEntropy(count, language),
-	}));
-	const [password, setPassword] = useState(generated.value);
+	const [generated, setGenerated] = useState<{
+		value: string;
+		entropy: number;
+	} | null>(null);
+	const [password, setPassword] = useState("");
+	const [loading, setLoading] = useState(true);
+	const [failed, setFailed] = useState(false);
+	const [generation, setGeneration] = useState(0);
+
+	useEffect(() => {
+		if (!isValidWordCount(count)) {
+			setLoading(false);
+			return;
+		}
+		let active = true;
+		setLoading(true);
+		setFailed(false);
+		setPassword("");
+		Promise.all([
+			generatePassphrase(count, language),
+			passphraseEntropy(count, language),
+		]).then(
+			([value, entropy]) => {
+				if (!active) return;
+				setGenerated({ value, entropy });
+				setPassword(value);
+				setLoading(false);
+			},
+			(error: unknown) => {
+				if (!active) return;
+				console.error(error);
+				setFailed(true);
+				setLoading(false);
+			},
+		);
+		// Discard stale loads after a language/count change or unmount.
+		return () => {
+			active = false;
+		};
+	}, [count, language, generation]);
 
 	useEffect(() => {
 		onChange(password);
 	}, [password, onChange]);
 
-	const regenerate = (nextCount = count, nextLanguage = language) => {
-		if (!isValidWordCount(nextCount)) return;
-		const value = generatePassphrase(nextCount, nextLanguage);
-		setGenerated({
-			value,
-			entropy: passphraseEntropy(nextCount, nextLanguage),
-		});
-		setPassword(value);
-	};
-	const entropy = password === generated.value ? generated.entropy : undefined;
+	const entropy = password === generated?.value ? generated.entropy : undefined;
 
 	return (
 		<>
@@ -138,6 +100,7 @@ export default function PassphraseGenerator({
 				size="small"
 				label={t("PASSPHRASE")}
 				value={password}
+				disabled={loading}
 				autoComplete="off"
 				onChange={(event) => setPassword(event.target.value)}
 				InputProps={{
@@ -147,8 +110,8 @@ export default function PassphraseGenerator({
 						<InputAdornment position="end">
 							<IconButton
 								aria-label={t("GENERATE_PASSPHRASE")}
-								disabled={!isValidWordCount(count)}
-								onClick={() => regenerate()}
+								disabled={loading || !isValidWordCount(count)}
+								onClick={() => setGeneration((value) => value + 1)}
 								edge="end"
 							>
 								<ReplayRoundedIcon fontSize="small" />
@@ -157,7 +120,15 @@ export default function PassphraseGenerator({
 					),
 				}}
 			/>
-			<GeneratorStrength mode="passphrase" entropy={entropy} />
+			{loading ? (
+				<LinearProgress aria-label={t("LOADING")} />
+			) : failed ? (
+				<Typography color="error" role="alert">
+					{t("UNKNOWN_ERROR")}
+				</Typography>
+			) : (
+				<GeneratorStrength mode="passphrase" entropy={entropy} />
+			)}
 			<TextField
 				fullWidth
 				className={className}
@@ -177,18 +148,12 @@ export default function PassphraseGenerator({
 							})
 						: undefined
 				}
-				onChange={(event) => {
-					setCount(event.target.value);
-					regenerate(event.target.value);
-				}}
+				onChange={(event) => setCount(event.target.value)}
 			/>
 			<WordlistSelect
 				className={className}
 				value={language}
-				onChange={(value) => {
-					setLanguage(value);
-					regenerate(count, value);
-				}}
+				onChange={setLanguage}
 			/>
 		</>
 	);

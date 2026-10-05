@@ -4,14 +4,14 @@ import datastorePasswordService from "./datastore-password";
 import shareService from "./share";
 import * as storeService from "./store";
 import rootReducer from "../reducers";
-import { wordlists } from "./passphrase";
+import { loadWordlist } from "./passphrase";
 
 describe("Service: datastorePasswordService test suite #1", () => {
 	it("datastorePasswordService exists", () => {
 		expect(datastorePasswordService).toBeDefined();
 	});
 
-	it("uses saved passphrase preferences for quick generation while explicit arguments still generate passwords", () => {
+	it("uses saved passphrase preferences for quick generation while explicit arguments still generate passwords", async () => {
 		const state = rootReducer(undefined, { type: "@@INIT" });
 		const configured: ReturnType<typeof rootReducer> = {
 			...state,
@@ -26,14 +26,38 @@ describe("Service: datastorePasswordService test suite #1", () => {
 			getState: () => configured,
 		} as ReturnType<typeof storeService.getStore>);
 		try {
-			const parts = datastorePasswordService.generate().split("-");
+			const words = await loadWordlist("en");
+			const parts = (await datastorePasswordService.generateDefault()).split(
+				"-",
+			);
 			expect(parts).toHaveLength(6);
 			for (const part of parts) {
-				expect(wordlists.en).toContain(
-					part.replace(/[0-9]/g, "").toLowerCase(),
-				);
+				expect(words).toContain(part.replace(/[0-9]/g, "").toLowerCase());
 			}
 			expect(datastorePasswordService.generate(12, "", "a", "", "")).toBe(
+				"a".repeat(12),
+			);
+		} finally {
+			getStore.mockRestore();
+		}
+	});
+	it("uses regular password settings when the default generator is a password", async () => {
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		const getStore = jest.spyOn(storeService, "getStore").mockReturnValue({
+			getState: () => ({
+				...state,
+				settingsDatastore: {
+					...state.settingsDatastore,
+					passwordLength: 12,
+					passwordLettersUppercase: "",
+					passwordLettersLowercase: "a",
+					passwordNumbers: "",
+					passwordSpecialChars: "",
+				},
+			}),
+		} as ReturnType<typeof storeService.getStore>);
+		try {
+			expect(await datastorePasswordService.generateDefault()).toBe(
 				"a".repeat(12),
 			);
 		} finally {

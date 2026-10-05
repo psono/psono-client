@@ -1,80 +1,19 @@
-import ca from "../../common/data/wordlists/ca.json";
-import cs from "../../common/data/wordlists/cs.json";
-import da from "../../common/data/wordlists/da.json";
-import de from "../../common/data/wordlists/de.json";
-import en from "../../common/data/wordlists/en.json";
-import es from "../../common/data/wordlists/es.json";
-import fi from "../../common/data/wordlists/fi.json";
-import fr from "../../common/data/wordlists/fr.json";
-import hr from "../../common/data/wordlists/hr.json";
-import hu from "../../common/data/wordlists/hu.json";
-import it from "../../common/data/wordlists/it.json";
-import nl from "../../common/data/wordlists/nl.json";
-import no from "../../common/data/wordlists/no.json";
-import pl from "../../common/data/wordlists/pl.json";
-import pt from "../../common/data/wordlists/pt.json";
-import ru from "../../common/data/wordlists/ru.json";
-import sk from "../../common/data/wordlists/sk.json";
-import sv from "../../common/data/wordlists/sv.json";
-import uk from "../../common/data/wordlists/uk.json";
 import cryptoLibrary from "./crypto-library";
-import { DEFAULT_WORD_COUNT, isValidWordCount } from "./passphrase-config";
-export {
+import {
 	DEFAULT_WORD_COUNT,
-	MIN_WORD_COUNT,
-	MAX_WORD_COUNT,
 	isValidWordCount,
-	normalizeWordCount,
+	resolveWordlistLanguage,
 } from "./passphrase-config";
 
-export const wordlists: Readonly<Record<string, readonly string[]>> = {
-	ca,
-	cs,
-	da,
-	de,
-	en,
-	es,
-	fi,
-	fr,
-	hr,
-	hu,
-	it,
-	nl,
-	no,
-	pl,
-	pt,
-	ru,
-	sk,
-	sv,
-	uk,
-};
-export const wordlistLanguages = {
-	ca: "Català",
-	cs: "Čeština",
-	da: "Dansk",
-	de: "Deutsch",
-	en: "English",
-	es: "Español",
-	fi: "Suomi",
-	fr: "Français",
-	hr: "Hrvatski",
-	hu: "Magyar",
-	it: "Italiano",
-	nl: "Nederlands",
-	no: "Norsk (bokmål)",
-	pl: "Polski",
-	pt: "Português",
-	ru: "Русский",
-	sk: "Slovenčina",
-	sv: "Svenska",
-	uk: "Українська",
-};
-
-export function resolveWordlistLanguage(language?: string): string {
-	const base = (language || "en").toLowerCase().split(/[-_]/)[0];
-	// Frontend locales use "no"; browsers may report Bokmål as "nb".
-	const normalized = base === "nb" ? "no" : base;
-	return Object.hasOwn(wordlists, normalized) ? normalized : "en";
+/** Webpack emits one local chunk per language and caches loaded dictionaries. */
+export async function loadWordlist(
+	language = "en",
+): Promise<readonly string[]> {
+	const { default: words } = await import(
+		/* webpackChunkName: "passphrase-wordlist-[request]" */
+		`../../common/data/wordlists/${resolveWordlistLanguage(language)}.json`
+	);
+	return words;
 }
 
 /** Rejection sampling avoids modulo bias, including for the 2,000-word lists. */
@@ -93,14 +32,14 @@ export function hasRequiredCharacters(value: string): boolean {
 	return /\p{Lu}/u.test(value) && /\p{Ll}/u.test(value) && /[0-9]/.test(value);
 }
 
-export function generatePassphrase(
+export async function generatePassphrase(
 	count: number | string = DEFAULT_WORD_COUNT,
 	language = "en",
-): string {
+): Promise<string> {
 	if (!isValidWordCount(count)) {
 		throw new RangeError("Invalid passphrase word count");
 	}
-	const words = wordlists[resolveWordlistLanguage(language)];
+	const words = await loadWordlist(language);
 	let passphrase: string;
 	do {
 		const parts: string[] = [];
@@ -127,13 +66,13 @@ export function generatePassphrase(
  * Rejecting all-lowercase and all-numberless draws shrinks the space by the
  * independent acceptance factors below. Fixed dashes add no entropy.
  */
-export function passphraseEntropy(
+export async function passphraseEntropy(
 	count: number | string,
 	language = "en",
-): number {
+): Promise<number> {
 	if (!isValidWordCount(count)) return 0;
 	const n = Number(count);
-	const size = wordlists[resolveWordlistLanguage(language)].length;
+	const size = (await loadWordlist(language)).length;
 	return (
 		n * Math.log2(size * 4 * 121) +
 		Math.log2(1 - 4 ** -n) +

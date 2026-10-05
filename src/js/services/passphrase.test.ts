@@ -3,11 +3,13 @@ import { languages } from "../i18n";
 import {
 	generatePassphrase,
 	hasRequiredCharacters,
+	loadWordlist,
 	passphraseEntropy,
-	resolveWordlistLanguage,
-	wordlists,
-	wordlistLanguages,
 } from "./passphrase";
+import {
+	resolveWordlistLanguage,
+	wordlistLanguages,
+} from "./passphrase-config";
 
 jest.mock("./store", () => ({ getStore: jest.fn() }));
 
@@ -22,18 +24,14 @@ describe("Passphrase dictionaries", () => {
 			) {
 				const base = language.code.split("-")[0];
 				expect(resolveWordlistLanguage(language.code)).toBe(base);
-				expect(wordlists).toHaveProperty(base);
+				expect(wordlistLanguages).toHaveProperty(base);
 			}
 		}
 	});
-	it("offers a language choice for every bundled dictionary", () => {
-		expect(Object.keys(wordlistLanguages).sort()).toEqual(
-			Object.keys(wordlists).sort(),
-		);
-	});
 	it.each(
-		Object.entries(wordlists),
-	)("%s has 2,000 unique lowercase words of at least four letters", (language, words) => {
+		Object.keys(wordlistLanguages),
+	)("%s loads 2,000 unique lowercase words of at least four letters", async (language) => {
+		const words = await loadWordlist(language);
 		expect(words).toHaveLength(2000);
 		expect(new Set(words).size).toBe(2000);
 		for (const word of words) {
@@ -48,6 +46,11 @@ describe("Passphrase dictionaries", () => {
 					: /^\p{Script=Latin}+$/u,
 			);
 		}
+	});
+	it("loads the English dictionary for unsupported locales and reuses loaded dictionaries", async () => {
+		const words = await loadWordlist("en");
+		expect(await loadWordlist("ja")).toBe(words);
+		expect(await loadWordlist("en-US")).toBe(words);
 	});
 	it.each([
 		["fr-CA", "fr"],
@@ -78,12 +81,12 @@ describe("Passphrase dictionaries", () => {
 
 describe("Secure passphrase generation", () => {
 	it.each(
-		Object.keys(wordlists),
-	)("generates compliant passphrases from the %s list", (language) => {
-		const words = new Set(wordlists[language]);
+		Object.keys(wordlistLanguages),
+	)("generates compliant passphrases from the %s list", async (language) => {
+		const words = new Set(await loadWordlist(language));
 		for (const count of [2, 4, 8]) {
 			for (let i = 0; i < 20; i++) {
-				const value = generatePassphrase(count, language);
+				const value = await generatePassphrase(count, language);
 				expect(hasRequiredCharacters(value)).toBe(true);
 				const parts = value.split("-");
 				expect(parts).toHaveLength(count);
@@ -107,23 +110,22 @@ describe("Secure passphrase generation", () => {
 		});
 	}
 
-	it("rejects biased random samples and supports none, 1 and 10 at either endpoint", () => {
+	it("rejects biased random samples and supports none, 1 and 10 at either endpoint", async () => {
 		// First draw is outside the evenly divisible 2,000-word range.
 		const rng = mockDraws([0xffffffff, 0, 1, 0, 10, 0, 1, 0, 1, 0, 1]);
-		const first = wordlists.en[0];
-		const second = wordlists.en[1];
-		expect(generatePassphrase(2)).toBe(
+		const [first, second] = await loadWordlist("en");
+		expect(await generatePassphrase(2)).toBe(
 			`10${first[0].toUpperCase()}${first.slice(1)}-${second.slice(0, -1)}${second.slice(-1).toUpperCase()}1`,
 		);
 		expect(rng).toHaveBeenCalledTimes(11);
 	});
 
-	it("regenerates draws without a capital or a number rather than forcing a predictable character", () => {
+	it("regenerates draws without a capital or a number rather than forcing a predictable character", async () => {
 		const noCapital = [0, 0, 0, 1, 1, 0, 0, 0, 1, 1];
 		const noNumber = [0, 1, 1, 0, 0, 0, 1, 1, 0, 0];
 		const accepted = [0, 1, 0, 1, 0, 0, 0, 1, 0, 1];
 		const rng = mockDraws([...noCapital, ...noNumber, ...accepted]);
-		expect(hasRequiredCharacters(generatePassphrase(2))).toBe(true);
+		expect(hasRequiredCharacters(await generatePassphrase(2))).toBe(true);
 		expect(rng).toHaveBeenCalledTimes(30);
 	});
 
@@ -137,25 +139,27 @@ describe("Secure passphrase generation", () => {
 		"",
 		"garbage",
 		129,
-	])("rejects invalid word count %s", (value) => {
-		expect(() => generatePassphrase(value)).toThrow(RangeError);
+	])("rejects invalid word count %s", async (value) => {
+		await expect(generatePassphrase(value)).rejects.toThrow(RangeError);
 	});
-	it("defaults to four words and accepts numeric form inputs", () => {
-		expect(generatePassphrase().split("-")).toHaveLength(4);
-		expect(generatePassphrase("2").split("-")).toHaveLength(2);
+	it("defaults to four words and accepts numeric form inputs", async () => {
+		expect((await generatePassphrase()).split("-")).toHaveLength(4);
+		expect((await generatePassphrase("2")).split("-")).toHaveLength(2);
 	});
 });
 
 describe("Known-generator entropy", () => {
-	it("counts only the public word and mutation choices, with rejection correction", () => {
+	it("counts only the public word and mutation choices, with rejection correction", async () => {
 		// For two words: 2,000² choices, 15 allowed casing patterns, 121² - 1
 		// allowed number patterns. Lowercase interiors and dashes are fixed.
-		expect(passphraseEntropy(2)).toBeCloseTo(
+		expect(await passphraseEntropy(2)).toBeCloseTo(
 			Math.log2(2000 ** 2 * 15 * (121 ** 2 - 1)),
 			10,
 		);
-		expect(passphraseEntropy(4)).toBeCloseTo(79.533, 2);
-		expect(passphraseEntropy(8)).toBeGreaterThan(passphraseEntropy(4));
-		expect(passphraseEntropy(1)).toBe(0);
+		expect(await passphraseEntropy(4)).toBeCloseTo(79.533, 2);
+		expect(await passphraseEntropy(8)).toBeGreaterThan(
+			await passphraseEntropy(4),
+		);
+		expect(await passphraseEntropy(1)).toBe(0);
 	});
 });

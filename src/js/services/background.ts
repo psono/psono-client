@@ -1199,10 +1199,8 @@ function onOpenTab(
 function onGeneratePassword(
 	request: Request<"generate-password">,
 	sender: MessageSender,
-	sendResponse: Respond<"generate-password">,
+	sendResponse: SendResponse,
 ) {
-	const password = datastorePasswordService.generate();
-
 	const onError = (data: unknown) => {
 		console.log(data);
 	};
@@ -1219,16 +1217,21 @@ function onGeneratePassword(
 	// Resolve URL synonym to canonical form
 	const url = urlSynonymsService.resolveUrlSynonym(request.data.url);
 
-	datastorePasswordService
-		.savePassword(url, request.data.username, password)
-		.then(onSuccess, onError);
-
-	sendResponse({
-		event: "return-secret",
-		data: {
-			website_password_password: password,
+	datastorePasswordService.generateDefault().then(
+		(password) => {
+			datastorePasswordService
+				.savePassword(url, request.data.username, password)
+				.then(onSuccess, onError);
+			sendResponse({
+				event: "return-secret",
+				data: { website_password_password: password },
+			});
 		},
-	});
+		(error: Error) => {
+			sendResponse({ error: error.message });
+		},
+	);
+	return true; // Keep the response channel open while the generator loads.
 }
 
 /**

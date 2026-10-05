@@ -70,6 +70,7 @@ const EditActiveLinksShareDialog = (
 		LinkShare["allowed_reads"] | ""
 	>(linkShare.allowed_reads);
 	const [passphrase, setPassphrase] = useState("");
+	const [generatingPassphrase, setGeneratingPassphrase] = useState(false);
 	const [changePassphrase, setChangePassphrase] = useState(false);
 	const [validTill, setValidTill] = useState(
 		linkShare.valid_till ? new Date(linkShare.valid_till) : null,
@@ -92,10 +93,17 @@ const EditActiveLinksShareDialog = (
 		browserClientService.copyToClipboard(() => Promise.resolve(passphrase));
 		notification.push("password_copy", t("PASSPHRASE_COPY_NOTIFICATION"));
 	};
-	const onGeneratePassphrase = () => {
+	const onGeneratePassphrase = async () => {
 		handleClose();
-		const generatedPassphrase = datastorePasswordService.generate();
-		setPassphrase(generatedPassphrase);
+		setGeneratingPassphrase(true);
+		try {
+			setPassphrase(await datastorePasswordService.generateDefault());
+		} catch (error) {
+			console.error(error);
+			setErrors(["UNKNOWN_ERROR"]);
+		} finally {
+			setGeneratingPassphrase(false);
+		}
 	};
 
 	const onEdit = () => {
@@ -250,6 +258,7 @@ const EditActiveLinksShareDialog = (
 								name="passphrase"
 								autoComplete="off"
 								value={passphrase}
+								disabled={generatingPassphrase}
 								onChange={(event) => {
 									setPassphrase(event.target.value);
 								}}
@@ -299,7 +308,10 @@ const EditActiveLinksShareDialog = (
 														{t("COPY_PASSPHRASE")}
 													</Typography>
 												</MenuItem>
-												<MenuItem onClick={onGeneratePassphrase}>
+												<MenuItem
+													onClick={onGeneratePassphrase}
+													disabled={generatingPassphrase}
+												>
 													<ListItemIcon className={classes.listItemIcon}>
 														<PhonelinkSetupIcon
 															className={classes.icon}
@@ -334,7 +346,7 @@ const EditActiveLinksShareDialog = (
 					}}
 					variant="contained"
 					color="primary"
-					disabled={!publicTitle}
+					disabled={!publicTitle || generatingPassphrase}
 				>
 					{t("EDIT")}
 				</Button>

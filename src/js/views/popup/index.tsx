@@ -51,9 +51,8 @@ import GatewayLaunchButton from "../../components/gateway-launch-button";
 import GeneratorStrength from "../../components/generator-strength";
 import ContentCopy from "../../components/icons/ContentCopy";
 import TextFieldColored from "../../components/text-field/colored";
-import PassphraseGenerator, {
-	GeneratorTypeSelect,
-} from "../../components/passphrase-generator";
+import { GeneratorTypeSelect } from "../../components/generator-select";
+import PassphraseGenerator from "../../components/passphrase-generator-lazy";
 import accountService from "../../services/account";
 import browserClient from "../../services/browser-client";
 import datastoreService from "../../services/datastore";
@@ -605,7 +604,7 @@ const PopupView = (
 	const [password, setPassword] = React.useState("");
 	const [generated, setGenerated] = useState({ value: "", entropy: 0 });
 	const onPassphraseChange = React.useCallback((value: string) => {
-		browserClient.copyToClipboard(() => Promise.resolve(value));
+		if (value) browserClient.copyToClipboard(() => Promise.resolve(value));
 		setPassword(value);
 	}, []);
 	const search = useSelector((state) => state.client.lastPopupSearch);

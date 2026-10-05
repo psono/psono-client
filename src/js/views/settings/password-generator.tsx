@@ -14,14 +14,14 @@ import action from "../../actions/bound-action-creators";
 import {
 	GeneratorTypeSelect,
 	WordlistSelect,
-} from "../../components/passphrase-generator";
+} from "../../components/generator-select";
 import {
 	isValidWordCount,
 	MAX_WORD_COUNT,
 	MIN_WORD_COUNT,
 	normalizeWordCount,
 	resolveWordlistLanguage,
-} from "../../services/passphrase";
+} from "../../services/passphrase-config";
 
 const useStyles = makeStyles((theme) => ({
 	textField: {

@@ -10,7 +10,7 @@ import domainSynonymsService from "./domain-synonyms";
 import helperService from "./helper";
 import notificationBarService from "./notification-bar";
 import { getPasskeyUrl } from "./passkey-url";
-import { generatePassphrase, normalizeWordCount } from "./passphrase";
+import { normalizeWordCount } from "./passphrase-config";
 import { passwordCharacterClasses } from "./password-entropy";
 import secretService from "./secret";
 import shareService from "./share";
@@ -131,28 +131,6 @@ function generate(
 	passwordSpecialChars?: string,
 ) {
 	let password = "";
-	// Quick generation in the extension uses the user's default generator too.
-	if (
-		[
-			passwordLength,
-			passwordLettersUppercase,
-			passwordLettersLowercase,
-			passwordNumbers,
-			passwordSpecialChars,
-		].every((value) => value === undefined)
-	) {
-		const { settingsDatastore, server } = getStore().getState();
-		if (settingsDatastore.defaultPasswordGenerator === "passphrase") {
-			return generatePassphrase(
-				normalizeWordCount(
-					settingsDatastore.passphraseWordCount ??
-						server.compliancePasswordGeneratorDefaultWordLength,
-				),
-				settingsDatastore.passphraseLanguage || i18n.language,
-			);
-		}
-	}
-
 	if (typeof passwordLength === "undefined") {
 		passwordLength = getStore().getState().settingsDatastore.passwordLength;
 	}
@@ -186,6 +164,24 @@ function generate(
 		password = generatePassword(passwordLength, characters);
 	}
 	return password;
+}
+
+/** Quick generation honors the default generator, loading passphrases on demand. */
+async function generateDefault(): Promise<string> {
+	const { settingsDatastore, server } = getStore().getState();
+	if (settingsDatastore.defaultPasswordGenerator === "passphrase") {
+		const { generatePassphrase } = await import(
+			/* webpackChunkName: "passphrase" */ "./passphrase"
+		);
+		return generatePassphrase(
+			normalizeWordCount(
+				settingsDatastore.passphraseWordCount ??
+					server.compliancePasswordGeneratorDefaultWordLength,
+			),
+			settingsDatastore.passphraseLanguage || i18n.language,
+		);
+	}
+	return generate();
 }
 
 /**
@@ -2268,6 +2264,7 @@ shareService.register("get_all_child_shares", getAllChildShares);
 const datastorePasswordService = {
 	generatePassword: generatePassword,
 	generate: generate,
+	generateDefault: generateDefault,
 	escapeRegExp: escapeRegExp,
 	getPasswordDatastore: getPasswordDatastore,
 	getDatastoreWithId: getDatastoreWithId,

@@ -6,6 +6,7 @@ import i18n from "../i18n";
 import backgroundService from "./background";
 import browserClient from "./browser-client";
 import converterService from "./converter";
+import datastorePasswordService from "./datastore-password";
 import notificationBarService from "./notification-bar";
 import passkeyService from "./passkey";
 import ssoRedirect from "./sso-redirect";
@@ -18,6 +19,65 @@ import rootReducer from "../reducers";
 describe("background message responses", () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
+	});
+
+	it("keeps quick-generation responses open until the lazy generator finishes", async () => {
+		let resolvePassword!: (value: string) => void;
+		jest.spyOn(datastorePasswordService, "generateDefault").mockReturnValue(
+			new Promise((resolve) => {
+				resolvePassword = resolve;
+			}),
+		);
+		jest
+			.spyOn(datastorePasswordService, "savePassword")
+			.mockReturnValue(new Promise(() => {}));
+		const sendResponse = jest.fn();
+		expect(
+			backgroundService.onMessage(
+				{
+					event: "generate-password",
+					data: { url: "https://example.com/", username: "user" },
+				},
+				{ tab: { id: 42 } },
+				sendResponse,
+			),
+		).toBe(true);
+		expect(sendResponse).not.toHaveBeenCalled();
+		expect(datastorePasswordService.savePassword).not.toHaveBeenCalled();
+		resolvePassword("Generated1-passphrase");
+		await Promise.resolve();
+		expect(sendResponse).toHaveBeenCalledTimes(1);
+		expect(sendResponse).toHaveBeenCalledWith({
+			event: "return-secret",
+			data: { website_password_password: "Generated1-passphrase" },
+		});
+		expect(datastorePasswordService.savePassword).toHaveBeenCalledWith(
+			"https://example.com/",
+			"user",
+			"Generated1-passphrase",
+		);
+	});
+
+	it("responds with an error if the lazy generator cannot load", async () => {
+		jest
+			.spyOn(datastorePasswordService, "generateDefault")
+			.mockRejectedValue(new Error("Chunk load failed"));
+		const save = jest.spyOn(datastorePasswordService, "savePassword");
+		const sendResponse = jest.fn();
+		expect(
+			backgroundService.onMessage(
+				{
+					event: "generate-password",
+					data: { url: "https://example.com/", username: "user" },
+				},
+				{},
+				sendResponse,
+			),
+		).toBe(true);
+		await Promise.resolve();
+		expect(sendResponse).toHaveBeenCalledTimes(1);
+		expect(sendResponse).toHaveBeenCalledWith({ error: "Chunk load failed" });
+		expect(save).not.toHaveBeenCalled();
 	});
 
 	it("acknowledges notification-bar-ready on an ordinary page load", () => {
