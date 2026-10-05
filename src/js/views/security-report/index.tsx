@@ -17,11 +17,9 @@ import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { makeStyles } from "@mui/styles";
-import { ArcElement, Chart, Tooltip } from "chart.js";
 import type { ChartData } from "chart.js";
 import type { MUIDataTableColumn, MUIDataTableOptions } from "mui-datatables";
-import React, { useState } from "react";
-import { Doughnut } from "react-chartjs-2";
+import React, { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AuthErrorData } from "../../../types/auth";
 import type { AnalyzedPassword, SecurityAnalysis } from "../../../types/vault";
@@ -37,7 +35,16 @@ import cryptoLibrary from "../../services/crypto-library";
 import securityReportService from "../../services/security-report";
 import { getStore } from "../../services/store";
 
-Chart.register(ArcElement, Tooltip);
+const LazyDoughnut = React.lazy(
+	() =>
+		import(/* webpackChunkName: "security-report-charts" */ "./doughnut-chart"),
+);
+
+const Doughnut = (props: { data: ChartData<"doughnut"> }) => (
+	<Suspense fallback={<LinearProgress />}>
+		<LazyDoughnut {...props} />
+	</Suspense>
+);
 
 const useStyles = makeStyles((theme) => ({
 	toolbarRoot: {
