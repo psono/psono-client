@@ -19,6 +19,10 @@ import rootReducer from "../reducers";
 import accountService from "./account";
 import storageService from "./storage";
 import type {
+	OfflineCacheEncryptionKey,
+	ScryptParameters,
+} from "../../types/crypto";
+import type {
 	AppAction,
 	AppDispatch,
 	AppState,
@@ -34,6 +38,49 @@ type DebugWindow = Window & {
 	store?: AppStore;
 	__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: (options: object) => typeof compose;
 };
+
+export function addOfflineCacheHashingParameters(
+	encryptionKey: OfflineCacheEncryptionKey,
+	hashingAlgorithm = "scrypt",
+	hashingParameters?: ScryptParameters,
+): OfflineCacheEncryptionKey {
+	if (encryptionKey.hashingAlgorithm && encryptionKey.hashingParameters) {
+		return encryptionKey;
+	}
+	return {
+		...encryptionKey,
+		hashingAlgorithm,
+		hashingParameters: {
+			u: Math.max(14, hashingParameters?.u ?? 14),
+			r: Math.max(8, hashingParameters?.r ?? 8),
+			p: Math.max(1, hashingParameters?.p ?? 1),
+			l: Math.max(64, hashingParameters?.l ?? 64),
+		},
+	};
+}
+
+export function migrateOfflineCacheEncryptionInfo<
+	T extends Pick<AppState, "client" | "user">,
+>(state: T): T {
+	const encryptionKey = state.client.offlineCacheEncryptionKey;
+	if (
+		!encryptionKey ||
+		(encryptionKey.hashingAlgorithm && encryptionKey.hashingParameters)
+	) {
+		return state;
+	}
+	return {
+		...state,
+		client: {
+			...state.client,
+			offlineCacheEncryptionKey: addOfflineCacheHashingParameters(
+				encryptionKey,
+				state.user.hashingAlgorithm,
+				state.user.hashingParameters,
+			),
+		},
+	};
+}
 
 export const initStore = async () => {
 	const persistAccountId = await accountService.getCurrentId();
@@ -202,12 +249,13 @@ export const initStore = async () => {
 				},
 			};
 		},
+		11: migrateOfflineCacheEncryptionInfo,
 	};
 
 	const persistConfig = {
 		key: persistAccountId,
 		blacklist: ["transient", "notification"],
-		version: 10,
+		version: 11,
 		storage: storageService.get("state"),
 		debug: false,
 		// redux-persist exposes only _persist; these migrations operate on our roots.

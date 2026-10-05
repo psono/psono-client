@@ -1156,6 +1156,13 @@ function recoveryEnable(
 			user_sauce: data.data.user_sauce,
 			verifier_public_key: data.data.verifier_public_key,
 			verifier_time_valid: data.data.verifier_time_valid,
+			hashing_algorithm: data.data.hashing_algorithm ?? "scrypt",
+			hashing_parameters: data.data.hashing_parameters ?? {
+				u: 14,
+				r: 8,
+				p: 1,
+				l: 64,
+			},
 		};
 	};
 	const recoveryAuthkey = cryptoLibrary.generateAuthkey(
@@ -1196,11 +1203,9 @@ function setPassword(
 	userSecretKey: string,
 	userSauce: string,
 	verifierPublicKey: string,
+	hashingAlgorithm = "scrypt",
+	hashingParameters: ScryptParameters = { u: 14, r: 8, p: 1, l: 64 },
 ) {
-	// Recovery uses initialized user hashing settings, including the reset scrypt defaults.
-	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm!;
-	const hashingParameters = getStore().getState().user.hashingParameters!;
-
 	const privKeyEnc = cryptoLibrary.encryptSecret(
 		userPrivateKey,
 		password,

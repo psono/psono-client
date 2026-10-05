@@ -138,6 +138,8 @@ const LostPasswordViewForm = (_props: SsoRouteParams) => {
 						recoveryData.user_secret_key!,
 						recoveryData.user_sauce!,
 						recoveryData.verifier_public_key!,
+						recoveryData.hashing_algorithm!,
+						recoveryData.hashing_parameters!,
 					)
 					.then(onSuccess, onError);
 			},

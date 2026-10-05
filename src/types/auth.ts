@@ -102,14 +102,21 @@ export interface RecoveryInformation extends RecoveredKeys {
 	user_sauce: string;
 	verifier_public_key: string;
 	verifier_time_valid: number;
+	hashing_algorithm: string;
+	hashing_parameters: ScryptParameters;
 }
 
 export interface RecoveryEnableData
-	extends Omit<RecoveryInformation, keyof RecoveredKeys> {
+	extends Omit<
+		RecoveryInformation,
+		keyof RecoveredKeys | "hashing_algorithm" | "hashing_parameters"
+	> {
 	recovery_data: string;
 	recovery_data_nonce: string;
 	recovery_sauce: string;
 	policies?: Record<string, unknown>;
+	hashing_algorithm?: string;
+	hashing_parameters?: ScryptParameters;
 }
 
 export interface EmergencyCodeStatus {

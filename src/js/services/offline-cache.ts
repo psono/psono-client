@@ -8,7 +8,7 @@ import cryptoLibrary from "./crypto-library";
 import offscreenDocument from "./offscreen-document";
 import secretService from "./secret";
 import storage from "./storage";
-import { getStore } from "./store";
+import { addOfflineCacheHashingParameters, getStore } from "./store";
 import type {
 	Datastore,
 	DatastoreFolder,
@@ -128,8 +128,6 @@ function unlock(password?: string) {
 	if (typeof password === "undefined") {
 		password = "";
 	}
-	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
-	const hashingParameters = getStore().getState().user.hashingParameters;
 	const encryptionKeyEncrypted =
 		getStore().getState().client.offlineCacheEncryptionKey;
 	const encryptionKeySalt =
@@ -137,6 +135,11 @@ function unlock(password?: string) {
 	if (!encryptionKeyEncrypted || !encryptionKeySalt) {
 		return true;
 	}
+	const encryptionInfo = addOfflineCacheHashingParameters(
+		encryptionKeyEncrypted,
+		getStore().getState().user.hashingAlgorithm,
+		getStore().getState().user.hashingParameters,
+	);
 	let newEncryptionKey;
 	try {
 		newEncryptionKey = cryptoLibrary.decryptSecret(
@@ -144,11 +147,14 @@ function unlock(password?: string) {
 			encryptionKeyEncrypted.nonce,
 			password,
 			encryptionKeySalt,
-			hashingAlgorithm,
-			hashingParameters,
+			encryptionInfo.hashingAlgorithm,
+			encryptionInfo.hashingParameters,
 		);
 	} catch (e) {
 		return false;
+	}
+	if (encryptionInfo !== encryptionKeyEncrypted) {
+		action().setOfflineCacheEncryptionInfo(encryptionInfo, encryptionKeySalt);
 	}
 	setEncryptionKey(newEncryptionKey);
 	browserClient.emitSec("set-offline-cache-encryption-key", {
@@ -189,12 +195,15 @@ function setEncryptionPassword(password: string) {
 	const hashingAlgorithm = getStore().getState().user.hashingAlgorithm;
 	const hashingParameters = getStore().getState().user.hashingParameters;
 	const new_encryption_key = cryptoLibrary.generateSecretKey();
-	setEncryptionKey(new_encryption_key);
 	const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
-	const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
-		new_encryption_key,
-		password,
-		offlineCacheEncryptionSalt,
+	const offlineCacheEncryptionKey = addOfflineCacheHashingParameters(
+		cryptoLibrary.encryptSecret(
+			new_encryption_key,
+			password,
+			offlineCacheEncryptionSalt,
+			hashingAlgorithm,
+			hashingParameters,
+		),
 		hashingAlgorithm,
 		hashingParameters,
 	);
@@ -202,6 +211,7 @@ function setEncryptionPassword(password: string) {
 		offlineCacheEncryptionKey,
 		offlineCacheEncryptionSalt,
 	);
+	setEncryptionKey(new_encryption_key);
 	browserClient.emitSec("set-offline-cache-encryption-key", {
 		encryption_key: new_encryption_key,
 	});

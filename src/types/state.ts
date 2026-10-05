@@ -7,12 +7,8 @@ import type {
 	ConnectionAuthenticationSettings,
 } from "./auth";
 import type { ClientConfiguration } from "./browser";
-import type { ScryptParameters } from "./crypto";
-import type {
-	DatastoreOverview,
-	EncryptedValue,
-	GpgKeySelection,
-} from "./datastore";
+import type { OfflineCacheEncryptionKey, ScryptParameters } from "./crypto";
+import type { DatastoreOverview, GpgKeySelection } from "./datastore";
 import type {
 	DomainSynonymGroups,
 	DomainSynonymMap,
@@ -205,7 +201,7 @@ export interface SettingsState {
 export interface ClientState {
 	url: string;
 	offlineMode: boolean | null;
-	offlineCacheEncryptionKey: EncryptedValue | null;
+	offlineCacheEncryptionKey: OfflineCacheEncryptionKey | null;
 	offlineCacheEncryptionSalt: string | null;
 	notificationOnCopy: boolean;
 	disableBrowserPm: boolean;

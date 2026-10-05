@@ -17,6 +17,11 @@ export interface ScryptParameters {
 	l?: number;
 }
 
+export interface OfflineCacheEncryptionKey extends EncryptedValue {
+	hashingAlgorithm?: string;
+	hashingParameters?: ScryptParameters;
+}
+
 export interface RecoveryCode {
 	bytes: Uint8Array<ArrayBuffer>;
 	hex: string;

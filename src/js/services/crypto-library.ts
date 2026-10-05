@@ -164,7 +164,8 @@ function passwordScrypt(
 		l = hashingParameters["l"]!;
 	}
 
-	const lookup_hash = sha512(password) + sha512(salt);
+	const lookup_hash =
+		sha512(password) + sha512(salt) + ":" + [u, r, p, l].join(":");
 
 	if (Object.hasOwn(scrypt_lookup_table, lookup_hash)) {
 		k = scrypt_lookup_table[lookup_hash];

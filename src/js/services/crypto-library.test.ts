@@ -2,6 +2,7 @@ import nacl from "ecma-nacl";
 import converterService from "./converter";
 import cryptoLibraryService from "./crypto-library";
 import helperService from "./helper";
+import { scryptSync } from "crypto";
 
 describe("Service: cryptoLibraryService test suite #1", () => {
 	it("cryptoLibraryService exists", () => {
@@ -67,6 +68,88 @@ describe("Service: cryptoLibraryService test suite #2", () => {
 		return expect(
 			converterService.fromHex(cryptoLibraryService.generateSecretKey()).length,
 		).toBe(bytes);
+	});
+
+	it("separates cached authkeys for every scrypt work parameter", () => {
+		const username = "kdf-cache@example.com";
+		const password = "cache-password";
+		const baseline = { u: 14, r: 8, p: 1, l: 64 };
+		const original = cryptoLibraryService.generateAuthkey(username, password);
+		for (const parameters of [
+			{ ...baseline, u: 15 },
+			{ ...baseline, r: 9 },
+			{ ...baseline, p: 2 },
+			{ ...baseline, l: 65 },
+		]) {
+			const expected = scryptSync(
+				password,
+				cryptoLibraryService.sha512(username),
+				parameters.l,
+				{
+					N: 2 ** parameters.u,
+					r: parameters.r,
+					p: parameters.p,
+					maxmem: 128 * 1024 * 1024,
+				},
+			).toString("hex");
+			expect(
+				cryptoLibraryService.generateAuthkey(
+					username,
+					password,
+					"scrypt",
+					parameters,
+				),
+			).toBe(expected);
+		}
+		expect(
+			cryptoLibraryService.generateAuthkey(
+				username,
+				password,
+				"scrypt",
+				baseline,
+			),
+		).toBe(original);
+	});
+
+	it("encrypts a higher-cost wrapper correctly after caching the old derivation", () => {
+		jest.useFakeTimers();
+		const baseline = { u: 14, r: 8, p: 1, l: 64 };
+		const stronger = { ...baseline, u: 15 };
+		cryptoLibraryService.encryptSecret(
+			"key",
+			"password",
+			"cache-upgrade-salt",
+			"scrypt",
+			baseline,
+		);
+		const upgraded = cryptoLibraryService.encryptSecret(
+			"key",
+			"password",
+			"cache-upgrade-salt",
+			"scrypt",
+			stronger,
+		);
+		jest.advanceTimersByTime(60001);
+		expect(
+			cryptoLibraryService.decryptSecret(
+				upgraded.text,
+				upgraded.nonce,
+				"password",
+				"cache-upgrade-salt",
+				"scrypt",
+				stronger,
+			),
+		).toBe("key");
+		expect(() =>
+			cryptoLibraryService.decryptSecret(
+				upgraded.text,
+				upgraded.nonce,
+				"password",
+				"cache-upgrade-salt",
+				"scrypt",
+				baseline,
+			),
+		).toThrow();
 	});
 
 	it("sha1 abc", () => {
