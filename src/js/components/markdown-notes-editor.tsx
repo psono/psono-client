@@ -18,9 +18,10 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import StarterKit from "@tiptap/starter-kit";
+import HardBreak from "@tiptap/extension-hard-break";
 import Link from "@tiptap/extension-link";
 import { Markdown } from "tiptap-markdown";
-import type { MarkdownStorage } from "tiptap-markdown";
+import type { MarkdownNodeSpec, MarkdownStorage } from "tiptap-markdown";
 
 export interface MarkdownNotesEditorProps {
 	className?: string;
@@ -35,6 +36,27 @@ const getMarkdown = (editor: Editor): string =>
 	(
 		editor.storage as Editor["storage"] & { markdown: MarkdownStorage }
 	).markdown.getMarkdown();
+
+const MarkdownHardBreak = HardBreak.extend({
+	addStorage() {
+		const markdown: MarkdownNodeSpec = {
+			serialize(state, node, parent, index) {
+				// Use Markdown's two-space line break instead of a visible backslash.
+				// As in the default serializer, omit breaks at the end of a block.
+				for (let i = index + 1; i < parent.childCount; i++) {
+					if (parent.child(i).type !== node.type) {
+						// Whitespace-only lines become paragraph separators in Markdown.
+						const isEmptyLine =
+							index === 0 || parent.child(index - 1).type === node.type;
+						state.write(isEmptyLine ? "\\\n" : "  \n");
+						return;
+					}
+				}
+			},
+		};
+		return { markdown };
+	},
+});
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -164,7 +186,8 @@ const MarkdownNotesEditor = ({
 		},
 		shouldRerenderOnTransaction: true,
 		extensions: [
-			StarterKit,
+			StarterKit.configure({ hardBreak: false, link: false }),
+			MarkdownHardBreak,
 			Link.configure({
 				autolink: true,
 				defaultProtocol: "https",
