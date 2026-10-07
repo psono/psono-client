@@ -39,6 +39,8 @@ function user(
 			l: 64,
 		},
 		userSecretKey: "",
+		defaultHashingAlgorithm: "scrypt",
+		defaultHashingParameters: { u: 14, r: 8, p: 1, l: 64 },
 		serverSecretExists: false,
 		userPrivateKey: "",
 		userPublicKey: "",
@@ -85,6 +87,14 @@ function user(
 				userSecretKey: action.userSecretKey,
 				serverSecretExists: action.serverSecretExists,
 				requirePasswordChange: action.requirePasswordChange,
+				defaultHashingAlgorithm: action.defaultHashingAlgorithm ?? "scrypt",
+				defaultHashingParameters: {
+					u: 14,
+					r: 8,
+					p: 1,
+					l: 64,
+					...action.defaultHashingParameters,
+				},
 			});
 		case SET_REQUIRE_PASSWORD_CHANGE:
 			return Object.assign({}, state, {
@@ -128,6 +138,8 @@ function user(
 					l: 64,
 				},
 				userSecretKey: "",
+				defaultHashingAlgorithm: "scrypt",
+				defaultHashingParameters: { u: 14, r: 8, p: 1, l: 64 },
 				serverSecretExists: false,
 				userPrivateKey: "",
 				userEmail: "",

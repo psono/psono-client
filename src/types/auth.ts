@@ -75,11 +75,15 @@ export type LoginResult =
 	| { require_password: (password: string) => LoginResult };
 
 export interface TokenActivationData {
+	default_hashing_algorithm?: string | null;
+	default_hashing_parameters?: ScryptParameters | null;
 	user: {
 		id: string;
 		email: string;
 		secret_key: string;
 		secret_key_nonce: string;
+		hashing_algorithm?: string;
+		hashing_parameters?: ScryptParameters;
 		authentication: AuthenticationMethod;
 		server_secret_exists?: boolean;
 		require_password_change?: boolean;
@@ -125,6 +129,8 @@ export interface EmergencyCodeStatus {
 }
 
 export interface EmergencyCodeActivationData {
+	hashing_algorithm?: string;
+	hashing_parameters?: ScryptParameters;
 	status?: string;
 	emergency_data: string;
 	emergency_data_nonce: string;
@@ -136,6 +142,10 @@ export interface EmergencyCodeActivationData {
 }
 
 export interface EmergencyLoginData {
+	hashing_algorithm?: string;
+	hashing_parameters?: ScryptParameters;
+	default_hashing_algorithm?: string;
+	default_hashing_parameters?: ScryptParameters;
 	user_public_key: string;
 	session_secret_key: string;
 	token: string;

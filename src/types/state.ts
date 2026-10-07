@@ -35,6 +35,8 @@ export interface UserState {
 	passwordSha1Prefix: string;
 	hashingAlgorithm: string | undefined;
 	hashingParameters: HashingParameters | undefined;
+	defaultHashingAlgorithm: string;
+	defaultHashingParameters: HashingParameters;
 	userSecretKey: string;
 	serverSecretExists: boolean;
 	userPrivateKey: string;

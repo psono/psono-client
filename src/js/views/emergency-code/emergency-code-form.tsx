@@ -24,8 +24,10 @@ import AdminRecoveryKeyChanged from "../../components/admin-recovery-key-changed
 import FooterLinks from "../../components/footer-links";
 import GridContainerErrors from "../../components/grid-container-errors";
 import browserClient from "../../services/browser-client";
-import converterService from "../../services/converter";
-import cryptoLibrary from "../../services/crypto-library";
+import {
+	emergencyCodeFromInput,
+	emergencyCodeFromWords,
+} from "../../services/emergency-code-format";
 import helperService from "../../services/helper";
 import host from "../../services/host";
 import { getStore } from "../../services/store";
@@ -76,8 +78,7 @@ const EmergencyCodeViewForm = (_props: SsoRouteParams) => {
 	const [remainingWaitingTime, setRemainingWaitingTime] = useState(-1);
 	const [username, setUsername] = useState("");
 	const [emergencyCode, setEmergencyCode] = useState("");
-	const [code1, setCode1] = useState("");
-	const [code2, setCode2] = useState("");
+	const [code, setCode] = useState("");
 	const [words, setWords] = useState("");
 	const [server, setServer] = useState(getStore().getState().server.url);
 	const [serverCheck, setServerCheck] = useState<Partial<HostCheckResult>>({});
@@ -189,30 +190,13 @@ const EmergencyCodeViewForm = (_props: SsoRouteParams) => {
 			return;
 		}
 
-		// Validate now the recovery code information (words and codes)
 		let localEmergencyCode: string;
-		if (typeof words !== "undefined" && words !== "") {
-			localEmergencyCode = converterService.hexToBase58(
-				converterService.wordsToHex(words.split(" ")),
-			);
-		} else if (
-			typeof code1 !== "undefined" &&
-			code1 !== "" &&
-			typeof code2 !== "undefined" &&
-			code2 !== ""
-		) {
-			if (
-				!cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
-				!cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
-			) {
-				setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
-				return;
-			}
-			localEmergencyCode = cryptoLibrary.recoveryCodeStripChecksums(
-				code1 + code2,
-			);
-		} else {
-			setErrors(["SOMETHING_STRANGE_HAPPENED"]);
+		try {
+			localEmergencyCode = words.trim()
+				? emergencyCodeFromWords(words)
+				: emergencyCodeFromInput(code);
+		} catch {
+			setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
 			return;
 		}
 
@@ -280,35 +264,19 @@ const EmergencyCodeViewForm = (_props: SsoRouteParams) => {
 							}}
 						/>
 					</Grid>
-					<Grid item xs={6} sm={6} md={6}>
+					<Grid item xs={12} sm={12} md={12}>
 						<TextField
 							className={classes.textField}
 							variant="outlined"
 							margin="dense"
 							size="small"
-							id="code1"
-							placeholder="DdSLuiDcPuY2F"
-							name="code1"
+							id="code"
+							placeholder="DdSLuiDcPuY2F-Dsxf82sKQdqPs"
+							name="code"
 							autoComplete="off"
-							value={code1}
+							value={code}
 							onChange={(event) => {
-								setCode1(event.target.value);
-							}}
-						/>
-					</Grid>
-					<Grid item xs={6} sm={6} md={6}>
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="code2"
-							placeholder="Dsxf82sKQdqPs"
-							name="code2"
-							autoComplete="off"
-							value={code2}
-							onChange={(event) => {
-								setCode2(event.target.value);
+								setCode(event.target.value);
 							}}
 						/>
 					</Grid>
@@ -342,7 +310,7 @@ const EmergencyCodeViewForm = (_props: SsoRouteParams) => {
 							color="primary"
 							onClick={armEmergencyCode}
 							type="submit"
-							disabled={(!words && (!code1 || !code2)) || !username}
+							disabled={(!words && !code) || !username}
 						>
 							{t("ACTIVATE_EMERGENCY_CODE")}
 						</Button>

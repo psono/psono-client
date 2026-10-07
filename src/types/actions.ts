@@ -182,7 +182,10 @@ export interface ActionPayloads {
 		| "userSecretKey"
 		| "serverSecretExists"
 		| "requirePasswordChange"
-	>;
+	> &
+		Partial<
+			Pick<UserState, "defaultHashingAlgorithm" | "defaultHashingParameters">
+		>;
 	[ActionTypes.SET_REQUIRE_PASSWORD_CHANGE]: Pick<
 		UserState,
 		"requirePasswordChange"

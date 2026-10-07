@@ -10,6 +10,11 @@ import avatarService from "./avatar";
 import browserClient from "./browser-client";
 import browserClientService from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import { getHashingUpgrade } from "./hashing-parameters";
+import {
+	getEmergencyCodeParameters,
+	LEGACY_EMERGENCY_PARAMETERS,
+} from "./emergency-code-format";
 import device from "./device";
 import helperService from "./helper";
 import host from "./host";
@@ -424,10 +429,85 @@ function yubikeyOtpVerify(
 }
 
 /**
- * Handles the validation of the token with the server by solving the cryptographic puzzle
- *
- * @returns Promise Returns a promise with the the final activate token was successful or not
+ * Schedules a credential rewrap after login, retaining its password only for this task.
  */
+function scheduleHashingUpgrade(password: string, expectedToken: string) {
+	const state = getStore().getState();
+	const user = state.user;
+	if (!user.isLoggedIn || user.token !== expectedToken) return;
+	const current = { ...user.hashingParameters };
+	const target = getHashingUpgrade(
+		user.hashingAlgorithm,
+		current,
+		user.defaultHashingAlgorithm,
+		user.defaultHashingParameters,
+	);
+	if (!target) return;
+	const isCurrentSession = () => {
+		const latestState = getStore().getState();
+		const latest = latestState.user;
+		return (
+			latestState.server.url === state.server.url &&
+			latest.token === expectedToken &&
+			latest.username === user.username &&
+			latest.hashingAlgorithm === user.hashingAlgorithm &&
+			(["u", "r", "p", "l"] as const).every(
+				(name) => latest.hashingParameters?.[name] === current[name],
+			)
+		);
+	};
+	// Defer crypto work until login has completed. Failure is retried on login.
+	setTimeout(async () => {
+		try {
+			if (!isCurrentSession()) return;
+			const oldAuthkey = cryptoLibrary.generateAuthkey(
+				user.username,
+				password,
+				user.hashingAlgorithm,
+				current,
+			);
+			const authkey = cryptoLibrary.generateAuthkey(
+				user.username,
+				password,
+				"scrypt",
+				target,
+			);
+			const privateKey = cryptoLibrary.encryptSecret(
+				user.userPrivateKey,
+				password,
+				user.userSauce,
+				"scrypt",
+				target,
+			);
+			const secretKey = cryptoLibrary.encryptSecret(
+				user.userSecretKey,
+				password,
+				user.userSauce,
+				"scrypt",
+				target,
+			);
+			await apiClient.upgradeHashingParameters(
+				expectedToken,
+				user.sessionSecretKey,
+				authkey,
+				oldAuthkey,
+				privateKey.text,
+				privateKey.nonce,
+				secretKey.text,
+				secretKey.nonce,
+				"scrypt",
+				target,
+			);
+			if (isCurrentSession()) action().sethashingParameters("scrypt", target);
+		} catch {
+			// Keep the successful login and existing profile if the upgrade fails.
+		} finally {
+			password = "";
+		}
+	}, 0);
+}
+
+/** Activates the verified session and schedules a background hashing upgrade. */
 function activateToken(): Promise<{ response: "success" }> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
@@ -438,15 +518,20 @@ function activateToken(): Promise<{ response: "success" }> {
 	const onSuccess = (
 		activationData: AuthResponse<TokenActivationData>,
 	): { response: "success" } => {
+		const activeAlgorithm =
+			activationData.data.user.hashing_algorithm ?? hashingAlgorithm;
+		const activeParameters =
+			activationData.data.user.hashing_parameters ?? hashingParameters;
 		// decrypt user secret key
 		const userSecretKey = cryptoLibrary.decryptSecret(
 			activationData.data.user.secret_key,
 			activationData.data.user.secret_key_nonce,
 			sessionPassword,
 			userSauce,
-			hashingAlgorithm,
-			hashingParameters,
+			activeAlgorithm,
+			activeParameters,
 		);
+		action().sethashingParameters(activeAlgorithm, activeParameters);
 
 		let serverSecretExists = ["SAML", "OIDC", "LDAP"].includes(
 			activationData.data.user.authentication,
@@ -461,9 +546,18 @@ function activateToken(): Promise<{ response: "success" }> {
 			userSecretKey,
 			serverSecretExists,
 			activationData.data.user.require_password_change || false,
+			activationData.data.default_hashing_algorithm ?? "scrypt",
+			{
+				u: 14,
+				r: 8,
+				p: 1,
+				l: 64,
+				...activationData.data.default_hashing_parameters,
+			},
 		);
 
 		// no need anymore for the public / private session keys
+		scheduleHashingUpgrade(sessionPassword, token);
 		sessionPassword = "";
 		verification = {};
 
@@ -1292,17 +1386,13 @@ function armEmergencyCode(
 	let userSauce: string;
 	let policies: Record<string, unknown> | undefined;
 	let userSecretKey: string;
+	const codeHashingParameters = getEmergencyCodeParameters(emergencyCode);
 
 	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
 		username,
 		emergencyCode,
 		"scrypt",
-		{
-			u: 14,
-			r: 8,
-			p: 1,
-			l: 64,
-		},
+		codeHashingParameters,
 	);
 
 	const onSuccess = (
@@ -1322,6 +1412,8 @@ function armEmergencyCode(
 				activation.emergency_data_nonce,
 				emergencyCode,
 				activation.emergency_sauce,
+				"scrypt",
+				codeHashingParameters,
 			),
 		) as RecoveredKeys;
 
@@ -1359,13 +1451,21 @@ function armEmergencyCode(
 				),
 			) as EmergencyLoginData;
 
+			action().sethashingParameters(
+				loginInfo.hashing_algorithm ?? activation.hashing_algorithm ?? "scrypt",
+				{
+					...LEGACY_EMERGENCY_PARAMETERS,
+					...(loginInfo.hashing_parameters ?? activation.hashing_parameters),
+				},
+			);
+
 			action().setUserInfo2(
 				emergency_data.user_private_key,
 				loginInfo.user_public_key,
 				loginInfo.session_secret_key,
 				loginInfo.token,
 				userSauce,
-				authentication,
+				loginInfo.authentication ?? authentication,
 			);
 			if (policies) {
 				action().setServerPolicy(policies);
@@ -1387,6 +1487,11 @@ function armEmergencyCode(
 				userSecretKey,
 				serverSecretExists,
 				loginInfo.require_password_change || false,
+				loginInfo.default_hashing_algorithm ?? "scrypt",
+				{
+					...LEGACY_EMERGENCY_PARAMETERS,
+					...loginInfo.default_hashing_parameters,
+				},
 			);
 
 			return {

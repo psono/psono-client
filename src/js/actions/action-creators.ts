@@ -123,6 +123,13 @@ function setUserInfo3(
 	userSecretKey: string,
 	serverSecretExists: boolean,
 	requirePasswordChange = false,
+	defaultHashingAlgorithm = "scrypt",
+	defaultHashingParameters: UserState["defaultHashingParameters"] = {
+		u: 14,
+		r: 8,
+		p: 1,
+		l: 64,
+	},
 ): AppThunk {
 	return (dispatch) => {
 		dispatch({
@@ -132,6 +139,8 @@ function setUserInfo3(
 			userSecretKey,
 			serverSecretExists,
 			requirePasswordChange,
+			defaultHashingAlgorithm,
+			defaultHashingParameters,
 		});
 	};
 }

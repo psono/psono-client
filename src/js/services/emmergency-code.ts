@@ -6,6 +6,10 @@ import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import { getStore } from "./store";
+import {
+	generateEmergencyCode,
+	LEGACY_EMERGENCY_PARAMETERS,
+} from "./emergency-code-format";
 import type { AuthResponse, EmergencyCode } from "../../types/auth";
 
 /**
@@ -36,7 +40,7 @@ function readEmergencyCodes(): Promise<EmergencyCode[] | void> {
  *
  * @returns {Promise} Returns a promise with the emergency code
  */
-function createEmergencyCode(
+async function createEmergencyCode(
 	title: string,
 	leadTime: number,
 ): Promise<{
@@ -44,33 +48,47 @@ function createEmergencyCode(
 	emergency_password: string;
 	emergency_words: string;
 }> {
-	const token = getStore().getState().user.token;
-	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-	const username = getStore().getState().user.username;
+	const state = getStore().getState();
+	if (state.client?.offlineMode) {
+		throw new Error("Leave offline mode before creating emergency codes.");
+	}
+	const token = state.user.token;
+	const sessionSecretKey = state.user.sessionSecretKey;
+	const username = state.user.username;
+	const settings = await apiClient.readEmergencyCodes(token, sessionSecretKey);
 
-	const emergencyPassword = cryptoLibrary.generateRecoveryCode();
+	const hashingAlgorithm =
+		settings.data.default_hashing_algorithm ??
+		state.user.defaultHashingAlgorithm ??
+		"scrypt";
+	const hashingParameters = {
+		...LEGACY_EMERGENCY_PARAMETERS,
+		...(settings.data.default_hashing_parameters ??
+			state.user.defaultHashingParameters),
+	};
+	const emergencyPassword = generateEmergencyCode(
+		hashingAlgorithm,
+		hashingParameters,
+	);
 	const emergencyAuthkey = cryptoLibrary.generateAuthkey(
 		username,
 		emergencyPassword["base58"],
-		"scrypt",
-		{
-			u: 14,
-			r: 8,
-			p: 1,
-			l: 64,
-		},
+		hashingAlgorithm,
+		hashingParameters,
 	);
 	const emergencySauce = cryptoLibrary.generateUserSauce();
 
 	const emergencyDataDec = {
-		user_private_key: getStore().getState().user.userPrivateKey,
-		user_secret_key: getStore().getState().user.userSecretKey,
+		user_private_key: state.user.userPrivateKey,
+		user_secret_key: state.user.userSecretKey,
 	};
 
 	const emergency_data = cryptoLibrary.encryptSecret(
 		JSON.stringify(emergencyDataDec),
 		emergencyPassword["base58"],
 		emergencySauce,
+		hashingAlgorithm,
+		hashingParameters,
 	);
 
 	const onSuccess = () => ({
@@ -82,6 +100,12 @@ function createEmergencyCode(
 	});
 	const onError = (request: AuthResponse<unknown>) =>
 		Promise.reject(request.data);
+	if (
+		getStore().getState().user.token !== token ||
+		getStore().getState().server.url !== state.server.url
+	) {
+		throw new Error("REQUEST_CANCELLED");
+	}
 	return apiClient
 		.createEmergencyCode(
 			token,

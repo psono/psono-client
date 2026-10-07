@@ -902,6 +902,36 @@ function updateUser(
 	return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
+function upgradeHashingParameters(
+	token: AuthToken,
+	sessionSecretKey: SessionSecretKey,
+	authkey: string,
+	authkeyOld: string,
+	privateKey: string,
+	privateKeyNonce: string,
+	secretKey: string,
+	secretKeyNonce: string,
+	hashingAlgorithm: string,
+	hashingParameters: HashingParameters,
+) {
+	const endpoint = "/user/upgrade-hashing/";
+	const method = "PUT";
+	const data = {
+		authkey,
+		authkey_old: authkeyOld,
+		private_key: privateKey,
+		private_key_nonce: privateKeyNonce,
+		secret_key: secretKey,
+		secret_key_nonce: secretKeyNonce,
+		hashing_algorithm: hashingAlgorithm,
+		hashing_parameters: hashingParameters,
+	};
+	const headers = {
+		Authorization: "Token " + token,
+	};
+	return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
 /**
  * AJAX PUT request to the backend with the encrypted data (private_key, and secret_key) for recovery purposes
  *
@@ -4899,6 +4929,7 @@ const apiClientService = {
 	unregisterConfirm: unregisterConfirm,
 	verifyEmail: verifyEmail,
 	updateUser: updateUser,
+	upgradeHashingParameters: upgradeHashingParameters,
 	writeRecoverycode: writeRecoverycode,
 	enableRecoverycode: enableRecoverycode,
 	armEmergencyCode: armEmergencyCode,

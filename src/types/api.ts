@@ -163,7 +163,11 @@ export interface ApiEndpointData {
 	login: EncryptedLoginData;
 	activateToken: TokenActivationData;
 	sessions: { sessions: UserSession[] };
-	emergencyCodes: { emegency_codes: EmergencyCode[] };
+	emergencyCodes: {
+		emegency_codes: EmergencyCode[];
+		default_hashing_algorithm?: string;
+		default_hashing_parameters?: ScryptParameters;
+	};
 	recovery: RecoveryEnableData;
 	emergency:
 		| EmergencyCodeActivationData
