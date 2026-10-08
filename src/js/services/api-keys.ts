@@ -133,23 +133,22 @@ function addSecretToApiKey(
  *
  * @returns {Promise} Promise with the new id
  */
-function addSecretsToApiKey(
+async function addSecretsToApiKey(
 	apiKeyId: string,
 	apiKeySecretKey: string,
 	secrets: NamedSecretReference[],
 ) {
-	return new Promise<void>((resolve, reject) => {
-		const secret_promise_array = [];
-
-		for (let i = 0; i < secrets.length; i++) {
-			const promise = addSecretToApiKey(apiKeyId, apiKeySecretKey, secrets[i]);
-			secret_promise_array.push(promise);
-		}
-
-		Promise.all(secret_promise_array).then(() => {
-			resolve();
-		});
-	});
+	// Send them in small batches. Every request is stamped when it is created and the server
+	// rejects (and logs out) requests that are older than a few seconds, so too many requests
+	// created at once would fail as soon as the browser queue gets long.
+	const batchSize = 10;
+	for (let i = 0; i < secrets.length; i += batchSize) {
+		await Promise.all(
+			secrets
+				.slice(i, i + batchSize)
+				.map((secret) => addSecretToApiKey(apiKeyId, apiKeySecretKey, secret)),
+		);
+	}
 }
 
 /**

@@ -7,7 +7,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { Datastore, DatastoreItem } from "../../../types/datastore";
+import type {
+	Datastore,
+	DatastoreFolder,
+	DatastoreItem,
+} from "../../../types/datastore";
 import type { DialogNodeSelection, DialogProps } from "../../../types/dialogs";
 import datastorePassword from "../../services/datastore-password";
 import DatastoreTree from "../datastore-tree";
@@ -91,6 +95,24 @@ const DialogSelectSecret = (props: DialogSelectSecretProps) => {
 		setSelected(newSelected);
 	};
 
+	// folders can be selected too, so add everything inside of them (entries, sub folders and their entries)
+	const gatherSecrets = (
+		nodes: (DatastoreItem | DatastoreFolder)[],
+		secrets: Record<string, DatastoreItem> = {},
+	) => {
+		nodes.forEach((node) => {
+			if (node.deleted) {
+				return;
+			}
+			if (node.secret_id) {
+				secrets[node.secret_id] = node as DatastoreItem;
+			}
+			gatherSecrets(node.items || [], secrets);
+			gatherSecrets(node.folders || [], secrets);
+		});
+		return secrets;
+	};
+
 	return (
 		<Dialog
 			fullWidth
@@ -142,7 +164,9 @@ const DialogSelectSecret = (props: DialogSelectSecretProps) => {
 				</Button>
 				<Button
 					onClick={() => {
-						onSelectItems(Object.values(selected));
+						onSelectItems(
+							Object.values(gatherSecrets(Object.values(selected))),
+						);
 					}}
 					variant="contained"
 					color="primary"

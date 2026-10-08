@@ -173,10 +173,11 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 			newSecrets.push([item.id, item.name, item.secret_id]);
 		});
 		setSecrets(newSecrets);
-		items.forEach((selectedItem) => {
-			const item = selectedItem as SelectedApiKeySecret;
-			apiKeysService.addSecretToApiKey(apiKeyId, apiKeySecretKey, item);
-		});
+		apiKeysService.addSecretsToApiKey(
+			apiKeyId,
+			apiKeySecretKey,
+			items as SelectedApiKeySecret[],
+		);
 	};
 
 	const deleteSecret = (secretId: string) => {
