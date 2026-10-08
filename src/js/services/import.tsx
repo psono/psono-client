@@ -11,6 +11,7 @@ import import1passwordV8CsvService from "./import-1password-v8-csv";
 import importBitwardenJson from "./import-bitwarden-json";
 import importChromeCsv from "./import-chrome-csv";
 import importDashlaneCsv from "./import-dashlane-csv";
+import importDelineaSecretServerCsv from "./import-delinea-secretserver-csv";
 import importEnpassJson from "./import-enpass-json";
 import importFirefoxCsvService from "./import-firefox-csv";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
@@ -105,6 +106,11 @@ const _importer: Record<string, Importer> = {
 		name: "Dashlane (CSV)",
 		value: "dashlane_csv",
 		parser: importDashlaneCsv.parser,
+	},
+	delinea_secretserver_csv: {
+		name: "Delinea SecretServer (CSV)",
+		value: "delinea_secretserver_csv",
+		parser: importDelineaSecretServerCsv.parser,
 	},
 	enpass_json: {
 		name: "Enpass (JSON)",
