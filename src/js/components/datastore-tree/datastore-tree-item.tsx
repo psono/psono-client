@@ -41,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
 		margin: 0,
 		padding: "5px 3px",
 		border: "1px solid #FFF",
-		display: "block",
+		display: "flex",
+		alignItems: "center",
 		textDecoration: "none",
 		flexGrow: 1,
 		paddingRight: "120px",
@@ -73,6 +74,7 @@ const useStyles = makeStyles((theme) => ({
 		display: "block",
 		position: "relative",
 		width: "100%",
+		minWidth: 0,
 		padding: 0,
 		border: 0,
 		background: "transparent",
@@ -118,9 +120,12 @@ const useStyles = makeStyles((theme) => ({
 	icon: {
 		fontSize: "18px",
 	},
-	iconCheckbox: {
-		fontSize: "14px",
-		marginRight: "4px",
+	selectionCheckbox: {
+		width: "14px",
+		height: "14px",
+		margin: "0 4px 0 0",
+		flexShrink: 0,
+		cursor: "pointer",
 	},
 	listItemIcon: {
 		minWidth: theme.spacing(4),
@@ -234,6 +239,14 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 		props.onDeleteEntry!(content, content.path);
 	};
 	const selectItem = (event: React.MouseEvent) => {
+		event.stopPropagation();
+		if (props.allowMultiselect) {
+			props.onEditEntry?.(content, content.path, props.nodePath);
+		} else if (props.onSelectItem && isSelectable) {
+			props.onSelectItem(content, content.path, props.nodePath);
+		}
+	};
+	const selectCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.stopPropagation();
 		if (props.onSelectItem && isSelectable) {
 			props.onSelectItem(content, content.path, props.nodePath);
@@ -374,6 +387,17 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 
 	return (
 		<div className={classes.treeItem}>
+			{props.allowMultiselect && (
+				<input
+					type="checkbox"
+					className={classes.selectionCheckbox}
+					checked={props.isSelected?.(content) ?? false}
+					disabled={!props.onSelectItem || !isSelectable}
+					onClick={(event) => event.stopPropagation()}
+					onChange={selectCheckbox}
+					aria-label={`${t("SELECT")}: ${content.name || ""}`}
+				/>
+			)}
 			<button
 				type="button"
 				className={
@@ -381,11 +405,12 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 				}
 				onClick={selectItem}
 				onContextMenu={onContextMenu}
-				disabled={!props.onSelectItem || !isSelectable}
-				aria-label={`${content.name || ""}${description ? `, ${description}` : ""}`}
-				aria-pressed={
-					props.allowMultiselect ? props.isSelected!(content) : undefined
+				disabled={
+					props.allowMultiselect
+						? !props.onEditEntry
+						: !props.onSelectItem || !isSelectable
 				}
+				aria-label={`${content.name || ""}${description ? `, ${description}` : ""}`}
 			>
 				<span className={`fa-stack ${classes.faStack}`}>
 					<EntryIcon
@@ -402,12 +427,6 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 						<i className={`fa fa-group fa-stack-2x ${classes.faGroupShared}`} />
 					)}
 				</span>
-				{props.allowMultiselect && props.isSelected!(content) && (
-					<i className={"fa fa-check-square-o" + " " + classes.iconCheckbox} />
-				)}
-				{props.allowMultiselect && !props.isSelected!(content) && (
-					<i className={"fa fa-square-o" + " " + classes.iconCheckbox} />
-				)}
 				<span className={classes.treeItemName}>
 					{content.name}
 					<br />

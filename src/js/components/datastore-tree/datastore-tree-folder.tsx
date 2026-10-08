@@ -42,6 +42,10 @@ const useStyles = makeStyles((theme) => ({
 			zIndex: 1,
 		},
 	},
+	treeFolderRow: {
+		display: "flex",
+		alignItems: "center",
+	},
 	treeFolderHeader: {
 		position: "relative",
 		height: "44px",
@@ -50,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
 		display: "flex",
 		alignItems: "center",
 		width: "100%",
+		minWidth: 0,
 		boxSizing: "border-box",
 		border: 0,
 		background: "transparent",
@@ -100,9 +105,12 @@ const useStyles = makeStyles((theme) => ({
 	icon: {
 		fontSize: "18px",
 	},
-	iconCheckbox: {
-		fontSize: "14px",
-		marginRight: "4px",
+	selectionCheckbox: {
+		width: "14px",
+		height: "14px",
+		margin: "0 4px 0 3px",
+		flexShrink: 0,
+		cursor: "pointer",
 	},
 	listItemIcon: {
 		minWidth: theme.spacing(4),
@@ -197,13 +205,15 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 
 	const selectNode = (event: React.MouseEvent) => {
 		event.stopPropagation();
-		if (props.allowMultiselect && props.onSelectItem && isSelectable) {
-			props.onSelectItem(content, content.path);
-			return;
-		}
 		props.onUpdateExpandFolderProperty(content.id, isExpanded);
 		if (props.onSelectNode && isSelectable) {
 			props.onSelectNode(content, content.path, nodePath);
+		}
+	};
+	const selectFolder = (event: React.ChangeEvent<HTMLInputElement>) => {
+		event.stopPropagation();
+		if (props.onSelectItem && isSelectable) {
+			props.onSelectItem(content, content.path);
 		}
 	};
 	const hideNewShare =
@@ -286,7 +296,18 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 	return (
 		<>
 			<div className={classes.treeFolder}>
-				<div>
+				<div className={classes.treeFolderRow}>
+					{props.allowMultiselect && (
+						<input
+							type="checkbox"
+							className={classes.selectionCheckbox}
+							checked={props.isSelected?.(content) ?? false}
+							disabled={!props.onSelectItem || !isSelectable}
+							onClick={(event) => event.stopPropagation()}
+							onChange={selectFolder}
+							aria-label={`${t("SELECT")}: ${content.name || ""}`}
+						/>
+					)}
 					<button
 						type="button"
 						className={
@@ -295,16 +316,7 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 						onClick={selectNode}
 						onContextMenu={onContextMenu}
 						aria-label={content.name}
-						aria-expanded={
-							props.allowMultiselect && props.onSelectItem && isSelectable
-								? undefined
-								: isExpanded
-						}
-						aria-pressed={
-							props.allowMultiselect && props.onSelectItem && isSelectable
-								? props.isSelected!(content)
-								: undefined
-						}
+						aria-expanded={isExpanded}
 					>
 						<span className={`fa-stack ${classes.faStack}`}>
 							{isExpanded && (
@@ -330,14 +342,6 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 								/>
 							)}
 						</span>
-						{props.allowMultiselect && props.isSelected!(content) && (
-							<i
-								className={"fa fa-check-square-o" + " " + classes.iconCheckbox}
-							/>
-						)}
-						{props.allowMultiselect && !props.isSelected!(content) && (
-							<i className={"fa fa-square-o" + " " + classes.iconCheckbox} />
-						)}
 						<span className={classes.treeFolderName}>{content.name}</span>
 					</button>
 					<ButtonGroup
