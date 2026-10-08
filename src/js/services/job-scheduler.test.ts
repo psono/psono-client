@@ -15,7 +15,11 @@ const mockHostInfo: DecodedServerInfo = {
 	web_client: "https://example.com",
 };
 let mockState: {
-	server: { url: string; adminRecoveryPublicKey: string };
+	server: {
+		url: string;
+		adminRecoveryPublicKey: string;
+		complianceServerSecrets: string;
+	};
 	user: {
 		isLoggedIn: boolean;
 		token: string;
@@ -69,6 +73,7 @@ describe("Service: admin recovery job scheduler", () => {
 			server: {
 				url: "https://example.com/server",
 				adminRecoveryPublicKey: recoveryPublicKey,
+				complianceServerSecrets: "auto",
 			},
 			user: {
 				isLoggedIn: true,
@@ -90,7 +95,12 @@ describe("Service: admin recovery job scheduler", () => {
 		jest.restoreAllMocks();
 	});
 
-	it("encrypts and submits the logged-in user's plaintext keys", async () => {
+	it.each([
+		"auto",
+		"all",
+		"noone",
+	])("encrypts and submits user recovery keys with server-secret policy %s", async (complianceServerSecrets) => {
+		mockState.server.complianceServerSecrets = complianceServerSecrets;
 		apiClient.readJob.mockResolvedValue({
 			data: { users_missing_admin_secrets: [{}] },
 		});
@@ -136,7 +146,12 @@ describe("Service: admin recovery job scheduler", () => {
 		expect(apiClient.createJobUserMissingAdminSecret).not.toHaveBeenCalled();
 	});
 
-	it("decrypts group keys before encrypting them for admin recovery", async () => {
+	it.each([
+		"auto",
+		"all",
+		"noone",
+	])("decrypts and submits group recovery keys with server-secret policy %s", async (complianceServerSecrets) => {
+		mockState.server.complianceServerSecrets = complianceServerSecrets;
 		apiClient.readJob.mockResolvedValue({
 			data: {
 				groups_missing_admin_secrets: [
@@ -249,6 +264,7 @@ describe("Service: admin recovery job scheduler", () => {
 	});
 
 	it("propagates random nonces and ciphertexts produced by the real crypto library", async () => {
+		mockState.server.complianceServerSecrets = "noone";
 		const actualCryptoLibraryService =
 			jest.requireActual<typeof import("./crypto-library")>(
 				"./crypto-library",
@@ -282,5 +298,21 @@ describe("Service: admin recovery job scheduler", () => {
 		expect(privateKeyNonce).toMatch(/^[0-9a-f]{48}$/);
 		expect(secretKeyNonce).toMatch(/^[0-9a-f]{48}$/);
 		expect(privateKeyNonce).not.toBe(secretKeyNonce);
+		expect(
+			actualCryptoLibraryService.decryptDataPublicKey(
+				privateKey,
+				privateKeyNonce,
+				userKeyPair.public_key,
+				recoveryKeyPair.private_key,
+			),
+		).toBe(userKeyPair.private_key);
+		expect(
+			actualCryptoLibraryService.decryptDataPublicKey(
+				secretKey,
+				secretKeyNonce,
+				userKeyPair.public_key,
+				recoveryKeyPair.private_key,
+			),
+		).toBe(mockState.user.userSecretKey);
 	});
 });
