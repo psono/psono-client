@@ -120,6 +120,166 @@
   color: #fff !important;
 }
 
+/* Elster certificates use the same compact card treatment as the passkey picker. */
+.psono-drop .psono-drop-content {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+}
+
+.psono-drop .psono-drop-content .psono-drop-content-inner {
+  width: min(390px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  padding: 12px !important;
+  border: 1px solid #35465b !important;
+  border-radius: 12px !important;
+  background: #151f2b !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+.psono-drop .psono-drop-content .psono-drop-content-inner:before,
+.psono-drop .psono-drop-content .psono-drop-content-inner:after {
+  content: none !important;
+}
+
+.psono-drop .navigations {
+  max-height: min(360px, 75vh) !important;
+  overflow-y: auto !important;
+  scrollbar-color: #536579 #151f2b !important;
+  scrollbar-width: thin !important;
+}
+
+.psono-drop .navigations li:hover {
+  background: #26394a !important;
+}
+
+.psono-drop .navigations li.psono-elster-search:hover {
+  background: transparent !important;
+}
+
+.psono-drop .psono-elster-empty {
+  padding: 9px 11px !important;
+  color: #b1b6c1 !important;
+}
+
+.psono-drop .navigations li.psono-elster-empty:hover {
+  background: transparent !important;
+  color: #b1b6c1 !important;
+}
+
+.psono-drop .psono-elster-search {
+  margin: 0 2px 9px !important;
+}
+
+.psono-drop .navigations li.psono-elster-search input {
+  padding: 9px 11px !important;
+  border: 1px solid #46576b !important;
+  border-radius: 7px !important;
+  background: #202e3e !important;
+  color: #f2f5f9 !important;
+  outline: none !important;
+}
+
+.psono-drop .navigations li.psono-elster-search input:focus-visible {
+  border-color: #2dbb93 !important;
+  box-shadow: 0 0 0 2px rgba(45, 187, 147, 0.25) !important;
+}
+
+.psono-drop .navigations li.psono-elster-search input::placeholder {
+  color: #9baac0 !important;
+}
+
+.psono-drop .psono_request-secret {
+  margin: 2px 0 !important;
+  border-radius: 7px !important;
+}
+
+.psono-drop .navigations li.psono_request-secret div {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 42px !important;
+  padding: 9px 11px !important;
+  border-radius: 7px !important;
+  color: #f2f5f9 !important;
+  line-height: 1.4 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.psono-drop .navigations li:hover div {
+  color: #f2f5f9 !important;
+}
+
+.psono-drop .navigations li div .psono-entry-dot {
+  display: inline-block !important;
+  flex: 0 0 8px !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin-right: 10px !important;
+  border-radius: 50% !important;
+  background: #2dbb93 !important;
+  vertical-align: middle !important;
+}
+
+.psono-drop .navigations li div .psono-entry-label {
+  color: #f2f5f9 !important;
+  font-size: 13px !important;
+  overflow-wrap: anywhere !important;
+}
+
+.psono-drop .psono-selector-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid #35465b !important;
+}
+
+.psono-drop .psono-drop-content .psono-drop-content-inner.psono-selector-compact {
+  width: max-content !important;
+  padding: 8px !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border: 1px solid #536579 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: #b1b6c1 !important;
+  cursor: pointer !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action:hover {
+  color: #2dbb93 !important;
+  border-color: #2dbb93 !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action:focus-visible {
+  outline: 2px solid #79dfc0 !important;
+  outline-offset: 2px !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action img {
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  pointer-events: none !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action .psono-selector-icon-hover,
+.psono-drop .psono-drop-content-inner .psono-selector-action:hover .psono-selector-icon-normal {
+  display: none !important;
+}
+
+.psono-drop .psono-drop-content-inner .psono-selector-action:hover .psono-selector-icon-hover {
+  display: block !important;
+}
+
 @-webkit-keyframes psono-autofill-animation {
   0% {
     -webkit-transform: scale(1, 1);

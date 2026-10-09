@@ -1,0 +1,319 @@
+import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import cryptoLibrary from "../services/crypto-library";
+import datastoreUserService from "../services/datastore-user";
+import type { UserSearchResult } from "../services/datastore-user";
+import type {
+	DataResponse,
+	Datastore,
+	DatastoreItem,
+} from "../../types/datastore";
+import type { TrustedUserSelection } from "../../types/components";
+
+const useStyles = makeStyles((theme) => ({
+	textField: {
+		width: "100%",
+	},
+}));
+
+export interface TrustedUserProps {
+	user_id?: string;
+	user_username?: string;
+	onSetUser?: (user: TrustedUserSelection) => void;
+}
+
+const TrustedUser = (props: TrustedUserProps) => {
+	const { user_id, user_username, onSetUser } = props;
+	const { t } = useTranslation();
+	const classes = useStyles();
+
+	const [userIsTrusted, setUserIsTrusted] = useState(false);
+	const [keysHaveChanged, setKeysHaveChanged] = useState(false);
+	const [user, setUser] = useState<TrustedUserSelection>({
+		data: {
+			user_id: "",
+			user_username: "",
+			user_public_key: "",
+		},
+		name: "",
+	});
+
+	let isSubscribed = true;
+	React.useEffect(() => {
+		const onSuccess = (
+			data: DataResponse<UserSearchResult | UserSearchResult[]>,
+		) => {
+			if (!isSubscribed) {
+				return;
+			}
+
+			const users = data.data;
+			let serverUser: TrustedUserSelection | null = null;
+
+			if (Array.isArray(users)) {
+				users.forEach((user) => {
+					if (user.username === user_username) {
+						serverUser = {
+							data: {
+								user_id: user.id,
+								user_username: user.username,
+								user_public_key: user.public_key,
+							},
+							name: user.username,
+						};
+					}
+				});
+			} else {
+				serverUser = {
+					data: {
+						user_id: users.id,
+						user_username: users.username,
+						user_public_key: users.public_key,
+					},
+					name: users.username,
+				};
+			}
+
+			if (!serverUser) {
+				return;
+			}
+
+			datastoreUserService
+				.searchUserDatastore(user_id, user_username)
+				.then((trustedUser) => {
+					if (!isSubscribed) {
+						return;
+					}
+					// The server user is set above before scheduling this callback.
+					const resolvedUser = serverUser!;
+
+					if (trustedUser !== null) {
+						if (
+							trustedUser!.data.user_public_key ===
+							resolvedUser.data.user_public_key
+						) {
+							// Keys match - user is trusted
+							setUserIsTrusted(true);
+							setKeysHaveChanged(false);
+							setUser(resolvedUser);
+							if (onSetUser) {
+								onSetUser(resolvedUser);
+							}
+						} else {
+							// Keys don't match - user's keys have changed!
+							setUserIsTrusted(false);
+							setKeysHaveChanged(true);
+							setUser(resolvedUser);
+							if (onSetUser) {
+								onSetUser(resolvedUser);
+							}
+						}
+					} else {
+						// User not in trusted datastore - not trusted
+						setUserIsTrusted(false);
+						setKeysHaveChanged(false);
+						setUser(resolvedUser);
+						if (onSetUser) {
+							onSetUser(resolvedUser);
+						}
+					}
+				});
+		};
+
+		const onError = () => {
+			//pass
+		};
+
+		// Always query server first
+		datastoreUserService.searchUser(user_username).then(onSuccess, onError);
+
+		// cancel subscription to useEffect
+		return () => {
+			isSubscribed = false;
+		};
+	}, []);
+
+	const trust = () => {
+		const onSuccess = (datastore: Datastore | undefined) => {
+			const user_data_store = datastore!;
+			if (typeof user_data_store.items === "undefined") {
+				user_data_store.items = [];
+			}
+
+			const userObject = {
+				id: cryptoLibrary.generateUuid(),
+				name: "",
+				type: "user",
+				data: user.data,
+			};
+
+			if (user.data.user_name) {
+				userObject.name += user.data.user_name;
+			} else {
+				userObject.name += user.data.user_username;
+			}
+			userObject.name += " (" + user.data.user_public_key + ")";
+
+			if (keysHaveChanged) {
+				// Keys have changed - find and update the existing entry
+				const findAndUpdate = (items: DatastoreItem[]): boolean => {
+					for (let i = 0; i < items.length; i++) {
+						const item = items[i];
+						if (
+							item.type === "user" &&
+							item.data &&
+							(item.data.user_id === user.data.user_id ||
+								item.data.user_username === user.data.user_username)
+						) {
+							// Found the existing user - update it with new keys
+							items[i] = userObject;
+							items[i].id = item.id; // Keep the same ID
+							return true;
+						}
+						// Recursively search in nested items
+						if (item.items && item.items.length > 0) {
+							if (findAndUpdate(item.items)) {
+								return true;
+							}
+						}
+					}
+					return false;
+				};
+
+				findAndUpdate(user_data_store.items);
+			} else {
+				// User is not trusted yet - add as new entry
+				user_data_store.items.push(userObject);
+			}
+
+			datastoreUserService.saveDatastoreContent(user_data_store);
+			setUserIsTrusted(true);
+			setKeysHaveChanged(false);
+		};
+		const onError = () => {
+			//pass
+		};
+
+		datastoreUserService.getUserDatastore().then(onSuccess, onError);
+	};
+
+	return (
+		<>
+			{Boolean(user && user.data.user_name) && (
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="username"
+						label={
+							t("USERNAME") +
+							" " +
+							(userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))
+						}
+						name="username"
+						autoComplete="off"
+						value={user.data.user_name}
+						disabled
+					/>
+				</Grid>
+			)}
+			{!(user && user.data.user_name) && (
+				<Grid item xs={12} sm={12} md={12}>
+					<TextField
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						id="username"
+						label={
+							t("USERNAME") +
+							" " +
+							(userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))
+						}
+						name="username"
+						autoComplete="off"
+						value={user.data.user_username}
+						disabled
+					/>
+				</Grid>
+			)}
+			<Grid item xs={12} sm={12} md={12}>
+				<TextField
+					className={classes.textField}
+					variant="outlined"
+					margin="dense"
+					size="small"
+					id="publicKey"
+					label={
+						t("PUBLIC_KEY") +
+						" " +
+						(userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))
+					}
+					name="publicKey"
+					autoComplete="off"
+					value={user.data.user_public_key}
+					disabled
+				/>
+			</Grid>
+			{!userIsTrusted && keysHaveChanged && (
+				<Grid item xs={12} sm={12} md={12}>
+					<MuiAlert
+						severity="error"
+						style={{
+							marginBottom: "5px",
+							marginTop: "5px",
+						}}
+					>
+						{t("WARNING_USER_KEYS_HAVE_CHANGED")}{" "}
+						<a
+							href="#"
+							onClick={(event) => {
+								event.preventDefault();
+								trust();
+							}}
+						>
+							{t("UPDATE_TRUSTED_USER")}
+						</a>
+					</MuiAlert>
+				</Grid>
+			)}
+			{!userIsTrusted && !keysHaveChanged && (
+				<Grid item xs={12} sm={12} md={12}>
+					<MuiAlert
+						severity="warning"
+						style={{
+							marginBottom: "5px",
+							marginTop: "5px",
+						}}
+					>
+						{t("YOU_NEVER_CONFIRMED_THIS_USERS_IDENTITY")}{" "}
+						<a
+							href="#"
+							onClick={(event) => {
+								event.preventDefault();
+								trust();
+							}}
+						>
+							{t("ADD_TO_TRUSTED_USERS")}
+						</a>
+					</MuiAlert>
+				</Grid>
+			)}
+		</>
+	);
+};
+
+TrustedUser.propTypes = {
+	user_id: PropTypes.string,
+	user_username: PropTypes.string,
+	onSetUser: PropTypes.func,
+};
+
+export default TrustedUser;

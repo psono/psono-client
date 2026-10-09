@@ -1,0 +1,667 @@
+import { Check } from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Checkbox, Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import TextField from "@mui/material/TextField";
+import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import type { Datastore } from "../../../types/datastore";
+import type {
+	ApiKeyDialogProps,
+	EditApiKeySecretRow,
+	ManagementApiKey,
+	SelectedApiKeySecret,
+} from "../../../types/management-ui";
+import type { TableColumn, TableOptions } from "../../../types/table";
+import DialogSelectSecret from "../../components/dialogs/select-secret";
+import GridContainerErrors from "../../components/grid-container-errors";
+import TabPanel from "../../components/tab-panel";
+import Table from "../../components/table";
+import apiKey from "../../services/api-keys";
+import apiKeysService from "../../services/api-keys";
+
+// MUI forwards this existing attribute to the TextField root, not the input.
+const readOnlyRootProps = { readOnly: true };
+
+const useStyles = makeStyles((theme) => ({
+	textField: {
+		width: "100%",
+	},
+	checked: {
+		color: theme.palette.checked.main,
+	},
+	checkedIcon: {
+		width: "20px",
+		height: "20px",
+		border: `1px solid ${theme.palette.greyText.main}`,
+		borderRadius: "3px",
+	},
+	uncheckedIcon: {
+		width: "0px",
+		height: "0px",
+		padding: "9px",
+		border: `1px solid ${theme.palette.greyText.main}`,
+		borderRadius: "3px",
+	},
+	passwordField: {
+		fontFamily: "'Fira Code', monospace",
+	},
+	tabPanel: {
+		"& .MuiBox-root": {
+			padding: "16px 0px",
+		},
+	},
+}));
+
+const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
+	const { open, onClose, apiKeyId } = props;
+	const { t } = useTranslation();
+	const classes = useStyles();
+	const serverUrl = useSelector((state) => state.server.url);
+	const serverPublicKey = useSelector((state) => state.server.publicKey);
+	const serverVerifyKey = useSelector((state) => state.server.verifyKey);
+	const [value, setValue] = React.useState(0);
+	const [addSecretOpen, setAddSecretOpen] = useState(false);
+	const [title, setTitle] = useState("");
+	const [apiKeyPrivateKey, setApiKeyPrivateKey] = useState("");
+	const [apiKeySecretKey, setApiKeySecretKey] = useState("");
+	const [restrictToSecrets, setRestrictToSecrets] = useState(true);
+	const [allowInsecureUsage, setAllowInsecureUsage] = useState(false);
+	const [allowApiKeyManagement, setAllowApiKeyManagement] = useState(false);
+	const [allowAdminAccess, setAllowAdminAccess] = useState(false);
+	const [allowRecoveryAccess, setAllowRecoveryAccess] = useState(false);
+	const [allowEmergencyAccess, setAllowEmergencyAccess] = useState(false);
+	const [rightToRead, setRightToRead] = useState(true);
+	const [rightToWrite, setRightToWrite] = useState(false);
+	const [secrets, setSecrets] = useState<EditApiKeySecretRow[]>([]);
+	const [errors, setErrors] = useState<string[]>([]);
+	const [showApiKeyId, setShowApiKeyId] = useState(false);
+	const [showApiKeyPrivateKey, setShowApiKeyPrivateKey] = useState(false);
+	const [showApiKeySecretKey, setShowApiKeySecretKey] = useState(false);
+
+	React.useEffect(() => {
+		loadApiKey();
+		loadApiKeySecrets();
+	}, []);
+
+	const loadApiKey = () => {
+		apiKey.readApiKey(apiKeyId).then(
+			(response) => {
+				const data = response as unknown as ManagementApiKey;
+				setTitle(data.title);
+				setApiKeyPrivateKey(data.private_key);
+				setApiKeySecretKey(data.secret_key);
+				setRestrictToSecrets(data.restrict_to_secrets);
+				setAllowInsecureUsage(data.allow_insecure_access);
+				setAllowApiKeyManagement(data.allow_api_key_management);
+				setAllowAdminAccess(data.allow_admin_access);
+				setAllowRecoveryAccess(data.allow_recovery_access === true);
+				setAllowEmergencyAccess(data.allow_emergency_access === true);
+				setRightToRead(data.read);
+				setRightToWrite(data.write);
+			},
+			(error) => {
+				console.log(error);
+			},
+		);
+	};
+
+	const loadApiKeySecrets = () => {
+		apiKey.readApiKeySecrets(apiKeyId).then(
+			(secrets) => {
+				setSecrets(
+					secrets!.map(
+						(secret): EditApiKeySecretRow => [
+							secret.id,
+							secret.name,
+							secret.secret_id,
+						],
+					),
+				);
+			},
+			() => {
+				// pass
+			},
+		);
+	};
+
+	const edit = () => {
+		const onError = () => {
+			// pass
+		};
+
+		const onSuccess = () => {
+			onClose();
+		};
+
+		return apiKey
+			.updateApiKey(
+				apiKeyId,
+				title,
+				restrictToSecrets,
+				allowInsecureUsage,
+				allowApiKeyManagement,
+				allowAdminAccess,
+				allowRecoveryAccess,
+				allowEmergencyAccess,
+				rightToRead,
+				rightToWrite,
+			)
+			.then(onSuccess, onError);
+	};
+
+	const onAddSecret = (items: Datastore[]) => {
+		setAddSecretOpen(false);
+		const newSecrets = [...secrets];
+		items.forEach((selectedItem) => {
+			const item = selectedItem as SelectedApiKeySecret;
+			newSecrets.push([item.id, item.name, item.secret_id]);
+		});
+		setSecrets(newSecrets);
+		apiKeysService.addSecretsToApiKey(
+			apiKeyId,
+			apiKeySecretKey,
+			items as SelectedApiKeySecret[],
+		);
+	};
+
+	const deleteSecret = (secretId: string) => {
+		const onError = (result: unknown) => {
+			// pass
+			console.log(result);
+		};
+
+		const onSuccess = () => {
+			loadApiKeySecrets();
+		};
+
+		apiKeysService.deleteApiKeySecret(secretId).then(onSuccess, onError);
+	};
+	const columns: TableColumn<EditApiKeySecretRow>[] = [
+		{ name: t("ID"), options: { display: false } },
+		{ name: t("TITLE") },
+		{
+			name: t("SECRET_ID"),
+			options: {
+				filter: true,
+				sort: false,
+				empty: false,
+				customBodyRender: (_value, tableMeta) => {
+					const rowData = tableMeta.rowData;
+					return (
+						<TextField
+							className={classes.textField}
+							variant="outlined"
+							margin="dense"
+							size="small"
+							label={"SECRET_ID"}
+							name="secretId"
+							autoComplete="off"
+							value={rowData[2]}
+							{...readOnlyRootProps}
+							InputProps={{
+								classes: {
+									input: classes.passwordField,
+								},
+							}}
+						/>
+					);
+				},
+			},
+		},
+		{
+			name: t("DELETE"),
+			options: {
+				filter: true,
+				sort: false,
+				empty: false,
+				customHeadLabelRender: () => null,
+				customBodyRender: (_value, tableMeta) => {
+					const rowData = tableMeta.rowData;
+					return (
+						<IconButton onClick={() => deleteSecret(rowData[0])} size="large">
+							<DeleteIcon />
+						</IconButton>
+					);
+				},
+			},
+		},
+	];
+
+	const options: TableOptions = {
+		filterType: "checkbox",
+	};
+
+	const isSelectable = (node: Datastore) => {
+		return !(Object.hasOwn(node, "type") && node.type === "file");
+	};
+
+	return (
+		<Dialog
+			fullWidth
+			maxWidth={"sm"}
+			open={open}
+			onClose={() => {
+				onClose();
+			}}
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+		>
+			<DialogTitle id="alert-dialog-title">{t("EDIT_API_KEY")}</DialogTitle>
+			<DialogContent>
+				<Grid container>
+					<Grid item xs={12} sm={12} md={12}>
+						<TextField
+							className={classes.textField}
+							variant="outlined"
+							margin="dense"
+							size="small"
+							id="title"
+							label={t("TITLE")}
+							name="title"
+							autoComplete="off"
+							value={title}
+							onChange={(event) => {
+								setTitle(event.target.value);
+							}}
+						/>
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={restrictToSecrets}
+							onChange={(event) => {
+								setRestrictToSecrets(event.target.checked);
+								if (!event.target.checked && value === 1) {
+									// switch tabs if we have the secret tab and don't restrict to secrets
+									setValue(0);
+								}
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("SECRETS_ONLY")}
+					</Grid>
+					{!restrictToSecrets && (
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{
+									marginBottom: "5px",
+									marginTop: "5px",
+								}}
+							>
+								{t("API_KEY_NOT_RESTRICTED_TO_SECRETS_WARNING")}
+							</MuiAlert>
+						</Grid>
+					)}
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowInsecureUsage}
+							onChange={(event) => {
+								setAllowInsecureUsage(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_INSECURE_USAGE")}
+					</Grid>
+					{allowInsecureUsage && (
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{
+									marginBottom: "5px",
+									marginTop: "5px",
+								}}
+							>
+								{t("API_KEY_INSECURE_USAGE_WARNING")}
+							</MuiAlert>
+						</Grid>
+					)}
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowApiKeyManagement}
+							onChange={(event) => {
+								setAllowApiKeyManagement(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_API_KEY_MANAGEMENT")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowAdminAccess}
+							onChange={(event) => {
+								setAllowAdminAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("ALLOW_ADMIN_API_ACCESS")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowRecoveryAccess}
+							onChange={(event) => {
+								setAllowRecoveryAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{ checked: classes.checked }}
+						/>{" "}
+						{t("ALLOW_RECOVERY_API_ACCESS")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={allowEmergencyAccess}
+							onChange={(event) => {
+								setAllowEmergencyAccess(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{ checked: classes.checked }}
+						/>{" "}
+						{t("ALLOW_EMERGENCY_API_ACCESS")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={rightToRead}
+							onChange={(event) => {
+								setRightToRead(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("RIGHT_TO_READ")}
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Checkbox
+							tabIndex={1}
+							checked={rightToWrite}
+							onChange={(event) => {
+								setRightToWrite(event.target.checked);
+							}}
+							checkedIcon={<Check className={classes.checkedIcon} />}
+							icon={<Check className={classes.uncheckedIcon} />}
+							classes={{
+								checked: classes.checked,
+							}}
+						/>{" "}
+						{t("RIGHT_TO_WRITE")}
+					</Grid>
+
+					<Grid item xs={12} sm={12} md={12}>
+						<Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
+						<Tabs
+							value={value}
+							indicatorColor="primary"
+							textColor="primary"
+							onChange={(_event, newValue: number) => {
+								setValue(newValue);
+							}}
+							aria-label="users and groups"
+						>
+							<Tab label={t("DETAILS")} />
+							{restrictToSecrets && <Tab label={t("SECRETS")} />}
+						</Tabs>
+						<TabPanel value={value} index={0} className={classes.tabPanel}>
+							<Grid container>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="apiKeyId"
+										label={"API_KEY_ID"}
+										name="apiKeyId"
+										autoComplete="off"
+										value={apiKeyId}
+										{...readOnlyRootProps}
+										InputProps={{
+											type: showApiKeyId ? "text" : "password",
+											classes: {
+												input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+											},
+											endAdornment: (
+												<InputAdornment position="end">
+													<IconButton
+														aria-label="toggle api key id visibility"
+														onClick={() => setShowApiKeyId(!showApiKeyId)}
+														edge="end"
+														size="large"
+													>
+														{showApiKeyId ? (
+															<Visibility fontSize="small" />
+														) : (
+															<VisibilityOff fontSize="small" />
+														)}
+													</IconButton>
+												</InputAdornment>
+											),
+										}}
+									/>
+								</Grid>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="apiKeyPrivateKey"
+										label={"API_KEY_PRIVATE_KEY"}
+										name="apiKeyPrivateKey"
+										autoComplete="off"
+										value={apiKeyPrivateKey}
+										{...readOnlyRootProps}
+										InputProps={{
+											type: showApiKeyPrivateKey ? "text" : "password",
+											classes: {
+												input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+											},
+											endAdornment: (
+												<InputAdornment position="end">
+													<IconButton
+														aria-label="toggle api key id visibility"
+														onClick={() =>
+															setShowApiKeyPrivateKey(!showApiKeyPrivateKey)
+														}
+														edge="end"
+														size="large"
+													>
+														{showApiKeyPrivateKey ? (
+															<Visibility fontSize="small" />
+														) : (
+															<VisibilityOff fontSize="small" />
+														)}
+													</IconButton>
+												</InputAdornment>
+											),
+										}}
+									/>
+								</Grid>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="apiKeySecretKey"
+										label={"API_KEY_SECRET_KEY"}
+										name="apiKeySecretKey"
+										autoComplete="off"
+										value={apiKeySecretKey}
+										{...readOnlyRootProps}
+										InputProps={{
+											type: showApiKeySecretKey ? "text" : "password",
+											classes: {
+												input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
+											},
+											endAdornment: (
+												<InputAdornment position="end">
+													<IconButton
+														aria-label="toggle api key id visibility"
+														onClick={() =>
+															setShowApiKeySecretKey(!showApiKeySecretKey)
+														}
+														edge="end"
+														size="large"
+													>
+														{showApiKeySecretKey ? (
+															<Visibility fontSize="small" />
+														) : (
+															<VisibilityOff fontSize="small" />
+														)}
+													</IconButton>
+												</InputAdornment>
+											),
+										}}
+									/>
+								</Grid>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="serverUrl"
+										label={"SERVER_URL"}
+										name="serverUrl"
+										autoComplete="off"
+										value={serverUrl}
+										{...readOnlyRootProps}
+										InputProps={{
+											classes: {
+												input: classes.passwordField,
+											},
+										}}
+									/>
+								</Grid>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="serverPublicKey"
+										label={"SERVER_PUBLIC_KEY"}
+										name="serverPublicKey"
+										autoComplete="off"
+										value={serverPublicKey}
+										{...readOnlyRootProps}
+										InputProps={{
+											classes: {
+												input: classes.passwordField,
+											},
+										}}
+									/>
+								</Grid>
+								<Grid item xs={12} sm={12} md={12}>
+									<TextField
+										className={classes.textField}
+										variant="outlined"
+										margin="dense"
+										size="small"
+										id="serverVerifyKey"
+										label={"SERVER_SIGNATURE"}
+										name="serverVerifyKey"
+										autoComplete="off"
+										value={serverVerifyKey}
+										{...readOnlyRootProps}
+										InputProps={{
+											classes: {
+												input: classes.passwordField,
+											},
+										}}
+									/>
+								</Grid>
+							</Grid>
+						</TabPanel>
+						<TabPanel value={value} index={1} className={classes.tabPanel}>
+							<Table
+								data={secrets}
+								columns={columns}
+								options={options}
+								onCreate={() => setAddSecretOpen(true)}
+							/>
+						</TabPanel>
+					</Grid>
+				</Grid>
+				<GridContainerErrors errors={errors} setErrors={setErrors} />
+			</DialogContent>
+			<DialogActions>
+				<Button
+					onClick={() => {
+						onClose();
+					}}
+				>
+					{t("CLOSE")}
+				</Button>
+				<Button
+					onClick={() => {
+						edit();
+					}}
+					variant="contained"
+					color="primary"
+					disabled={!title}
+				>
+					{t("SAVE")}
+				</Button>
+			</DialogActions>
+			{addSecretOpen && (
+				<DialogSelectSecret
+					open={addSecretOpen}
+					onClose={() => setAddSecretOpen(false)}
+					onSelectItems={onAddSecret}
+					isSelectable={isSelectable}
+				/>
+			)}
+		</Dialog>
+	);
+};
+
+EditApiKeysDialog.propTypes = {
+	onClose: PropTypes.func.isRequired,
+	open: PropTypes.bool.isRequired,
+	apiKeyId: PropTypes.string.isRequired,
+};
+
+export default EditApiKeysDialog;

@@ -1,0 +1,329 @@
+import { Grid } from "@mui/material";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import LinearProgress from "@mui/material/LinearProgress";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from "@mui/styles";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import type {
+	DialogAttachment,
+	FileDestination,
+	ResultDialogProps,
+} from "../../../types/dialogs";
+import type { FileRepository, Shard } from "../../../types/files";
+
+import cryptoLibrary from "../../services/crypto-library";
+import fileTransferService from "../../services/file-transfer";
+import notification from "../../services/notification";
+import SelectFieldFileDestination from "../select-field/file-destination";
+
+const useStyles = makeStyles((theme) => ({
+	textField: {
+		width: "100%",
+	},
+	fileButton: {
+		marginTop: "8px",
+		marginBottom: "8px",
+	},
+}));
+
+export interface DialogAddAttachmentProps
+	extends ResultDialogProps<DialogAttachment> {
+	item: { secret_id?: string };
+}
+
+interface UploadedChunk {
+	chunk_position: number;
+	hash_checksum: string;
+}
+
+const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
+	const { open, onClose, item } = props;
+	const { t } = useTranslation();
+	const classes = useStyles();
+
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [fileName, setFileName] = useState("");
+	const [fileDestination, setFileDestination] =
+		useState<FileDestination | null>(null);
+	const [uploading, setUploading] = useState(false);
+	const [uploadProgress, setUploadProgress] = useState(0);
+
+	const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			setSelectedFile(file);
+			setFileName(file.name);
+		}
+	};
+
+	const onUpload = async () => {
+		if (!selectedFile || !fileDestination) {
+			return;
+		}
+
+		setUploading(true);
+		setUploadProgress(0);
+
+		try {
+			// Extract shard or file repository from destination
+			let shard: Shard | undefined;
+			let fileRepository: FileRepository | undefined;
+
+			if (fileDestination.destination_type === "file_repository") {
+				fileRepository = fileDestination;
+			} else if (fileDestination.destination_type === "shard") {
+				shard = fileDestination;
+			}
+
+			// Generate a random key for file encryption
+			const fileSecretKey = cryptoLibrary.generateSecretKey();
+			const fileChunkSize = 128 * 1024 * 1024; // 128 MB chunks
+			const chunkCount = Math.ceil(selectedFile.size / fileChunkSize);
+
+			// Create file on server with parentSecretId
+			const fileResponse = await fileTransferService.createFile(
+				shard ? shard.id : undefined,
+				fileRepository ? fileRepository.id : undefined,
+				selectedFile.size + chunkCount * 40, // Add overhead for encryption
+				chunkCount,
+				undefined, // linkId - not needed for attachments
+				undefined, // parentDatastoreId - not needed when using parentSecretId
+				undefined, // parentShareId - not needed when using parentSecretId
+				item.secret_id, // parentSecretId
+			);
+
+			// Upload chunks sequentially
+			const chunks = await multiChunkUpload(
+				shard,
+				fileRepository,
+				selectedFile,
+				fileResponse.file_transfer_id,
+				fileResponse.file_transfer_secret_key,
+				fileSecretKey,
+				fileChunkSize,
+			);
+
+			// Build attachment object
+			const newAttachment: DialogAttachment = {
+				file_id: fileResponse.file_id,
+				file_chunks: Object.keys(chunks).map((pos) => ({
+					hash: chunks[pos],
+					position: parseInt(pos),
+				})),
+				file_secret_key: fileSecretKey,
+				file_size: selectedFile.size,
+				file_shard_id: shard ? shard.id : null,
+				file_repository_id: fileRepository ? fileRepository.id : null,
+				filename: fileName,
+			};
+
+			notification.push("file_upload", t("FILE_UPLOADED_SUCCESSFULLY"));
+			onClose(newAttachment);
+		} catch (error) {
+			console.error("File upload error:", error);
+			notification.push("file_upload_error", t("FILE_UPLOAD_FAILED"));
+			setUploading(false);
+			setUploadProgress(0);
+		}
+	};
+
+	const multiChunkUpload = (
+		shard: Shard | undefined,
+		fileRepository: FileRepository | undefined,
+		file: File,
+		fileTransferId: string,
+		fileTransferSecretKey: string,
+		fileSecretKey: string,
+		fileChunkSize: number,
+	) => {
+		return new Promise<Record<string, string>>((resolve, reject) => {
+			let chunkPosition = 1;
+			let fileSliceStart = 0;
+			const chunks: Record<string, string> = {};
+			const maxChunks = Math.ceil(file.size / fileChunkSize);
+			let uploadedChunks = 0;
+
+			const readFileChunk = (
+				fileSliceStart: number,
+				chunkSize: number,
+				chunkPosition: number,
+			) => {
+				return new Promise<UploadedChunk>((resolveChunk) => {
+					const fileReader = new FileReader();
+
+					fileReader.onloadend = async (event) => {
+						try {
+							const result = event.target?.result;
+							if (!(result instanceof ArrayBuffer)) {
+								throw new TypeError("Expected a file chunk ArrayBuffer");
+							}
+							const bytes = new Uint8Array(result);
+
+							// Encrypt chunk
+							const encryptedBytes = await cryptoLibrary.encryptFile(
+								bytes,
+								fileSecretKey,
+							);
+
+							// Hash encrypted chunk
+							const hashChecksum = cryptoLibrary.sha512(encryptedBytes);
+
+							// Upload chunk
+							await fileTransferService.upload(
+								new Blob([encryptedBytes], {
+									type: "application/octet-stream",
+								}),
+								fileTransferId,
+								fileTransferSecretKey,
+								encryptedBytes.byteLength,
+								chunkPosition,
+								shard,
+								fileRepository,
+								hashChecksum,
+							);
+
+							uploadedChunks++;
+							setUploadProgress(Math.round((uploadedChunks / maxChunks) * 100));
+
+							resolveChunk({
+								chunk_position: chunkPosition,
+								hash_checksum: hashChecksum,
+							});
+						} catch (error) {
+							reject(error);
+						}
+					};
+
+					const file_slice = file.slice(
+						fileSliceStart,
+						fileSliceStart + chunkSize,
+					);
+					fileReader.readAsArrayBuffer(file_slice);
+				});
+			};
+
+			const readNextChunk = async (): Promise<void> => {
+				const chunkSize = Math.min(fileChunkSize, file.size - fileSliceStart);
+				if (chunkSize === 0) {
+					return resolve(chunks);
+				}
+
+				try {
+					const chunk = await readFileChunk(
+						fileSliceStart,
+						chunkSize,
+						chunkPosition,
+					);
+					fileSliceStart = fileSliceStart + chunkSize;
+					chunkPosition = chunkPosition + 1;
+					chunks[chunk.chunk_position] = chunk.hash_checksum;
+					await readNextChunk();
+				} catch (error) {
+					reject(error);
+				}
+			};
+
+			readNextChunk();
+		});
+	};
+
+	const handleClose = () => {
+		if (!uploading) {
+			setSelectedFile(null);
+			setFileName("");
+			setFileDestination(null);
+			setUploadProgress(0);
+			onClose(null);
+		}
+	};
+
+	return (
+		<Dialog
+			fullWidth
+			maxWidth={"sm"}
+			open={open}
+			onClose={handleClose}
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+		>
+			<DialogTitle id="alert-dialog-title">{t("ADD_ATTACHMENT")}</DialogTitle>
+			<DialogContent>
+				<Grid container>
+					<Grid item xs={12} sm={12} md={12}>
+						<SelectFieldFileDestination
+							className={classes.textField}
+							variant="outlined"
+							margin="dense"
+							size="small"
+							label="TARGET_STORAGE"
+							error={!fileDestination}
+							value={fileDestination}
+							required
+							onChange={(value: FileDestination | null) => {
+								setFileDestination(value);
+							}}
+						/>
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<Button
+							className={classes.fileButton}
+							variant="contained"
+							disabled={uploading}
+							component="label"
+						>
+							{selectedFile ? selectedFile.name : t("CHOOSE_FILE")}
+							<input type="file" hidden onChange={onFileChange} />
+						</Button>
+					</Grid>
+					<Grid item xs={12} sm={12} md={12}>
+						<TextField
+							className={classes.textField}
+							variant="outlined"
+							margin="dense"
+							size="small"
+							id="fileName"
+							label={t("FILENAME")}
+							name="fileName"
+							autoComplete="off"
+							value={fileName}
+							required
+							disabled={uploading}
+							onChange={(event) => {
+								setFileName(event.target.value);
+							}}
+						/>
+					</Grid>
+					{uploading && (
+						<Grid item xs={12} sm={12} md={12}>
+							<LinearProgress variant="determinate" value={uploadProgress} />
+							<Typography variant="caption" align="center" display="block">
+								{t("UPLOADING")}: {uploadProgress}%
+							</Typography>
+						</Grid>
+					)}
+				</Grid>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={handleClose} disabled={uploading}>
+					{t("CLOSE")}
+				</Button>
+				<Button
+					onClick={onUpload}
+					variant="contained"
+					color="primary"
+					disabled={!selectedFile || !fileName || !fileDestination || uploading}
+				>
+					{t("ADD")}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
+};
+
+export default DialogAddAttachment;

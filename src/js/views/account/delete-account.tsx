@@ -1,0 +1,48 @@
+import { Grid } from "@mui/material";
+import type { AccountViewProps } from "../../../types/account-ui";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import React from "react";
+import { useTranslation } from "react-i18next";
+
+import DeleteAccountDialog from "./delete-account-dialog";
+
+const AccountDeleteAccountView = (props: AccountViewProps) => {
+	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(false);
+
+	const closeModal = () => {
+		setOpen(false);
+	};
+
+	const onDeleteAccount = () => {
+		setOpen(true);
+	};
+
+	return (
+		<>
+			<Grid container>
+				<Grid item xs={12} sm={12} md={12}>
+					<h2>{t("DELETE_ACCOUNT")}</h2>
+					<p>{t("DELETE_ACCOUNT_DESCRIPTION")}</p>
+					<Divider style={{ marginBottom: "20px" }} />
+				</Grid>
+			</Grid>
+			<Grid container style={{ marginBottom: "8px" }}>
+				<Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
+					{t("DELETE_ACCOUNT")}
+				</Grid>
+				<Grid item xs={6} sm={6} md={8}>
+					<Button variant="contained" color="primary" onClick={onDeleteAccount}>
+						{t("DELETE")}
+					</Button>
+				</Grid>
+				{open && (
+					<DeleteAccountDialog {...props} open={open} onClose={closeModal} />
+				)}
+			</Grid>
+		</>
+	);
+};
+
+export default AccountDeleteAccountView;

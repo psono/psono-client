@@ -1,0 +1,51 @@
+import type { ReducerAction } from "../../types/actions";
+import type { PersistentState } from "../../types/state";
+import {
+	SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
+	SET_FINGERPRINT,
+	SET_KNOWN_HOSTS,
+	SET_REMOTE_CONFIG_JSON,
+} from "../actions/action-types";
+
+const defaultKnownHosts = [
+	{
+		url: "https://www.psono.pw/server",
+		verify_key:
+			"a16301bd25e3a445a83b279e7091ea91d085901933f310fdb1b137db9676de59",
+	},
+];
+
+function persistent(
+	state: PersistentState = {
+		knownHosts: defaultKnownHosts,
+		autoApproveLdap: {},
+		remoteConfigWebClientUrl: null,
+		remoteConfigJson: null,
+		fingerprint: null,
+	},
+	action: ReducerAction,
+): PersistentState {
+	switch (action.type) {
+		case SET_KNOWN_HOSTS:
+			return Object.assign({}, state, {
+				knownHosts: action.knownHosts,
+			});
+		case SET_AUTO_APPROVE_PLAINTEXT_PASSWORD:
+			return Object.assign({}, state, {
+				autoApproveLdap: action.autoApproveLdap,
+			});
+		case SET_REMOTE_CONFIG_JSON:
+			return Object.assign({}, state, {
+				remoteConfigWebClientUrl: action.remoteConfigWebClientUrl,
+				remoteConfigJson: action.remoteConfigJson,
+			});
+		case SET_FINGERPRINT:
+			return Object.assign({}, state, {
+				fingerprint: action.fingerprint,
+			});
+		default:
+			return state;
+	}
+}
+
+export default persistent;

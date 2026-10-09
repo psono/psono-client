@@ -6,6 +6,7 @@ module.exports = {
     filename: '[name]',
   },
   resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm'],
     alias: {
       'react/jsx-runtime': require.resolve('react/jsx-runtime'),
       'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
@@ -21,7 +22,7 @@ module.exports = {
         type: 'asset/resource'
       },
       {
-        test: /\.js$/,
+        test: /\.[jt]sx?$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader"

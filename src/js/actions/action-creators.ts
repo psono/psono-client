@@ -1,0 +1,791 @@
+import type {
+	AppThunk,
+	ServerInfoPayload,
+	ServerPolicyPayload,
+	SettingsDatastorePayload,
+} from "../../types/actions";
+import type { DatastoreOverview, WriteResult } from "../../types/datastore";
+import type {
+	ClientState,
+	ConnectionAuthenticationEntry,
+	DomainSynonyms,
+	PersistentState,
+	ServerState,
+	SettingsState,
+	UserState,
+} from "../../types/state";
+import type {
+	NotificationMessage,
+	NotificationText,
+} from "../../types/utilities";
+import datastoreSettingService from "../services/datastore-setting";
+import { getStore } from "../services/store";
+import {
+	CLEAR_DEVICE_CODE,
+	DISABLE_OFFLINE_MODE,
+	ENABLE_OFFLINE_MODE,
+	LOGOUT,
+	NOTIFICATION_SEND,
+	NOTIFICATION_SET,
+	SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
+	SET_CLIENT_CONFIG,
+	SET_CLIENT_URL,
+	SET_CONNECTION_AUTHENTICATION,
+	SET_DEVICE_CODE,
+	SET_DISABLE_BROWSER_PM,
+	SET_DOMAIN_SYNONYMS_CONFIG,
+	SET_EMAIL,
+	SET_FINGERPRINT,
+	SET_GATEWAY_CLUSTER_SELECTION,
+	SET_GPG_CONFIG,
+	SET_HAS_TWO_FACTOR,
+	SET_HASHING_PARAMETERS,
+	SET_HIDE_DOWNLOAD_BANNER,
+	SET_KNOWN_HOSTS,
+	SET_LAST_POPUP_SEARCH,
+	SET_NOTIFICATION_ON_COPY,
+	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
+	SET_PASSWORD_CONFIG,
+	SET_PASSPHRASE_CONFIG,
+	SET_DEFAULT_PASSWORD_GENERATOR,
+	SET_REMOTE_CONFIG_JSON,
+	SET_REQUESTS_IN_PROGRESS,
+	SET_REQUIRE_PASSWORD_CHANGE,
+	SET_SERVER_INFO,
+	SET_SERVER_POLICY,
+	SET_SERVER_SECRET_EXISTS,
+	SET_SERVER_STATUS,
+	SET_SERVER_URL,
+	SET_SHOW_FILTERS,
+	SET_SHOWN_ENTRIES_CONFIG,
+	SET_USER_DATASTORE_OVERVIEW,
+	SET_USER_INFO_1,
+	SET_USER_INFO_2,
+	SET_USER_INFO_3,
+	SET_USER_PASSWORD_SHA1_PREFIX,
+	SET_USER_USERNAME,
+	SETTINGS_DATASTORE_LOADED,
+} from "./action-types";
+
+function setUserUsername(username: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_USER_USERNAME,
+			username,
+		});
+	};
+}
+
+function setUserInfo1(
+	rememberMe: boolean,
+	trustDevice: boolean,
+	authentication: UserState["authentication"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_USER_INFO_1,
+			rememberMe,
+			trustDevice,
+			authentication,
+		});
+	};
+}
+function setUserInfo2(
+	userPrivateKey: string,
+	userPublicKey: string,
+	sessionSecretKey: string,
+	token: string,
+	userSauce: string,
+	authentication: UserState["authentication"],
+	passwordSha1Prefix = "",
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_USER_INFO_2,
+			userPrivateKey: userPrivateKey,
+			userPublicKey: userPublicKey,
+			sessionSecretKey: sessionSecretKey,
+			token,
+			userSauce: userSauce,
+			authentication: authentication,
+			passwordSha1Prefix,
+		});
+	};
+}
+function setUserPasswordSha1Prefix(passwordSha1Prefix: string): AppThunk {
+	return (dispatch) => {
+		dispatch({ type: SET_USER_PASSWORD_SHA1_PREFIX, passwordSha1Prefix });
+	};
+}
+function setUserInfo3(
+	userId: string,
+	userEmail: string,
+	userSecretKey: string,
+	serverSecretExists: boolean,
+	requirePasswordChange = false,
+	defaultHashingAlgorithm = "scrypt",
+	defaultHashingParameters: UserState["defaultHashingParameters"] = {
+		u: 14,
+		r: 8,
+		p: 1,
+		l: 64,
+	},
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_USER_INFO_3,
+			userId: userId,
+			userEmail,
+			userSecretKey,
+			serverSecretExists,
+			requirePasswordChange,
+			defaultHashingAlgorithm,
+			defaultHashingParameters,
+		});
+	};
+}
+
+function setRequirePasswordChange(requirePasswordChange: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_REQUIRE_PASSWORD_CHANGE,
+			requirePasswordChange,
+		});
+	};
+}
+function sethashingParameters(
+	hashingAlgorithm: UserState["hashingAlgorithm"],
+	hashingParameters: UserState["hashingParameters"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_HASHING_PARAMETERS,
+			hashingAlgorithm: hashingAlgorithm,
+			hashingParameters: hashingParameters,
+		});
+	};
+}
+function setServerSecretExists(serverSecretExists: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SERVER_SECRET_EXISTS,
+			serverSecretExists: serverSecretExists,
+		});
+	};
+}
+function setHasTwoFactor(hasTwoFactor: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_HAS_TWO_FACTOR,
+			hasTwoFactor: hasTwoFactor,
+		});
+	};
+}
+
+function setEmail(userEmail: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_EMAIL,
+			userEmail,
+		});
+	};
+}
+
+function setUserDatastoreOverview(
+	userDatastoreOverview: DatastoreOverview,
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_USER_DATASTORE_OVERVIEW,
+			userDatastoreOverview,
+		});
+	};
+}
+
+function logout(rememberMe: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: LOGOUT,
+			rememberMe,
+		});
+	};
+}
+
+function setServerInfo(
+	info: ServerInfoPayload,
+	verifyKey: string | undefined,
+	adminRecoveryPublicKey: unknown = "",
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SERVER_INFO,
+			info,
+			verifyKey,
+			adminRecoveryPublicKey,
+		});
+	};
+}
+
+function setServerPolicy(policy: ServerPolicyPayload): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SERVER_POLICY,
+			policy,
+		});
+	};
+}
+
+function setServerUrl(url: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SERVER_URL,
+			url: url,
+		});
+	};
+}
+
+function setServerStatus(status: ServerState["status"]): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SERVER_STATUS,
+			status: status,
+		});
+	};
+}
+
+function setClientUrl(url: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_CLIENT_URL,
+			url: url,
+		});
+	};
+}
+function enableOfflineMode(): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: ENABLE_OFFLINE_MODE,
+		});
+	};
+}
+function disableOfflineMode(): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: DISABLE_OFFLINE_MODE,
+		});
+	};
+}
+function setOfflineCacheEncryptionInfo(
+	offlineCacheEncryptionKey: ClientState["offlineCacheEncryptionKey"],
+	offlineCacheEncryptionSalt: ClientState["offlineCacheEncryptionSalt"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_OFFLINE_CACHE_ENCRYPTION_INFO,
+			offlineCacheEncryptionKey,
+			offlineCacheEncryptionSalt,
+		});
+	};
+}
+function setNotificationOnCopy(notificationOnCopy: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_NOTIFICATION_ON_COPY,
+			notificationOnCopy,
+		});
+	};
+}
+function setDisableBrowserPm(disableBrowserPm: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_DISABLE_BROWSER_PM,
+			disableBrowserPm,
+		});
+	};
+}
+function setShowFilters(showFilters: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_SHOW_FILTERS,
+			showFilters,
+		});
+	};
+}
+function setHideDownloadBanner(hideDownloadBanner: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_HIDE_DOWNLOAD_BANNER,
+			hideDownloadBanner,
+		});
+	};
+}
+function setLastPopupSearch(lastPopupSearch: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_LAST_POPUP_SEARCH,
+			lastPopupSearch,
+		});
+	};
+}
+function settingsDatastoreLoaded(data: SettingsDatastorePayload): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SETTINGS_DATASTORE_LOADED,
+			data,
+		});
+	};
+}
+
+let settingsPersistenceQueue: Promise<unknown> = Promise.resolve();
+
+function enqueueSettingsPersistence<Result>(
+	operation: (userId: string) => Promise<Result>,
+	rejectOnStaleUser: true,
+): Promise<Result>;
+function enqueueSettingsPersistence<Result>(
+	operation: (userId: string) => Promise<Result>,
+	rejectOnStaleUser?: false,
+): Promise<Result | undefined>;
+function enqueueSettingsPersistence<Result>(
+	operation: (userId: string) => Promise<Result>,
+	rejectOnStaleUser = false,
+): Promise<Result | undefined> {
+	const userId = getStore().getState().user?.userId;
+	const result = settingsPersistenceQueue
+		.catch(() => undefined)
+		.then(() => {
+			if (getStore().getState().user?.userId !== userId) {
+				if (rejectOnStaleUser) {
+					return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+				}
+				return undefined;
+			}
+			return operation(userId);
+		});
+	settingsPersistenceQueue = result;
+	return result;
+}
+
+function persistSettingsDatastore(overrides: Partial<SettingsState>) {
+	return enqueueSettingsPersistence(() => {
+		return datastoreSettingService.saveSettingsDatastore(
+			datastoreSettingService.serializeSettingsDatastore(overrides),
+		);
+	});
+}
+
+function setPassphraseConfig(
+	passphraseWordCount: number,
+	passphraseLanguage: string,
+	defaultPasswordGenerator?: "password" | "passphrase",
+): AppThunk {
+	const config = {
+		passphraseWordCount,
+		passphraseLanguage,
+		defaultPasswordGenerator,
+	};
+	persistSettingsDatastore(config);
+	return (dispatch) => {
+		dispatch({ type: SET_PASSPHRASE_CONFIG, ...config });
+	};
+}
+
+function setDefaultPasswordGenerator(
+	defaultPasswordGenerator: "password" | "passphrase",
+): AppThunk {
+	persistSettingsDatastore({ defaultPasswordGenerator });
+	return (dispatch) => {
+		dispatch({
+			type: SET_DEFAULT_PASSWORD_GENERATOR,
+			defaultPasswordGenerator,
+		});
+	};
+}
+
+function setPasswordConfig(
+	passwordLength: SettingsState["passwordLength"],
+	passwordLettersUppercase: string,
+	passwordLettersLowercase: string,
+	passwordNumbers: string,
+	passwordSpecialChars: string,
+): AppThunk {
+	persistSettingsDatastore({
+		passwordLength,
+		passwordLettersUppercase,
+		passwordLettersLowercase,
+		passwordNumbers,
+		passwordSpecialChars,
+	});
+	return (dispatch) => {
+		dispatch({
+			type: SET_PASSWORD_CONFIG,
+			passwordLength,
+			passwordLettersUppercase,
+			passwordLettersLowercase,
+			passwordNumbers,
+			passwordSpecialChars,
+		});
+	};
+}
+
+function setClientOptionsConfig(
+	clipboardClearDelay: number,
+	noSaveMode: SettingsState["noSaveMode"],
+	showNoSaveToggle: SettingsState["showNoSaveToggle"],
+	confirmOnUnsavedChanges: SettingsState["confirmOnUnsavedChanges"],
+	useMarkdownForNotes: boolean,
+): AppThunk {
+	persistSettingsDatastore({
+		clipboardClearDelay,
+		noSaveMode,
+		showNoSaveToggle,
+		confirmOnUnsavedChanges,
+		useMarkdownForNotes,
+	});
+
+	return (dispatch) => {
+		dispatch({
+			type: SET_CLIENT_CONFIG,
+			clipboardClearDelay,
+			noSaveMode,
+			showNoSaveToggle,
+			confirmOnUnsavedChanges,
+			useMarkdownForNotes,
+		});
+	};
+}
+
+function setDomainSynonymsConfig(
+	customDomainSynonyms: DomainSynonyms,
+): AppThunk {
+	persistSettingsDatastore({ customDomainSynonyms });
+
+	return (dispatch) => {
+		dispatch({
+			type: SET_DOMAIN_SYNONYMS_CONFIG,
+			customDomainSynonyms,
+		});
+	};
+}
+
+function setShownEntriesConfig(
+	showWebsitePassword: boolean,
+	showApplicationPassword: boolean,
+	showTOTPAuthenticator: boolean,
+	showPasskey: boolean,
+	showNote: boolean,
+	showEnvironmentVariables: boolean,
+	showSSHKey: boolean,
+	showGPGKey: boolean,
+	showSSHConnection: boolean,
+	showRDPConnection: boolean,
+	showVNCConnection: boolean,
+	showCreditCard: boolean,
+	showBookmark: boolean,
+	showIdentity: boolean,
+	showElsterCertificate: boolean,
+	showFile: boolean,
+): AppThunk {
+	persistSettingsDatastore({
+		showWebsitePassword,
+		showApplicationPassword,
+		showTOTPAuthenticator,
+		showPasskey,
+		showNote,
+		showEnvironmentVariables,
+		showSSHKey,
+		showGPGKey,
+		showSSHConnection,
+		showRDPConnection,
+		showVNCConnection,
+		showCreditCard,
+		showBookmark,
+		showIdentity,
+		showElsterCertificate,
+		showFile,
+	});
+	return (dispatch) => {
+		dispatch({
+			type: SET_SHOWN_ENTRIES_CONFIG,
+			showWebsitePassword,
+			showApplicationPassword,
+			showTOTPAuthenticator,
+			showPasskey,
+			showNote,
+			showEnvironmentVariables,
+			showSSHKey,
+			showGPGKey,
+			showSSHConnection,
+			showRDPConnection,
+			showVNCConnection,
+			showCreditCard,
+			showBookmark,
+			showIdentity,
+			showElsterCertificate,
+			showFile,
+		});
+	};
+}
+function setGpgConfig(
+	gpgDefaultKey: SettingsState["gpgDefaultKey"],
+	gpgHkpKeyServer: string,
+	gpgHkpSearch: SettingsState["gpgHkpSearch"],
+): AppThunk {
+	persistSettingsDatastore({ gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch });
+	return (dispatch) => {
+		dispatch({
+			type: SET_GPG_CONFIG,
+			gpgDefaultKey,
+			gpgHkpKeyServer,
+			gpgHkpSearch,
+		});
+	};
+}
+
+function setConnectionAuthentication(
+	connectionSecretId: string,
+	authentication: ConnectionAuthenticationEntry | null | undefined,
+): AppThunk<Promise<WriteResult>> {
+	return (dispatch) => {
+		return enqueueSettingsPersistence((userId) => {
+			const current = getStore().getState().settingsDatastore
+				.connectionAuthentication || {
+				schema_version: 1,
+				by_connection_secret_id: {},
+			};
+			const byConnectionSecretId = Object.assign(
+				{},
+				current.by_connection_secret_id || {},
+			);
+
+			if (authentication === null || typeof authentication === "undefined") {
+				delete byConnectionSecretId[connectionSecretId];
+			} else {
+				byConnectionSecretId[connectionSecretId] = authentication;
+			}
+
+			const connectionAuthentication = Object.assign({}, current, {
+				schema_version: 1,
+				by_connection_secret_id: byConnectionSecretId,
+			});
+			return datastoreSettingService
+				.saveSettingsDatastore(
+					datastoreSettingService.serializeSettingsDatastore({
+						connectionAuthentication,
+					}),
+				)
+				.then((result) => {
+					if (
+						typeof result === "undefined" ||
+						getStore().getState().user?.userId !== userId
+					) {
+						return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+					}
+					dispatch({
+						type: SET_CONNECTION_AUTHENTICATION,
+						connectionAuthentication,
+					});
+					return result;
+				});
+		}, true);
+	};
+}
+
+function setGatewayClusterSelection(
+	connectionSecretId: string,
+	clusterId: string | null | undefined,
+): AppThunk<Promise<WriteResult>> {
+	return (dispatch) => {
+		return enqueueSettingsPersistence((userId) => {
+			const current = getStore().getState().settingsDatastore
+				.gatewayClusterSelection || {
+				schema_version: 1,
+				by_connection_secret_id: {},
+			};
+			const byConnectionSecretId = Object.assign(
+				{},
+				current.by_connection_secret_id || {},
+			);
+
+			if (clusterId === null || typeof clusterId === "undefined") {
+				delete byConnectionSecretId[connectionSecretId];
+			} else {
+				byConnectionSecretId[connectionSecretId] = clusterId;
+			}
+
+			const gatewayClusterSelection = Object.assign({}, current, {
+				schema_version: 1,
+				by_connection_secret_id: byConnectionSecretId,
+			});
+			return datastoreSettingService
+				.saveSettingsDatastore(
+					datastoreSettingService.serializeSettingsDatastore({
+						gatewayClusterSelection,
+					}),
+				)
+				.then((result) => {
+					if (
+						typeof result === "undefined" ||
+						getStore().getState().user?.userId !== userId
+					) {
+						return Promise.reject({ code: "SETTINGS_PERSISTENCE_FAILED" });
+					}
+					dispatch({
+						type: SET_GATEWAY_CLUSTER_SELECTION,
+						gatewayClusterSelection,
+					});
+					return result;
+				});
+		}, true);
+	};
+}
+
+function setKnownHosts(knownHosts: PersistentState["knownHosts"]): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_KNOWN_HOSTS,
+			knownHosts: knownHosts,
+		});
+	};
+}
+
+function setAutoApproveLdap(
+	autoApproveLdap: PersistentState["autoApproveLdap"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
+			autoApproveLdap: autoApproveLdap,
+		});
+	};
+}
+
+function setFingerprint(fingerprint: PersistentState["fingerprint"]): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_FINGERPRINT,
+			fingerprint,
+		});
+	};
+}
+
+function setRemoteConfigJson(
+	remoteConfigWebClientUrl: PersistentState["remoteConfigWebClientUrl"],
+	remoteConfigJson: PersistentState["remoteConfigJson"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_REMOTE_CONFIG_JSON,
+			remoteConfigWebClientUrl: remoteConfigWebClientUrl,
+			remoteConfigJson: remoteConfigJson,
+		});
+	};
+}
+
+function sendNotification(
+	message: NotificationText,
+	messageType: NotificationMessage["type"],
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: NOTIFICATION_SEND,
+			message: message,
+			messageType: messageType,
+		});
+	};
+}
+
+function setNotifications(messages: NotificationMessage[]): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: NOTIFICATION_SET,
+			messages: messages,
+		});
+	};
+}
+
+function setRequestsInProgress(
+	requestCounterOpen: number,
+	requestCounterClosed: number,
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_REQUESTS_IN_PROGRESS,
+			requestCounterOpen: requestCounterOpen,
+			requestCounterClosed: requestCounterClosed,
+		});
+	};
+}
+
+/**
+ *
+ * @param {string} id
+ * @param {string} secretBoxKey
+ * @returns
+ */
+function setDeviceCode(id: string, secretBoxKey: string): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_DEVICE_CODE,
+			id,
+			secretBoxKey,
+		});
+	};
+}
+
+function clearDeviceCode(): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: CLEAR_DEVICE_CODE,
+		});
+	};
+}
+
+const actionCreators = {
+	setUserUsername,
+	setUserInfo1,
+	setUserInfo2,
+	setUserPasswordSha1Prefix,
+	setUserInfo3,
+	setRequirePasswordChange,
+	sethashingParameters,
+	setServerSecretExists,
+	setHasTwoFactor,
+	setEmail,
+	setUserDatastoreOverview,
+	logout,
+	setServerInfo,
+	setServerPolicy,
+	setServerUrl,
+	setServerStatus,
+	setClientUrl,
+	disableOfflineMode,
+	enableOfflineMode,
+	setOfflineCacheEncryptionInfo,
+	setNotificationOnCopy,
+	setDisableBrowserPm,
+	setShowFilters,
+	setHideDownloadBanner,
+	setLastPopupSearch,
+	setPasswordConfig,
+	setPassphraseConfig,
+	setDefaultPasswordGenerator,
+	setShownEntriesConfig,
+	setGpgConfig,
+	settingsDatastoreLoaded,
+	setKnownHosts,
+	setAutoApproveLdap,
+	setFingerprint,
+	setRemoteConfigJson,
+	sendNotification,
+	setNotifications,
+	setRequestsInProgress,
+	setClientOptionsConfig,
+	setDomainSynonymsConfig,
+	setConnectionAuthentication,
+	setGatewayClusterSelection,
+	setDeviceCode,
+	clearDeviceCode,
+};
+
+export default actionCreators;

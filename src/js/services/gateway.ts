@@ -1,0 +1,445 @@
+import action from "../actions/bound-action-creators";
+import apiClient from "./api-client";
+import connectionCredentialsService from "./connection-credentials";
+import cryptoLibrary from "./crypto-library";
+import secretService from "./secret";
+import storage from "./storage";
+import { getStore } from "./store";
+import type {
+	GatewayAuthentication,
+	GatewayPayload,
+	GatewayWindow,
+} from "../../types/gateway";
+import type { SecretContent, SecretReference } from "../../types/vault";
+
+const GUACAMOLE_CONNECTION_CLIENT_ID = "cHNvbm8tY29ubmVjdGlvbgBjAHBzb25v";
+const MAX_HOSTNAME_LENGTH = 253;
+const MAX_USERNAME_LENGTH = 256;
+const MAX_PASSWORD_LENGTH = 4096;
+const MAX_DOMAIN_LENGTH = 256;
+const MAX_PRIVATE_KEY_LENGTH = 64 * 1024;
+const RDP_RESIZE_METHODS = new Set(["", "display-update", "reconnect"]);
+const RDP_SERVER_LAYOUTS = new Set([
+	"cs-cz-qwertz",
+	"da-dk-qwerty",
+	"de-ch-qwertz",
+	"de-de-qwertz",
+	"en-gb-qwerty",
+	"en-us-qwerty",
+	"es-es-qwerty",
+	"es-latam-qwerty",
+	"failsafe",
+	"fr-be-azerty",
+	"fr-ca-qwerty",
+	"fr-ch-qwertz",
+	"fr-fr-azerty",
+	"hu-hu-qwertz",
+	"it-it-qwerty",
+	"ja-jp-qwerty",
+	"no-no-qwerty",
+	"pl-pl-qwerty",
+	"pt-br-qwerty",
+	"pt-pt-qwerty",
+	"ro-ro-qwerty",
+	"sv-se-qwerty",
+	"tr-tr-qwerty",
+]);
+
+function gatewayError(code: string) {
+	return { code, non_field_errors: [code] };
+}
+
+function hasForbiddenControlCharacter(
+	value: string,
+	multilineAllowed: boolean,
+): boolean {
+	for (let index = 0; index < value.length; index += 1) {
+		const code = value.charCodeAt(index);
+		const isControl = code <= 0x1f || (code >= 0x7f && code <= 0x9f);
+		if (
+			isControl &&
+			!(multilineAllowed && (code === 0x09 || code === 0x0a || code === 0x0d))
+		) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function validString(
+	value: unknown,
+	maximumLength: number,
+	emptyAllowed: boolean,
+	multilineAllowed: boolean,
+): value is string {
+	return (
+		typeof value === "string" &&
+		(emptyAllowed || value.length > 0) &&
+		value.length <= maximumLength &&
+		!hasForbiddenControlCharacter(value, multilineAllowed)
+	);
+}
+
+function validHostname(value: unknown): value is string {
+	return (
+		validString(value, MAX_HOSTNAME_LENGTH, false, false) &&
+		!/[\s/\\?#]/u.test(value)
+	);
+}
+
+function buildPayload(
+	type: string,
+	connection: SecretContent | null | undefined,
+	authentication: GatewayAuthentication | null | undefined,
+): GatewayPayload {
+	if (!authentication || !connection) {
+		throw gatewayError("GATEWAY_CREDENTIALS_MISSING");
+	}
+
+	if (type === "ssh_connection") {
+		const hostname = connection.ssh_connection_host;
+		const port = Number(connection.ssh_connection_port);
+		if (
+			!validHostname(hostname) ||
+			!Number.isInteger(port) ||
+			port < 1 ||
+			port > 65535
+		) {
+			throw gatewayError("GATEWAY_CONNECTION_INVALID");
+		}
+		if (
+			authentication.type !== "password" &&
+			authentication.type !== "private_key"
+		) {
+			throw gatewayError("GATEWAY_CREDENTIALS_MISSING");
+		}
+		if (
+			!validString(authentication.username, MAX_USERNAME_LENGTH, false, false)
+		) {
+			throw gatewayError("GATEWAY_CREDENTIALS_MISSING");
+		}
+		if (
+			authentication.type === "password" &&
+			!validString(authentication.password, MAX_PASSWORD_LENGTH, false, false)
+		) {
+			throw gatewayError("GATEWAY_CREDENTIALS_MISSING");
+		}
+		if (
+			authentication.type === "private_key" &&
+			!validString(
+				authentication.private_key,
+				MAX_PRIVATE_KEY_LENGTH,
+				false,
+				true,
+			)
+		) {
+			throw gatewayError("GATEWAY_CREDENTIALS_MISSING");
+		}
+		const payload: GatewayPayload = {
+			version: 1,
+			protocol: "ssh",
+			hostname,
+			port,
+			authentication: {
+				type: authentication.type,
+				username: authentication.username,
+			},
+		};
+		if (authentication.type === "password") {
+			payload.authentication.password = authentication.password;
+		} else {
+			payload.authentication.private_key = authentication.private_key;
+		}
+		return payload;
+	}
+
+	if (type === "rdp_connection") {
+		const hostname = connection.rdp_connection_host;
+		const port = Number(connection.rdp_connection_port);
+		const domain = connection.rdp_connection_domain || "";
+		const ignoreCertificate =
+			connection.rdp_connection_ignore_certificate === true;
+		const resizeMethod =
+			connection.rdp_connection_resize_method ?? "display-update";
+		const serverLayout =
+			connection.rdp_connection_server_layout || "en-us-qwerty";
+		if (
+			!validHostname(hostname) ||
+			!Number.isInteger(port) ||
+			port < 1 ||
+			port > 65535 ||
+			authentication.type !== "password" ||
+			!validString(
+				authentication.username,
+				MAX_USERNAME_LENGTH,
+				false,
+				false,
+			) ||
+			!validString(
+				authentication.password,
+				MAX_PASSWORD_LENGTH,
+				false,
+				false,
+			) ||
+			!validString(domain, MAX_DOMAIN_LENGTH, true, false) ||
+			!RDP_RESIZE_METHODS.has(resizeMethod as string) ||
+			!RDP_SERVER_LAYOUTS.has(serverLayout as string)
+		) {
+			throw gatewayError("GATEWAY_CONNECTION_INVALID");
+		}
+		const payload: GatewayPayload = {
+			version: 1,
+			protocol: "rdp",
+			hostname,
+			port,
+			domain,
+			ignore_certificate: ignoreCertificate,
+			authentication: {
+				type: "password",
+				username: authentication.username,
+				password: authentication.password,
+			},
+		};
+		if (resizeMethod !== "display-update") {
+			payload.resize_method = resizeMethod as string;
+		}
+		if (serverLayout !== "en-us-qwerty") {
+			payload.server_layout = serverLayout as string;
+		}
+		return payload;
+	}
+
+	if (type === "vnc_connection") {
+		const hostname = connection.vnc_connection_host;
+		const port = Number(connection.vnc_connection_port);
+		const username = authentication.username || "";
+		if (
+			!validHostname(hostname) ||
+			!Number.isInteger(port) ||
+			port < 1 ||
+			port > 65535 ||
+			authentication.type !== "password" ||
+			!validString(username, MAX_USERNAME_LENGTH, true, false) ||
+			!validString(authentication.password, MAX_PASSWORD_LENGTH, false, false)
+		) {
+			throw gatewayError("GATEWAY_CONNECTION_INVALID");
+		}
+		return {
+			version: 1,
+			protocol: "vnc",
+			hostname,
+			port,
+			authentication: {
+				type: "password",
+				username,
+				password: authentication.password,
+			},
+		};
+	}
+
+	throw gatewayError("GATEWAY_CONNECTION_INVALID");
+}
+
+function buildGatewayUrl(
+	gatewayUrl: string,
+	launchId: string,
+	key: string,
+): string {
+	let url;
+	try {
+		url = new URL(gatewayUrl);
+	} catch (_error) {
+		throw gatewayError("GATEWAY_URL_INVALID");
+	}
+	if (url.protocol !== "http:" && url.protocol !== "https:") {
+		throw gatewayError("GATEWAY_URL_INVALID");
+	}
+	if (
+		url.protocol === "http:" &&
+		!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)
+	) {
+		throw gatewayError("GATEWAY_URL_INVALID");
+	}
+	url.hash = `#/client/${GUACAMOLE_CONNECTION_CLIENT_ID}?${new URLSearchParams({
+		"psono-launch": launchId,
+		"psono-key": key,
+	}).toString()}`;
+	return url.toString();
+}
+
+function openGatewayWindow(): Window {
+	const gatewayWindow = window.open("about:blank", "_blank");
+	if (!gatewayWindow) {
+		throw gatewayError("GATEWAY_POPUP_BLOCKED");
+	}
+	gatewayWindow.opener = null;
+	return gatewayWindow;
+}
+
+function closeGatewayWindow(gatewayWindow?: GatewayWindow | null): void {
+	try {
+		gatewayWindow?.close();
+	} catch (_error) {
+		// The browser owns this window and may have already closed it.
+	}
+}
+
+function openGatewayUrl(
+	url: string,
+	gatewayWindow?: GatewayWindow | null,
+): GatewayWindow {
+	const targetWindow = gatewayWindow || openGatewayWindow();
+	try {
+		targetWindow.location.replace(url);
+	} catch (error) {
+		closeGatewayWindow(targetWindow);
+		throw error;
+	}
+	return targetWindow;
+}
+
+async function resolveItem(
+	itemOrSecretId: string | Partial<SecretReference> | null | undefined,
+) {
+	if (typeof itemOrSecretId !== "string") {
+		return itemOrSecretId;
+	}
+	const leaf = await storage.findKey(
+		"datastore-password-leafs",
+		itemOrSecretId,
+	);
+	if (!leaf) {
+		throw gatewayError("GATEWAY_CONNECTION_INVALID");
+	}
+	return Object.assign({}, leaf, { secret_id: itemOrSecretId });
+}
+
+async function launch(
+	itemOrSecretId: string | Partial<SecretReference> | null | undefined,
+	clusterId: string,
+	gatewayWindow?: GatewayWindow | null,
+) {
+	const targetWindow = gatewayWindow || openGatewayWindow();
+	try {
+		const item = await resolveItem(itemOrSecretId);
+		if (
+			!item ||
+			!["ssh_connection", "rdp_connection", "vnc_connection"].includes(
+				item.type!,
+			) ||
+			!item.secret_id ||
+			!item.secret_key
+		) {
+			throw gatewayError("GATEWAY_CONNECTION_INVALID");
+		}
+
+		const connection = await secretService.readSecret(
+			item.secret_id,
+			item.secret_key,
+		);
+		const authentication =
+			await connectionCredentialsService.resolveConnectionAuthentication(
+				item.type!,
+				item.secret_id,
+				connection,
+				secretService.readSecret,
+			);
+		const payload = buildPayload(item.type!, connection, authentication);
+		const key = cryptoLibrary.generateSecretKey();
+		const encrypted = cryptoLibrary.encryptData(JSON.stringify(payload), key);
+		const state = getStore().getState();
+		const response = await apiClient.launchGateway(
+			state.user.token,
+			state.user.sessionSecretKey,
+			clusterId,
+			item.secret_id,
+			encrypted.text,
+			encrypted.nonce,
+		);
+		const url = buildGatewayUrl(
+			response.data.gateway_url,
+			response.data.launch_id,
+			key,
+		);
+		openGatewayUrl(url, targetWindow);
+		return response.data;
+	} catch (error) {
+		closeGatewayWindow(targetWindow);
+		throw error;
+	}
+}
+
+function getRememberedClusterId(connectionSecretId: string): string | null {
+	return (
+		getStore().getState().settingsDatastore.gatewayClusterSelection
+			?.by_connection_secret_id?.[connectionSecretId] || null
+	);
+}
+
+async function prepareLaunch(item: SecretReference) {
+	const gatewayWindow = openGatewayWindow();
+	try {
+		const state = getStore().getState();
+		const response = await apiClient.getGatewayClusters(
+			state.user.token,
+			state.user.sessionSecretKey,
+		);
+		const clusters = Array.isArray(response.data.clusters)
+			? response.data.clusters
+			: [];
+		if (clusters.length === 0) {
+			throw gatewayError("GATEWAY_NO_CLUSTERS");
+		}
+
+		const rememberedClusterId = getRememberedClusterId(item.secret_id);
+		const rememberedCluster = clusters.find(
+			(cluster) => cluster.id === rememberedClusterId,
+		);
+		if (rememberedCluster) {
+			await launch(item, rememberedCluster.id, gatewayWindow);
+			return { launched: true, clusters };
+		}
+		if (rememberedClusterId) {
+			await action().setGatewayClusterSelection(item.secret_id, null);
+		}
+		if (clusters.length === 1) {
+			await launch(item, clusters[0].id, gatewayWindow);
+			return { launched: true, clusters };
+		}
+		closeGatewayWindow(gatewayWindow);
+		return { launched: false, clusters };
+	} catch (error) {
+		closeGatewayWindow(gatewayWindow);
+		throw error;
+	}
+}
+
+async function launchSelected(
+	item: SecretReference,
+	clusterId: string,
+	remember?: boolean,
+) {
+	const gatewayWindow = openGatewayWindow();
+	try {
+		if (remember) {
+			await action().setGatewayClusterSelection(item.secret_id, clusterId);
+		}
+		return await launch(item, clusterId, gatewayWindow);
+	} catch (error) {
+		closeGatewayWindow(gatewayWindow);
+		throw error;
+	}
+}
+
+const gatewayService = {
+	buildGatewayUrl,
+	buildPayload,
+	getRememberedClusterId,
+	launch,
+	launchSelected,
+	openGatewayUrl,
+	openGatewayWindow,
+	prepareLaunch,
+};
+
+export default gatewayService;

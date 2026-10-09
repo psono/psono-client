@@ -21,9 +21,9 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    'js/bundle.min.js': './src/js/index.js',
-    'js/crypto-worker.js': './src/js/crypto-worker.js',
-    'js/background-chrome.js': './src/js/background-chrome.js',
+    'js/bundle.min.js': './src/js/index.tsx',
+    'js/crypto-worker.js': './src/js/crypto-worker.ts',
+    'js/background-chrome.js': './src/js/background-chrome.ts',
   },
   output: {
     filename: '[name]',

@@ -8,6 +8,29 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 	const buttonImage =
 		"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CiAgICA8ZyBpZD0ic3VyZmFjZTEiPgogICAgICAgIDxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMCwxOTAsMjU1KTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgogICAgICAgIDxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMCwxOTAsMjU1KTsiIGQ9Ik0gNS4xNjAxNTYgNS44NjcxODggTCA3LjU3MDMxMiA3LjIxODc1IEwgOS45MjE4NzUgNS45NTMxMjUgTCA3LjU2NjQwNiA0LjY1MjM0NCBaIE0gNS4xNjAxNTYgNS44NjcxODggIi8+CiAgICAgICAgPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigwLDE5MCwyNTUpOyIgZD0iTSAwLjY5NTMxMiAzLjc3MzQzOCBMIDAuNjk1MzEyIDExLjIxMDkzOCBMIDMuMTc1NzgxIDEyLjUzMTI1IEwgMy4xOTUzMTIgNS4xNzk2ODggWiBNIDAuNjk1MzEyIDMuNzczNDM4ICIvPgogICAgICAgIDxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMCwxOTAsMjU1KTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KICAgICAgICA8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDAsMTkwLDI1NSk7IiBkPSJNIDExLjg5ODQzOCA1LjE3OTY4OCBMIDExLjkxNDA2MiA5LjExNzE4OCBMIDcuNTY2NDA2IDExLjQ4ODI4MSBMIDUuMTc1NzgxIDEwLjI0MjE4OCBMIDUuMTc1NzgxIDEzLjYzMjgxMiBMIDcuNTQ2ODc1IDE0Ljk1MzEyNSBMIDE0LjQxNzk2OSAxMS4yMDcwMzEgTCAxNC4zNzg5MDYgMy44Mzk4NDQgWiBNIDExLjg5ODQzOCA1LjE3OTY4OCAiLz4KICAgIDwvZz4KPC9zdmc+Cg==";
 
+	// Same StorageRounded icon path as the popup's datastore button.
+	// Elster's CSS resets SVG path properties, so render the icon as an image.
+	const storageRoundedPath =
+		"M4 20h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2s.9 2 2 2m0-3h2v2H4zM2 6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2m4 1H4V5h2zm-2 7h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2s.9 2 2 2m0-3h2v2H4z";
+	function storageIconImage(color, className) {
+		const svg =
+			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="' +
+			color +
+			'"><path d="' +
+			storageRoundedPath +
+			'"/></svg>';
+		return (
+			'<img alt="" aria-hidden="true" width="20" height="20" class="' +
+			className +
+			'" src="data:image/svg+xml,' +
+			encodeURIComponent(svg) +
+			'">'
+		);
+	}
+	const storageRoundedIcon =
+		storageIconImage("#b1b6c1", "psono-selector-icon-normal") +
+		storageIconImage("#2dbb93", "psono-selector-icon-hover");
+
 	base.ready(() => {
 		activate();
 	});
@@ -237,31 +260,26 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 				const requestSecretClasses = [];
 
 				let dropcontent = "";
-				dropcontent += '<div class="psono-drop-content-inner">';
-				dropcontent += '<ul class="navigations">';
 
 				const isLogged = await new Promise((resolve) => {
 					base.emit("is-logged-in", undefined, (state) => {
 						resolve(state);
 					});
 				});
+				dropcontent +=
+					'<div class="psono-drop-content-inner psono-elster-selector' +
+					(!isLogged ? " psono-selector-compact" : "") +
+					'">';
+				dropcontent += '<ul class="navigations">';
 
-				if (!isLogged) {
-					dropcontent +=
-						'<li><div class="' +
-						openDatastoreClass +
-						'" style="cursor: pointer !important;">Login</div></li>';
-				} else {
-					dropcontent +=
-						'<li><div class="' +
-						openDatastoreClass +
-						'" style="cursor: pointer !important;">Open Datastore</div></li>';
+				if (isLogged) {
 					if (response.data.length < 1) {
-						dropcontent += "<li>No certificates found</li>";
+						dropcontent +=
+							'<li class="psono-elster-empty">No certificates found</li>';
 					}
 					if (response.data.length > 5) {
 						dropcontent +=
-							'<li><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
+							'<li class="psono-elster-search"><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
 					}
 					for (let i = 0; i < response.data.length; i++) {
 						const sanitizedText = sanitizeText(response.data[i].name);
@@ -275,9 +293,9 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 							style +
 							'"><div class="' +
 							requestSecretClass +
-							'" style="cursor: pointer !important;"">' +
+							'" style="cursor: pointer !important;"><span class="psono-entry-dot" aria-hidden="true"></span><span class="psono-entry-label">' +
 							sanitizedText +
-							"</div></li>";
+							"</span></div></li>";
 						requestSecretClasses.push({
 							class: requestSecretClass,
 							secret_id: response.data[i].secret_id,
@@ -286,6 +304,17 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 				}
 
 				dropcontent += "</ul>";
+				const datastoreLabel = isLogged ? "Open Datastore" : "Login";
+				dropcontent +=
+					'<div class="psono-selector-actions"><button type="button" class="psono-selector-action ' +
+					openDatastoreClass +
+					'" title="' +
+					datastoreLabel +
+					'" aria-label="' +
+					datastoreLabel +
+					'">' +
+					storageRoundedIcon +
+					"</button></div>";
 				dropcontent += "</div>";
 
 				// lastRequestElement = evt.target;
@@ -383,7 +412,10 @@ var ClassWorkerContentScriptElster = (base, browser, setTimeout) => {
 			"style",
 			`transform: translateX(${position.left}px) translateY(${position.top + height}px) translateZ(0px) !important`,
 		);
-		element.innerHTML = '<div class="psono-drop-content">' + content + "</div>";
+		element.innerHTML =
+			'<div class="psono-drop-content psono-elster-surface">' +
+			content +
+			"</div>";
 
 		const onDocumentClick = (event) => {
 			const eventPath =

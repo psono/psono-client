@@ -1,0 +1,233 @@
+import converterService from "./converter";
+
+describe("Service: converter test suite", () => {
+	it("converter exists", () => {
+		expect(converterService).toBeDefined();
+	});
+
+	it("toHex returns real hex values", () => {
+		return expect(
+			converterService.toHex(
+				new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]),
+			),
+		).toBe("000102030405060708090a0b0c0d0e0f");
+	});
+
+	it("fromHex returns the true Uint8Array", () => {
+		return expect(
+			converterService.toHex(
+				converterService.fromHex("000102030405060708090a0b0c0d0e0f"),
+			),
+		).toBe("000102030405060708090a0b0c0d0e0f");
+	});
+
+	it("toBase58 returns the true Uint8Array", () => {
+		return expect(
+			converterService.toBase58(
+				new Uint8Array([
+					0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+					20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+					37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
+					54, 55, 56, 57,
+				]),
+			),
+		).toBe(
+			"17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr",
+		);
+	});
+
+	it("fromBase58 returns the true Uint8Array", () => {
+		return expect(
+			converterService.toBase58(
+				converterService.fromBase58(
+					"17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr",
+				),
+			),
+		).toBe(
+			"17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr",
+		);
+	});
+
+	it("hexToBase58", () => {
+		return expect(
+			converterService.hexToBase58("000102030405060708090a0b0c0d0e0f"),
+		).toBe("12drXXUifSrRnXLGbXg8E");
+	});
+
+	it("base58ToHex", () => {
+		return expect(converterService.base58ToHex("12drXXUifSrRnXLGbXg8E")).toBe(
+			"000102030405060708090a0b0c0d0e0f",
+		);
+	});
+
+	it("uuidToHex", () => {
+		return expect(
+			converterService.uuidToHex("3682454d-d080-44c2-b58c-721ef6459e32"),
+		).toBe("3682454dd08044c2b58c721ef6459e32");
+	});
+
+	it("hexToUuid", () => {
+		return expect(
+			converterService.hexToUuid("28b461d094d84a32b546f8cc382d49f0"),
+		).toBe("28b461d0-94d8-4a32-b546-f8cc382d49f0");
+	});
+
+	it("wordsToHex", () => {
+		return expect(
+			converterService.wordsToHex([
+				"lazy",
+				"lock",
+				"lock",
+				"price",
+				"economy",
+				"enable",
+				"arctic",
+				"animal",
+				"aunt",
+				"damp",
+				"novel",
+				"party",
+			]),
+		).toBe("000102030405060708090a0b0c0d0e0f");
+	});
+
+	it("hexToWords", () => {
+		return expect(
+			converterService.hexToWords("000102030405060708090a0b0c0d0e0f"),
+		).toEqual([
+			"lazy",
+			"lock",
+			"lock",
+			"price",
+			"economy",
+			"enable",
+			"arctic",
+			"animal",
+			"aunt",
+			"damp",
+			"novel",
+			"party",
+		]);
+	});
+
+	it("fromBaseX:ambiguous alphabet", () => {
+		return expect(() => {
+			converterService.fromBaseX("ABAAAB", "ABB");
+		}).toThrow(new TypeError("B is ambiguous"));
+	});
+
+	it("fromBaseX:value not in alphabet", () => {
+		return expect(() => {
+			converterService.fromBaseX("AZB", "AB");
+		}).toThrow(new Error("Non-base2 character"));
+	});
+
+	it("fromBaseX:val.length = 0", () => {
+		return expect(converterService.fromBaseX("", "AB")).toEqual(
+			new Uint8Array(0),
+		);
+	});
+
+	it("toBaseX", () => {
+		return expect(converterService.toBaseX(new Uint8Array(0), "AB")).toBe("");
+	});
+
+	it("encodeLatin1", () => {
+		const to_encode = String.fromCharCode(0x100);
+		return expect(() => {
+			converterService.encodeLatin1(to_encode);
+		}).toThrow(new Error("Cannot encode string in Latin1:" + to_encode));
+	});
+
+	it("encodes only the bytes in a typed-array view", () => {
+		const source = new Uint8Array([254, 0, 251, 255, 254]);
+		const view = source.subarray(1, 4);
+
+		expect(converterService.arrayBufferToBase64(view)).toBe("APv/");
+		expect(converterService.arrayBufferToBase64Url(view)).toBe("APv_");
+		expect(
+			new Uint8Array(converterService.base64UrlToArrayBuffer("APv_")),
+		).toEqual(view);
+		expect(converterService.arrayBufferToBase64(view.slice().buffer)).toBe(
+			"APv/",
+		);
+	});
+
+	it.each([
+		null,
+		undefined,
+	])("encodes an absent buffer %s as empty", (buffer) => {
+		expect(converterService.arrayBufferToBase64(buffer)).toBe("");
+		expect(converterService.arrayBufferToBase64Url(buffer)).toBe("");
+	});
+
+	it("round-trips multibyte UTF-8 text", () => {
+		const text = "Psono ✓ 😀";
+		const bytes = converterService.encodeUtf8(text);
+
+		expect(converterService.decodeUtf8(bytes)).toBe(text);
+		expect(converterService.bytesToString(bytes.buffer)).toBe(text);
+	});
+
+	it("encodes and decodes the expected CBOR map representation", () => {
+		const value = { a: 1, b: [true, -2] };
+		const encoded = converterService.cborEncode(value);
+
+		expect(converterService.toHex(new Uint8Array(encoded))).toBe(
+			"a2616101616282f521",
+		);
+		expect(converterService.cborDecode(encoded)).toEqual(value);
+	});
+
+	it("grows CBOR buffers while preserving nested binary and numeric values", () => {
+		const value = {
+			bytes: new Uint8Array(1024).fill(255),
+			text: "Psono ✓ 😀".repeat(100),
+			values: [null, undefined, false, 24, 256, 65536, 2 ** 32, -25, 1.5],
+		};
+
+		expect(
+			converterService.cborDecode(converterService.cborEncode(value)),
+		).toEqual(value);
+	});
+
+	it.each<[string, unknown]>([
+		["5f4201024103ff", new Uint8Array([1, 2, 3])],
+		["7f6161626263ff", "abc"],
+		["9f0102ff", [1, 2]],
+		["bf616101ff", { a: 1 }],
+	])("decodes indefinite-length CBOR %s", (hex, expected) => {
+		expect(
+			converterService.cborDecode(converterService.fromHex(hex).buffer),
+		).toEqual(expected);
+	});
+
+	it("passes decoded CBOR values and tags to the custom decoder", () => {
+		const tagger = jest.fn((value: unknown, tag: number) => ({ value, tag }));
+		const encoded = converterService.fromHex("d82a01").buffer;
+
+		expect(converterService.cborDecode(encoded, tagger)).toEqual({
+			value: 1,
+			tag: 42,
+		});
+		expect(tagger).toHaveBeenCalledWith(1, 42);
+	});
+
+	it("passes CBOR simple values to the custom decoder", () => {
+		const simpleValue = jest.fn((value: number) => ({ simple: value }));
+		const encoded = converterService.fromHex("f0").buffer;
+
+		expect(
+			converterService.cborDecode(encoded, undefined, simpleValue),
+		).toEqual({
+			simple: 16,
+		});
+		expect(simpleValue).toHaveBeenCalledWith(16);
+	});
+
+	it("rejects trailing CBOR data", () => {
+		expect(() =>
+			converterService.cborDecode(new Uint8Array([0x01, 0x02]).buffer),
+		).toThrow("Remaining bytes");
+	});
+});

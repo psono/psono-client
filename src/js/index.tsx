@@ -1,0 +1,148 @@
+import CssBaseline from "@mui/material/CssBaseline";
+import {
+	createTheme,
+	StyledEngineProvider,
+	ThemeProvider,
+} from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { createBrowserHistory } from "history";
+import React, { Suspense, useEffect, useState } from "react";
+import { render } from "react-dom";
+import { I18nextProvider } from "react-i18next";
+import { Provider } from "react-redux";
+import { HashRouter } from "react-router-dom";
+import type { HashRouterProps } from "react-router-dom";
+import { HashLoader } from "react-spinners";
+import { persistStore } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+import i18n from "./i18n";
+import datastoreSettingService from "./services/datastore-setting";
+import { initLinkShareStore, initStore } from "./services/store";
+import { initSentry } from "./var/sentry";
+import type { AppDispatch, AppState } from "../types/state";
+
+initSentry();
+
+import DownloadBanner from "./components/download-banner";
+import NotificationSnackbar from "./components/notification-snackbar";
+import backgroundService from "./services/background";
+import browserClientService from "./services/browser-client";
+import IndexView from "./views/index";
+
+const isLinkSharePage = window.location.pathname.endsWith(
+	"/link-share-access.html",
+);
+
+const LazyThemeProvider = ({ children }: { children: React.ReactNode }) => {
+	const [theme, setTheme] = useState<Theme | null>(null);
+
+	useEffect(() => {
+		// Fetch theme configuration from theme.json
+		browserClientService
+			.getConfig("theme")
+			.then((theme) => {
+				const muiTheme = createTheme(theme!);
+				setTheme(muiTheme);
+			})
+			.catch((error) => {
+				console.error("Failed to load theme:", error);
+			});
+	}, []);
+
+	if (!theme) {
+		return <div>Loading theme...</div>; // Display a loading state until the theme is ready
+	}
+
+	return (
+		<StyledEngineProvider injectFirst>
+			<ThemeProvider theme={theme}>
+				<CssBaseline />
+				{children}
+			</ThemeProvider>
+		</StyledEngineProvider>
+	);
+};
+
+if (!isLinkSharePage) {
+	const channel = new BroadcastChannel("account");
+	channel.onmessage = (event) => {
+		if (event.data?.event === "reinitialize-app") {
+			initAndRenderApp();
+		}
+	};
+}
+
+/**
+ * Loads the datastore
+ * @param dispatch
+ * @param getState
+ */
+function loadSettingsDatastore(
+	dispatch: AppDispatch,
+	getState: () => AppState,
+): void {
+	if (getState().user.isLoggedIn) {
+		datastoreSettingService.getSettingsDatastore();
+	}
+}
+const customHistory = createBrowserHistory();
+const routerProps: HashRouterProps & { history: typeof customHistory } = {
+	history: customHistory,
+	hashType: "hashbang",
+};
+
+async function initAndRenderApp() {
+	const pathname = window.location.pathname;
+	if (pathname.endsWith("/background.html")) {
+		backgroundService.activate();
+	}
+
+	const store = await (isLinkSharePage ? initLinkShareStore() : initStore());
+	const persistor = isLinkSharePage
+		? null
+		: persistStore(store, undefined, () => {
+				store.dispatch(loadSettingsDatastore);
+			});
+
+	const StateGate = ({ children }: { children: React.ReactElement }) =>
+		persistor ? (
+			<PersistGate loading={<HashLoader />} persistor={persistor}>
+				{children}
+			</PersistGate>
+		) : (
+			children
+		);
+
+	const App = () => (
+		<LocalizationProvider dateAdapter={AdapterDateFns}>
+			<Provider store={store}>
+				<Suspense fallback={<HashLoader />}>
+					<StateGate>
+						<I18nextProvider i18n={i18n}>
+							<LazyThemeProvider>
+								<HashRouter {...routerProps}>
+									<DownloadBanner />
+									<NotificationSnackbar />
+									<IndexView />
+								</HashRouter>
+							</LazyThemeProvider>
+						</I18nextProvider>
+					</StateGate>
+				</Suspense>
+			</Provider>
+		</LocalizationProvider>
+	);
+
+	const container = document.getElementById("app");
+	render(<App />, container);
+}
+
+initAndRenderApp();
+
+console.log("%cDanger:", "color:red;font-size:40px;");
+console.log(
+	"%cDo not type or paste anything here. This feature is for developers and typing or pasting something here can compromise your account.",
+	"font-size:20px;",
+);

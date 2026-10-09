@@ -1,0 +1,61 @@
+import cryptoLibrary from "./crypto-library";
+import importSafariCsv from "./import-safari-csv";
+
+describe("Service: importSafariCsv test suite", () => {
+	it("helper exists", () => {
+		expect(importSafariCsv).toBeDefined();
+	});
+
+	it("parse", () => {
+		const generic_uuid = "1fce01f4-6411-47a9-885c-a80bf4c654aa";
+		cryptoLibrary.generateUuid = jest.fn(() => generic_uuid);
+
+		const input =
+			"Title,URL,Username,Password,Notes,OTPAuth\n" +
+			"www.amazon.com (jdoe13),https://www.amazon.com/ap/signin,jdoe13@gmail.com,asdfasdf,some note," +
+			"";
+
+		const output = importSafariCsv.parser(input);
+		if (!output) throw new Error("Expected a successful import");
+
+		const expected_output = {
+			datastore: {
+				id: generic_uuid,
+				name: output.datastore.name,
+				folders: [],
+				items: [
+					{
+						id: generic_uuid,
+						type: "website_password",
+						name: "www.amazon.com (jdoe13)",
+						urlfilter: "www.amazon.com",
+						website_password_url_filter: "www.amazon.com",
+						website_password_password: "asdfasdf",
+						website_password_username: "jdoe13@gmail.com",
+						description: "jdoe13@gmail.com",
+						website_password_notes: "some note",
+						website_password_url: "https://www.amazon.com/ap/signin",
+						website_password_title: "www.amazon.com (jdoe13)",
+					},
+				],
+			},
+			secrets: [
+				{
+					id: generic_uuid,
+					type: "website_password",
+					name: "www.amazon.com (jdoe13)",
+					urlfilter: "www.amazon.com",
+					website_password_url_filter: "www.amazon.com",
+					website_password_password: "asdfasdf",
+					website_password_username: "jdoe13@gmail.com",
+					description: "jdoe13@gmail.com",
+					website_password_notes: "some note",
+					website_password_url: "https://www.amazon.com/ap/signin",
+					website_password_title: "www.amazon.com (jdoe13)",
+				},
+			],
+		};
+
+		expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
+	});
+});

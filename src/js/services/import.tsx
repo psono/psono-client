@@ -1,0 +1,557 @@
+/**
+ * Service to manage the export of datastores
+ */
+import React from "react";
+import i18n from "../i18n";
+import cryptoLibraryService from "./crypto-library";
+import datastoreService from "./datastore";
+import datastorePasswordService from "./datastore-password";
+import import1passwordV7CsvService from "./import-1password-v7-csv";
+import import1passwordV8CsvService from "./import-1password-v8-csv";
+import importBitwardenJson from "./import-bitwarden-json";
+import importChromeCsv from "./import-chrome-csv";
+import importDashlaneCsv from "./import-dashlane-csv";
+import importDelineaSecretServerCsv from "./import-delinea-secretserver-csv";
+import importEnpassJson from "./import-enpass-json";
+import importFirefoxCsvService from "./import-firefox-csv";
+import importKeepassInfoCsv from "./import-keepass-info-csv";
+import importKeepassInfoXml from "./import-keepass-info-xml";
+import importKeepassxOrgCsv from "./import-keepassx-org-csv";
+import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
+import importLastpassComCsv from "./import-lastpass-com-csv";
+import importNextcloudCsvService from "./import-nextcloud-csv";
+import importPasswordManagerProXls from "./import-password-pamanager-pro-xls";
+import importPasswordstateComCsv from "./import-passwordstate-com-csv";
+import importProtonPassCsvService from "./import-protonpass-csv";
+import importPsonoJson from "./import-psono-json";
+import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
+import importSafariCsvService from "./import-safari-csv";
+import importTeampassNetCsv from "./import-teampass-net-csv";
+import secretService from "./secret";
+import type { ImportParser, ParsedImport } from "../../types/import";
+import type {
+	BulkSecretInput,
+	CreatedSecret,
+	SecretContent,
+} from "../../types/vault";
+
+interface Importer {
+	name: string;
+	value: string;
+	parser: ImportParser;
+	help?: () => React.ReactNode;
+}
+
+interface ImportRequest<Data> {
+	type: string;
+	data: Data;
+	binary?: ArrayBuffer;
+	breadcrumbs: { id_breadcrumbs: string[] };
+}
+
+const _importer: Record<string, Importer> = {
+	psono_pw_json: {
+		name: "Psono.pw (JSON)",
+		value: "psono_pw_json",
+		parser: importPsonoJson.parser,
+	},
+	one_password_v8: {
+		name: "1Password v8 (CSV)",
+		value: "one_password_v8",
+		parser: import1passwordV8CsvService.parser,
+	},
+	one_password_v7: {
+		name: "1Password v7 (CSV)",
+		value: "one_password_v7",
+		parser: import1passwordV7CsvService.parser,
+	},
+	chrome_csv: {
+		name: "Chrome (CSV)",
+		help: () => (
+			<>
+				{i18n.t(
+					"CHROME_EXPORT_OPEN_THE_FOLLOWING_IN_YOUR_ADDRESS_BAR_AND_ACTIVATE_THE_EXPORT_FUNCTION",
+				)}
+				<pre>chrome://flags/#password-import-export</pre>
+				{i18n.t(
+					"CHROME_EXPORT_AFTERWARDS_OPEN_THE_FOLLOWING_AND_EXPORT_ALL_PASSWORDS",
+				)}
+				<pre>chrome://settings/passwords</pre>
+			</>
+		),
+		value: "chrome_csv",
+		parser: importChromeCsv.parser,
+	},
+	firefox_csv: {
+		name: "Firefox (CSV)",
+		value: "firefox_csv",
+		parser: importFirefoxCsvService.parser,
+	},
+	protonpass_csv: {
+		name: "Proton Pass (CSV)",
+		value: "protonpass_csv",
+		parser: importProtonPassCsvService.parser,
+	},
+	safari_csv: {
+		name: "Safari (CSV)",
+		value: "safari_csv",
+		parser: importSafariCsvService.parser,
+	},
+	bitwarden_json: {
+		name: "Bitwarden (JSON, unencrypted)",
+		value: "bitwarden_json",
+		parser: importBitwardenJson.parser,
+	},
+	dashlane_csv: {
+		name: "Dashlane (CSV)",
+		value: "dashlane_csv",
+		parser: importDashlaneCsv.parser,
+	},
+	delinea_secretserver_csv: {
+		name: "Delinea SecretServer (CSV)",
+		value: "delinea_secretserver_csv",
+		parser: importDelineaSecretServerCsv.parser,
+	},
+	enpass_json: {
+		name: "Enpass (JSON)",
+		value: "enpass_json",
+		parser: importEnpassJson.parser,
+	},
+	keepass_info_csv: {
+		name: "KeePass.info (CSV)",
+		value: "keepass_info_csv",
+		parser: importKeepassInfoCsv.parser,
+	},
+	keepass_info_xml: {
+		name: "KeePass.info (XML)",
+		value: "keepass_info_xml",
+		parser: importKeepassInfoXml.parser,
+	},
+	keepassx_org_csv: {
+		name: "KeePassX.org (CSV)",
+		value: "keepassx_org_csv",
+		parser: importKeepassxOrgCsv.parser,
+	},
+	keepassxc_org_csv: {
+		name: "KeePassXC.org (CSV)",
+		value: "keepassxc_org_csv",
+		parser: importKeepassXCOrgCsv.parser,
+	},
+	lastpass_com_csv: {
+		name: "LastPass.com (CSV)",
+		value: "lastpass_com_csv",
+		parser: importLastpassComCsv.parser,
+	},
+	password_manager_pro_xls: {
+		name: "Password Manager Pro (XLS)",
+		value: "password_manager_pro_xls",
+		parser: importPasswordManagerProXls.parser,
+	},
+	pwsafe_org_csv: {
+		name: "Password Safe (CSV)",
+		value: "pwsafe_org_csv",
+		parser: importPwsafeOrgCsv.parser,
+	},
+	teampass_net_csv: {
+		name: "Teampass (CSV)",
+		value: "teampass_net_csv",
+		parser: importTeampassNetCsv.parser,
+	},
+	nextcloud_csv: {
+		name: "Nextcloud (CSV)",
+		help: () =>
+			i18n.t("NEXTCLOUD_EXPORT_EXTRACT_ZIP_AND_UPLOAD_THE_PASSWORD_CSV"),
+		value: "nextcloud_csv",
+		parser: importNextcloudCsvService.parser,
+	},
+	passwordstate_com_csv: {
+		name: "Passwordstate (CSV)",
+		value: "passwordstate_com_csv",
+		parser: importPasswordstateComCsv.parser,
+	},
+};
+const registrations: Record<string, ((data: unknown) => void)[]> = {};
+
+/**
+ * used to register functions for specific events
+ *
+ * @param {string} event The event to subscribe to
+ * @param {function} func The callback function to subscribe
+ */
+function on(event: string, func: (data: unknown) => void) {
+	if (!Object.hasOwn(registrations, event)) {
+		registrations[event] = [];
+	}
+
+	registrations[event].push(func);
+}
+
+/**
+ * sends an event message to the export service
+ *
+ * @param {string} event The event to trigger
+ * @param {*} data The payload data to send to the subscribed callback functions
+ */
+function emit(event: string, data: unknown) {
+	if (!Object.hasOwn(registrations, event)) {
+		return;
+	}
+	for (let i = registrations[event].length - 1; i >= 0; i--) {
+		registrations[event][i](data);
+	}
+}
+
+/**
+ * Searches all possible parsers for the parser of this type
+ *
+ * @param {string} type The type of the parser
+ *
+ * @returns {function|null} returns the parser or null
+ */
+function getParser(type: string): ImportParser | null {
+	if (!Object.hasOwn(_importer, type)) {
+		return null;
+	}
+
+	return _importer[type]["parser"];
+}
+
+/**
+ * Parse the raw input and returns a data structure with folder and items that we can import
+ *
+ * @param {string} data The data to parse
+ *
+ * @returns {*} Returns a tree structure with folders and items
+ */
+async function parseExport(
+	data: ImportRequest<string>,
+): Promise<ImportRequest<ParsedImport>> {
+	const parse = getParser(data["type"]);
+	if (parse === null) {
+		return Promise.reject({ errors: ["PARSER_NOT_FOUND"] });
+	}
+
+	const parsed_data = await parse(data["data"], data["binary"]);
+	if (parsed_data === null) {
+		return Promise.reject({ errors: ["FILE_FORMAT_WRONG"] });
+	}
+
+	return { ...data, data: parsed_data };
+}
+
+/**
+ * gets the datastore and updates it
+ *
+ * @param {object} parsedData The parsed data object
+ *
+ * @returns {*} Returns the parsed data on completion
+ */
+function updateDatastore(
+	parsedData: ImportRequest<ParsedImport>,
+): Promise<ImportRequest<ParsedImport>> {
+	return datastorePasswordService.getPasswordDatastore().then((datastore) => {
+		if (!datastore) throw new Error("Password datastore unavailable");
+		const analyzedBreadcrumbs = datastorePasswordService.analyzeBreadcrumbs(
+			parsedData.breadcrumbs,
+			datastore,
+		);
+		const target = analyzedBreadcrumbs.target;
+		const importedDatastore = parsedData["data"]["datastore"];
+
+		const shareRights = analyzedBreadcrumbs.parent_share?.share_rights
+			? {
+					read: analyzedBreadcrumbs.parent_share.share_rights.read,
+					write: analyzedBreadcrumbs.parent_share.share_rights.write,
+					grant:
+						analyzedBreadcrumbs.parent_share.share_rights.grant &&
+						analyzedBreadcrumbs.parent_share.share_rights.write,
+					delete: analyzedBreadcrumbs.parent_share.share_rights.write,
+				}
+			: {
+					read: true,
+					write: true,
+					grant: true,
+					delete: true,
+				};
+
+		importedDatastore["parent_share_id"] = analyzedBreadcrumbs.parent_share_id;
+		importedDatastore["parent_datastore_id"] =
+			analyzedBreadcrumbs.parent_datastore_id;
+		importedDatastore["share_rights"] = shareRights;
+		datastorePasswordService.updateParents(
+			importedDatastore,
+			analyzedBreadcrumbs.parent_share_id,
+			analyzedBreadcrumbs.parent_datastore_id,
+		);
+		datastoreService.updateShareRightsOfFoldersAndItems(
+			importedDatastore,
+			shareRights,
+		);
+
+		if (!target.folders) {
+			target["folders"] = [];
+		}
+
+		target["folders"].push(importedDatastore);
+
+		datastorePasswordService.handleDatastoreContentChanged(datastore);
+		return datastorePasswordService
+			.saveDatastoreContent(datastore, [analyzedBreadcrumbs.path.slice()])
+			.then(() => {
+				emit("import-complete", {});
+				return parsedData;
+			});
+	});
+}
+
+/**
+ * Initiates the creation of all secrets and links it to the password datastore
+ *
+ * @param {object} parsedData The parsed data object
+ *
+ * @returns {*} Returns the parsed data on completion
+ */
+function createSecrets(
+	parsedData: ImportRequest<ParsedImport>,
+): Promise<ImportRequest<ParsedImport>> {
+	emit("create-secret-started", {});
+
+	return datastorePasswordService.getPasswordDatastore().then((datastore) => {
+		if (!datastore) throw new Error("Password datastore unavailable");
+		const analyzedBreadcrumbs = datastorePasswordService.analyzeBreadcrumbs(
+			parsedData.breadcrumbs,
+			datastore,
+		);
+
+		type TaggedSecretInput = BulkSecretInput & { tags?: string[] };
+		const objects = parsedData["data"]["secrets"].map(
+			(poppedSecret): TaggedSecretInput => {
+				const content: SecretContent = {};
+				const linkId = poppedSecret["id"];
+				let tags;
+				if (
+					Object.hasOwn(poppedSecret, "tags") &&
+					poppedSecret["tags"] &&
+					poppedSecret["tags"].length > 0
+				) {
+					tags = poppedSecret["tags"];
+				}
+				let customFields;
+				if (
+					Object.hasOwn(poppedSecret, "custom_fields") &&
+					poppedSecret["custom_fields"] &&
+					poppedSecret["custom_fields"].length > 0
+				) {
+					customFields = poppedSecret["custom_fields"];
+					delete poppedSecret["custom_fields"];
+				}
+				for (const property in poppedSecret) {
+					if (!Object.hasOwn(poppedSecret, property)) {
+						continue;
+					}
+					if (!property.startsWith(poppedSecret["type"])) {
+						continue;
+					}
+					content[property] = poppedSecret[property];
+					delete poppedSecret[property];
+				}
+				if (
+					poppedSecret["type"] === "website_password" &&
+					Object.hasOwn(content, "website_password_url") &&
+					typeof content["website_password_url"] === "string" &&
+					!Object.hasOwn(poppedSecret, "allow_http") &&
+					!Object.hasOwn(content, "website_password_allow_http")
+				) {
+					const url = content["website_password_url"].trim();
+					if (/^http:\/\//i.test(url)) {
+						poppedSecret["allow_http"] = true;
+						content["website_password_allow_http"] = true;
+					}
+				}
+				if (tags) {
+					content["tags"] = tags;
+				}
+				if (customFields) {
+					content["custom_fields"] = customFields;
+				}
+
+				// Calculate password_hash for website_password and application_password types
+				if (
+					poppedSecret["type"] === "website_password" &&
+					Object.hasOwn(content, "website_password_password")
+				) {
+					const password = content["website_password_password"];
+					if (password) {
+						const passwordSha1 = cryptoLibraryService.sha1(password);
+						poppedSecret["password_hash"] = passwordSha1
+							.substring(0, 5)
+							.toLowerCase();
+					} else {
+						poppedSecret["password_hash"] = "";
+					}
+				} else if (
+					poppedSecret["type"] === "application_password" &&
+					Object.hasOwn(content, "application_password_password")
+				) {
+					const password = content["application_password_password"];
+					if (password) {
+						const passwordSha1 = cryptoLibraryService.sha1(password);
+						poppedSecret["password_hash"] = passwordSha1
+							.substring(0, 5)
+							.toLowerCase();
+					} else {
+						poppedSecret["password_hash"] = "";
+					}
+				}
+
+				const myObject: TaggedSecretInput = {
+					linkId: linkId,
+					content: content,
+					callbackUrl: undefined,
+					callbackUser: undefined,
+					callbackPass: undefined,
+				};
+				if (tags) {
+					myObject["tags"] = tags;
+				}
+				return myObject;
+			},
+		);
+
+		return secretService
+			.createSecretBulk(
+				objects,
+				analyzedBreadcrumbs.parent_datastore_id,
+				analyzedBreadcrumbs.parent_share_id,
+			)
+			.then(
+				(dbSecrets) => {
+					const lookupIndex: Record<string, CreatedSecret> = {};
+					for (var i = 0; i < dbSecrets.length; i++) {
+						lookupIndex[dbSecrets[i]["link_id"]] = {
+							secret_id: dbSecrets[i]["secret_id"],
+							secret_key: dbSecrets[i]["secret_key"],
+						};
+					}
+
+					parsedData["data"]["secrets"].map((poppedSecret) => {
+						poppedSecret["secret_id"] =
+							lookupIndex[poppedSecret.id]["secret_id"];
+						poppedSecret["secret_key"] =
+							lookupIndex[poppedSecret.id]["secret_key"];
+					});
+					emit("create-secret-complete", {});
+					return parsedData;
+				},
+				(result) => Promise.reject(result),
+			);
+	});
+}
+
+/**
+ * Returns a list with all possible importer
+ *
+ * @returns {[]} List of all possible importer
+ */
+function getImporter() {
+	const importer_array = [];
+
+	for (const parser in _importer) {
+		if (!Object.hasOwn(_importer, parser)) {
+			continue;
+		}
+		importer_array.push(_importer[parser]);
+	}
+
+	return importer_array;
+}
+
+/**
+ * Returns the help text for a given importer
+ *
+ * @param {string} type The type of the import
+ *
+ * @returns {function} The help text for this importer
+ */
+function getImporterHelp(type: string) {
+	if (
+		Object.hasOwn(_importer, type) &&
+		Object.hasOwn(_importer[type], "help")
+	) {
+		return _importer[type]["help"];
+	}
+
+	return undefined;
+}
+
+/**
+ * Imports a datastore
+ *
+ * @param {string} type The type of the import
+ * @param {string} data The data as text of the import
+ * @param {string} binary The data as binary of the import
+ * @param {string} [password] The password to decrypt the datastore
+ * @param {{id_breadcrumbs: Array}} [breadcrumbs] The selected folder breadcrumbs
+ *
+ * @returns {Promise} Returns a promise with the result of the import
+ */
+function importDatastore(
+	type: string,
+	data: string,
+	binary?: ArrayBuffer,
+	password?: string,
+	breadcrumbs?: { id_breadcrumbs: string[] },
+) {
+	emit("import-started", {});
+
+	if (password) {
+		let decryptedJson: unknown;
+		try {
+			decryptedJson = JSON.parse(data);
+		} catch (e) {
+			// datastore was not json encoded and as such cannot be an encrypted Export
+		}
+		if (
+			typeof decryptedJson === "object" &&
+			decryptedJson !== null &&
+			"text" in decryptedJson &&
+			typeof decryptedJson.text === "string" &&
+			"nonce" in decryptedJson &&
+			typeof decryptedJson.nonce === "string"
+		) {
+			try {
+				data = cryptoLibraryService.decryptSecret(
+					decryptedJson["text"],
+					decryptedJson["nonce"],
+					password,
+					"",
+				);
+			} catch (e) {
+				return Promise.reject({
+					errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"],
+				});
+			}
+		}
+	}
+
+	return Promise.resolve({
+		type: type,
+		data: data,
+		binary: binary,
+		breadcrumbs: breadcrumbs || { id_breadcrumbs: [] },
+	})
+		.then(parseExport)
+		.then(createSecrets)
+		.then(updateDatastore)
+		.then(() => ({ msgs: ["IMPORT_SUCCESSFUL"] }));
+}
+
+const importService = {
+	on: on,
+	emit: emit,
+	getImporter: getImporter,
+	getImporterHelp: getImporterHelp,
+	importDatastore: importDatastore,
+};
+
+export default importService;

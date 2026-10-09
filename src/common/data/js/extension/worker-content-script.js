@@ -7,6 +7,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	let fillAll = false;
 	let nextFillAllIndex = 0;
 	let dropInstances = [];
+	let activePasskeySelector = null;
 	const myForms = [];
 	const creditCardInputFields = [];
 	const identityInputFields = [];
@@ -23,6 +24,12 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
 	const backgroundImageHover =
 		"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSAwLjY5NTMxMiAzLjc4OTA2MiBMIDMuMTc1NzgxIDUuMTc5Njg4IEwgNy41NjY0MDYgMi43MzQzNzUgTCAxMS45MTQwNjIgNS4xNjAxNTYgTCAxNC4zNzg5MDYgMy44MDg1OTQgTCA3LjU4NTkzOCAwLjA0Njg3NSBaIE0gMC42OTUzMTIgMy43ODkwNjIgIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE2MDE1NiA1Ljg2NzE4OCBMIDcuNTcwMzEyIDcuMjE4NzUgTCA5LjkyMTg3NSA1Ljk1MzEyNSBMIDcuNTY2NDA2IDQuNjUyMzQ0IFogTSA1LjE2MDE1NiA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE3NTc4MSA1Ljg2NzE4OCBMIDUuMTU2MjUgOC4zMDg1OTQgTCA3LjU2NjQwNiA5LjU5Mzc1IEwgOS45Mzc1IDguMjc3MzQ0IEwgOS45Mzc1IDUuOTkyMTg4IEwgNy41ODU5MzggNy4yMzgyODEgWiBNIDUuMTc1NzgxIDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MTsiIGQ9Ik0gMTEuODk4NDM4IDUuMTc5Njg4IEwgMTEuOTE0MDYyIDkuMTE3MTg4IEwgNy41NjY0MDYgMTEuNDg4MjgxIEwgNS4xNzU3ODEgMTAuMjQyMTg4IEwgNS4xNzU3ODEgMTMuNjMyODEyIEwgNy41NDY4NzUgMTQuOTUzMTI1IEwgMTQuNDE3OTY5IDExLjIwNzAzMSBMIDE0LjM3ODkwNiAzLjgzOTg0NCBaIE0gMTEuODk4NDM4IDUuMTc5Njg4ICIvPgo8L2c+Cjwvc3ZnPgo=";
+
+	// Same icon paths as StorageRounded and VpnKeyRounded in the popup.
+	const storageRoundedIcon =
+		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2s.9 2 2 2m0-3h2v2H4zM2 6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2m4 1H4V5h2zm-2 7h16c1.1 0 2-.9 2-2s-.9-2-2-2H4c-1.1 0-2 .9-2 2s.9 2 2 2m0-3h2v2H4z"/></svg>';
+	const vpnKeyRoundedIcon =
+		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.65 10C11.7 7.31 8.9 5.5 5.77 6.12c-2.29.46-4.15 2.29-4.63 4.58C.32 14.57 3.26 18 7 18c2.61 0 4.83-1.67 5.65-4H17v2c0 1.1.9 2 2 2s2-.9 2-2v-2c1.1 0 2-.9 2-2s-.9-2-2-2zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2"/></svg>';
 
 	const passwordSubmitButtonLabels = new Set([
 		"change",
@@ -204,6 +211,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		base.on("return-secret", onReturnSecret);
 		base.on("get-username", onGetUsername);
 		base.on("clear-clipboard-content-script", clearClipboard);
+		base.on("show-passkey-selector", showPasskeySelector);
+		base.on("hide-passkey-selector", hidePasskeySelector);
 
 		base.ready(() => {
 			let i;
@@ -236,6 +245,119 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				);
 			}
 		});
+	}
+
+	function hidePasskeySelector(data) {
+		if (activePasskeySelector && activePasskeySelector.id === data.id) {
+			activePasskeySelector.suppressCancel = true;
+			activePasskeySelector.drop.close();
+			activePasskeySelector = null;
+		}
+	}
+
+	function showPasskeySelector(data) {
+		if (base.inIframe() || !data || !Array.isArray(data.labels)) return;
+		if (document.location.origin !== data.tabOrigin) {
+			base.emit("passkey-selector-cancel", { id: data.id });
+			return;
+		}
+		if (activePasskeySelector) activePasskeySelector.drop.close();
+		if (performSecurityCheck().threats.includes("existing_popovers")) {
+			base.emit("passkey-selector-cancel", { id: data.id });
+			return;
+		}
+
+		// Use the password dropdown's closed shadow root, popover, style protection
+		// and overlay detection. No account data is interpolated into HTML.
+		const selector = { id: data.id, drop: null, suppressCancel: false };
+		const drop = createDropdownMenu(
+			document.documentElement,
+			'<div class="psono-drop-content-inner psono-passkey-selector"><ul class="psono-passkey-controls"></ul><ul class="navigations"></ul></div>',
+			document,
+			{
+				left: window.pageXOffset + Math.max(10, window.innerWidth - 430),
+				top: window.pageYOffset + 10,
+				onClose: () => {
+					if (activePasskeySelector?.id === data.id)
+						activePasskeySelector = null;
+					if (!selector.suppressCancel) {
+						base.emit("passkey-selector-cancel", { id: data.id });
+					}
+				},
+			},
+		);
+		selector.drop = drop;
+		activePasskeySelector = selector;
+		drop.open();
+		const list = drop.getShadowRoot().querySelector(".navigations");
+		list.style.maxHeight = "min(360px, 75vh)";
+		list.style.overflowY = "auto";
+		const title = document.createElement("li");
+		title.className = "psono-passkey-origin";
+		title.textContent = data.origin;
+		list.appendChild(title);
+
+		const entries = [];
+		if (data.labels.length > 5) {
+			const searchItem = document.createElement("li");
+			searchItem.className = "psono-passkey-search";
+			const search = document.createElement("input");
+			search.type = "search";
+			search.placeholder = "Search...";
+			search.setAttribute("aria-label", "Search passkeys");
+			search.addEventListener("input", () => {
+				for (const entry of entries) {
+					entry.style.display = entry.textContent
+						.toLowerCase()
+						.includes(search.value.toLowerCase())
+						? ""
+						: "none";
+				}
+			});
+			searchItem.appendChild(search);
+			list.appendChild(searchItem);
+		}
+		data.labels.forEach((label, index) => {
+			const item = document.createElement("li");
+			item.className = "psono-passkey-entry";
+			const button = document.createElement("div");
+			button.textContent = String(label);
+			button.setAttribute("role", "button");
+			button.tabIndex = 0;
+			const select = (event) => {
+				if (!event.isTrusted) return;
+				event.stopPropagation();
+				selector.suppressCancel = true;
+				base.emit("passkey-selector-select", { id: data.id, index });
+				drop.close();
+			};
+			button.addEventListener("click", select);
+			button.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					select(event);
+				}
+			});
+			item.appendChild(button);
+			list.appendChild(item);
+			entries.push(item);
+		});
+		const cancel = document.createElement("li");
+		cancel.className = "psono-passkey-cancel";
+		cancel.textContent = "✕";
+		cancel.setAttribute("role", "button");
+		cancel.tabIndex = 0;
+		cancel.addEventListener("click", () => drop.close());
+		cancel.addEventListener("keydown", (event) => {
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault();
+				if (event.isTrusted) drop.close();
+			}
+		});
+		drop
+			.getShadowRoot()
+			.querySelector(".psono-passkey-controls")
+			.appendChild(cancel);
 	}
 
 	/**
@@ -1123,34 +1245,28 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				const requestSecretClasses = [];
 
 				let dropcontent = "";
-				dropcontent += '<div class="psono-drop-content-inner">';
-				dropcontent += '<ul class="navigations">';
 
 				const isLogged = await new Promise((resolve) => {
 					base.emit("is-logged-in", undefined, (state) => {
 						resolve(state);
 					});
 				});
+				dropcontent +=
+					'<div class="psono-drop-content-inner psono-password-selector' +
+					(!isLogged || response.data.length < 1
+						? " psono-selector-compact"
+						: "") +
+					'">';
+				dropcontent += '<ul class="navigations">';
 
-				if (!isLogged) {
-					dropcontent +=
-						'<li><div class="' +
-						openDatastoreClass +
-						'" style="cursor: pointer !important;">Login</div></li>';
-				} else {
-					dropcontent +=
-						'<li><div class="' +
-						openDatastoreClass +
-						'" style="cursor: pointer !important;">Open Datastore</div></li>';
-					if (response.data.length < 1) {
+				if (isLogged) {
+					if (response.data.length === 0) {
 						dropcontent +=
-							'<li><div class="' +
-							generatePasswordClass +
-							'" style="cursor: pointer !important;">Generate Password</div></li>';
+							'<li class="psono-password-empty">No passwords found</li>';
 					}
 					if (response.data.length > 5) {
 						dropcontent +=
-							'<li><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
+							'<li class="psono-password-search"><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
 					}
 					for (let i = 0; i < response.data.length; i++) {
 						const sanitizedName = sanitizeText(response.data[i].name);
@@ -1181,10 +1297,10 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 							style +
 							'"><div class="' +
 							requestSecretClass +
-							'" style="cursor: pointer !important;"">' +
+							'" style="cursor: pointer !important;"><span class="psono-entry-dot" aria-hidden="true"></span><span class="psono-entry-label">' +
 							sanitizedName +
 							sanitizedDescription +
-							"</div></li>";
+							"</span></div></li>";
 						requestSecretClasses.push({
 							class: requestSecretClass,
 							secret_id: response.data[i].secret_id,
@@ -1193,6 +1309,26 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 				}
 
 				dropcontent += "</ul>";
+				const datastoreLabel = isLogged ? "Open Datastore" : "Login";
+				dropcontent +=
+					'<div class="psono-selector-actions"><button type="button" class="psono-selector-action ' +
+					openDatastoreClass +
+					'" title="' +
+					datastoreLabel +
+					'" aria-label="' +
+					datastoreLabel +
+					'">' +
+					storageRoundedIcon +
+					"</button>";
+				if (isLogged) {
+					dropcontent +=
+						'<button type="button" class="psono-selector-action ' +
+						generatePasswordClass +
+						'" title="Generate Password" aria-label="Generate Password">' +
+						vpnKeyRoundedIcon +
+						"</button>";
+				}
+				dropcontent += "</div>";
 				dropcontent += "</div>";
 
 				// events from inputs nested in shadowRoot won't set evt.target to the input.
@@ -1578,9 +1714,10 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param document
 	 * @returns {{open: open, close: close}}
 	 */
-	function createDropdownMenu(anchorElement, content, document) {
-		const position = getOffset(anchorElement);
-		const height = anchorElement.offsetHeight;
+	function createDropdownMenu(anchorElement, content, document, options = {}) {
+		const position =
+			options.left === undefined ? getOffset(anchorElement) : options;
+		const height = options.left === undefined ? anchorElement.offsetHeight : 0;
 		const element_id = "psono_drop-" + uuid.v4();
 
 		// Create the host element with original positioning
@@ -1619,8 +1756,9 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
                 
                 .psono-drop-content {
                     position: relative !important;
-                    background: #FFF !important;
-                    padding: 2px !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    border-radius: 12px !important;
                     transform: translateZ(0) !important;
                     display: block !important;
                     box-sizing: border-box !important;
@@ -1720,8 +1858,285 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
                 .navigations li.active div {
                     color: #fff !important;
                 }
+
+                /* Compact floating cards for passkeys and password autofill. */
+                .psono-passkey-surface {
+                    padding: 0 !important;
+                    border-radius: 12px !important;
+                    background: transparent !important;
+                }
+
+                .psono-passkey-selector,
+                .psono-password-selector {
+                    width: min(390px, calc(100vw - 20px)) !important;
+                    max-width: calc(100vw - 20px) !important;
+                    padding: 12px !important;
+                    border: 1px solid #35465b !important;
+                    border-radius: 12px !important;
+                    background: #151f2b !important;
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35) !important;
+                }
+
+                .psono-passkey-selector:before,
+                .psono-passkey-selector:after,
+                .psono-password-selector:before,
+                .psono-password-selector:after {
+                    content: none !important;
+                }
+
+                .psono-passkey-selector .navigations,
+                .psono-password-selector .navigations {
+                    scrollbar-color: #536579 #151f2b !important;
+                    scrollbar-width: thin !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-origin {
+                    margin: 0 2px 10px !important;
+                    padding: 5px 38px 12px 8px !important;
+                    border-bottom: 1px solid #35465b !important;
+                    border-radius: 0 !important;
+                    color: #f2f5f9 !important;
+                    font-size: 14px !important;
+                    font-weight: 600 !important;
+                    overflow-wrap: anywhere !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-origin:hover,
+                .psono-passkey-selector .psono-passkey-search:hover,
+                .psono-passkey-selector .psono-passkey-cancel:hover {
+                    background: transparent !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-origin:hover {
+                    color: #f2f5f9 !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-search {
+                    margin: 0 2px 9px !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-search input {
+                    padding: 9px 11px !important;
+                    border: 1px solid #46576b !important;
+                    border-radius: 7px !important;
+                    background: #202e3e !important;
+                    color: #f2f5f9 !important;
+                    outline: none !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-search input:focus-visible {
+                    border-color: #2dbb93 !important;
+                    box-shadow: 0 0 0 2px rgba(45, 187, 147, 0.25) !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry {
+                    margin: 2px 0 !important;
+                    border-radius: 7px !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry:hover,
+                .psono-passkey-selector .psono-passkey-entry:focus-within {
+                    background: #26394a !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry div {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                    min-height: 42px !important;
+                    padding: 9px 11px !important;
+                    border-radius: 7px !important;
+                    color: #f2f5f9 !important;
+                    line-height: 1.4 !important;
+                    overflow-wrap: anywhere !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry:hover div,
+                .psono-passkey-selector .psono-passkey-entry:focus-within div {
+                    color: #f2f5f9 !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry div:before {
+                    content: "●" !important;
+                    flex: none !important;
+                    color: #2dbb93 !important;
+                    font-size: 10px !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-entry div:focus-visible,
+                .psono-passkey-selector .psono-passkey-cancel:focus-visible {
+                    outline: 2px solid #2dbb93 !important;
+                    outline-offset: -2px !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-controls {
+                    position: absolute !important;
+                    top: 10px !important;
+                    right: 10px !important;
+                    z-index: 1 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    list-style: none !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-cancel {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    width: 28px !important;
+                    height: 28px !important;
+                    border: 0 !important;
+                    border-radius: 6px !important;
+                    background: #202e3e !important;
+                    color: #b1b6c1 !important;
+                    cursor: pointer !important;
+                    font-size: 16px !important;
+                }
+
+                .psono-passkey-selector .psono-passkey-cancel:hover {
+                    background: #26394a !important;
+                    color: #f2f5f9 !important;
+                }
+
+                .psono-password-selector .navigations {
+                    max-height: min(360px, 75vh) !important;
+                    overflow-y: auto !important;
+                }
+
+                .psono-password-selector .navigations li:hover {
+                    background: #26394a !important;
+                }
+
+                .psono-password-selector .navigations li.psono-password-search:hover {
+                    background: transparent !important;
+                }
+
+                .psono-password-selector .navigations li.psono-password-empty {
+                    padding: 9px 11px !important;
+                    color: #b1b6c1 !important;
+                    white-space: nowrap !important;
+                }
+
+                .psono-password-selector .navigations li.psono-password-empty:hover {
+                    background: transparent !important;
+                    color: #b1b6c1 !important;
+                }
+
+                .psono-password-selector .psono-password-search {
+                    margin: 0 2px 9px !important;
+                }
+
+                .psono-password-selector .psono-password-search input {
+                    padding: 9px 11px !important;
+                    border: 1px solid #46576b !important;
+                    border-radius: 7px !important;
+                    background: #202e3e !important;
+                    color: #f2f5f9 !important;
+                    outline: none !important;
+                }
+
+                .psono-password-selector .psono-password-search input:focus-visible {
+                    border-color: #2dbb93 !important;
+                    box-shadow: 0 0 0 2px rgba(45, 187, 147, 0.25) !important;
+                }
+
+                .psono-password-selector .psono-password-search input::placeholder {
+                    color: #9baac0 !important;
+                }
+
+                .psono-password-selector .psono_request-secret {
+                    margin: 2px 0 !important;
+                    border-radius: 7px !important;
+                }
+
+                .psono-password-selector .psono_request-secret div {
+                    display: flex !important;
+                    align-items: center !important;
+                    min-height: 42px !important;
+                    padding: 9px 11px !important;
+                    border-radius: 7px !important;
+                    color: #f2f5f9 !important;
+                    line-height: 1.4 !important;
+                    overflow-wrap: anywhere !important;
+                }
+
+                .psono-password-selector .navigations li:hover div {
+                    color: #f2f5f9 !important;
+                }
+
+                .psono-password-selector .navigations li div .psono-entry-dot {
+                    display: inline-block !important;
+                    flex: 0 0 8px !important;
+                    width: 8px !important;
+                    height: 8px !important;
+                    margin-right: 10px !important;
+                    border-radius: 50% !important;
+                    background: #2dbb93 !important;
+                    vertical-align: middle !important;
+                }
+
+                .psono-password-selector .navigations li div .psono-entry-label {
+                    color: #f2f5f9 !important;
+                    font-size: 13px !important;
+                    overflow-wrap: anywhere !important;
+                }
+
+                .psono-password-selector .navigations li div .psono-entry-label span {
+                    color: #b1b6c1 !important;
+                }
+
+                .psono-password-selector .psono-selector-actions {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 4px !important;
+                    margin-top: 8px !important;
+                    padding-top: 8px !important;
+                    border-top: 1px solid #35465b !important;
+                }
+
+                .psono-password-selector.psono-selector-compact {
+                    width: max-content !important;
+                    padding: 8px !important;
+                }
+
+                .psono-password-selector .psono-selector-action {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    width: 32px !important;
+                    height: 32px !important;
+                    padding: 0 !important;
+                    border: 1px solid #536579 !important;
+                    border-radius: 4px !important;
+                    background: transparent !important;
+                    color: #b1b6c1 !important;
+                    cursor: pointer !important;
+                }
+
+                .psono-password-selector .psono-selector-action:hover {
+                    color: #2dbb93 !important;
+                    border-color: #2dbb93 !important;
+                }
+
+                .psono-password-selector .psono-selector-action:focus-visible {
+                    outline: 2px solid #79dfc0 !important;
+                    outline-offset: 2px !important;
+                }
+
+                .psono-password-selector .psono-selector-action svg {
+                    display: block !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    color: inherit !important;
+                    fill: currentColor !important;
+                }
+
+                .psono-password-selector .psono-selector-action svg path {
+                    color: inherit !important;
+                    fill: currentColor !important;
+                }
             </style>
-            <div class="psono-drop-content">
+            <div class="psono-drop-content${options.onClose ? " psono-passkey-surface" : ""}">
                 ${content}
             </div>
         `;
@@ -1732,14 +2147,19 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		const onDocumentClick = (event) => {
 			const eventPath =
 				typeof event.composedPath === "function" ? event.composedPath() : [];
-			const isClickInsideDropdown =
-				event.target === anchorElement ||
-				eventPath.includes(anchorElement) ||
-				event.target === element ||
-				element.contains(event.target) ||
-				eventPath.includes(element);
+			const isClickInsideDropdown = options.onClose
+				? event.target === element || eventPath.includes(element)
+				: event.target === anchorElement ||
+					eventPath.includes(anchorElement) ||
+					event.target === element ||
+					element.contains(event.target) ||
+					eventPath.includes(element);
 
 			if (!isClickInsideDropdown) {
+				if (options.onClose) {
+					close();
+					return;
+				}
 				// Clean up both regular dropdowns and shadow root dropdowns
 				const dropdowns = document.getElementsByClassName("psono-drop");
 				for (let i = dropdowns.length - 1; i >= 0; i--) {
@@ -1798,7 +2218,10 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			}, 50);
 		}
 
+		let closed = false;
 		function close() {
+			if (closed) return;
+			closed = true;
 			document.removeEventListener("click", onDocumentClick, true);
 
 			// Hide popover if using Popover API
@@ -1815,6 +2238,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 
 			element.remove();
 			lastCloseTime = new Date().getTime();
+			if (options.onClose) options.onClose();
 		}
 
 		function getElement() {

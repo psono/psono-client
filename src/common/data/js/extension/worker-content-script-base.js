@@ -196,11 +196,17 @@ var ClassWorkerContentScriptBase = (browser, setTimeout) => {
 	 */
 	function emit(event, data, func) {
 		browser.runtime.sendMessage({ event: event, data: data }, (response) => {
+			const error = browser.runtime.lastError;
+			if (error) {
+				console.warn("Unable to send extension message:", event, error.message);
+				return;
+			}
 			if (func) {
 				func(response);
 			}
 			if (
 				typeof response === "undefined" ||
+				response === null ||
 				!Object.hasOwn(response, "event")
 			) {
 				return;

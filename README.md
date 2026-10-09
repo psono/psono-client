@@ -32,5 +32,3 @@ Visit the [License.md](/LICENSE.md) for more details
 - Websocket behind reverse proxy with SSL
 
     npx webpack serve --client-web-socket-url wss://psonoclient.chickahoona.com/ws --config webpack.environment.dev.js
-    
-    

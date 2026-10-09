@@ -1,0 +1,1148 @@
+import BlockIcon from "@mui/icons-material/Block";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EventIcon from "@mui/icons-material/Event";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import { makeStyles } from "@mui/styles";
+import type {} from "@mui/x-date-pickers/AdapterDateFns";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { Datastore, DatastorePath } from "../../../types/datastore";
+import type {
+	SharingDialogError,
+	SharingErrorResponse,
+	SharingNode,
+	SharingPermission,
+	SharingRight,
+	SharingRightRow,
+	SharingRightsDetail,
+	SharingUser,
+} from "../../../types/sharing-ui";
+import type { TableColumn, TableOptions } from "../../../types/table";
+import type { Group } from "../../../types/vault";
+import datastoreService from "../../services/datastore";
+import datastorePasswordService from "../../services/datastore-password";
+import format from "../../services/date";
+import groupsService from "../../services/groups";
+import helper from "../../services/helper";
+import offlineCache from "../../services/offline-cache";
+import shareService from "../../services/share";
+import { getStore } from "../../services/store";
+import TabPanel from "../tab-panel";
+import Table from "../table";
+import DialogError from "./error";
+import DialogNewGroupShare from "./new-group-share";
+import DialogNewUserShare from "./new-user-share";
+import DialogProgress from "./progress";
+import DialogVerify from "./verify";
+
+const useStyles = makeStyles((theme) => ({
+	tabPanel: {
+		"& .MuiBox-root": {
+			padding: "16px 0px",
+		},
+	},
+}));
+
+export interface DialogRightsOverviewProps {
+	open: boolean;
+	onClose: () => void;
+	item: SharingNode;
+	path: DatastorePath;
+}
+
+const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
+	const { open, onClose, item, path } = props;
+	const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
+	const { t } = useTranslation();
+	const classes = useStyles();
+	const [value, setValue] = React.useState(0);
+	const [verifyToggleOwnGrantOpen, setVerifyToggleOwnGrantOpen] =
+		useState(false);
+	const [verifyToggleOwnGrantData, setVerifyToggleOwnGrantData] = useState<
+		Partial<{
+			right: SharingRight;
+			type: SharingPermission;
+		}>
+	>({});
+	const [verifyDeleteOwnShareRightOpen, setVerifyDeleteOwnShareRightOpen] =
+		useState(false);
+	const [verifyDeleteOwnShareRightData, setVerifyDeleteOwnShareRightData] =
+		useState<Partial<{ right: SharingRight }>>({});
+	const [shareDetails, setShareDetails] = useState<
+		Partial<SharingRightsDetail>
+	>({});
+	const [userShareRights, setUserShareRights] = useState<SharingRightRow[]>([]);
+	const [groupShareRights, setGroupShareRights] = useState<SharingRightRow[]>(
+		[],
+	);
+	const [newShareUserOpen, setNewShareUserOpen] = useState(false);
+	const [newShareGroupOpen, setNewShareGroupOpen] = useState(false);
+	const [error, setError] = useState<SharingDialogError | null>(null);
+
+	// Rights controls are only rendered for rows from the loaded detail response.
+	const userRights = shareDetails.user_share_rights!;
+	const groupRights = shareDetails.group_share_rights!;
+	const ownShareRights = shareDetails.own_share_rights!;
+
+	const shareMoveProgressDialogOpen =
+		shareMoveProgress !== 0 && shareMoveProgress !== 100;
+	let openShareMoveRequests = 0;
+	let closedShareMoveRequests = 0;
+
+	const onOpenShareMoveRequest = () => {
+		openShareMoveRequests = openShareMoveRequests + 1;
+		setShareMoveProgress(
+			Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10,
+		);
+	};
+	const onCloseShareMoveRequest = () => {
+		closedShareMoveRequests = closedShareMoveRequests + 1;
+		setShareMoveProgress(
+			Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10,
+		);
+	};
+
+	let isSubscribed = true;
+	React.useEffect(() => {
+		loadShareRights();
+		return () => {
+			isSubscribed = false;
+		};
+	}, []);
+
+	const loadShareRights = () => {
+		if (!item.share_id) {
+			return;
+		}
+		// we already have a share and no new object that wants to become a share
+		shareService
+			.readShareRights(item.share_id)
+			.then((newShareDetails: SharingRightsDetail | undefined) => {
+				if (!isSubscribed) {
+					return;
+				}
+				if (newShareDetails) {
+					setShareDetails(newShareDetails);
+					setUserShareRights(
+						newShareDetails.user_share_rights.map((right) => {
+							return [
+								right.id,
+								right.username,
+								right.read,
+								right.write,
+								right.grant,
+								right.accepted,
+								right.expiration_date
+									? format(new Date(right.expiration_date))
+									: "",
+								right.create_date ? format(new Date(right.create_date)) : "",
+							];
+						}),
+					);
+					setGroupShareRights(
+						newShareDetails.group_share_rights.map((right) => {
+							return [
+								right.id,
+								right.group_name,
+								right.read,
+								right.write,
+								right.grant,
+								right.accepted,
+								right.expiration_date
+									? format(new Date(right.expiration_date))
+									: "",
+								right.create_date ? format(new Date(right.create_date)) : "",
+							];
+						}),
+					);
+				}
+			});
+	};
+
+	const onCreateUser = () => {
+		setNewShareUserOpen(true);
+	};
+
+	const onCreateGroup = () => {
+		setNewShareGroupOpen(true);
+	};
+
+	/**
+	 * Deletes a share right without further warning.
+	 *
+	 * @param {object} right The right to delete
+	 */
+	function deleteRightWithoutFurtherWarning(right: SharingRight) {
+		let shareRights: SharingRight[];
+		let userShareRightId: string | undefined;
+		let groupShareRightId: string | undefined;
+
+		if (Object.hasOwn(right, "user_id")) {
+			shareRights = userRights;
+			userShareRightId = right.id;
+		} else {
+			shareRights = groupRights;
+			groupShareRightId = right.id;
+		}
+
+		for (let i = shareRights.length - 1; i >= 0; i--) {
+			if (shareRights[i].id !== right.id) {
+				continue;
+			}
+
+			shareRights.splice(i, 1);
+			shareService.deleteShareRight(userShareRightId, groupShareRightId);
+		}
+
+		setUserShareRights(
+			userRights.map((right) => {
+				return [
+					right.id,
+					right.username,
+					right.read,
+					right.write,
+					right.grant,
+					right.accepted,
+					right.expiration_date ? format(new Date(right.expiration_date)) : "",
+					right.create_date ? format(new Date(right.create_date)) : "",
+				];
+			}),
+		);
+		setGroupShareRights(
+			groupRights.map((right) => {
+				return [
+					right.id,
+					right.group_name,
+					right.read,
+					right.write,
+					right.grant,
+					right.accepted,
+					right.expiration_date ? format(new Date(right.expiration_date)) : "",
+					right.create_date ? format(new Date(right.create_date)) : "",
+				];
+			}),
+		);
+	}
+
+	function deleteRight(rightId: string) {
+		let right: SharingRight | undefined = userRights.find(
+			(right) => right.id === rightId,
+		);
+		if (!right) {
+			right = groupRights.find((right) => right.id === rightId);
+		}
+		if (getStore().getState().user.username === right!.username) {
+			setVerifyDeleteOwnShareRightData({ right: right });
+			setVerifyDeleteOwnShareRightOpen(true);
+		} else {
+			return deleteRightWithoutFurtherWarning(right!);
+		}
+	}
+
+	const deleteOwnShareRightConfirmed = () => {
+		setVerifyDeleteOwnShareRightOpen(false);
+		return deleteRightWithoutFurtherWarning(
+			verifyDeleteOwnShareRightData.right!,
+		);
+	};
+
+	const createShareRights = async (
+		share_id: string,
+		share_secret_key: string,
+		node: SharingNode,
+		users: SharingUser[],
+		groups: Group[],
+		read: boolean,
+		write: boolean,
+		grant: boolean,
+		expirationDate: string | null,
+	) => {
+		let i: number;
+
+		const title = node.name!;
+
+		// get the type
+		let type = "";
+		if (typeof node.type === "undefined") {
+			// we have a folder
+			type = "folder";
+		} else {
+			// we have an item
+			type = node.type;
+		}
+
+		function createUserShareRight(user: SharingUser) {
+			const onSuccess = () => {
+				// pass
+			};
+			const onError = (result: SharingErrorResponse) => {
+				let title: string;
+				let description: string;
+				if (result.data === null) {
+					title = "UNKNOWN_ERROR";
+					description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+				} else if (
+					Object.hasOwn(result.data, "non_field_errors") &&
+					(result.data["non_field_errors"]!.indexOf(
+						"USER_DOES_NOT_EXIST_PROBABLY_DELETED",
+					) !== -1 ||
+						result.data["non_field_errors"]!.indexOf(
+							"Target user does not exist.",
+						) !== -1)
+				) {
+					title = "UNKNOWN_USER";
+					description = t("USER_DOES_NOT_EXIST_PROBABLY_DELETED", {
+						name: user.name,
+					});
+				} else if (Object.hasOwn(result.data, "non_field_errors")) {
+					title = "ERROR";
+					description = result.data["non_field_errors"]![0];
+				} else {
+					title = "UNKNOWN_ERROR";
+					description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+				}
+				setError({
+					title,
+					description,
+				});
+			};
+			return shareService
+				.createShareRight(
+					title,
+					type,
+					share_id,
+					user.data.user_id,
+					undefined,
+					user.data.user_public_key,
+					undefined,
+					share_secret_key,
+					read,
+					write,
+					grant,
+					expirationDate,
+				)
+				.then(onSuccess, onError);
+		}
+
+		for (i = 0; i < users.length; i++) {
+			await createUserShareRight(users[i]);
+		}
+
+		function createGroupShareRight(group: Group) {
+			const onSuccess = () => {
+				// pass
+			};
+			const onError = (result: SharingErrorResponse) => {
+				let title: string;
+				let description: string;
+				if (result.data === null) {
+					title = "UNKNOWN_ERROR";
+					description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+				} else if (Object.hasOwn(result.data, "non_field_errors")) {
+					title = "ERROR";
+					description = result.data["non_field_errors"]![0];
+				} else {
+					title = "UNKNOWN_ERROR";
+					description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+				}
+				setError({
+					title,
+					description,
+				});
+			};
+			const groupSecretKey = groupsService.getGroupSecretKey(
+				group.group_id,
+				group.secret_key,
+				group.secret_key_nonce,
+				group.secret_key_type,
+				group.public_key,
+			);
+			return shareService
+				.createShareRight(
+					title,
+					type,
+					share_id,
+					undefined,
+					group.group_id,
+					undefined,
+					groupSecretKey,
+					share_secret_key,
+					read,
+					write,
+					grant,
+					expirationDate,
+				)
+				.then(onSuccess, onError);
+		}
+
+		for (i = 0; i < groups.length; i++) {
+			await createGroupShareRight(groups[i]);
+		}
+	};
+
+	const onNewShareCreate = async (
+		users: SharingUser[],
+		groups: Group[],
+		read: boolean,
+		write: boolean,
+		grant: boolean,
+		expirationDate: string | null,
+	) => {
+		setNewShareUserOpen(false);
+		setNewShareGroupOpen(false);
+
+		const hasNoUsers = users.length < 1;
+		const hasNoGroups = groups.length < 1;
+
+		if (hasNoUsers && hasNoGroups) {
+			// TODO echo not shared message because no user / group selected
+			return;
+		}
+
+		if (Object.hasOwn(item, "share_id")) {
+			// its already a share, so generate only the share_rights
+			await createShareRights(
+				item.share_id!,
+				item.share_secret_key!,
+				item,
+				users,
+				groups,
+				read,
+				write,
+				grant,
+				expirationDate,
+			);
+			loadShareRights();
+		} else {
+			// its not yet a share, so generate the share, generate the share_rights and update
+			// the datastore
+			datastorePasswordService
+				.getPasswordDatastore()
+				.then((loadedDatastore) => {
+					const datastore = loadedDatastore!;
+					const pathCopy = path.slice();
+					const closest_share_info = shareService.getClosestParentShare(
+						pathCopy,
+						datastore,
+						null,
+						1,
+					);
+					// The traversal retains the supplied sentinel when there is no parent share.
+					const parent_share = (
+						closest_share_info as {
+							closest_share: Datastore | null | false;
+						}
+					)["closest_share"];
+					let parent_share_id: string | undefined;
+					let parent_datastore_id: string | undefined;
+
+					if (parent_share !== false && parent_share !== null) {
+						parent_share_id = parent_share.share_id;
+					} else {
+						parent_datastore_id = datastore.datastore_id;
+					}
+
+					// create the share
+					shareService
+						.createShare(
+							item,
+							parent_share_id,
+							parent_datastore_id,
+							item.id,
+							onOpenShareMoveRequest,
+							onCloseShareMoveRequest,
+						)
+						.then(async (createdShare) => {
+							const share_details = createdShare!;
+							const item_path = path.slice();
+							const item_path_copy = path.slice();
+							const item_path_copy2 = path.slice();
+
+							// create the share right
+							createShareRights(
+								share_details.share_id,
+								share_details.secret_key,
+								item,
+								users,
+								groups,
+								read,
+								write,
+								grant,
+								expirationDate,
+							);
+
+							// update datastore and / or possible parent shares
+							const search = datastoreService.findInDatastore(
+								item_path,
+								datastore,
+							);
+
+							if (typeof item.type === "undefined") {
+								// we have an item
+								delete search[0][search[1]].secret_id;
+								delete search[0][search[1]].secret_key;
+							}
+							search[0][search[1]].share_id = share_details.share_id;
+							search[0][search[1]].share_secret_key = share_details.secret_key;
+
+							// update node in our displayed datastore
+							item.share_id = share_details.share_id;
+							item.share_secret_key = share_details.secret_key;
+
+							const changed_paths = datastorePasswordService.onShareAdded(
+								share_details.share_id,
+								item_path_copy,
+								datastore,
+								1,
+							);
+
+							const parent_path = item_path_copy2.slice();
+							parent_path.pop();
+
+							changed_paths.push(parent_path);
+
+							await datastorePasswordService.saveDatastoreContent(
+								datastore,
+								changed_paths,
+							);
+							onClose();
+						});
+				});
+		}
+	};
+
+	const toggleRightWithoutFurtherWarning = (
+		type: SharingPermission,
+		right: SharingRight,
+	) => {
+		const onError = (data: unknown) => {
+			// pass
+			console.log(data);
+		};
+
+		const onSuccess = () => {
+			right[type] = !right[type];
+			setUserShareRights(
+				userRights.map((right) => {
+					return [
+						right.id,
+						right.username,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+			setGroupShareRights(
+				groupRights.map((right) => {
+					return [
+						right.id,
+						right.group_name,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+		};
+
+		const newRight = helper.duplicateObject(right);
+		newRight[type] = !newRight[type];
+
+		shareService
+			.updateShareRight(
+				newRight.share_id,
+				newRight.user_id,
+				newRight.group_id,
+				newRight.read,
+				newRight.write,
+				newRight.grant,
+				newRight.expiration_date,
+			)
+			.then(onSuccess, onError);
+	};
+
+	const toggleRight = (type: SharingPermission, rightId: string) => {
+		let right: SharingRight | undefined = userRights.find(
+			(right) => right.id === rightId,
+		);
+		if (!right) {
+			right = groupRights.find((right) => right.id === rightId);
+		}
+
+		if (
+			type === "grant" &&
+			getStore().getState().user.username === right!.username
+		) {
+			setVerifyToggleOwnGrantData({ right: right, type: type });
+			setVerifyToggleOwnGrantOpen(true);
+		} else {
+			return toggleRightWithoutFurtherWarning(type, right!);
+		}
+	};
+
+	const toggleOwnGrantConfirmed = () => {
+		return toggleRightWithoutFurtherWarning(
+			verifyToggleOwnGrantData.type!,
+			verifyToggleOwnGrantData.right!,
+		);
+	};
+
+	const saveExpiration = (rightId: string, expirationDate: string | null) => {
+		if (expirationDate && new Date(expirationDate) <= new Date()) {
+			return;
+		}
+
+		let right: SharingRight | undefined = userRights.find(
+			(right) => right.id === rightId,
+		);
+		if (!right) {
+			right = groupRights.find((right) => right.id === rightId);
+		}
+		if (!right) {
+			return;
+		}
+		const onError = (data: unknown) => {
+			console.log(data);
+		};
+
+		const onSuccess = () => {
+			right!.expiration_date = expirationDate;
+			setUserShareRights(
+				userRights.map((right) => {
+					return [
+						right.id,
+						right.username,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+			setGroupShareRights(
+				groupRights.map((right) => {
+					return [
+						right.id,
+						right.group_name,
+						right.read,
+						right.write,
+						right.grant,
+						right.accepted,
+						right.expiration_date
+							? format(new Date(right.expiration_date))
+							: "",
+						right.create_date ? format(new Date(right.create_date)) : "",
+					];
+				}),
+			);
+		};
+
+		shareService
+			.updateShareRight(
+				right.share_id,
+				right.user_id,
+				right.group_id,
+				right.read,
+				right.write,
+				right.grant,
+				expirationDate,
+			)
+			.then(onSuccess, onError);
+	};
+
+	const userColumns: TableColumn<SharingRightRow>[] = [
+		{ name: t("ID"), options: { display: false } },
+		{ name: t("USERNAME") },
+		{
+			name: t("READ"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("read", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("WRITE"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("write", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("ADMIN"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("grant", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("ACCEPTED"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => {
+								// pass
+							}}
+							disabled={true}
+							size="large"
+						>
+							{tableMeta.rowData[5] === true && <CheckIcon />}
+							{tableMeta.rowData[5] === false && <BlockIcon />}
+							{tableMeta.rowData[5] !== true &&
+								tableMeta.rowData[5] !== false && <HourglassEmptyIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("VALID_TILL"),
+			options: {
+				filter: false,
+				sort: true,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					const right = userRights.find(
+						(right) => right.id === tableMeta.rowData[0],
+					);
+					return (
+						<DateTimePicker
+							ampm={false}
+							disablePast
+							minDateTime={new Date()}
+							value={
+								right && right.expiration_date
+									? new Date(right.expiration_date)
+									: null
+							}
+							onAccept={(newValue) => {
+								saveExpiration(
+									tableMeta.rowData[0],
+									newValue ? newValue.toISOString() : null,
+								);
+							}}
+							format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+							disabled={!ownShareRights.grant}
+							slots={{ openPickerIcon: EventIcon }}
+							slotProps={{
+								actionBar: { actions: ["clear", "accept"] },
+								field: {
+									clearable: true,
+									onClear: () => saveExpiration(tableMeta.rowData[0], null),
+								},
+								textField: {
+									variant: "outlined",
+									size: "small",
+									margin: "dense",
+									placeholder: t("NOT_EXPIRING"),
+								},
+							}}
+						/>
+					);
+				},
+			},
+		},
+		{
+			name: t("CREATE_DATE"),
+			options: {
+				display: false,
+			},
+		},
+		{
+			name: t("DELETE"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customHeadLabelRender: () => null,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => deleteRight(tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							<DeleteIcon />
+						</IconButton>
+					);
+				},
+			},
+		},
+	];
+
+	const groupColumns: TableColumn<SharingRightRow>[] = [
+		{ name: t("ID"), options: { display: false } },
+		{ name: t("GROUP_NAME") },
+		{
+			name: t("READ"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("read", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("WRITE"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("write", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("ADMIN"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => toggleRight("grant", tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							{tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("ACCEPTED"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => {
+								// pass
+							}}
+							disabled={true}
+							size="large"
+						>
+							{tableMeta.rowData[5] === true && <CheckIcon />}
+							{tableMeta.rowData[5] === false && <BlockIcon />}
+							{tableMeta.rowData[5] !== true &&
+								tableMeta.rowData[5] !== false && <HourglassEmptyIcon />}
+						</IconButton>
+					);
+				},
+			},
+		},
+		{
+			name: t("VALID_TILL"),
+			options: {
+				filter: false,
+				sort: true,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					const right = groupRights.find(
+						(right) => right.id === tableMeta.rowData[0],
+					);
+					return (
+						<DateTimePicker
+							ampm={false}
+							disablePast
+							minDateTime={new Date()}
+							value={
+								right && right.expiration_date
+									? new Date(right.expiration_date)
+									: null
+							}
+							onAccept={(newValue) => {
+								saveExpiration(
+									tableMeta.rowData[0],
+									newValue ? newValue.toISOString() : null,
+								);
+							}}
+							format={t("DATE_TIME_YYYY_MM_DD_HH_MM")}
+							disabled={!ownShareRights.grant}
+							slots={{ openPickerIcon: EventIcon }}
+							slotProps={{
+								actionBar: { actions: ["clear", "accept"] },
+								field: {
+									clearable: true,
+									onClear: () => saveExpiration(tableMeta.rowData[0], null),
+								},
+								textField: {
+									variant: "outlined",
+									size: "small",
+									margin: "dense",
+									placeholder: t("NOT_EXPIRING"),
+								},
+							}}
+						/>
+					);
+				},
+			},
+		},
+		{
+			name: t("CREATE_DATE"),
+			options: {
+				display: false,
+			},
+		},
+		{
+			name: t("DELETE"),
+			options: {
+				filter: true,
+				sort: true,
+				empty: false,
+				customHeadLabelRender: () => null,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return (
+						<IconButton
+							onClick={() => deleteRight(tableMeta.rowData[0])}
+							disabled={!ownShareRights.grant}
+							size="large"
+						>
+							<DeleteIcon />
+						</IconButton>
+					);
+				},
+			},
+		},
+	];
+
+	const options: TableOptions = {
+		filterType: "checkbox",
+	};
+
+	const hasNoAdminGroups =
+		groupShareRights.filter((groupRight) => groupRight[4]).length === 0;
+	const ownRightsAreAdmin =
+		userShareRights.filter(
+			(userRight) =>
+				userRight[1] === getStore().getState().user.username && userRight[4],
+		).length === 1;
+	const hasOnlyOneAdmin =
+		userShareRights.filter((userRight) => userRight[4] && userRight[5]).length <
+		2;
+	const hideNewShare =
+		getStore().getState().server.complianceDisableShares ||
+		offlineCache.isActive() ||
+		(Object.hasOwn(item, "share_rights") && item.share_rights!.grant === false);
+
+	return (
+		<Dialog
+			fullWidth
+			maxWidth={"md"}
+			open={open}
+			onClose={() => {
+				onClose();
+			}}
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+		>
+			<DialogTitle id="alert-dialog-title">
+				{t("SHARE_RIGHTS_OF")} {item.name}
+			</DialogTitle>
+			<DialogContent>
+				<Grid container>
+					{hasNoAdminGroups && ownRightsAreAdmin && hasOnlyOneAdmin && (
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{
+									marginBottom: "5px",
+									marginTop: "5px",
+								}}
+							>
+								{t("CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GRANT_PRIVILEGE")}
+							</MuiAlert>
+						</Grid>
+					)}
+					<Grid item xs={12} sm={12} md={12}>
+						<Tabs
+							value={value}
+							indicatorColor="primary"
+							textColor="primary"
+							onChange={(event, newValue: number) => {
+								setValue(newValue);
+							}}
+							aria-label="user and group rights"
+						>
+							<Tab label={t("USERS")} />
+							<Tab label={t("GROUPS")} />
+						</Tabs>
+						<TabPanel value={value} index={0} className={classes.tabPanel}>
+							<Table
+								data={userShareRights}
+								columns={userColumns}
+								options={options}
+								onCreate={hideNewShare ? undefined : onCreateUser}
+							/>
+						</TabPanel>
+						<TabPanel value={value} index={1} className={classes.tabPanel}>
+							<Table
+								data={groupShareRights}
+								columns={groupColumns}
+								options={options}
+								onCreate={hideNewShare ? undefined : onCreateGroup}
+							/>
+						</TabPanel>
+					</Grid>
+				</Grid>
+			</DialogContent>
+			<DialogActions>
+				<Button
+					onClick={() => {
+						onClose();
+					}}
+				>
+					{t("CLOSE")}
+				</Button>
+			</DialogActions>
+			{verifyToggleOwnGrantOpen && (
+				<DialogVerify
+					title={"TOGGLE_GRANT_RIGHT"}
+					description={"TOGGLE_OWN_GRANT_RIGHT_WARNING"}
+					entries={[verifyToggleOwnGrantData.right!.username!]}
+					affectedEntriesText={"AFFECTED_SHARE_RIGHTS"}
+					open={verifyToggleOwnGrantOpen}
+					onClose={() => setVerifyToggleOwnGrantOpen(false)}
+					onConfirm={toggleOwnGrantConfirmed}
+				/>
+			)}
+			{verifyDeleteOwnShareRightOpen && (
+				<DialogVerify
+					title={"DELETE_SHARE_RIGHT"}
+					description={"DELETE_OWN_SHARE_RIGHT_WARNING"}
+					entries={[verifyDeleteOwnShareRightData.right!.username!]}
+					affectedEntriesText={"AFFECTED_SHARE_RIGHTS"}
+					open={verifyDeleteOwnShareRightOpen}
+					onClose={() => setVerifyDeleteOwnShareRightOpen(false)}
+					onConfirm={deleteOwnShareRightConfirmed}
+				/>
+			)}
+			{newShareUserOpen && (
+				<DialogNewUserShare
+					open={newShareUserOpen}
+					onClose={() => setNewShareUserOpen(false)}
+					onCreate={(users, read, write, grant, expirationDate) => {
+						onNewShareCreate(users, [], read, write, grant, expirationDate);
+					}}
+					node={item}
+				/>
+			)}
+			{newShareGroupOpen && (
+				<DialogNewGroupShare
+					open={newShareGroupOpen}
+					onClose={() => setNewShareGroupOpen(false)}
+					onCreate={(groups, read, write, grant, expirationDate) => {
+						onNewShareCreate([], groups, read, write, grant, expirationDate);
+					}}
+					node={item}
+				/>
+			)}
+			{error !== null && (
+				<DialogError
+					open={error !== null}
+					onClose={() => setError(null)}
+					title={error.title}
+					description={error.description}
+				/>
+			)}
+
+			{shareMoveProgressDialogOpen && (
+				<DialogProgress
+					percentageComplete={shareMoveProgress}
+					open={shareMoveProgressDialogOpen}
+				/>
+			)}
+		</Dialog>
+	);
+};
+
+export default DialogRightsOverview;
