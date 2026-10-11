@@ -6,6 +6,37 @@ import * as storeService from "./store";
 import rootReducer from "../reducers";
 import { loadWordlist } from "./passphrase";
 
+describe("Service: datastorePasswordService - unavailable data", () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("rejects before reading shares when the datastore request failed", async () => {
+		jest.spyOn(datastoreService, "getDatastore").mockResolvedValue(undefined);
+		const readRights = jest.spyOn(shareService, "readShareRightsOverview");
+
+		await expect(
+			datastorePasswordService.getPasswordDatastore("password-store"),
+		).rejects.toEqual({
+			errors: ["SERVER_OFFLINE"],
+		});
+		expect(readRights).not.toHaveBeenCalled();
+	});
+
+	it("rejects when share rights could not be loaded instead of returning incomplete data", async () => {
+		jest.spyOn(datastoreService, "getDatastore").mockResolvedValue({});
+		jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockResolvedValue(undefined);
+
+		await expect(
+			datastorePasswordService.getPasswordDatastore("password-store"),
+		).rejects.toEqual({
+			errors: ["SERVER_OFFLINE"],
+		});
+	});
+});
+
 describe("Service: datastorePasswordService test suite #1", () => {
 	it("datastorePasswordService exists", () => {
 		expect(datastorePasswordService).toBeDefined();

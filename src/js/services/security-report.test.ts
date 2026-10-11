@@ -1,4 +1,100 @@
 import securityReportService from "./security-report";
+import rootReducer from "../reducers";
+import datastoreService from "./datastore";
+import datastoreUserService from "./datastore-user";
+import exportService from "./export";
+import * as storeService from "./store";
+
+describe("Service: securityReportService - request failures", () => {
+	const completed = jest.fn();
+	const overview = {
+		datastores: [
+			{
+				id: "password-store",
+				type: "password",
+				description: "Default",
+				is_default: true,
+			},
+		],
+	};
+
+	beforeAll(() => {
+		securityReportService.on("generation-complete", completed);
+	});
+
+	beforeEach(() => {
+		completed.mockClear();
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		jest.spyOn(storeService, "getStore").mockReturnValue({
+			getState: () => state,
+		} as ReturnType<typeof storeService.getStore>);
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("returns a displayable error when the overview is unavailable and allows retrying", async () => {
+		jest
+			.spyOn(datastoreService, "getDatastoreOverview")
+			.mockResolvedValueOnce(undefined)
+			.mockResolvedValueOnce(overview);
+		const fetch = jest
+			.spyOn(exportService, "fetchDatastore")
+			.mockResolvedValue({});
+		jest
+			.spyOn(datastoreUserService, "searchUser")
+			.mockResolvedValue({ data: [] });
+
+		await expect(
+			securityReportService.generateSecurityReport("", false),
+		).rejects.toEqual({
+			errors: ["SERVER_OFFLINE"],
+		});
+		expect(fetch).not.toHaveBeenCalled();
+		expect(completed).not.toHaveBeenCalled();
+
+		await expect(
+			securityReportService.generateSecurityReport("", false),
+		).resolves.toMatchObject({
+			msgs: ["ANALYSIS_SUCCESSFUL"],
+			analysis: { passwords: [], password_summary: { total: 0 } },
+		});
+		expect(fetch).toHaveBeenCalledWith(
+			undefined,
+			"password-store",
+			false,
+			true,
+		);
+		expect(completed).toHaveBeenCalledTimes(1);
+	});
+
+	it("preserves rejected overview errors instead of analyzing missing data", async () => {
+		const error = { errors: ["RESOURCE_NOT_FOUND"] };
+		jest
+			.spyOn(datastoreService, "getDatastoreOverview")
+			.mockRejectedValue(error);
+
+		await expect(
+			securityReportService.generateSecurityReport("", false),
+		).rejects.toBe(error);
+		expect(completed).not.toHaveBeenCalled();
+	});
+
+	it("does not report successful generation after the user summary request fails", async () => {
+		const error = { errors: ["SERVER_OFFLINE"] };
+		jest
+			.spyOn(datastoreService, "getDatastoreOverview")
+			.mockResolvedValue(overview);
+		jest.spyOn(exportService, "fetchDatastore").mockResolvedValue({});
+		jest.spyOn(datastoreUserService, "searchUser").mockRejectedValue(error);
+
+		await expect(
+			securityReportService.generateSecurityReport("", false),
+		).rejects.toBe(error);
+		expect(completed).not.toHaveBeenCalled();
+	});
+});
 
 describe("Service: securityReportService - connection entries", () => {
 	it("includes only embedded connection passwords", () => {

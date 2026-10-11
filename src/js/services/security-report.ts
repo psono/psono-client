@@ -628,10 +628,6 @@ function summarizeUser(analysis: SecurityAnalysis) {
 
 	emit("summarize-user-started", {});
 
-	const onError = () => {
-		// pass
-	};
-
 	const onSuccess = (result: unknown) => {
 		type User = UserSecuritySummary & { username: string };
 		const users = (result as { data: User | User[] }).data;
@@ -658,7 +654,7 @@ function summarizeUser(analysis: SecurityAnalysis) {
 
 	return datastoreUserService
 		.searchUser(getStore().getState().user.username)
-		.then(onSuccess, onError);
+		.then(onSuccess);
 }
 
 /**
@@ -667,12 +663,11 @@ function summarizeUser(analysis: SecurityAnalysis) {
  * @returns {Promise} Returns a promise with the exportable datastore content of all datastores
  */
 function fetchAllPasswordDatastores() {
-	const onError = () => {
-		// pass
-	};
-
 	const onSuccess = (overview: DatastoreOverview | undefined) => {
-		const result = overview!;
+		if (!overview) {
+			throw { errors: ["SERVER_OFFLINE"] };
+		}
+		const result = overview;
 		const all_calls = [];
 
 		for (let i = 0; i < result.datastores.length; i++) {
@@ -691,7 +686,7 @@ function fetchAllPasswordDatastores() {
 		return Promise.all(all_calls);
 	};
 
-	return datastoreService.getDatastoreOverview().then(onSuccess, onError);
+	return datastoreService.getDatastoreOverview().then(onSuccess);
 }
 
 /**
@@ -709,7 +704,7 @@ function generateSecurityReport(
 	emit("generation-started", {});
 
 	return fetchAllPasswordDatastores()
-		.then((datastores) => filterPasswords(datastores! as ReportFolder[]))
+		.then((datastores) => filterPasswords(datastores as ReportFolder[]))
 		.then(analyzePasswordLength)
 		.then(analyzePasswordAge)
 		.then(analyzePasswordDuplicates)
