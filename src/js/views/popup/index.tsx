@@ -348,6 +348,7 @@ const PopupItem = (props: PopupItemProps) => {
 				)}
 				<br />
 				<Tooltip
+					disableInteractive
 					title={item.path}
 					placement="top"
 					PopperProps={{
@@ -394,6 +395,7 @@ const PopupItem = (props: PopupItemProps) => {
 				].indexOf(item.content.type!) !== -1 && (
 					<>
 						<Tooltip
+							disableInteractive
 							title={t("COPY_USERNAME")}
 							placement="left"
 							PopperProps={{
@@ -408,6 +410,7 @@ const PopupItem = (props: PopupItemProps) => {
 							</Button>
 						</Tooltip>
 						<Tooltip
+							disableInteractive
 							title={t("COPY_PASSWORD")}
 							placement="left"
 							PopperProps={{
@@ -423,6 +426,7 @@ const PopupItem = (props: PopupItemProps) => {
 						</Tooltip>
 						{item.content.type === "website_password" && (
 							<Tooltip
+								disableInteractive
 								title={t("COPY_TOTP_TOKEN")}
 								placement="left"
 								PopperProps={{
@@ -449,6 +453,7 @@ const PopupItem = (props: PopupItemProps) => {
 				)}
 				{["totp"].indexOf(item.content.type!) !== -1 && (
 					<Tooltip
+						disableInteractive
 						title={t("COPY_TOTP_TOKEN")}
 						placement="left"
 						PopperProps={{
@@ -468,6 +473,7 @@ const PopupItem = (props: PopupItemProps) => {
 				)}
 				{["note"].indexOf(item.content.type!) !== -1 && (
 					<Tooltip
+						disableInteractive
 						title={t("COPY_NOTE_CONTENT")}
 						placement="left"
 						PopperProps={{
@@ -487,6 +493,7 @@ const PopupItem = (props: PopupItemProps) => {
 				)}
 				{["bookmark"].indexOf(item.content.type!) !== -1 && (
 					<Tooltip
+						disableInteractive
 						title={t("COPY_URL")}
 						placement="left"
 						PopperProps={{
@@ -1335,7 +1342,11 @@ const PopupView = (
 								disableElevation
 								aria-label="datastore menu"
 							>
-								<Tooltip title={t("OPEN_DATASTORE")} placement="top">
+								<Tooltip
+									disableInteractive
+									title={t("OPEN_DATASTORE")}
+									placement="top"
+								>
 									<Button
 										onClick={openDatastore}
 										className={classes.menuButton}
@@ -1344,7 +1355,11 @@ const PopupView = (
 									</Button>
 								</Tooltip>
 								{datastores && datastores.length > 1 && (
-									<Tooltip title={t("CHANGE_DATASTORE")} placement="top">
+									<Tooltip
+										disableInteractive
+										title={t("CHANGE_DATASTORE")}
+										placement="top"
+									>
 										<Button
 											onClick={openDatastoreMenu}
 											className={`${classes.menuButton} ${classes.menuButtonSlim}`}
@@ -1408,7 +1423,11 @@ const PopupView = (
 						</Grid>
 						{settingsDatastore.showBookmark && (
 							<Grid item>
-								<Tooltip title={t("BOOKMARK")} placement="top">
+								<Tooltip
+									disableInteractive
+									title={t("BOOKMARK")}
+									placement="top"
+								>
 									<Button
 										variant="outlined"
 										color="primary"
@@ -1421,7 +1440,11 @@ const PopupView = (
 							</Grid>
 						)}
 						<Grid item>
-							<Tooltip title={t("GENERATE_PASSWORD")} placement="top">
+							<Tooltip
+								disableInteractive
+								title={t("GENERATE_PASSWORD")}
+								placement="top"
+							>
 								<Button
 									variant="outlined"
 									color="primary"
@@ -1439,7 +1462,11 @@ const PopupView = (
 								disableElevation
 								aria-label="main menu"
 							>
-								<Tooltip title={t("CHANGE_ACCOUNT")} placement="top">
+								<Tooltip
+									disableInteractive
+									title={t("CHANGE_ACCOUNT")}
+									placement="top"
+								>
 									<Button
 										onClick={openChangeAccount}
 										className={classes.menuButton}
@@ -1460,7 +1487,7 @@ const PopupView = (
 										</Badge>
 									</Button>
 								</Tooltip>
-								<Tooltip title={t("LOGOUT")} placement="top">
+								<Tooltip disableInteractive title={t("LOGOUT")} placement="top">
 									<Button onClick={logout} className={classes.menuButton}>
 										<ExitToAppRoundedIcon color="primary" />
 									</Button>
