@@ -1,4 +1,8 @@
 import browserClient from "./browser-client";
+import device from "./device";
+import notification from "./notification";
+import * as storeService from "./store";
+import type { AppState } from "../../types/state";
 import type { FirefoxBrowser } from "../../types/browser";
 
 // Tests replace only the extension APIs exercised by each target.
@@ -15,15 +19,20 @@ describe("Service: browser client test suite", () => {
 	const originalUrl = window.location.href;
 
 	afterEach(() => {
+		jest.restoreAllMocks();
+		browserClient.clearConfigCache();
 		testGlobals.TARGET = originalTarget;
 		testGlobals.browser = originalBrowser;
 		testGlobals.chrome = originalChrome;
 		window.history.replaceState({}, "", originalUrl);
 	});
 
-	it("sends Chrome messages only to the specified frame", () => {
+	it.each([
+		"chrome",
+		"safari",
+	] as const)("sends %s messages only to the specified frame", (target) => {
 		const sendMessage = jest.fn();
-		testGlobals.TARGET = "chrome";
+		testGlobals.TARGET = target;
 		testGlobals.chrome = { tabs: { sendMessage } } as unknown as typeof chrome;
 
 		browserClient.emitFrame(42, 7, "fillpassword", { password: "secret" });
@@ -35,10 +44,13 @@ describe("Service: browser client test suite", () => {
 		);
 	});
 
-	it("passes the callback to Chrome frame messages", () => {
+	it.each([
+		"chrome",
+		"safari",
+	] as const)("passes the callback to %s frame messages", (target) => {
 		const callback = jest.fn();
 		const sendMessage = jest.fn();
-		testGlobals.TARGET = "chrome";
+		testGlobals.TARGET = target;
 		testGlobals.chrome = { tabs: { sendMessage } } as unknown as typeof chrome;
 
 		browserClient.emitFrame(42, 0, "get-username", {}, callback);
@@ -71,8 +83,12 @@ describe("Service: browser client test suite", () => {
 		expect(callback).toHaveBeenCalledWith(response);
 	});
 
-	it("includes SSO state in browser extension return URLs", () => {
-		testGlobals.TARGET = "chrome";
+	it.each([
+		"chrome",
+		"firefox",
+		"safari",
+	] as const)("includes SSO state in %s extension return URLs", (target) => {
+		testGlobals.TARGET = target;
 
 		expect(browserClient.getSamlReturnToUrl("saml-state")).toBe(
 			"https://psono.com/redirect#!/saml/token/saml-state/",
@@ -102,7 +118,10 @@ describe("Service: browser client test suite", () => {
 		);
 	});
 
-	it("updates a specific Chrome tab", async () => {
+	it.each([
+		"chrome",
+		"safari",
+	] as const)("updates a specific %s tab", async (target) => {
 		const update = jest.fn(
 			(
 				_tabId: number,
@@ -110,7 +129,7 @@ describe("Service: browser client test suite", () => {
 				callback: () => void,
 			) => callback(),
 		);
-		testGlobals.TARGET = "chrome";
+		testGlobals.TARGET = target;
 		testGlobals.chrome = { tabs: { update } } as unknown as typeof chrome;
 
 		await browserClient.replaceTabUrlInTab(42, "/data/index.html#!/");
@@ -132,5 +151,58 @@ describe("Service: browser client test suite", () => {
 		expect(update).toHaveBeenCalledWith(42, {
 			url: "/data/index.html#!/",
 		});
+	});
+
+	it("recognizes Safari as an extension and uses its runtime URL scheme", async () => {
+		testGlobals.TARGET = "safari";
+		testGlobals.chrome = {
+			runtime: {
+				getURL: (path: string) => `safari-web-extension://installation/${path}`,
+			},
+		} as unknown as typeof chrome;
+		expect(device.isWebclient()).toBe(false);
+		expect(browserClient.getClientType()).toBe("safari_extension");
+		expect(await browserClient.getBaseUrl()).toBe(
+			"safari-web-extension://installation/data/",
+		);
+		expect(browserClient.getURL("data/index.html")).toBe(
+			"safari-web-extension://installation/data/index.html",
+		);
+	});
+
+	it("loads Safari configuration without accessing unsupported managed storage", async () => {
+		testGlobals.TARGET = "safari";
+		testGlobals.chrome = {} as typeof chrome;
+		jest.spyOn(storeService, "getStore").mockReturnValue({
+			getState: () =>
+				({
+					persistent: {
+						remoteConfigJson: { allow_registration: false },
+						knownHosts: [],
+					},
+				}) as unknown as AppState,
+		} as ReturnType<typeof storeService.getStore>);
+		const config = await browserClient.getConfig();
+		expect(config.allow_registration).toBe(false);
+		expect(config.base_url).toBe("https://www.psono.pw/");
+		expect(config.backend_servers[0].url).toBe("https://www.psono.pw/server");
+	});
+
+	it("does not access unsupported Safari privacy, authentication or notification APIs", async () => {
+		testGlobals.TARGET = "safari";
+		testGlobals.chrome = {} as typeof chrome;
+		testGlobals.browser = {} as FirefoxBrowser;
+		const infoSend = jest
+			.spyOn(notification, "infoSend")
+			.mockImplementation(() => {});
+		expect(await browserClient.passwordSavingControlledByThisExtension()).toBe(
+			false,
+		);
+		expect(await browserClient.disableBrowserPasswordSaving()).toBe(false);
+		expect(() =>
+			browserClient.registerAuthRequiredListener(jest.fn()),
+		).not.toThrow();
+		expect(() => browserClient.notify("test")).not.toThrow();
+		expect(infoSend).toHaveBeenCalledWith("test");
 	});
 });

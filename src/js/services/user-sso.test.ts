@@ -273,6 +273,7 @@ describe.each([
 	it.each([
 		"chrome_extension",
 		"firefox_extension",
+		"safari_extension",
 	] as const)("allows %s callbacks already validated by the background", async (clientType) => {
 		jest.spyOn(browserClient, "getClientType").mockReturnValue(clientType);
 		navigateToCallback(`#!/${type}/token/${tokenId}`);

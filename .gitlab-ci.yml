@@ -6,6 +6,7 @@ stages:
   - prepare
   - test
   - build
+  - package
   - deploy
 
 create-translations:
@@ -103,7 +104,7 @@ build-docker-image:
   dependencies:
     - download-translations
   script:
-    - apt-get update && apt-get install -y curl iptables libdevmapper1.02.1
+    - apt-get update && apt-get install -y iptables libdevmapper1.02.1
     - sh ./var/prep-build.sh
     - npm run buildwebclient
     - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.6.28-1_amd64.deb" -o containerd.deb && echo "3fcc3e44e6d507c346ae05bbaef8f4bb04dfa8da9f04af658537f7e373c91340 containerd.deb" | sha256sum -c -
@@ -129,7 +130,6 @@ build-sbom:
   stage: build
   image: ubuntu:22.04
   script:
-    - apt-get update && apt-get install -y curl
     - sh ./var/prep-build.sh
     - npx @cyclonedx/cyclonedx-npm > sbom.json
   artifacts:
@@ -149,7 +149,6 @@ build-firefox-extension:
   dependencies:
     - download-translations
   script:
-    - apt-get update && apt-get install -y curl
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
     - npm run buildfirefox
@@ -173,7 +172,6 @@ build-chrome-extension:
   dependencies:
     - download-translations
   script:
-    - apt-get update && apt-get install -y curl
     - sh ./var/prep-build.sh
     - node var/update_public_suffix_list.js
     - npm run buildchrome
@@ -188,6 +186,86 @@ build-chrome-extension:
     - branches@esaqa/psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
+build-safari-extension:
+  except:
+    - schedules
+  stage: build
+  image: ubuntu:22.04
+  dependencies:
+    - download-translations
+  script:
+    - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
+    - npm run buildsafari
+  artifacts:
+    name: "safari_webextension_$CI_COMMIT_REF_NAME"
+    paths:
+      - build/safari/
+  only:
+    - branches@esaqa/psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+
+package-safari-extension:
+  except:
+    - schedules
+  stage: package
+  image: macos-26-xcode-26
+  tags:
+    - saas-macos-medium-m1
+  dependencies:
+    - build-safari-extension
+  variables:
+    LC_ALL: "en_US.UTF-8"
+    LANG: "en_US.UTF-8"
+    BUNDLE_GEMFILE: "$CI_PROJECT_DIR/Gemfile"
+    BUNDLE_PATH: "$CI_PROJECT_DIR/vendor/bundle"
+    BUNDLE_FROZEN: "true"
+    FASTLANE_SKIP_UPDATE_CHECK: "true"
+    FASTLANE_OPT_OUT_USAGE: "true"
+  script:
+    - gem install bundler -v 2.5.22 --no-document
+    - bundle install --jobs 4
+    - |
+      if [[ "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        (cd safari && bundle exec fastlane mac appstore_build)
+      else
+        (cd safari && bundle exec fastlane mac build)
+      fi
+  artifacts:
+    name: "safari_$CI_COMMIT_REF_NAME"
+    paths:
+      - dist/safari/
+  only:
+    - branches@esaqa/psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+
+deploy-safari:
+  except:
+    - schedules
+  stage: deploy
+  image: macos-26-xcode-26
+  tags:
+    - saas-macos-medium-m1
+  dependencies:
+    - package-safari-extension
+  variables:
+    LC_ALL: "en_US.UTF-8"
+    LANG: "en_US.UTF-8"
+    BUNDLE_GEMFILE: "$CI_PROJECT_DIR/Gemfile"
+    BUNDLE_PATH: "$CI_PROJECT_DIR/vendor/bundle"
+    BUNDLE_FROZEN: "true"
+    FASTLANE_SKIP_UPDATE_CHECK: "true"
+    FASTLANE_OPT_OUT_USAGE: "true"
+  script:
+    - gem install bundler -v 2.5.22 --no-document
+    - bundle install --jobs 4
+    - (cd safari && bundle exec fastlane mac appstore_upload)
+  environment:
+    name: safari-appstore
+    url: https://appstoreconnect.apple.com/
+  only:
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+
 build-webclient:
   except:
     - schedules
@@ -196,7 +274,6 @@ build-webclient:
   dependencies:
     - download-translations
   script:
-    - apt-get update && apt-get install -y curl
     - sh ./var/prep-build.sh
     - npm run buildwebclient
     - sh ./var/package-webclient.sh

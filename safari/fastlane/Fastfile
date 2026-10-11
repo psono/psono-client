@@ -1,0 +1,126 @@
+require "base64"
+require "fileutils"
+require "json"
+require "securerandom"
+require "tempfile"
+
+# Resolve during Fastfile parsing; Fastlane changes working directory for lanes.
+SAFARI_PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+default_platform(:mac)
+
+platform :mac do
+  private_lane :connect_api do
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+      key_content: ENV.fetch("APP_STORE_CONNECT_API_KEY_CONTENT")
+    )
+  end
+
+  private_lane :package_project do
+    root = SAFARI_PROJECT_ROOT
+    sh("bundle", "exec", "ruby", File.join(root, "var/package-safari-extension.rb"))
+    projects = Dir.glob(File.join(root, "build/safari-xcode/**/*.xcodeproj"))
+    UI.user_error!("Missing generated Safari project") unless projects.length == 1
+    projects.first
+  end
+
+  desc "Build a universal ad-hoc-signed Safari host app for local testing"
+  lane :build do
+    root = SAFARI_PROJECT_ROOT
+    project = package_project
+    derived_data = File.join(root, "build/safari-derived-data")
+    sh("xcodebuild", "-project", project, "-scheme", "Psono for Safari",
+      "-configuration", "Release", "-derivedDataPath", derived_data,
+      "CODE_SIGNING_ALLOWED=NO", "build")
+    app_path = File.join(derived_data, "Build/Products/Release/Psono for Safari.app")
+    extensions = Dir.glob(File.join(app_path, "Contents/PlugIns/*.appex"))
+    UI.user_error!("Missing embedded Safari extension") unless extensions.length == 1
+    entitlements = File.join(File.dirname(project), "Psono.entitlements")
+    sh("codesign", "--force", "--sign", "-", "--entitlements", entitlements, extensions.first)
+    sh("codesign", "--force", "--sign", "-", "--entitlements", entitlements, app_path)
+    FileUtils.mkdir_p(File.join(root, "dist/safari"))
+    sh("ditto", "-c", "-k", "--sequesterRsrc", "--keepParent",
+      app_path, File.join(root, "dist/safari/psono-safari-development.zip"))
+  end
+
+  desc "Build a signed Mac App Store package with the shared Match repository"
+  lane :appstore_build do
+    root = SAFARI_PROJECT_ROOT
+    app_id = ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari")
+    keychain_path = File.join(root, "build/psono-safari-#{ENV.fetch('CI_JOB_ID', Process.pid.to_s)}.keychain-db")
+    keychain_password = SecureRandom.hex(24)
+    key_file = nil
+    created_keychain = false
+    begin
+      connect_api
+      create_keychain(path: keychain_path, password: keychain_password,
+        default_keychain: false, unlock: true, timeout: 3600, lock_when_sleeps: false)
+      created_keychain = true
+      if ENV["MATCH_GIT_KEY"]
+        key_file = Tempfile.new("psono-safari-match")
+        key_file.chmod(0600)
+        key_file.write(Base64.strict_decode64(ENV.fetch("MATCH_GIT_KEY").gsub(/\s/, "")))
+        key_file.flush
+      end
+      match_options = {
+        type: "appstore", platform: "macos", readonly: true,
+        app_identifier: [app_id, "#{app_id}.Extension"],
+        additional_cert_types: ["mac_installer_distribution"],
+        keychain_name: keychain_path, keychain_password: keychain_password
+      }
+      match_options[:git_private_key] = key_file.path if key_file
+      match(**match_options)
+      profiles = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
+      identities = sh("security", "find-identity", "-v", keychain_path, log: false)
+      app_identity = identities.lines.filter_map { |line| line[/"([^"]*(?:Apple Distribution|Mac App Distribution|3rd Party Mac Developer Application)[^"]*)"/, 1] }.first
+      installer_identity = identities.lines.filter_map { |line| line[/"([^"]*(?:Mac Installer Distribution|3rd Party Mac Developer Installer)[^"]*)"/, 1] }.first
+      UI.user_error!("Match did not install macOS application and installer signing identities") unless app_identity && installer_identity
+
+      FastlaneCore::Helper.with_env_values(
+        "SAFARI_SIGNING" => "appstore",
+        "SAFARI_CODE_SIGN_IDENTITY" => app_identity,
+        "SAFARI_PROVISIONING_PROFILES" => JSON.generate(profiles)
+      ) do
+        project = package_project
+        build_mac_app(
+          project: project, scheme: "Psono for Safari", clean: true,
+          export_method: "app-store", code_sign_identity: app_identity,
+          installer_cert_name: installer_identity,
+          output_directory: File.join(root, "dist/safari"),
+          output_name: "psono-safari",
+          export_options: {
+            signingStyle: "manual", teamID: ENV.fetch("APPLE_TEAM_ID", "CVDV85ZV93"),
+            provisioningProfiles: profiles
+          }
+        )
+      end
+    ensure
+      key_file.close! if key_file
+      delete_keychain(keychain_path: keychain_path) if created_keychain
+    end
+  end
+
+  desc "Upload the prebuilt Safari package to TestFlight"
+  lane :testflight_upload do
+    root = SAFARI_PROJECT_ROOT
+    connect_api
+    upload_to_testflight(
+      pkg: File.join(root, "dist/safari/psono-safari.pkg"),
+      app_platform: "osx", app_identifier: ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari"),
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Upload the prebuilt Safari package to App Store Connect"
+  lane :appstore_upload do
+    root = SAFARI_PROJECT_ROOT
+    connect_api
+    upload_to_app_store(
+      pkg: File.join(root, "dist/safari/psono-safari.pkg"), platform: "osx",
+      app_identifier: ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari"),
+      skip_metadata: true, skip_screenshots: true, submit_for_review: false, force: true
+    )
+  end
+end

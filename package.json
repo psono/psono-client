@@ -10,6 +10,8 @@
     "dev": "webpack serve --config webpack.environment.dev.js",
     "buildchrome": "npm run typecheck && webpack --config webpack.environment.prod.chrome.js",
     "buildfirefox": "npm run typecheck && webpack --config webpack.environment.prod.firefox.js",
+    "buildsafari": "npm run typecheck && webpack --config webpack.environment.prod.safari.js",
+    "packagesafari": "bundle exec ruby var/package-safari-extension.rb",
     "buildwebclient": "npm run typecheck && webpack --config webpack.environment.prod.webclient.js",
     "buildelectron": "npm run typecheck && webpack --config webpack.environment.prod.electron.js",
     "deployfirefox": "node ./var/firefox_deploy.js",

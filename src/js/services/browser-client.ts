@@ -194,7 +194,9 @@ function registerAuthRequiredListener(callback: AuthRequiredCallback) {
  * Returns the client type
  */
 function getClientType(url?: string) {
-	if (TARGET === "firefox") {
+	if (TARGET === "safari") {
+		return "safari_extension";
+	} else if (TARGET === "firefox") {
 		return "firefox_extension";
 	} else if (TARGET === "chrome") {
 		return "chrome_extension";
@@ -225,7 +227,7 @@ function openTab(url: string) {
  */
 function getSamlReturnToUrl(state?: string) {
 	const statePath = state ? encodeURIComponent(state) + "/" : "";
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		return "https://psono.com/redirect#!/saml/token/" + statePath;
 		//return browser.identity.getRedirectURL() + "data/index.html#!/saml/token/";
 	} else if (TARGET === "chrome") {
@@ -250,7 +252,7 @@ function getSamlReturnToUrl(state?: string) {
  */
 function getOidcReturnToUrl(state?: string) {
 	const statePath = state ? encodeURIComponent(state) + "/" : "";
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		return "https://psono.com/redirect#!/oidc/token/" + statePath;
 		//return browser.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
 	} else if (TARGET === "chrome") {
@@ -273,7 +275,7 @@ function getOidcReturnToUrl(state?: string) {
  * @param {string} url The url to open
  */
 function launchWebAuthFlow(url: string) {
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		emitSec("launch-web-auth-flow-in-background", { url: url });
 		return Promise.resolve();
 	} else if (TARGET === "chrome") {
@@ -332,7 +334,7 @@ function openTabBg(
 					}
 				});
 			});
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		chrome.tabs.create(
 			{
 				url: url,
@@ -380,7 +382,7 @@ function replaceTabUrl(
 					}
 				});
 			});
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		chrome.tabs.update(
 			{
 				url: url,
@@ -415,7 +417,7 @@ function replaceTabUrlInTab(
 ): Promise<chrome.tabs.Tab | undefined | void> {
 	if (TARGET === "firefox") {
 		return browser.tabs.update(tabId, { url: url });
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		return new Promise<chrome.tabs.Tab | undefined>((resolve) => {
 			chrome.tabs.update(tabId, { url: url }, resolve);
 		});
@@ -444,9 +446,9 @@ function openPopup(
 			return browser.windows.create(createData, callback_function);
 		}
 		return browser.windows.create(createData);
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		const createData: chrome.windows.CreateData = {
-			url: url,
+			url: TARGET === "safari" ? chrome.runtime.getURL(url) : url,
 			type: "popup",
 			width: 1000,
 			height: 600,
@@ -472,7 +474,7 @@ function openPopup(
 function closeOpenedPopup(window_id: number) {
 	if (TARGET === "firefox") {
 		return browser.windows.remove(window_id);
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		return chrome.windows.remove(window_id);
 	} else {
 		// pass
@@ -485,7 +487,9 @@ function closeOpenedPopup(window_id: number) {
  * @returns {Promise} The base url as string
  */
 function getBaseUrl() {
-	if (TARGET === "firefox") {
+	if (TARGET === "safari") {
+		return Promise.resolve(chrome.runtime.getURL("data/"));
+	} else if (TARGET === "firefox") {
 		return new Promise<string>((resolve) => {
 			resolve("chrome-extension://" + chrome.runtime.id + "/data/");
 		});
@@ -686,7 +690,7 @@ function _loadConfig(): Promise<ClientConfiguration> {
 		};
 
 		let onSuccess: (config: { data: Partial<ClientConfiguration> }) => void;
-		if (TARGET === "firefox" || TARGET === "chrome") {
+		if (TARGET === "firefox" || TARGET === "chrome" || TARGET === "safari") {
 			onSuccess = (origJsonConfig) => {
 				let newConfig = origJsonConfig.data;
 
@@ -701,7 +705,10 @@ function _loadConfig(): Promise<ClientConfiguration> {
 					return resolve(standardizeConfig(newConfig, "https://www.psono.pw/"));
 				};
 
-				if (TARGET === "firefox") {
+				if (TARGET === "safari") {
+					// Safari has no managed storage API. Use the bundled/remote config.
+					onStorageRetrieve();
+				} else if (TARGET === "firefox") {
 					const storageItem = browser.storage.managed.get<{
 						ConfigJson?: string;
 					}>("ConfigJson");
@@ -769,7 +776,7 @@ function getActiveTab(): Promise<BrowserTab> {
 					resolve(arrayOfTabs[0]);
 				},
 			);
-		} else if (TARGET === "chrome") {
+		} else if (TARGET === "chrome" || TARGET === "safari") {
 			chrome.tabs.query(
 				{ active: true, currentWindow: true },
 				(arrayOfTabs) => {
@@ -816,7 +823,7 @@ function emitTab<E extends string>(
 		} else {
 			browser.tabs.sendMessage(tabId, message);
 		}
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		if (callbackFunction) {
 			chrome.tabs.sendMessage(tabId, message, callbackFunction);
 		} else {
@@ -853,7 +860,7 @@ function emitFrame<E extends string>(
 		if (callbackFunction) {
 			promise.then(callbackFunction);
 		}
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		if (callbackFunction) {
 			chrome.tabs.sendMessage(tabId, message, options, callbackFunction);
 		} else {
@@ -872,7 +879,7 @@ function emitFrame<E extends string>(
 function getURL(path: string) {
 	if (TARGET === "firefox") {
 		return browser.runtime.getURL(path);
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		return chrome.runtime.getURL(path);
 	}
 }
@@ -888,7 +895,7 @@ function emit<E extends string>(event: E, data: EventData<E>) {
 		browser.runtime.sendMessage({ event: event, data: data }, (response) => {
 			//console.log(response);
 		});
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		chrome.runtime.sendMessage({ event: event, data: data }, (response) => {
 			//console.log(response);
 		});
@@ -915,7 +922,7 @@ function emitSec<E extends string>(
 		} else {
 			browser.runtime.sendMessage(message);
 		}
-	} else if (TARGET === "chrome") {
+	} else if (TARGET === "chrome" || TARGET === "safari") {
 		if (fnc) {
 			chrome.runtime.sendMessage(message, fnc);
 		} else {
@@ -983,7 +990,7 @@ function clearConfigCache() {
  * Closes the popup
  */
 function closePopup() {
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		window.close();
 	} else if (TARGET === "chrome") {
 		// will be automatically closed
@@ -1173,7 +1180,12 @@ initExtensionPageClipboardListener();
  * @param {string} content The notification content
  */
 function notify(content: string) {
-	if (TARGET === "firefox") {
+	if (TARGET === "safari") {
+		// Safari has no WebExtension notifications API. UI notifications are
+		// displayed by the shared snackbar rather than requesting web permissions.
+		notification.infoSend(content);
+		return;
+	} else if (TARGET === "firefox") {
 		browser.notifications.create("", {
 			type: "basic",
 			title: content,
@@ -1282,7 +1294,7 @@ function notify(content: string) {
  * @param {object} text The text to overlay
  */
 function setBadgeText(text: string) {
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		chrome.browserAction.setBadgeBackgroundColor({ color: "#666" });
 		chrome.browserAction.setBadgeText({ text: text });
 	} else if (TARGET === "chrome") {
@@ -1299,7 +1311,7 @@ function setBadgeText(text: string) {
  * @param {object} icon The icon to set
  */
 function setIcon(icon: Parameters<typeof chrome.action.setIcon>[0]) {
-	if (TARGET === "firefox") {
+	if (TARGET === "firefox" || TARGET === "safari") {
 		chrome.browserAction.setIcon(icon);
 	} else if (TARGET === "chrome") {
 		chrome.action.setIcon(icon);

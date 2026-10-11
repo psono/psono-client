@@ -15,7 +15,6 @@ The documentation for the psono server can be found here:
 
 [Psono Documentation](https://doc.psono.com/)
 
-
 ## Support
 
 [![Browserstack](https://i.imgur.com/hPwc0jS.png)](https://www.browserstack.com/)
