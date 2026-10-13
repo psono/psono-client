@@ -191,3 +191,85 @@ describe("Service: securityReportService - connection entries", () => {
 		]);
 	});
 });
+
+describe("Service: securityReportService - password age", () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
+	});
+
+	it("prefers password timestamps, handles timezones, and falls back for legacy or invalid timestamps", async () => {
+		jest.useFakeTimers().setSystemTime(new Date("2026-10-13T12:00:00Z"));
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		jest
+			.spyOn(storeService, "getStore")
+			.mockReturnValue({ getState: () => state } as ReturnType<
+				typeof storeService.getStore
+			>);
+		jest.spyOn(datastoreService, "getDatastoreOverview").mockResolvedValue({
+			datastores: [
+				{
+					id: "vault",
+					type: "password",
+					description: "Main",
+					is_default: true,
+				},
+			],
+		});
+		jest
+			.spyOn(datastoreUserService, "searchUser")
+			.mockResolvedValue({ data: [] });
+		const types = [
+			"website_password",
+			"application_password",
+			"elster_certificate",
+			"ssh_connection",
+			"rdp_connection",
+			"vnc_connection",
+		];
+		jest.spyOn(exportService, "fetchDatastore").mockResolvedValue({
+			items: [
+				...types.map((type) => ({
+					type,
+					name: type,
+					create_date: "2025-01-01T00:00:00Z",
+					write_date: "2026-10-13T12:00:00Z",
+					password_modification_datetime: "2026-01-01T14:00:00+02:00",
+					[`${type}_password`]: `strong-distinct-password-${type}`,
+					ssh_connection_authentication_type: "password",
+				})),
+				{
+					type: "website_password",
+					name: "legacy",
+					create_date: "2025-01-01T00:00:00Z",
+					write_date: "2026-10-12T12:00:00Z",
+					website_password_password: "legacy-unique-password",
+				},
+				{
+					type: "application_password",
+					name: "invalid",
+					create_date: "2025-01-01T00:00:00Z",
+					write_date: "2026-10-11T12:00:00Z",
+					password_modification_datetime: "invalid",
+					application_password_password: "invalid-unique-password",
+				},
+			],
+		});
+		const { analysis } = await securityReportService.generateSecurityReport(
+			"",
+			false,
+		);
+		for (const type of types) {
+			expect(
+				analysis.passwords.find((entry) => entry.name === type),
+			).toMatchObject({ write_age: 285, advice: "ADVICE_PASSWORD_TOO_OLD" });
+		}
+		expect(
+			analysis.passwords.find((entry) => entry.name === "legacy")?.write_age,
+		).toBe(1);
+		expect(
+			analysis.passwords.find((entry) => entry.name === "invalid")?.write_age,
+		).toBe(2);
+		expect(analysis.password_summary?.update_older_than_180_days).toBe(6);
+	});
+});

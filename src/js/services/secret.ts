@@ -23,6 +23,67 @@ import type {
 	SecretReference,
 } from "../../types/vault";
 
+// Keep these fields and the encrypted JSON timestamp format in sync with psono-app.
+const passwordFields = [
+	"website_password_password",
+	"application_password_password",
+	"elster_certificate_password",
+	"ssh_connection_password",
+	"rdp_connection_password",
+	"vnc_connection_password",
+] as const;
+
+function hasPasswordContent(content: SecretContent): boolean {
+	return passwordFields.some(
+		(field) =>
+			Object.hasOwn(content, field) ||
+			Object.hasOwn(content, field.replace(/_password$/, "_title")),
+	);
+}
+
+function validPasswordModificationDatetime(value: unknown): string | undefined {
+	return typeof value === "string" && Number.isFinite(Date.parse(value))
+		? value
+		: undefined;
+}
+
+/** Update only when the password changes, preserving the age of legacy entries. */
+function updatePasswordModificationDatetime(
+	content: SecretContent,
+	previous?: SecretContent & SecretMetadata,
+): void {
+	if (
+		!passwordFields.some(
+			(field) =>
+				Object.hasOwn(content, field) ||
+				(previous && Object.hasOwn(previous, field)),
+		)
+	) {
+		return;
+	}
+	if (
+		previous &&
+		passwordFields.some(
+			(field) => (content[field] || "") !== (previous[field] || ""),
+		)
+	) {
+		content.password_modification_datetime = new Date().toISOString();
+		return;
+	}
+	const timestamp = previous
+		? validPasswordModificationDatetime(
+				previous.password_modification_datetime,
+			) || validPasswordModificationDatetime(previous.write_date)
+		: validPasswordModificationDatetime(
+				content.password_modification_datetime,
+			) || new Date().toISOString();
+	if (timestamp) {
+		content.password_modification_datetime = timestamp;
+	} else {
+		delete content.password_modification_datetime;
+	}
+}
+
 /**
  * Bulk write of secrets. Encrypts the content and creates a new secret out of it.
  *
@@ -45,6 +106,7 @@ function createSecretBulk(
 	const bulkObjects = objects.map((o) => {
 		const secretKey = cryptoLibrary.generateSecretKey();
 		encryptionKeyLookup[o.linkId] = secretKey;
+		updatePasswordModificationDatetime(o.content);
 		const jsonContent = JSON.stringify(o.content);
 
 		const c = cryptoLibrary.encryptData(jsonContent, secretKey);
@@ -141,7 +203,7 @@ function readSecretBulk(
  * @returns {Promise} Returns a promise with the new secret_id
  */
 function createSecret(
-	content: object,
+	content: SecretContent,
 	linkId: string,
 	parentDatastoreId?: string,
 	parentShareId?: string,
@@ -153,6 +215,7 @@ function createSecret(
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 	const secretKey = cryptoLibrary.generateSecretKey();
 
+	updatePasswordModificationDatetime(content);
 	const jsonContent = JSON.stringify(content);
 
 	const c = cryptoLibrary.encryptData(jsonContent, secretKey);
@@ -236,10 +299,10 @@ function readSecret<T extends SecretContent = SecretContent>(
  *
  * @returns {Promise} Returns a promise with the secret id
  */
-function writeSecret(
+async function writeSecret(
 	secretId: string,
 	secretKey: string,
-	content: object,
+	content: SecretContent,
 	callbackUrl?: string | null,
 	callbackUser?: string | null,
 	callbackPass?: string | null,
@@ -247,6 +310,10 @@ function writeSecret(
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
+	if (hasPasswordContent(content)) {
+		const previous = await readSecret(secretId, secretKey);
+		updatePasswordModificationDatetime(content, previous);
+	}
 	const jsonContent = JSON.stringify(content);
 
 	const c = cryptoLibrary.encryptData(jsonContent, secretKey);
@@ -675,6 +742,7 @@ function copyCreditCardPin(item: SecretReference) {
 }
 
 const secretService = {
+	validPasswordModificationDatetime: validPasswordModificationDatetime,
 	createSecretBulk: createSecretBulk,
 	readSecretBulk: readSecretBulk,
 	createSecret: createSecret,

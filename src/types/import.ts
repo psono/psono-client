@@ -59,7 +59,10 @@ type TextFields =
 
 /** Decrypted fields carried by native exports and format-specific importers. */
 export type ImportSecretContent = Partial<Record<TextFields, string>> &
-	Pick<SecretContent, "identity_notes" | "attachments"> &
+	Pick<
+		SecretContent,
+		"identity_notes" | "attachments" | "password_modification_datetime"
+	> &
 	Partial<
 		Pick<
 			PasskeySecret,

@@ -8,6 +8,7 @@ import cryptoLibrary from "./crypto-library";
 import datastoreService from "./datastore";
 import datastoreUserService from "./datastore-user";
 import exportService from "./export";
+import secretService from "./secret";
 import statusService from "./status";
 import { getStore } from "./store";
 import type { DatastoreOverview } from "../../types/datastore";
@@ -218,6 +219,7 @@ function filterPasswordsHelper(
 				password: items[i]["application_password_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (items[i]["type"] === "website_password") {
@@ -229,6 +231,7 @@ function filterPasswordsHelper(
 				password: items[i]["website_password_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (items[i]["type"] === "elster_certificate") {
@@ -240,6 +243,7 @@ function filterPasswordsHelper(
 				password: items[i]["elster_certificate_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -255,6 +259,7 @@ function filterPasswordsHelper(
 				password: items[i]["ssh_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -269,6 +274,7 @@ function filterPasswordsHelper(
 				password: items[i]["rdp_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -283,6 +289,7 @@ function filterPasswordsHelper(
 				password: items[i]["vnc_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		}
@@ -366,7 +373,11 @@ function analyzePasswordLength(secrets: ReportPassword[]): SecurityAnalysis {
 			input_type: "password",
 			advice: rating["advice"],
 			create_age: getAgeInDays(secrets[i]["create_date"]),
-			write_age: getAgeInDays(secrets[i]["write_date"]),
+			write_age: getAgeInDays(
+				secretService.validPasswordModificationDatetime(
+					secrets[i].password_modification_datetime,
+				) || secrets[i].write_date,
+			),
 			duplicate: false,
 		});
 	}

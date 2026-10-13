@@ -349,7 +349,10 @@ function createSecrets(
 					if (!Object.hasOwn(poppedSecret, property)) {
 						continue;
 					}
-					if (!property.startsWith(poppedSecret["type"])) {
+					if (
+						!property.startsWith(poppedSecret["type"]) &&
+						property !== "password_modification_datetime"
+					) {
 						continue;
 					}
 					content[property] = poppedSecret[property];
