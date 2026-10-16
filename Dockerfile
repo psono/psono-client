@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-LABEL maintainer="Sascha Pfeiffer <sascha.pfeiffer@psono.com>"
+LABEL maintainer="Support <support@psono.com>"
 
 RUN apk upgrade --no-cache \
 	&& apk add --no-cache curl

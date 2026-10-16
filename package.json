@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "repository": "git@gitlab.com:psono/psono-client.git",
-  "author": "Sascha Pfeiffer",
+  "author": "Sascha Seitz",
   "scripts": {
     "dev": "webpack serve --config webpack.environment.dev.js",
     "buildchrome": "npm run typecheck && webpack --config webpack.environment.prod.chrome.js",
