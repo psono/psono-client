@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 export type SelectFieldEntryTypeProps = SelectFieldProps<
 	ItemEntryType | "",
 	string
->;
+> & { disabled?: boolean };
 
 const SelectFieldEntryType = (props: SelectFieldEntryTypeProps) => {
 	const classes = useStyles();
@@ -39,6 +39,7 @@ const SelectFieldEntryType = (props: SelectFieldEntryTypeProps) => {
 		onChange,
 		value,
 		className,
+		disabled,
 	} = props;
 
 	const entryTypes = itemBlueprintService.getEntryTypes(true, true);
@@ -50,6 +51,7 @@ const SelectFieldEntryType = (props: SelectFieldEntryTypeProps) => {
 
 	return (
 		<Autocomplete
+			disabled={disabled}
 			options={entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title)))}
 			classes={{
 				option: classes.option,
@@ -110,6 +112,7 @@ SelectFieldEntryType.propTypes = {
 	size: PropTypes.string,
 	onChange: PropTypes.func,
 	className: PropTypes.string,
+	disabled: PropTypes.bool,
 };
 
 export default SelectFieldEntryType;

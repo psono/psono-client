@@ -26,7 +26,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import type {
@@ -59,8 +59,14 @@ import browserClientService from "../../services/browser-client";
 import connectionCredentialsService from "../../services/connection-credentials";
 import converterService from "../../services/converter";
 import cryptoLibrary from "../../services/crypto-library";
+import fileRepositoryService from "../../services/file-repository";
 import fileTransferService from "../../services/file-transfer";
 import helperService from "../../services/helper";
+import hostService from "../../services/host";
+import {
+	uploadAttachment,
+	type PendingAttachment,
+} from "../../services/attachment";
 import notification from "../../services/notification";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
@@ -80,6 +86,7 @@ import CustomField from "../text-field/custom-field";
 import TextFieldTotp from "../text-field/totp";
 import TotpCircle from "../totp-circle";
 import DialogAddCustomField from "./add-custom-field";
+import DialogAddAttachment from "./add-attachment";
 import DialogAddTag from "./add-tag";
 import DialogAddTotp from "./add-totp";
 import DialogDecryptGpgMessage from "./decrypt-gpg-message";
@@ -162,6 +169,14 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 	>(null);
 	const [addTotpOpen, setAddTotpOpen] = useState(false);
 	const [addTagOpen, setAddTagOpen] = useState(false);
+	const [addAttachmentOpen, setAddAttachmentOpen] = useState(false);
+	const [hasAttachmentDestination, setHasAttachmentDestination] =
+		useState(false);
+	const [pendingAttachments, setPendingAttachments] = useState<
+		PendingAttachment[]
+	>([]);
+	const createdDraft = useRef<CreatedSecret | null>(null);
+	const draftLinkId = useRef<string | null>(null);
 	const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] =
 		useState(false);
 	const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] =
@@ -424,6 +439,47 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 		(type === "file" && isValidFile) ||
 		(type === "elster_certificate" && isValidElsterCertificate);
 	const hasAdvanced = type !== "file" && type !== "elster_certificate";
+	const hasAttachments =
+		[
+			"website_password",
+			"application_password",
+			"bookmark",
+			"note",
+			"ssh_connection",
+			"rdp_connection",
+			"vnc_connection",
+		].includes(type) && hostService.isNewerOrEqualVersionThan("5.4.0");
+	React.useEffect(() => {
+		let active = true;
+		setHasAttachmentDestination(false);
+		if (open && hasAttachments && !offline) {
+			Promise.all([
+				fileTransferService.readShards(),
+				fileRepositoryService.readFileRepositories(),
+			])
+				.then(([shards, repositories]) => {
+					if (!active) return;
+					setHasAttachmentDestination(
+						fileTransferService
+							.filterShards(shards, null, true)
+							.some((shard) => shard.fileserver.length > 0) ||
+							fileRepositoryService.filterFileRepositories(
+								repositories ?? [],
+								null,
+								null,
+								true,
+								true,
+							).length > 0,
+					);
+				})
+				.catch(() => {
+					if (active) setHasAttachmentDestination(false);
+				});
+		}
+		return () => {
+			active = false;
+		};
+	}, [open, hasAttachments, offline]);
 	const renderNotesField = (
 		id: string,
 		name: string,
@@ -1091,13 +1147,41 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 				props.onCreate!(item);
 			});
 		} else {
+			setProcessing(true);
 			const onError = (result: unknown) => {
-				// pass
+				setProcessing(false);
+				setErrors(["FILE_UPLOAD_FAILED"]);
 			};
 
-			const onSuccess = (data: CreatedSecret | void) => {
+			const onSuccess = async (data: CreatedSecret | void) => {
+				if (!data) throw new Error("SECRET_PERSISTENCE_FAILED");
+				const resuming = Boolean(createdDraft.current);
+				createdDraft.current = data;
 				item["secret_id"] = data!.secret_id;
 				item["secret_key"] = data!.secret_key;
+				if (hasAttachments && pendingAttachments.length) {
+					secretObject.attachments = [];
+					for (const pending of pendingAttachments) {
+						secretObject.attachments.push(
+							await uploadAttachment(
+								pending,
+								data.secret_id,
+								setPercentageComplete,
+							),
+						);
+					}
+				}
+				if (resuming || (hasAttachments && pendingAttachments.length)) {
+					const written = await secretService.writeSecret(
+						data.secret_id,
+						data.secret_key,
+						secretObject,
+						callbackUrl,
+						callbackUser,
+						callbackPass,
+					);
+					if (!written) throw new Error("SECRET_PERSISTENCE_FAILED");
+				}
 				const personalAuthentication =
 					item.type === "ssh_connection"
 						? sshConnectionAuthentication
@@ -1110,7 +1194,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					props.onCreate!(item);
 					return;
 				}
-				connectionCredentialsService
+				return connectionCredentialsService
 					.resolveAuthenticationReference(
 						item.type,
 						personalAuthentication,
@@ -1127,6 +1211,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					.then(
 						() => props.onCreate!(item),
 						() => {
+							setProcessing(false);
 							notification.push(
 								"connection_authentication",
 								t("BROKEN_REFERENCE"),
@@ -1134,17 +1219,22 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 						},
 					);
 			};
-			secretService
-				.createSecret(
-					secretObject,
-					item.id,
-					parentDatastoreId,
-					parentShareId,
-					callbackUrl,
-					callbackUser,
-					callbackPass,
-				)
-				.then(onSuccess, onError);
+			if (!draftLinkId.current) draftLinkId.current = item.id;
+			item.id = draftLinkId.current;
+			(createdDraft.current
+				? Promise.resolve(createdDraft.current)
+				: secretService.createSecret(
+						secretObject,
+						item.id,
+						parentDatastoreId,
+						parentShareId,
+						callbackUrl,
+						callbackUser,
+						callbackPass,
+					)
+			)
+				.then(onSuccess)
+				.catch(onError);
 		}
 	};
 
@@ -1297,7 +1387,9 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 			<Grid item xs={12} sm={12} md={12}>
 				<Button
 					startIcon={<PlaylistAddIcon />}
-					disabled={getStore().getState().settingsDatastore.noSaveMode}
+					disabled={
+						processing || getStore().getState().settingsDatastore.noSaveMode
+					}
 					onClick={(event) => {
 						setAnchorEl3(event.currentTarget);
 					}}
@@ -1311,6 +1403,22 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					open={Boolean(anchorEl3)}
 					onClose={handleClose}
 				>
+					{hasAttachments && hasAttachmentDestination && (
+						<MenuItem
+							disabled={processing || offline}
+							onClick={() => {
+								handleClose();
+								setAddAttachmentOpen(true);
+							}}
+						>
+							<ListItemIcon className={classes.listItemIcon}>
+								<PlaylistAddIcon className={classes.icon} fontSize="small" />
+							</ListItemIcon>
+							<Typography variant="body2" noWrap>
+								{t("ADD_ATTACHMENT")}
+							</Typography>
+						</MenuItem>
+					)}
 					{(type === "website_password" ||
 						type === "application_password" ||
 						type === "bookmark" ||
@@ -1522,7 +1630,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 			maxWidth={"sm"}
 			open={open}
 			onClose={() => {
-				onClose();
+				if (!processing) onClose();
 			}}
 			aria-labelledby="alert-dialog-title"
 			aria-describedby="alert-dialog-description"
@@ -1547,8 +1655,10 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 								name="itemBlueprint"
 								autoComplete="off"
 								value={type}
+								disabled={processing || Boolean(createdDraft.current)}
 								required
 								onChange={(newType) => {
+									if (processing || createdDraft.current) return;
 									setType(newType);
 								}}
 							/>
@@ -3454,6 +3564,48 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 								)}
 							</Grid>
 						)}
+						{hasAttachments &&
+							pendingAttachments.map((attachment, index) => (
+								<Grid item xs={12} key={index}>
+									<Box display="flex" alignItems="center">
+										<Typography style={{ flex: 1 }}>
+											{attachment.filename}
+										</Typography>
+										<IconButton
+											aria-label={t("DELETE")}
+											disabled={processing}
+											onClick={async () => {
+												if (attachment.uploaded) {
+													try {
+														await fileTransferService.deleteFile(
+															attachment.uploaded.file_id,
+														);
+													} catch {
+														setErrors(["ATTACHMENT_DELETE_FAILED"]);
+														return;
+													}
+												}
+												setPendingAttachments(
+													pendingAttachments.filter((_, i) => i !== index),
+												);
+											}}
+										>
+											<DeleteIcon />
+										</IconButton>
+									</Box>
+								</Grid>
+							))}
+						{processing && pendingAttachments.length > 0 && (
+							<Grid item xs={12}>
+								<LinearProgress
+									variant="determinate"
+									value={percentageComplete}
+								/>
+								<Typography>
+									{t("UPLOADING")}: {percentageComplete}%
+								</Typography>
+							</Grid>
+						)}
 						<GridContainerErrors errors={errors} setErrors={setErrors} />
 					</Grid>
 				</DialogContent>
@@ -3519,6 +3671,17 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					/>
 				)}
 
+				{addAttachmentOpen && (
+					<DialogAddAttachment
+						open
+						item={{}}
+						onClose={() => setAddAttachmentOpen(false)}
+						onSelect={(attachment) => {
+							setPendingAttachments([...pendingAttachments, attachment]);
+							setAddAttachmentOpen(false);
+						}}
+					/>
+				)}
 				{addTagOpen && (
 					<DialogAddTag
 						open={addTagOpen}
