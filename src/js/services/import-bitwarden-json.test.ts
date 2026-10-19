@@ -38,20 +38,22 @@ describe("Service: importBitwardenJson test suite", () => {
 	});
 
 	it.each([
-		"uri",
-		"base32",
-	])("imports inline TOTP settings from %s", (format) => {
+		[
+			"uri",
+			"otpauth://totp/Account?secret=JBSWY3DPEHPK3PXP&algorithm=SHA256&digits=8&period=60",
+		],
+		["base32", "JBSWY3DPEHPK3PXP"],
+		["grouped base32", "JBSW Y3DP EHPK 3PXP"],
+		["lowercase base32 with whitespace", "  jbsw\ty3dp\nehpk 3pxp  "],
+	])("imports inline TOTP settings from %s", (format, totp) => {
 		const code = "JBSWY3DPEHPK3PXP";
-		const totp =
-			format === "uri"
-				? `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`
-				: code;
 		const output = importBitwardenJson.parser(
 			JSON.stringify({
 				items: [
 					{
 						type: 1,
 						name: "Account",
+						notes: "Existing notes",
 						login: {
 							username: "alice",
 							password: "",
@@ -72,7 +74,46 @@ describe("Service: importBitwardenJson test suite", () => {
 			website_password_totp_algorithm: format === "uri" ? "SHA256" : "SHA1",
 			website_password_totp_digits: format === "uri" ? 8 : 6,
 			website_password_totp_period: format === "uri" ? 60 : 30,
+			website_password_notes: "Existing notes",
 		});
+	});
+
+	it.each([
+		"JBSWY3DPEHPK3PXP",
+		"JBSW Y3DP EHPK 3PXP",
+		"  jbsw\ty3dp\nehpk 3pxp  ",
+	])("imports a separate TOTP entry from %s", (totp) => {
+		const output = importBitwardenJson.parser(
+			JSON.stringify({
+				folders: [{ id: "folder", name: "Folder" }],
+				items: [
+					{
+						type: 2,
+						name: "Account",
+						folderId: "folder",
+						notes: "Existing notes",
+						login: { totp, uris: [{ uri: "https://example.com/login" }] },
+					},
+				],
+			}),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(2);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "note",
+			note_notes: "Existing notes\n",
+		});
+		expect(output!.secrets[1]).toMatchObject({
+			type: "totp",
+			totp_title: "Account TOTP",
+			totp_code: "JBSWY3DPEHPK3PXP",
+			totp_algorithm: "SHA1",
+			totp_digits: 6,
+			totp_period: 30,
+			totp_url_filter: "example.com",
+			urlfilter: "example.com",
+		});
+		expect(output!.datastore.folders[0].items).toEqual(output!.secrets);
 	});
 
 	it("helper exists", () => {
