@@ -91,7 +91,7 @@ function getFolder(
 function transformToSecret(line: CsvRow): ImportedSecret {
 	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: line[INDEX_TITLE],
@@ -104,46 +104,19 @@ function transformToSecret(line: CsvRow): ImportedSecret {
 		website_password_url: line[INDEX_URL],
 		website_password_title: line[INDEX_TITLE],
 	};
-}
-
-/**
- * Takes a line and transforms it into a totp if it contains a totp
- *
- * @param {[]} line One line of the CSV
- *
- * @returns {*} The secrets object
- */
-function transformToTotp(line: CsvRow): ImportedSecret | null {
-	let totp_period = 30;
-	let totp_algorithm = "SHA1";
-	let totp_digits: string | number = "6";
-	let totp_code = "";
-
-	if (!line[INDEX_TOTP]) {
-		return null;
+	if (line[INDEX_TOTP]) {
+		try {
+			const parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			// Keep the password importable if the TOTP URI is malformed.
+		}
 	}
-	try {
-		const parsedTotp = OTPAuth.URI.parse(line[INDEX_TOTP]);
-		totp_period =
-			parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : totp_period;
-		totp_algorithm = parsedTotp.algorithm;
-		totp_digits = parsedTotp.digits;
-		totp_code = parsedTotp.secret.base32;
-	} catch (e) {
-		return null;
-	}
-
-	return {
-		id: cryptoLibrary.generateUuid(),
-		type: "totp",
-		name: line[INDEX_TITLE] + " TOTP",
-		totp_notes: line[INDEX_NOTES],
-		totp_code: totp_code,
-		totp_digits: totp_digits,
-		totp_algorithm: totp_algorithm,
-		totp_period: totp_period,
-		totp_title: line[INDEX_TITLE] + " TOTP",
-	};
+	return websitePassword;
 }
 
 /**
@@ -176,12 +149,6 @@ function gather_secrets(
 			//empty line
 			folder["items"].push(secret);
 			secrets.push(secret);
-		}
-		const totp = transformToTotp(line);
-		if (totp !== null) {
-			//empty line
-			folder["items"].push(totp);
-			secrets.push(totp);
 		}
 	}
 }

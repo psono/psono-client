@@ -2,6 +2,46 @@ import cryptoLibrary from "../services/crypto-library";
 import importProtonPassCsv from "./import-protonpass-csv";
 
 describe("Service: importProtonPassCsv test suite", () => {
+	it.each(["login", "note"])("imports TOTP settings for %s", (type) => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = importProtonPassCsv.parser(
+			"type,name,url,email,username,password,note,totp\n" +
+				[
+					type,
+					"Account",
+					"https://www.example.com:8443/login?foo=bar#section",
+					"",
+					type === "login" ? "alice" : "",
+					"",
+					"backup",
+					uri,
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		if (type === "login") {
+			expect(output!.secrets).toHaveLength(1);
+			expect(output!.secrets[0]).toMatchObject({
+				type: "website_password",
+				website_password_totp_code: code,
+				website_password_totp_algorithm: "SHA256",
+				website_password_totp_digits: 8,
+				website_password_totp_period: 60,
+			});
+		} else {
+			const totps = output!.secrets.filter((entry) => entry.type === "totp");
+			expect(totps).toHaveLength(1);
+			expect(totps[0]).toMatchObject({
+				totp_code: code,
+				totp_algorithm: "SHA256",
+				totp_digits: 8,
+				totp_period: 60,
+				totp_url_filter: "www.example.com:8443",
+				urlfilter: "www.example.com:8443",
+			});
+		}
+	});
+
 	it("helper exists", () => {
 		expect(importProtonPassCsv).toBeDefined();
 	});

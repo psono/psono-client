@@ -2,6 +2,23 @@ import cryptoLibrary from "../services/crypto-library";
 import importKeePassXml from "./import-keepass-info-xml";
 
 describe("Service: importKeePassXml test suite", () => {
+	it("imports the otp field directly on the website password", () => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = importKeePassXml.parser(
+			`<KeePassFile><Root><Group><Name>Root</Name><Entry><String><Key>Title</Key><Value>Account</Value></String><String><Key>UserName</Key><Value>alice</Value></String><String><Key>URL</Key><Value>https://www.example.com:8443/login?foo=bar#section</Value></String><String><Key>otp</Key><Value>${uri.replaceAll("&", "&amp;")}</Value></String></Entry></Group></Root></KeePassFile>`,
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: "SHA256",
+			website_password_totp_digits: 8,
+			website_password_totp_period: 60,
+		});
+	});
+
 	const generic_uuid = "1fce01f4-6411-47a9-885c-a80bf4c654aa";
 
 	beforeEach(() => {

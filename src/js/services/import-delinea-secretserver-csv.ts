@@ -172,6 +172,11 @@ function parser(data: string): ImportResult<ImportTreeFolder> | null {
 					totp_digits: totp.digits,
 					totp_period: totp.period,
 				};
+				const urlFilter = helperService.parseUrl(url).authority;
+				if (urlFilter) {
+					entry.totp_url_filter = urlFilter;
+					entry.urlfilter = urlFilter;
+				}
 				folder.items.push(entry);
 				secrets.push(entry);
 			}

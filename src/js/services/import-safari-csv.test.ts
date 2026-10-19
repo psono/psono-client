@@ -2,6 +2,31 @@ import cryptoLibrary from "./crypto-library";
 import importSafariCsv from "./import-safari-csv";
 
 describe("Service: importSafariCsv test suite", () => {
+	it("imports non-default TOTP settings directly on the website password", () => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = importSafariCsv.parser(
+			"Title,URL,Username,Password,Notes,OTPAuth\n" +
+				[
+					"Account",
+					"https://www.example.com:8443/login?foo=bar#section",
+					"alice",
+					"",
+					"backup",
+					uri,
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: "SHA256",
+			website_password_totp_digits: 8,
+			website_password_totp_period: 60,
+		});
+	});
+
 	it("helper exists", () => {
 		expect(importSafariCsv).toBeDefined();
 	});

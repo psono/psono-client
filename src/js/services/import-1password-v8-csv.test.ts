@@ -2,6 +2,31 @@ import cryptoLibrary from "../services/crypto-library";
 import import1PasswordV8Csv from "./import-1password-v8-csv";
 
 describe("Service: import1PasswordV8Csv test suite", () => {
+	it("preserves non-default inline TOTP settings", () => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = import1PasswordV8Csv.parser(
+			"Title,Url,Username,Password,OTPAuth,Notes\n" +
+				[
+					"Account",
+					"https://www.example.com:8443/login?foo=bar#section",
+					"alice",
+					"",
+					uri,
+					"backup",
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: "SHA256",
+			website_password_totp_digits: 8,
+			website_password_totp_period: 60,
+		});
+	});
+
 	it("helper exists", () => {
 		expect(import1PasswordV8Csv).toBeDefined();
 	});

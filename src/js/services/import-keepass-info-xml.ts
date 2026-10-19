@@ -3,6 +3,7 @@
  */
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
+import * as OTPAuth from "otpauth";
 
 import { XMLParser } from "fast-xml-parser";
 import type {
@@ -73,6 +74,19 @@ function transformToSecret(line: KeePassEntry): ImportedSecret | null {
 		}
 		const key = value["Key"];
 		const val = unescapeValue(value["Value"]);
+		if (key === "otp") {
+			try {
+				const parsedTotp = OTPAuth.URI.parse(val);
+				secret.website_password_totp_code = parsedTotp.secret.base32;
+				secret.website_password_totp_algorithm = parsedTotp.algorithm;
+				secret.website_password_totp_digits = parsedTotp.digits;
+				secret.website_password_totp_period =
+					parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+				continue;
+			} catch (e) {
+				// Preserve invalid TOTP values as custom fields.
+			}
+		}
 
 		if (key === "Notes") {
 			secret["website_password_notes"] = val;

@@ -2,6 +2,32 @@ import cryptoLibrary from "./crypto-library";
 import importKeePassXCOrgCsv from "./import-keepassxc-org-csv";
 
 describe("Service: importKeePassXCOrgCsv test suite", () => {
+	it("imports non-default TOTP settings directly on the website password", () => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = importKeePassXCOrgCsv.parser(
+			"Group,Title,Username,Password,URL,Notes,TOTP\n" +
+				[
+					"Root/Folder",
+					"Account",
+					"alice",
+					"",
+					"https://www.example.com:8443/login?foo=bar#section",
+					"backup",
+					uri,
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: "SHA256",
+			website_password_totp_digits: 8,
+			website_password_totp_period: 60,
+		});
+	});
+
 	it("importKeePassXCOrgCsv exists", () => {
 		expect(importKeePassXCOrgCsv).toBeDefined();
 	});
@@ -263,17 +289,10 @@ describe("Service: importKeePassXCOrgCsv test suite", () => {
 						website_password_notes: "xxx",
 						website_password_url: "",
 						website_password_title: "home dir ",
-					},
-					{
-						id: generic_uuid,
-						name: "home dir  TOTP",
-						totp_algorithm: "SHA1",
-						totp_code: "NB2W45DFOIZA",
-						totp_digits: 6,
-						totp_notes: "xxx",
-						totp_period: 30,
-						totp_title: "home dir  TOTP",
-						type: "totp",
+						website_password_totp_algorithm: "SHA1",
+						website_password_totp_code: "NB2W45DFOIZA",
+						website_password_totp_digits: 6,
+						website_password_totp_period: 30,
 					},
 					{
 						id: generic_uuid,
@@ -299,17 +318,10 @@ describe("Service: importKeePassXCOrgCsv test suite", () => {
 					website_password_notes: "xxx",
 					website_password_url: "",
 					website_password_title: "home dir ",
-				},
-				{
-					id: generic_uuid,
-					type: "totp",
-					name: "home dir  TOTP",
-					totp_algorithm: "SHA1",
-					totp_code: "NB2W45DFOIZA",
-					totp_digits: 6,
-					totp_notes: "xxx",
-					totp_period: 30,
-					totp_title: "home dir  TOTP",
+					website_password_totp_algorithm: "SHA1",
+					website_password_totp_code: "NB2W45DFOIZA",
+					website_password_totp_digits: 6,
+					website_password_totp_period: 30,
 				},
 				{
 					id: generic_uuid,

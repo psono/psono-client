@@ -189,7 +189,7 @@ function transformToWebsitePassword(item: BitwardenItem): ImportedSecret {
 		}
 	}
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: name,
@@ -203,6 +203,28 @@ function transformToWebsitePassword(item: BitwardenItem): ImportedSecret {
 		website_password_title: website_password_title,
 		custom_fields: custom_fields,
 	};
+	if (item.login?.totp) {
+		try {
+			const value = item.login.totp.trim();
+			const parsedTotp = value.startsWith("otpauth://")
+				? OTPAuth.URI.parse(value)
+				: new OTPAuth.TOTP({ secret: value.toUpperCase() });
+			if (!parsedTotp.secret.base32) throw new Error("Missing TOTP secret");
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			const notes = websitePassword.website_password_notes || "";
+			websitePassword.website_password_notes =
+				notes +
+				(notes && !notes.endsWith("\n") ? "\n" : "") +
+				"TOTP: " +
+				item.login.totp;
+		}
+	}
+	return websitePassword;
 }
 
 /**
@@ -511,7 +533,7 @@ function transformToSshOwnKey(item: BitwardenItem): ImportedSecret {
  *
  * @returns {*} The secrets object
  */
-function transformToTotpCode(item: BitwardenItem): ImportedSecret {
+function transformToTotpCode(item: BitwardenItem): ImportedSecret | null {
 	let name = "";
 	const totp_notes = "";
 	let totp_period = 30;
@@ -532,13 +554,14 @@ function transformToTotpCode(item: BitwardenItem): ImportedSecret {
 	) {
 		try {
 			const parsedTotp = OTPAuth.URI.parse(item["login"]["totp"]);
+			if (!parsedTotp.secret.base32) return null;
 			totp_period =
 				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : totp_period;
 			totp_algorithm = parsedTotp.algorithm;
 			totp_digits = parsedTotp.digits;
 			totp_code = parsedTotp.secret.base32;
 		} catch (e) {
-			// pass. Bitwarden is not enforcing an URL schema so people can actually store whatever they want here :(
+			return null;
 		}
 	}
 
@@ -624,8 +647,32 @@ function gatherSecrets(
 				crafted_secrets.push(transformToNote(parsedData["items"][i]));
 			}
 
-			if (contains_totp_code) {
-				crafted_secrets.push(transformToTotpCode(parsedData["items"][i]));
+			if (detected_type !== "website_password" && contains_totp_code) {
+				const totp = transformToTotpCode(parsedData["items"][i]);
+				if (!totp) {
+					const value = parsedData.items[i].login?.totp;
+					if (value) {
+						const secret = crafted_secrets[0];
+						const notesField = `${detected_type}_notes` as const;
+						const notes = secret[notesField] || "";
+						secret[notesField] =
+							notes +
+							(notes && !notes.endsWith("\n") ? "\n" : "") +
+							"TOTP: " +
+							value;
+					}
+				} else {
+					const uris = parsedData.items[i].login?.uris ?? [];
+					const filter = uris
+						.map(({ uri }) => helperService.parseUrl(uri).authority)
+						.filter(Boolean)
+						.join(", ");
+					if (filter) {
+						totp.totp_url_filter = filter;
+						totp.urlfilter = filter;
+					}
+					crafted_secrets.push(totp);
+				}
 			}
 
 			let parent_folder = null;

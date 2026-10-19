@@ -23,6 +23,52 @@ describe("Delinea SecretServer CSV importer", () => {
 	});
 	afterEach(() => jest.restoreAllMocks());
 
+	it.each([
+		[
+			"website password",
+			"alice",
+			"https://www.example.com:8443/login?foo=bar#section",
+		],
+		[
+			"standalone TOTP with a URL",
+			"",
+			"https://www.example.com:8443/login?foo=bar#section",
+		],
+		["standalone TOTP without a URL", "alice", ""],
+	])("imports %s with TOTP settings", (_, username, url) => {
+		const uri = `otpauth://totp/Account?secret=${key}&algorithm=SHA256&digits=8&period=60`;
+		const output = importer.parser(
+			Papa.unparse([
+				["Secret Name", "Username", "Password", "URL", "TOTP Key"],
+				["Account", username, "", url, uri],
+			]),
+		);
+		expect(output).not.toBeNull();
+		if (username && url) {
+			expect(output!.secrets).toHaveLength(1);
+			expect(output!.secrets[0]).toMatchObject({
+				type: "website_password",
+				website_password_totp_code: key,
+				website_password_totp_algorithm: "SHA256",
+				website_password_totp_digits: 8,
+				website_password_totp_period: 60,
+			});
+		} else {
+			const totps = output!.secrets.filter((entry) => entry.type === "totp");
+			expect(totps).toHaveLength(1);
+			expect(totps[0]).toMatchObject({
+				totp_code: key,
+				totp_algorithm: "SHA256",
+				totp_digits: 8,
+				totp_period: 60,
+			});
+			expect(totps[0].totp_url_filter).toBe(
+				url ? "www.example.com:8443" : undefined,
+			);
+			expect(totps[0].urlfilter).toBe(url ? "www.example.com:8443" : undefined);
+		}
+	});
+
 	it("is available in the import selector", () => {
 		expect(importService.getImporter()).toContainEqual({
 			name: "Delinea SecretServer (CSV)",

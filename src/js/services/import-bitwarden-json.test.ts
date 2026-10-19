@@ -2,6 +2,79 @@ import cryptoLibrary from "./crypto-library";
 import importBitwardenJson from "./import-bitwarden-json";
 
 describe("Service: importBitwardenJson test suite", () => {
+	describe.each([
+		[1, "website_password", "website_password_notes"],
+		[2, "note", "note_notes"],
+	])("preserves invalid TOTP values for Bitwarden type %s (%s)", (type, secretType, notesField) => {
+		it.each([
+			["  invalid TOTP value!  ", "Existing notes"],
+			["  invalid TOTP value!  ", ""],
+			["otpauth://totp/Account?secret=INVALID!", "Existing notes"],
+			["otpauth://totp/Account?secret=INVALID!", ""],
+		])("keeps %s in notes alongside %s", (totp, notes) => {
+			const output = importBitwardenJson.parser(
+				JSON.stringify({
+					items: [
+						{
+							type,
+							name: "Account",
+							notes,
+							login: { username: "alice", password: "password", totp },
+						},
+					],
+				}),
+			);
+			expect(output).not.toBeNull();
+			expect(output!.secrets).toHaveLength(1);
+			const secret = output!.secrets[0];
+			expect(secret.type).toBe(secretType);
+			const importedNotes =
+				secret[notesField as "website_password_notes" | "note_notes"];
+			expect(importedNotes).toContain(`TOTP: ${totp}`);
+			if (notes) expect(importedNotes).toContain(notes);
+			expect(secret.website_password_totp_code).toBeUndefined();
+			expect(output!.datastore.items).toEqual(output!.secrets);
+		});
+	});
+
+	it.each([
+		"uri",
+		"base32",
+	])("imports inline TOTP settings from %s", (format) => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const totp =
+			format === "uri"
+				? `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`
+				: code;
+		const output = importBitwardenJson.parser(
+			JSON.stringify({
+				items: [
+					{
+						type: 1,
+						name: "Account",
+						login: {
+							username: "alice",
+							password: "",
+							uris: [
+								{ uri: "https://www.example.com:8443/login?foo=bar#section" },
+							],
+							totp,
+						},
+					},
+				],
+			}),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: format === "uri" ? "SHA256" : "SHA1",
+			website_password_totp_digits: format === "uri" ? 8 : 6,
+			website_password_totp_period: format === "uri" ? 60 : 30,
+		});
+	});
+
 	it("helper exists", () => {
 		expect(importBitwardenJson).toBeDefined();
 	});
@@ -135,6 +208,10 @@ describe("Service: importBitwardenJson test suite", () => {
 									"1st line of note text\n2nd Line of note text",
 								website_password_url: "https://mail.google.com",
 								website_password_title: "Login Name",
+								website_password_totp_code: "NB2W45DFOIZA",
+								website_password_totp_digits: 6,
+								website_password_totp_algorithm: "SHA1",
+								website_password_totp_period: 30,
 								custom_fields: [
 									{
 										name: "Text Field",
@@ -152,17 +229,6 @@ describe("Service: importBitwardenJson test suite", () => {
 										value: "true",
 									},
 								],
-							},
-							{
-								id: generic_uuid,
-								type: "totp",
-								name: "Login Name TOTP",
-								totp_notes: "",
-								totp_code: "NB2W45DFOIZA",
-								totp_digits: 6,
-								totp_algorithm: "SHA1",
-								totp_period: 30,
-								totp_title: "Login Name TOTP",
 							},
 						],
 					},
@@ -272,6 +338,10 @@ describe("Service: importBitwardenJson test suite", () => {
 						"1st line of note text\n2nd Line of note text",
 					website_password_url: "https://mail.google.com",
 					website_password_title: "Login Name",
+					website_password_totp_code: "NB2W45DFOIZA",
+					website_password_totp_digits: 6,
+					website_password_totp_algorithm: "SHA1",
+					website_password_totp_period: 30,
 					custom_fields: [
 						{
 							name: "Text Field",
@@ -289,17 +359,6 @@ describe("Service: importBitwardenJson test suite", () => {
 							value: "true",
 						},
 					],
-				},
-				{
-					id: generic_uuid,
-					type: "totp",
-					name: "Login Name TOTP",
-					totp_notes: "",
-					totp_code: "NB2W45DFOIZA",
-					totp_digits: 6,
-					totp_algorithm: "SHA1",
-					totp_period: 30,
-					totp_title: "Login Name TOTP",
 				},
 			],
 		};
