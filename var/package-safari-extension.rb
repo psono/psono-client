@@ -57,6 +57,7 @@ Xcodeproj::Plist.write_to_path({
     settings["ENABLE_HARDENED_RUNTIME"] = "YES"
     settings["INFOPLIST_KEY_CFBundleShortVersionString"] = manifest.fetch("version")
     settings["INFOPLIST_KEY_CFBundleVersion"] = build_number
+    settings["INFOPLIST_KEY_ITSAppUsesNonExemptEncryption"] = "NO"
     settings["INFOPLIST_KEY_CFBundleDisplayName"] = app_name if target == app
     settings["INFOPLIST_KEY_LSApplicationCategoryType"] = "public.app-category.productivity" if target == app
     if signed
@@ -71,6 +72,7 @@ Xcodeproj::Plist.write_to_path({
       plist = Xcodeproj::Plist.read_from_path(plist_path)
       plist["CFBundleShortVersionString"] = "$(MARKETING_VERSION)"
       plist["CFBundleVersion"] = "$(CURRENT_PROJECT_VERSION)"
+      plist["ITSAppUsesNonExemptEncryption"] = false
       plist["CFBundleDisplayName"] = app_name if target == app
       plist["LSApplicationCategoryType"] = "public.app-category.productivity" if target == app
       Xcodeproj::Plist.write_to_path(plist, plist_path)
