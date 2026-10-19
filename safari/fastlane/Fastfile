@@ -86,7 +86,7 @@ platform :mac do
         project = package_project
         build_mac_app(
           project: project, scheme: "Psono for Safari", clean: true,
-          export_method: "app-store", code_sign_identity: app_identity,
+          export_method: "app-store", codesigning_identity: app_identity,
           installer_cert_name: installer_identity,
           output_directory: File.join(root, "dist/safari"),
           output_name: "psono-safari",
