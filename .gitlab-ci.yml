@@ -225,6 +225,8 @@ package-safari-extension:
   script:
     - gem install bundler -v 2.5.22 --no-document
     - bundle install --jobs 4
+    - mkdir -p ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - |
       if [[ "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         (cd safari && bundle exec fastlane mac appstore_build)
