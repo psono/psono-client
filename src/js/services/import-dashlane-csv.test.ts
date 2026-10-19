@@ -2,6 +2,53 @@ import cryptoLibrary from "./crypto-library";
 import importDashlaneCsv from "./import-dashlane-csv";
 
 describe("Service: importDashlaneCsv test suite", () => {
+	it.each([
+		[
+			"website password",
+			"alice",
+			"https://www.example.com:8443/login?foo=bar#section",
+		],
+		[
+			"standalone TOTP with a URL",
+			"",
+			"https://www.example.com:8443/login?foo=bar#section",
+		],
+		["standalone TOTP without a URL", "alice", ""],
+	])("imports %s with TOTP settings", (_, username, url) => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = importDashlaneCsv.parser(
+			"username,username2,username3,title,password,note,url,category,otpSecret\n" +
+				[username, "", "", "Account", "", "backup", url, "Folder", uri].join(
+					",",
+				),
+		);
+		expect(output).not.toBeNull();
+		if (username && url) {
+			expect(output!.secrets).toHaveLength(1);
+			expect(output!.secrets[0]).toMatchObject({
+				type: "website_password",
+				website_password_totp_code: code,
+				website_password_totp_algorithm: "SHA256",
+				website_password_totp_digits: 8,
+				website_password_totp_period: 60,
+			});
+		} else {
+			const totps = output!.secrets.filter((entry) => entry.type === "totp");
+			expect(totps).toHaveLength(1);
+			expect(totps[0]).toMatchObject({
+				totp_code: code,
+				totp_algorithm: "SHA256",
+				totp_digits: 8,
+				totp_period: 60,
+			});
+			expect(totps[0].totp_url_filter).toBe(
+				url ? "www.example.com:8443" : undefined,
+			);
+			expect(totps[0].urlfilter).toBe(url ? "www.example.com:8443" : undefined);
+		}
+	});
+
 	it("importDashlaneCsv exists", () => {
 		expect(importDashlaneCsv).toBeDefined();
 	});

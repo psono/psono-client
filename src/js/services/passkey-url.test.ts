@@ -1,3 +1,4 @@
+import type { SecretContent } from "../../types/vault";
 import { getPasskeyUrl } from "./passkey-url";
 
 describe("Passkey launch URLs", () => {
@@ -66,5 +67,40 @@ describe("Passkey launch URLs", () => {
 		"login.example.com/account",
 	])("preserves a safe custom launch URL (%p)", (passkey_url) => {
 		expect(getPasskeyUrl({ passkey_url })).toBe(passkey_url);
+	});
+
+	it.each<[SecretContent, string]>([
+		[{ passkey_rp_id: "example.com" }, "https://example.com"],
+		[
+			{ passkey_url_filter: "example.com:8443#credential-id" },
+			"https://example.com:8443",
+		],
+		[
+			{ passkey_url: "https://login.example.com/account" },
+			"https://login.example.com/account",
+		],
+		[{ passkey_url: "login.example.com/account" }, "login.example.com/account"],
+		[{ passkey_url: "javascript:alert(1)" }, "about:blank"],
+		[{ passkey_url: " \njava\tscript:alert(1)" }, "about:blank"],
+		[{ passkey_url: "java\u2003script:alert(1)" }, "about:blank"],
+		[
+			{ passkey_url: "data:text/html,<script>alert(1)</script>" },
+			"about:blank",
+		],
+		[{ passkey_rp_id: "javascript://example.com/%0aalert(1)" }, "about:blank"],
+		[{}, ""],
+	])("resolves URLs without a DOM in a service worker (%p)", (content, expected) => {
+		const windowSpy = jest
+			.spyOn(global, "window", "get")
+			.mockReturnValue(undefined as unknown as Window & typeof globalThis);
+		try {
+			jest.isolateModules(() => {
+				const workerModule =
+					jest.requireActual<typeof import("./passkey-url")>("./passkey-url");
+				expect(workerModule.getPasskeyUrl(content)).toBe(expected);
+			});
+		} finally {
+			windowSpy.mockRestore();
+		}
 	});
 });

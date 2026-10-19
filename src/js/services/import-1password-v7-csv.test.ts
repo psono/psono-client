@@ -306,4 +306,79 @@ describe("Service: import1PasswordV7Csv test suite", () => {
 
 		expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
 	});
+
+	it.each([
+		"alice",
+		"",
+	])("imports TOTP settings for username %s", (username) => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const uri = `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`;
+		const output = import1PasswordV7Csv.parser(
+			"UUID,TITLE,USERNAME,PASSWORD,URL,URLS,SCOPE,AUTOSUBMIT,NOTES,OTP,OTP2\n" +
+				[
+					"id",
+					"Account",
+					username,
+					"",
+					"https://www.example.com:8443/login?foo=bar#section",
+					"",
+					"Default",
+					"Default",
+					"backup",
+					uri,
+					"",
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		if (username) {
+			expect(output!.secrets).toHaveLength(1);
+			expect(output!.secrets[0]).toMatchObject({
+				type: "website_password",
+				website_password_totp_code: code,
+				website_password_totp_algorithm: "SHA256",
+				website_password_totp_digits: 8,
+				website_password_totp_period: 60,
+			});
+		} else {
+			const totps = output!.secrets.filter((entry) => entry.type === "totp");
+			expect(totps).toHaveLength(1);
+			expect(totps[0]).toMatchObject({
+				totp_code: code,
+				totp_algorithm: "SHA256",
+				totp_digits: 8,
+				totp_period: 60,
+				totp_url_filter: "www.example.com:8443",
+				urlfilter: "www.example.com:8443",
+			});
+		}
+	});
+
+	it("keeps additional TOTPs with the website's URL filter", () => {
+		const uri =
+			"otpauth://totp/Account?secret=JBSWY3DPEHPK3PXP&algorithm=SHA256&digits=8&period=60";
+		const output = import1PasswordV7Csv.parser(
+			"UUID,TITLE,USERNAME,PASSWORD,URL,URLS,SCOPE,AUTOSUBMIT,NOTES,OTP,OTP2\n" +
+				[
+					"id",
+					"Account",
+					"alice",
+					"",
+					"example.com:8443/login",
+					"",
+					"Default",
+					"Default",
+					"backup",
+					uri,
+					uri,
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(2);
+		expect(
+			output!.secrets.find((entry) => entry.type === "totp"),
+		).toMatchObject({
+			totp_url_filter: "example.com:8443",
+			urlfilter: "example.com:8443",
+		});
+	});
 });

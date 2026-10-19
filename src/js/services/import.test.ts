@@ -95,6 +95,17 @@ describe("Import Service: password_hash calculation test suite", () => {
 		expect(createdContent().website_password_allow_http).toBe(false);
 	});
 
+	it("preserves password age in native imports inside the encrypted secret", async () => {
+		const timestamp = "2025-01-01T09:00:00.123456Z";
+		const item = await importNativeSecret({
+			type: "website_password",
+			website_password_password: "password",
+			password_modification_datetime: timestamp,
+		});
+		expect(createdContent().password_modification_datetime).toBe(timestamp);
+		expect(item).not.toHaveProperty("password_modification_datetime");
+	});
+
 	it("should calculate password_hash for website_password during import", async () => {
 		const testPassword = "testPassword123";
 		const item = await importNativeSecret({

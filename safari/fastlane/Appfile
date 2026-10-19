@@ -1,0 +1,2 @@
+app_identifier(ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari"))
+team_id(ENV.fetch("APPLE_TEAM_ID", "CVDV85ZV93"))

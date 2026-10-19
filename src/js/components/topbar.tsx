@@ -196,13 +196,13 @@ const Topbar = (props: TopbarProps) => {
 
 	const reloadDatastoreOverview = () => {
 		datastoreService.getDatastoreOverview().then((overview) => {
-			if (!isSubscribed) {
+			if (!isSubscribed || !overview) {
 				return;
 			}
 			const newDatastores = [];
-			for (let i = 0; i < overview!.datastores.length; i++) {
-				if (overview!.datastores[i]["type"] === "password") {
-					newDatastores.push(overview!.datastores[i]);
+			for (let i = 0; i < overview.datastores.length; i++) {
+				if (overview.datastores[i]["type"] === "password") {
+					newDatastores.push(overview.datastores[i]);
 				}
 			}
 			setDatastores(newDatastores);

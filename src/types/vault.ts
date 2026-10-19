@@ -6,6 +6,8 @@ import type { ShareRights as DatastoreShareRights } from "./datastore";
  */
 export interface SecretContent {
 	[field: string]: unknown;
+	/** Last password change, as an ISO-8601 datetime with timezone (UTC on save). */
+	password_modification_datetime?: string;
 	application_password_title?: string;
 	application_password_username?: string;
 	application_password_password?: string;
@@ -385,6 +387,7 @@ export interface ReportPassword {
 	password?: string;
 	create_date?: string;
 	write_date?: string;
+	password_modification_datetime?: string;
 	master_password: boolean;
 }
 

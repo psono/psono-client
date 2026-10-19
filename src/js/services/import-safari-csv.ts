@@ -3,6 +3,7 @@
  */
 
 import Papa from "papaparse";
+import * as OTPAuth from "otpauth";
 import type {
 	CsvRow,
 	ImportedSecret,
@@ -29,7 +30,7 @@ const INDEX_NOTES = 4;
 function transformToSecret(line: CsvRow): ImportedSecret {
 	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: line[INDEX_NAME],
@@ -42,6 +43,19 @@ function transformToSecret(line: CsvRow): ImportedSecret {
 		website_password_url: line[INDEX_URL],
 		website_password_title: line[INDEX_NAME],
 	};
+	if (line[5]) {
+		try {
+			const parsedTotp = OTPAuth.URI.parse(line[5]);
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			// Keep the password importable if the TOTP URI is malformed.
+		}
+	}
+	return websitePassword;
 }
 
 /**

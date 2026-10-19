@@ -363,6 +363,13 @@ function gather_secrets(
 		for (let i = start; i < totpIndexes.length; i++) {
 			const totpSecret = transformToTotpCode(line, totpIndexes[i]);
 			if (totpSecret !== null) {
+				const urlFilter = helperService.parseUrl(
+					line[INDEX_URL] || line[INDEX_URLS],
+				).authority;
+				if (urlFilter) {
+					totpSecret.totp_url_filter = urlFilter;
+					totpSecret.urlfilter = urlFilter;
+				}
 				secrets.push(totpSecret);
 				datastore["items"].push(totpSecret);
 			}

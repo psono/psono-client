@@ -15,7 +15,7 @@ jest.mock("../../services/store", () => ({
 	getStore: () => ({
 		getState: () => ({
 			user: {},
-			server: { disableCallbacks: true },
+			server: { disableCallbacks: true, version: "5.4.0" },
 			settingsDatastore: {},
 		}),
 	}),
@@ -26,6 +26,14 @@ jest.mock("../../services/secret", () => ({
 	writeSecret: jest.fn(),
 }));
 jest.mock("../../services/offline-cache", () => ({ isActive: () => false }));
+jest.mock("../../services/file-transfer", () => ({
+	...jest.requireActual("../../services/file-transfer").default,
+	readShards: jest.fn().mockResolvedValue([]),
+}));
+jest.mock("../../services/file-repository", () => ({
+	...jest.requireActual("../../services/file-repository").default,
+	readFileRepositories: jest.fn().mockResolvedValue([]),
+}));
 jest.mock("../markdown-notes-field", () => () => null);
 jest.mock("../totp-circle", () => () => null);
 jest.mock("../gateway-launch-button", () => () => null);

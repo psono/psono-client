@@ -15,10 +15,10 @@ import type {
 	FileDestination,
 	ResultDialogProps,
 } from "../../../types/dialogs";
-import type { FileRepository, Shard } from "../../../types/files";
-
-import cryptoLibrary from "../../services/crypto-library";
-import fileTransferService from "../../services/file-transfer";
+import {
+	uploadAttachment,
+	type PendingAttachment,
+} from "../../services/attachment";
 import notification from "../../services/notification";
 import SelectFieldFileDestination from "../select-field/file-destination";
 
@@ -35,15 +35,11 @@ const useStyles = makeStyles((theme) => ({
 export interface DialogAddAttachmentProps
 	extends ResultDialogProps<DialogAttachment> {
 	item: { secret_id?: string };
-}
-
-interface UploadedChunk {
-	chunk_position: number;
-	hash_checksum: string;
+	onSelect?: (attachment: PendingAttachment) => void;
 }
 
 const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
-	const { open, onClose, item } = props;
+	const { open, onClose, item, onSelect } = props;
 	const { t } = useTranslation();
 	const classes = useStyles();
 
@@ -66,62 +62,28 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 		if (!selectedFile || !fileDestination) {
 			return;
 		}
+		if (onSelect) {
+			onSelect({
+				file: selectedFile,
+				filename: fileName,
+				destination: fileDestination,
+			});
+			return;
+		}
 
 		setUploading(true);
 		setUploadProgress(0);
 
 		try {
-			// Extract shard or file repository from destination
-			let shard: Shard | undefined;
-			let fileRepository: FileRepository | undefined;
-
-			if (fileDestination.destination_type === "file_repository") {
-				fileRepository = fileDestination;
-			} else if (fileDestination.destination_type === "shard") {
-				shard = fileDestination;
-			}
-
-			// Generate a random key for file encryption
-			const fileSecretKey = cryptoLibrary.generateSecretKey();
-			const fileChunkSize = 128 * 1024 * 1024; // 128 MB chunks
-			const chunkCount = Math.ceil(selectedFile.size / fileChunkSize);
-
-			// Create file on server with parentSecretId
-			const fileResponse = await fileTransferService.createFile(
-				shard ? shard.id : undefined,
-				fileRepository ? fileRepository.id : undefined,
-				selectedFile.size + chunkCount * 40, // Add overhead for encryption
-				chunkCount,
-				undefined, // linkId - not needed for attachments
-				undefined, // parentDatastoreId - not needed when using parentSecretId
-				undefined, // parentShareId - not needed when using parentSecretId
-				item.secret_id, // parentSecretId
+			const newAttachment = await uploadAttachment(
+				{
+					file: selectedFile,
+					filename: fileName,
+					destination: fileDestination,
+				},
+				item.secret_id!,
+				setUploadProgress,
 			);
-
-			// Upload chunks sequentially
-			const chunks = await multiChunkUpload(
-				shard,
-				fileRepository,
-				selectedFile,
-				fileResponse.file_transfer_id,
-				fileResponse.file_transfer_secret_key,
-				fileSecretKey,
-				fileChunkSize,
-			);
-
-			// Build attachment object
-			const newAttachment: DialogAttachment = {
-				file_id: fileResponse.file_id,
-				file_chunks: Object.keys(chunks).map((pos) => ({
-					hash: chunks[pos],
-					position: parseInt(pos),
-				})),
-				file_secret_key: fileSecretKey,
-				file_size: selectedFile.size,
-				file_shard_id: shard ? shard.id : null,
-				file_repository_id: fileRepository ? fileRepository.id : null,
-				filename: fileName,
-			};
 
 			notification.push("file_upload", t("FILE_UPLOADED_SUCCESSFULLY"));
 			onClose(newAttachment);
@@ -131,106 +93,6 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 			setUploading(false);
 			setUploadProgress(0);
 		}
-	};
-
-	const multiChunkUpload = (
-		shard: Shard | undefined,
-		fileRepository: FileRepository | undefined,
-		file: File,
-		fileTransferId: string,
-		fileTransferSecretKey: string,
-		fileSecretKey: string,
-		fileChunkSize: number,
-	) => {
-		return new Promise<Record<string, string>>((resolve, reject) => {
-			let chunkPosition = 1;
-			let fileSliceStart = 0;
-			const chunks: Record<string, string> = {};
-			const maxChunks = Math.ceil(file.size / fileChunkSize);
-			let uploadedChunks = 0;
-
-			const readFileChunk = (
-				fileSliceStart: number,
-				chunkSize: number,
-				chunkPosition: number,
-			) => {
-				return new Promise<UploadedChunk>((resolveChunk) => {
-					const fileReader = new FileReader();
-
-					fileReader.onloadend = async (event) => {
-						try {
-							const result = event.target?.result;
-							if (!(result instanceof ArrayBuffer)) {
-								throw new TypeError("Expected a file chunk ArrayBuffer");
-							}
-							const bytes = new Uint8Array(result);
-
-							// Encrypt chunk
-							const encryptedBytes = await cryptoLibrary.encryptFile(
-								bytes,
-								fileSecretKey,
-							);
-
-							// Hash encrypted chunk
-							const hashChecksum = cryptoLibrary.sha512(encryptedBytes);
-
-							// Upload chunk
-							await fileTransferService.upload(
-								new Blob([encryptedBytes], {
-									type: "application/octet-stream",
-								}),
-								fileTransferId,
-								fileTransferSecretKey,
-								encryptedBytes.byteLength,
-								chunkPosition,
-								shard,
-								fileRepository,
-								hashChecksum,
-							);
-
-							uploadedChunks++;
-							setUploadProgress(Math.round((uploadedChunks / maxChunks) * 100));
-
-							resolveChunk({
-								chunk_position: chunkPosition,
-								hash_checksum: hashChecksum,
-							});
-						} catch (error) {
-							reject(error);
-						}
-					};
-
-					const file_slice = file.slice(
-						fileSliceStart,
-						fileSliceStart + chunkSize,
-					);
-					fileReader.readAsArrayBuffer(file_slice);
-				});
-			};
-
-			const readNextChunk = async (): Promise<void> => {
-				const chunkSize = Math.min(fileChunkSize, file.size - fileSliceStart);
-				if (chunkSize === 0) {
-					return resolve(chunks);
-				}
-
-				try {
-					const chunk = await readFileChunk(
-						fileSliceStart,
-						chunkSize,
-						chunkPosition,
-					);
-					fileSliceStart = fileSliceStart + chunkSize;
-					chunkPosition = chunkPosition + 1;
-					chunks[chunk.chunk_position] = chunk.hash_checksum;
-					await readNextChunk();
-				} catch (error) {
-					reject(error);
-				}
-			};
-
-			readNextChunk();
-		});
 	};
 
 	const handleClose = () => {

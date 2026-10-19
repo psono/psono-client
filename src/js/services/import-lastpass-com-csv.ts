@@ -2,6 +2,7 @@
  * Service which handles the actual parsing of the exported JSON
  */
 import Papa from "papaparse";
+import * as OTPAuth from "otpauth";
 import type {
 	CsvRow,
 	ImportedSecret,
@@ -113,7 +114,7 @@ function transformIntoNote(line: CsvRow): ImportedSecret | null {
 function transformIntoWebsitePassword(line: CsvRow): ImportedSecret {
 	const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: line[INDEX_NAME],
@@ -126,6 +127,22 @@ function transformIntoWebsitePassword(line: CsvRow): ImportedSecret {
 		website_password_url: line[INDEX_URL],
 		website_password_title: line[INDEX_NAME],
 	};
+	if (line[INDEX_TOTP]) {
+		try {
+			const value = line[INDEX_TOTP].trim();
+			const parsedTotp = value.startsWith("otpauth://")
+				? OTPAuth.URI.parse(value)
+				: new OTPAuth.TOTP({ secret: value.toUpperCase() });
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			// Keep the password importable if the TOTP value is malformed.
+		}
+	}
+	return websitePassword;
 }
 
 /**

@@ -3,6 +3,8 @@
  */
 
 import cryptoLibrary from "./crypto-library";
+import * as OTPAuth from "otpauth";
+import helperService from "./helper";
 import type {
 	ImportedSecret,
 	ImportItemsFolder,
@@ -148,7 +150,7 @@ function transformToWebsitePassword(item: EnpassItem): ImportedSecret {
 		}
 	}
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: name,
@@ -161,6 +163,25 @@ function transformToWebsitePassword(item: EnpassItem): ImportedSecret {
 		website_password_url: website_password_url,
 		website_password_title: website_password_title,
 	};
+	const totp = item.fields?.find(
+		(field) => field.type === "totp" && field.value,
+	)?.value;
+	if (totp) {
+		try {
+			const value = totp.trim();
+			const parsedTotp = value.startsWith("otpauth://")
+				? OTPAuth.URI.parse(value)
+				: new OTPAuth.TOTP({ secret: value.toUpperCase() });
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			websitePassword.website_password_totp_code = totp;
+		}
+	}
+	return websitePassword;
 }
 
 /**
@@ -422,8 +443,17 @@ function gatherSecrets(
 				crafted_secrets.push(transformToNote(parsedData["items"][i]));
 			}
 
-			if (contains_totp_code) {
-				crafted_secrets.push(transformToTotpCode(parsedData["items"][i]));
+			if (detected_type !== "website_password" && contains_totp_code) {
+				const totp = transformToTotpCode(parsedData["items"][i]);
+				const url = parsedData.items[i].fields?.find(
+					(field) => field.type === "url" && field.value,
+				)?.value;
+				const urlFilter = helperService.parseUrl(url).authority;
+				if (urlFilter) {
+					totp.totp_url_filter = urlFilter;
+					totp.urlfilter = urlFilter;
+				}
+				crafted_secrets.push(totp);
 			}
 
 			let parent_folder = null;

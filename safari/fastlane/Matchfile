@@ -1,0 +1,6 @@
+git_url(ENV.fetch("MATCH_GIT_URL", "git@gitlab.com:esaqa/esaqa/match-certs.git"))
+storage_mode("git")
+type("appstore")
+platform("macos")
+app_identifier([ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari"), "#{ENV.fetch('SAFARI_APP_IDENTIFIER', 'com.psono.safari')}.Extension"])
+team_id(ENV.fetch("APPLE_TEAM_ID", "CVDV85ZV93"))

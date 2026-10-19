@@ -17,3 +17,9 @@ test
 *.py[cod]
 cert.pfx
 untranslated
+.bundle/
+vendor/bundle/
+safari/fastlane/report.xml
+safari/fastlane/README.md
+*.xcuserstate
+xcuserdata/

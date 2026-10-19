@@ -2,6 +2,39 @@ import cryptoLibrary from "../services/crypto-library";
 import importLastPassComCsv from "./import-lastpass-com-csv";
 
 describe("Service: importLastPassComCsv test suite", () => {
+	it.each([
+		"uri",
+		"base32",
+	])("imports inline TOTP settings from %s", (format) => {
+		const code = "JBSWY3DPEHPK3PXP";
+		const totp =
+			format === "uri"
+				? `otpauth://totp/Account?secret=${code}&algorithm=SHA256&digits=8&period=60`
+				: code;
+		const output = importLastPassComCsv.parser(
+			"url,username,password,totp,extra,name,grouping,fav\n" +
+				[
+					"https://www.example.com:8443/login?foo=bar#section",
+					"alice",
+					"",
+					totp,
+					"backup",
+					"Account",
+					"Folder",
+					"0",
+				].join(","),
+		);
+		expect(output).not.toBeNull();
+		expect(output!.secrets).toHaveLength(1);
+		expect(output!.secrets[0]).toMatchObject({
+			type: "website_password",
+			website_password_totp_code: code,
+			website_password_totp_algorithm: format === "uri" ? "SHA256" : "SHA1",
+			website_password_totp_digits: format === "uri" ? 8 : 6,
+			website_password_totp_period: format === "uri" ? 60 : 30,
+		});
+	});
+
 	it("importLastPassComCsv exists", () => {
 		expect(importLastPassComCsv).toBeDefined();
 	});

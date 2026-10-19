@@ -70,7 +70,19 @@ const datastoreOverview: Record<
 function _getDatastoreOverviewSingleton() {
 	const userId = getStore().getState().user.userId;
 	if (!Object.hasOwn(datastoreOverview, userId) || !datastoreOverview[userId]) {
-		datastoreOverview[userId] = _getDatastoreOverview();
+		datastoreOverview[userId] = _getDatastoreOverview().then(
+			(overview) => {
+				// A failed request must not prevent subsequent attempts from retrying.
+				if (!overview) {
+					delete datastoreOverview[userId];
+				}
+				return overview;
+			},
+			(error) => {
+				delete datastoreOverview[userId];
+				throw error;
+			},
+		);
 	}
 	return datastoreOverview[userId];
 }
@@ -114,7 +126,10 @@ function getDatastoreOverview(
  */
 function getDatastoreId(type: string, forceFresh?: boolean) {
 	const onSuccess = (result: DatastoreOverview | undefined) => {
-		const stores = result!.datastores;
+		if (!result) {
+			return undefined;
+		}
+		const stores = result.datastores;
 
 		const datastoreId = "";
 		for (let i = 0; i < stores.length; i++) {
@@ -375,10 +390,16 @@ function getDatastore<T extends object = Datastore>(
 	const onSuccess = (
 		datastore_id: string | undefined,
 	): Promise<(T & DatastoreMetadata) | undefined> => {
+		if (datastore_id === undefined) {
+			return Promise.resolve(undefined);
+		}
 		if (datastore_id === "") {
 			//datastore does not exist, lets force a fresh query to make sure
 
 			const onSuccess = (datastore_id: string | undefined) => {
+				if (datastore_id === undefined) {
+					return undefined;
+				}
 				if (datastore_id === "") {
 					//datastore does really not exist, lets create one and return it
 

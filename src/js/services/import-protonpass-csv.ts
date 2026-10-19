@@ -364,6 +364,11 @@ function gather_secrets(
 		if (needsSeparateTotp(line)) {
 			const totpEntry = transformToTotpCode(line);
 			if (totpEntry !== null) {
+				const urlFilter = helperService.parseUrl(line[INDEX_URL]).authority;
+				if (urlFilter) {
+					totpEntry.totp_url_filter = urlFilter;
+					totpEntry.urlfilter = urlFilter;
+				}
 				secrets.push(totpEntry);
 				datastore["items"].push(totpEntry);
 			}

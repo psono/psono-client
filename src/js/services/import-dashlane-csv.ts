@@ -152,7 +152,7 @@ function transformIntoNote(line: CsvRow): ImportedSecret | null {
 function transformIntoWebsitePassword(line: CsvRow): ImportedSecret {
 	const parsed_url = helperService.parseUrl(getUrl(line));
 
-	return {
+	const websitePassword: ImportedSecret = {
 		id: cryptoLibrary.generateUuid(),
 		type: "website_password",
 		name: getTitle(line),
@@ -167,6 +167,19 @@ function transformIntoWebsitePassword(line: CsvRow): ImportedSecret {
 		website_password_url: getUrl(line),
 		website_password_title: getTitle(line),
 	};
+	if (line[INDEX_OTP_SECRET]) {
+		try {
+			const parsedTotp = OTPAuth.URI.parse(line[INDEX_OTP_SECRET]);
+			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
+			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
+			websitePassword.website_password_totp_digits = parsedTotp.digits;
+			websitePassword.website_password_totp_period =
+				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : undefined;
+		} catch (e) {
+			// Keep the password importable if the TOTP URI is malformed.
+		}
+	}
+	return websitePassword;
 }
 
 /**
@@ -304,8 +317,16 @@ function gatherSecrets(
 			folder_index[folder_name].push(secret);
 			secrets.push(secret);
 		}
-		const totp = transformToTotp(line);
+		const totp =
+			getType(line) === "website_password" ? null : transformToTotp(line);
 		if (totp !== null) {
+			const urlFilter = helperService.parseUrl(
+				line[INDEX_URL] ? getUrl(line) : "",
+			).authority;
+			if (urlFilter) {
+				totp.totp_url_filter = urlFilter;
+				totp.urlfilter = urlFilter;
+			}
 			if (!Object.hasOwn(folder_index, folder_name)) {
 				folder_index[folder_name] = [];
 			}

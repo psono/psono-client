@@ -8,6 +8,7 @@ import cryptoLibrary from "./crypto-library";
 import datastoreService from "./datastore";
 import datastoreUserService from "./datastore-user";
 import exportService from "./export";
+import secretService from "./secret";
 import statusService from "./status";
 import { getStore } from "./store";
 import type { DatastoreOverview } from "../../types/datastore";
@@ -218,6 +219,7 @@ function filterPasswordsHelper(
 				password: items[i]["application_password_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (items[i]["type"] === "website_password") {
@@ -229,6 +231,7 @@ function filterPasswordsHelper(
 				password: items[i]["website_password_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (items[i]["type"] === "elster_certificate") {
@@ -240,6 +243,7 @@ function filterPasswordsHelper(
 				password: items[i]["elster_certificate_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -255,6 +259,7 @@ function filterPasswordsHelper(
 				password: items[i]["ssh_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -269,6 +274,7 @@ function filterPasswordsHelper(
 				password: items[i]["rdp_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		} else if (
@@ -283,6 +289,7 @@ function filterPasswordsHelper(
 				password: items[i]["vnc_connection_password"],
 				create_date: items[i]["create_date"],
 				write_date: items[i]["write_date"],
+				password_modification_datetime: items[i].password_modification_datetime,
 				master_password: false,
 			});
 		}
@@ -366,7 +373,11 @@ function analyzePasswordLength(secrets: ReportPassword[]): SecurityAnalysis {
 			input_type: "password",
 			advice: rating["advice"],
 			create_age: getAgeInDays(secrets[i]["create_date"]),
-			write_age: getAgeInDays(secrets[i]["write_date"]),
+			write_age: getAgeInDays(
+				secretService.validPasswordModificationDatetime(
+					secrets[i].password_modification_datetime,
+				) || secrets[i].write_date,
+			),
 			duplicate: false,
 		});
 	}
@@ -628,10 +639,6 @@ function summarizeUser(analysis: SecurityAnalysis) {
 
 	emit("summarize-user-started", {});
 
-	const onError = () => {
-		// pass
-	};
-
 	const onSuccess = (result: unknown) => {
 		type User = UserSecuritySummary & { username: string };
 		const users = (result as { data: User | User[] }).data;
@@ -658,7 +665,7 @@ function summarizeUser(analysis: SecurityAnalysis) {
 
 	return datastoreUserService
 		.searchUser(getStore().getState().user.username)
-		.then(onSuccess, onError);
+		.then(onSuccess);
 }
 
 /**
@@ -667,12 +674,11 @@ function summarizeUser(analysis: SecurityAnalysis) {
  * @returns {Promise} Returns a promise with the exportable datastore content of all datastores
  */
 function fetchAllPasswordDatastores() {
-	const onError = () => {
-		// pass
-	};
-
 	const onSuccess = (overview: DatastoreOverview | undefined) => {
-		const result = overview!;
+		if (!overview) {
+			throw { errors: ["SERVER_OFFLINE"] };
+		}
+		const result = overview;
 		const all_calls = [];
 
 		for (let i = 0; i < result.datastores.length; i++) {
@@ -691,7 +697,7 @@ function fetchAllPasswordDatastores() {
 		return Promise.all(all_calls);
 	};
 
-	return datastoreService.getDatastoreOverview().then(onSuccess, onError);
+	return datastoreService.getDatastoreOverview().then(onSuccess);
 }
 
 /**
@@ -709,7 +715,7 @@ function generateSecurityReport(
 	emit("generation-started", {});
 
 	return fetchAllPasswordDatastores()
-		.then((datastores) => filterPasswords(datastores! as ReportFolder[]))
+		.then((datastores) => filterPasswords(datastores as ReportFolder[]))
 		.then(analyzePasswordLength)
 		.then(analyzePasswordAge)
 		.then(analyzePasswordDuplicates)

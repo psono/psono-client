@@ -82,7 +82,13 @@ async function sendMessage<E extends string>(
 async function getOfflineCacheEncryptionKey(
 	fnc: SendResponse<string | null | undefined>,
 ) {
-	if (TARGET === "firefox") {
+	if (TARGET === "safari") {
+		// Keep the unlocked cache key in the persistent background page's memory,
+		// never in extension storage. Safari supports the callback API here.
+		chrome.runtime.getBackgroundPage((bg) => {
+			fnc(bg?.psono_offline_cache_encryption_key);
+		});
+	} else if (TARGET === "firefox") {
 		if (!browser.runtime.getBackgroundPage) {
 			return;
 		}

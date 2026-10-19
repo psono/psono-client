@@ -740,9 +740,12 @@ function getPasswordDatastore(id?: string): Promise<Datastore | undefined> {
 	const description = "default";
 
 	const onSuccess = (datastore: Datastore | undefined) => {
+		if (!datastore) {
+			return Promise.reject({ errors: ["SERVER_OFFLINE"] });
+		}
 		const onSuccess = (data: ShareRightsOverview | undefined) => {
 			if (typeof data === "undefined") {
-				return;
+				return Promise.reject({ errors: ["SERVER_OFFLINE"] });
 			}
 
 			const share_rights_dict: Record<string, ShareRights> = {};
@@ -763,10 +766,7 @@ function getPasswordDatastore(id?: string): Promise<Datastore | undefined> {
 				return Promise.reject(datastore);
 			};
 
-			return _readShares(datastore!, share_rights_dict).then(
-				onSuccess,
-				onError,
-			);
+			return _readShares(datastore, share_rights_dict).then(onSuccess, onError);
 		};
 
 		const onError = (data: unknown) => {
