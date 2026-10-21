@@ -66,6 +66,15 @@ describe("Import Service: password_hash calculation test suite", () => {
 		jest.clearAllMocks();
 	});
 
+	it("requires file storage for ZIP imports before creating any secrets", async () => {
+		await expect(
+			importService.importDatastore("bitwarden_zip", ""),
+		).rejects.toEqual({
+			errors: ["BITWARDEN_ZIP_REQUIRES_FILE_STORAGE"],
+		});
+		expect(secretService.createSecretBulk).not.toHaveBeenCalled();
+	});
+
 	it("enables HTTP matching for imported HTTP website passwords", async () => {
 		await importService.importDatastore(
 			"bitwarden_json",

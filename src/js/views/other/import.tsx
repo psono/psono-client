@@ -24,6 +24,8 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import TextFieldPassword from "../../components/text-field/password";
 import TextFieldPath from "../../components/text-field/path";
 import importService from "../../services/import";
+import SelectFieldFileDestination from "../../components/select-field/file-destination";
+import type { FileDestination } from "../../../types/components";
 
 // The form's empty binary value is passed through until FileReader finishes.
 // The shared import service signature must also accept this existing request value.
@@ -33,6 +35,8 @@ type ImportDatastoreRequest = (
 	binary: ArrayBuffer | "",
 	password: string,
 	breadcrumbs: ImportBreadcrumbs,
+	archive?: Blob,
+	destination?: FileDestination | null,
 ) => ReturnType<typeof importService.importDatastore>;
 
 const useStyles = makeStyles((theme) => ({
@@ -52,6 +56,10 @@ const OtherImportView = (_props: ManagementViewProps) => {
 	const [fileContent, setFileContent] = React.useState("");
 	const [fileBinary, setFileBinary] = React.useState<ArrayBuffer | "">("");
 	const [fileName, setFileName] = React.useState("");
+	const [archive, setArchive] = React.useState<File>();
+	const [destination, setDestination] = React.useState<FileDestination | null>(
+		null,
+	);
 	const [percentageComplete, setPercentageComplete] = React.useState(0);
 	const [processing, setProcessing] = React.useState(false);
 	const [errors, setErrors] = React.useState<string[]>([]);
@@ -90,6 +98,9 @@ const OtherImportView = (_props: ManagementViewProps) => {
 			closedRequest = 0;
 			setProcessing(false);
 		});
+		importService.on("attachment-progress", (percentage) =>
+			setPercentageComplete(percentage as number),
+		);
 	}, []);
 
 	const importPasswords = () => {
@@ -100,15 +111,18 @@ const OtherImportView = (_props: ManagementViewProps) => {
 			setMessages(data.msgs);
 			setErrors([]);
 		};
-		const onError = (data: ManagementError) => {
+		const onError = (data: ManagementError | Error | undefined) => {
 			console.log(data);
 			setMessages([]);
-			if (Object.hasOwn(data, "errors")) {
-				if (data.errors![0] === "RESOURCE_NOT_FOUND") {
+			const errors = data && "errors" in data ? data.errors : undefined;
+			if (errors?.length) {
+				if (errors[0] === "RESOURCE_NOT_FOUND") {
 					setErrors(["FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE"]);
 				} else {
-					setErrors(data.errors!);
+					setErrors(errors);
 				}
+			} else {
+				setErrors([data instanceof Error ? data.message : "UNKNOWN_ERROR"]);
 			}
 			openRequests = 0;
 			closedRequest = 0;
@@ -121,6 +135,8 @@ const OtherImportView = (_props: ManagementViewProps) => {
 			fileBinary,
 			password,
 			breadcrumbs,
+			archive,
+			destination,
 		).then(onSuccess, onError);
 	};
 
@@ -154,7 +170,15 @@ const OtherImportView = (_props: ManagementViewProps) => {
 	const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault();
 
-		setFileName(event.target.files![0].name);
+		const file = event.target.files?.[0];
+		if (!file) return;
+		setFileName(file.name);
+		setArchive(file);
+		if (exportFormat === "bitwarden_zip") {
+			setFileContent("");
+			setFileBinary("");
+			return;
+		}
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			// readAsArrayBuffer supplies an ArrayBuffer on successful load.
@@ -192,8 +216,14 @@ const OtherImportView = (_props: ManagementViewProps) => {
 						labelId="export-type-select-label-label"
 						id="export-type-select-label"
 						value={exportFormat}
+						disabled={processing}
 						onChange={(event) => {
 							setExportFormat(event.target.value);
+							setFileName("");
+							setArchive(undefined);
+							setFileContent("");
+							setFileBinary("");
+							setDestination(null);
 						}}
 						label={t("TYPE")}
 					>
@@ -240,59 +270,76 @@ const OtherImportView = (_props: ManagementViewProps) => {
 					<input type="file" hidden onChange={onFileChange} />
 				</Button>
 			</Grid>
-			<Grid item xs={12} sm={12} md={12}>
-				<FormControl
-					variant="outlined"
-					margin="dense"
-					size="small"
-					className={classes.textField}
-					required
-				>
-					<InputLabel id="export-encoding-select-label-label">
-						{t("ENCODING")}
-					</InputLabel>
-					<Select
-						labelId="export-encoding-select-label-label"
-						id="export-encoding-select-label"
-						value={encoding}
-						onChange={(event) => {
-							setEncoding(event.target.value);
-						}}
-						label={t("ENCODING")}
+			{exportFormat === "bitwarden_zip" && (
+				<Grid item xs={12}>
+					<SelectFieldFileDestination
+						className={classes.textField}
+						variant="outlined"
+						margin="dense"
+						size="small"
+						value={destination}
+						onChange={setDestination}
+						required
+						emptyMessage="BITWARDEN_ZIP_REQUIRES_FILE_STORAGE"
+						disabled={processing}
+					/>
+				</Grid>
+			)}
+			{exportFormat !== "bitwarden_zip" && (
+				<Grid item xs={12} sm={12} md={12}>
+					<FormControl
+						variant="outlined"
+						margin="dense"
+						size="small"
+						className={classes.textField}
+						required
 					>
-						{[
-							"utf-8",
-							"utf-16",
-							"iso-8859-2",
-							"iso-8859-3",
-							"iso-8859-4",
-							"iso-8859-5",
-							"iso-8859-6",
-							"iso-8859-7",
-							"iso-8859-8",
-							"iso-8859-8-i",
-							"iso-8859-10",
-							"iso-8859-13",
-							"iso-8859-14",
-							"iso-8859-15",
-							"iso-8859-16",
-							"windows-874",
-							"windows-1250",
-							"windows-1251",
-							"windows-1252",
-							"windows-1254",
-							"windows-1255",
-							"windows-1256",
-							"windows-1257",
-							"windows-1258",
-						].map((encoding, index) => (
-							<MenuItem key={index} value={encoding}>
-								{encoding}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
-			</Grid>
+						<InputLabel id="export-encoding-select-label-label">
+							{t("ENCODING")}
+						</InputLabel>
+						<Select
+							labelId="export-encoding-select-label-label"
+							id="export-encoding-select-label"
+							value={encoding}
+							onChange={(event) => {
+								setEncoding(event.target.value);
+							}}
+							label={t("ENCODING")}
+						>
+							{[
+								"utf-8",
+								"utf-16",
+								"iso-8859-2",
+								"iso-8859-3",
+								"iso-8859-4",
+								"iso-8859-5",
+								"iso-8859-6",
+								"iso-8859-7",
+								"iso-8859-8",
+								"iso-8859-8-i",
+								"iso-8859-10",
+								"iso-8859-13",
+								"iso-8859-14",
+								"iso-8859-15",
+								"iso-8859-16",
+								"windows-874",
+								"windows-1250",
+								"windows-1251",
+								"windows-1252",
+								"windows-1254",
+								"windows-1255",
+								"windows-1256",
+								"windows-1257",
+								"windows-1258",
+							].map((encoding, index) => (
+								<MenuItem key={index} value={encoding}>
+									{encoding}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+				</Grid>
+			)}
 			<Grid item xs={12} sm={12} md={12}>
 				<TextFieldPath
 					className={classes.textField}
@@ -317,7 +364,11 @@ const OtherImportView = (_props: ManagementViewProps) => {
 					variant="contained"
 					color="primary"
 					onClick={importPasswords}
-					disabled={processing || !fileName}
+					disabled={
+						processing ||
+						!fileName ||
+						(exportFormat === "bitwarden_zip" && !destination)
+					}
 				>
 					<span style={!processing ? {} : { display: "none" }}>
 						{t("IMPORT")}

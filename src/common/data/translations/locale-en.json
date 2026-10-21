@@ -1,4 +1,5 @@
 {
+	"BITWARDEN_ZIP_REQUIRES_FILE_STORAGE": "Importing Bitwarden ZIP exports requires an available writable fileserver or file repository. Select a file storage destination to import this format.",
 	"GENERATOR": "Generator",
 	"GENERATORS": "Generators",
 	"PASSPHRASE_GENERATOR": "Passphrase Generator",
