@@ -164,6 +164,15 @@ function isFirefox(): boolean | undefined {
 	return browserData && /Firefox/i.test(browserData.browser.name ?? "");
 }
 
+/** Whether this client supports WebAuthn as a second factor. */
+function supportsWebauthn(): boolean {
+	if (isElectron()) {
+		return false;
+	}
+	// Firefox exposed the API on websites long before extension support arrived.
+	return TARGET !== "firefox" || Number(browserData?.browser.major) >= 150;
+}
+
 /**
  * Generates the Device description out of the Vendor, OS, Version and others
  *
@@ -207,6 +216,7 @@ const deviceService = {
 	isEdge: isEdge,
 	isSafari: isSafari,
 	isFirefox: isFirefox,
+	supportsWebauthn: supportsWebauthn,
 	getDeviceDescription: getDeviceDescription,
 };
 export default deviceService;

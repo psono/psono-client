@@ -4,13 +4,15 @@
 
 import action from "../actions/bound-action-creators";
 import apiClientService from "./api-client";
+import converterService from "./converter";
+import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import { getStore } from "./store";
 import type {
 	AuthResponse,
 	SecondFactor,
 	SerializedCreationOptions,
-	SerializedRequestOptions,
+	WebauthnVerificationOptions,
 } from "../../types/auth";
 
 /**
@@ -19,8 +21,26 @@ import type {
  * @returns {string} Returns the current origin
  */
 function getOrigin(): string {
+	if (TARGET === "firefox") {
+		// WebAuthn uses the SHA-256 of the add-on ID, encoded with digits a-p,
+		// rather than Firefox's per-installation moz-extension://UUID URL.
+		const id = cryptoLibrary
+			.sha256(browser.runtime.id)
+			.replace(/[0-9a-f]/g, (digit) =>
+				String.fromCharCode(97 + parseInt(digit, 16)),
+			);
+		return "moz-extension://" + id;
+	}
 	const parsedUrl = helperService.parseUrl(window.location.href);
 	return parsedUrl.base_url!;
+}
+
+function getRpId(): string | undefined {
+	// Firefox 150+ and Chromium 122+ can claim a host-permitted domain RP ID.
+	// Use the web_client advertised by /info/, stored as server.webClient.
+	return TARGET === "firefox" || TARGET === "chrome"
+		? new URL(getStore().getState().server.webClient!).hostname
+		: undefined;
 }
 
 /**
@@ -43,7 +63,7 @@ function createWebauthn(
 		// pass
 	};
 	return apiClientService
-		.createWebauthn(token, sessionSecretKey, title, getOrigin())
+		.createWebauthn(token, sessionSecretKey, title, getOrigin(), getRpId())
 		.then(onSuccess, onError);
 }
 
@@ -114,18 +134,75 @@ function deleteWebauthn(webauthnId: string): Promise<boolean> {
  *
  * @returns {Promise} Returns a promise with the user information
  */
-function verifyWebauthnInit(): Promise<{ options: SerializedRequestOptions }> {
+function verifyWebauthnInit(
+	legacy = false,
+): Promise<WebauthnVerificationOptions> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onSuccess = (
-		request: AuthResponse<{ options: SerializedRequestOptions }>,
-	) => request.data;
+	const onSuccess = (request: AuthResponse<WebauthnVerificationOptions>) =>
+		request.data;
 	const onError = (request: AuthResponse<unknown>) =>
 		Promise.reject(request.data);
 	return apiClientService
-		.webauthnVerifyInit(token, sessionSecretKey, getOrigin())
+		.webauthnVerifyInit(token, sessionSecretKey, getOrigin(), getRpId(), legacy)
 		.then(onSuccess, onError);
+}
+
+/** Request a credential, transparently trying the old Chromium scope once. */
+async function getCredential(
+	webauthn: WebauthnVerificationOptions,
+	signal?: AbortSignal,
+): Promise<PublicKeyCredential> {
+	const token = getStore().getState().user.token;
+	if (!token || signal?.aborted) {
+		throw new DOMException("Login was cancelled", "AbortError");
+	}
+	const request = async (data: WebauthnVerificationOptions) => {
+		const options: PublicKeyCredentialRequestOptions = {
+			...data.options,
+			challenge: Uint8Array.from(data.options.challenge, (c) =>
+				c.charCodeAt(0),
+			),
+			allowCredentials: data.options.allowCredentials!.map((credential) => ({
+				...credential,
+				id: converterService.base64UrlToArrayBuffer(credential.id),
+			})),
+		};
+		const credential = await navigator.credentials.get({
+			publicKey: options,
+			...(signal ? { signal } : {}),
+		});
+		if (signal?.aborted || getStore().getState().user.token !== token) {
+			throw new DOMException("Login was cancelled", "AbortError");
+		}
+		if (!credential) {
+			throw new DOMException("No credential returned", "NotAllowedError");
+		}
+		return credential as PublicKeyCredential;
+	};
+	try {
+		return await request(webauthn);
+	} catch (error) {
+		if (
+			TARGET !== "chrome" ||
+			signal?.aborted ||
+			!webauthn.legacy_available ||
+			!(error instanceof DOMException) ||
+			!["NotAllowedError", "NotSupportedError", "SecurityError"].includes(
+				error.name,
+			) ||
+			getStore().getState().user.token !== token
+		) {
+			throw error;
+		}
+		const fallback = await verifyWebauthnInit(true);
+		// Logout/account changes during initialization must not reopen a prompt.
+		if (signal?.aborted || getStore().getState().user.token !== token) {
+			throw error;
+		}
+		return request(fallback);
+	}
 }
 
 /**
@@ -153,6 +230,7 @@ const webauthnService = {
 	activateWebauthn,
 	deleteWebauthn,
 	verifyWebauthnInit,
+	getCredential,
 	verifyWebauthn,
 };
 

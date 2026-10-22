@@ -8,9 +8,9 @@ import type {
 	RecoveryEnableData,
 	SecondFactor,
 	SerializedCreationOptions,
-	SerializedRequestOptions,
 	TokenActivationData,
 	UserSession,
+	WebauthnVerificationOptions,
 } from "./auth";
 import type { ScryptParameters } from "./crypto";
 import type { DatastoreOverview, ShareRights } from "./datastore";
@@ -186,7 +186,7 @@ export interface ApiEndpointData {
 	acceptedShare: ApiRecord & { share_id: string };
 	webauthn: { id: string; options: SerializedCreationOptions };
 	webauthns: { webauthns: SecondFactor[] };
-	webauthnVerification: { options: SerializedRequestOptions };
+	webauthnVerification: WebauthnVerificationOptions;
 	googleAuthenticators: { google_authenticators: SecondFactor[] };
 	duos: { duos: SecondFactor[] };
 	yubikeyOtps: { yubikey_otps: SecondFactor[] };
