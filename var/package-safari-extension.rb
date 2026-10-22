@@ -36,6 +36,17 @@ app = project.targets.find { |target| target.product_type == "com.apple.product-
 extension = project.targets.find { |target| target.product_type == "com.apple.product-type.app-extension" }
 raise "Safari packager did not generate the expected app and extension targets" unless app && extension && project.targets.length == 2
 
+# Xcode 26+ writes `dstSubfolder = PlugIns` for the embed phase, an attribute the
+# xcodeproj gem does not know and drops when saving. Without it the extension is
+# archived as a top-level product instead of being embedded, which invalidates
+# the archive (no ApplicationProperties, no distribution methods).
+app.build_phases.each do |phase|
+  next unless phase.is_a?(Xcodeproj::Project::Object::PBXCopyFilesBuildPhase)
+  next unless phase.files_references.include?(extension.product_reference)
+
+  phase.dst_subfolder_spec = "13" # PlugIns
+end
+
 signed = ENV["SAFARI_SIGNING"] == "appstore"
 profiles = JSON.parse(ENV.fetch("SAFARI_PROVISIONING_PROFILES", "{}"))
 Xcodeproj::Plist.write_to_path({
