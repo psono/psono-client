@@ -1,3 +1,4 @@
+import Button from "@mui/material/Button";
 import { makeStyles } from "@mui/styles";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -26,10 +27,45 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+/** Firefox closes action popups when the WebAuthn prompt takes focus. */
+const LoginInTab = () => {
+	const { t } = useTranslation();
+	const opening = React.useRef(false);
+	const openLoginTab = React.useCallback(async () => {
+		if (opening.current) {
+			return;
+		}
+		opening.current = true;
+		try {
+			await browser.tabs.create({
+				url: browser.runtime.getURL("data/index.html"),
+				active: true,
+			});
+			window.close();
+		} catch (error) {
+			opening.current = false;
+			console.error("Could not open the login tab", error);
+		}
+	}, []);
+
+	React.useEffect(() => {
+		void openLoginTab();
+	}, [openLoginTab]);
+
+	return (
+		<Button variant="contained" color="primary" onClick={openLoginTab}>
+			{t("LOGIN")}
+		</Button>
+	);
+};
+
 const LoginView = ({ fullWidth = false }: LoginViewProps) => {
 	const classes = useStyles();
 	const { t } = useTranslation();
 	const { samlTokenId, oidcTokenId } = useParams<SsoRouteParams>();
+	const loginInTab =
+		TARGET === "firefox" &&
+		window.location.pathname.endsWith("/default_popup.html");
 
 	return (
 		<>
@@ -49,11 +85,15 @@ const LoginView = ({ fullWidth = false }: LoginViewProps) => {
 				>
 					<i className="fa fa-info-circle" aria-hidden="true" />
 				</a>
-				<LoginForm
-					samlTokenId={samlTokenId}
-					oidcTokenId={oidcTokenId}
-					fullWidth={fullWidth}
-				/>
+				{loginInTab ? (
+					<LoginInTab />
+				) : (
+					<LoginForm
+						samlTokenId={samlTokenId}
+						oidcTokenId={oidcTokenId}
+						fullWidth={fullWidth}
+					/>
+				)}
 			</DarkBox>
 		</>
 	);

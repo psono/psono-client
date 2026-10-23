@@ -112,15 +112,4 @@ platform :mac do
       skip_waiting_for_build_processing: true
     )
   end
-
-  desc "Upload the prebuilt Safari package to App Store Connect"
-  lane :appstore_upload do
-    root = SAFARI_PROJECT_ROOT
-    connect_api
-    upload_to_app_store(
-      pkg: File.join(root, "dist/safari/psono-safari.pkg"), platform: "osx",
-      app_identifier: ENV.fetch("SAFARI_APP_IDENTIFIER", "com.psono.safari"),
-      skip_metadata: true, skip_screenshots: true, submit_for_review: false, force: true
-    )
-  end
 end

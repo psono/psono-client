@@ -2347,6 +2347,7 @@ function createJobStaffMissingGroupSecret(
  * @param {string} sessionSecretKey The session secret key
  * @param {string} title The title of the new webauthn
  * @param {string} origin The current origin e.g. https://example.com
+ * @param {string} [rpId] The shared domain RP ID used by extensions
  *
  * @returns {Promise} Returns a promise with the secret
  */
@@ -2355,12 +2356,14 @@ function createWebauthn(
 	sessionSecretKey: SessionSecretKey,
 	title: string,
 	origin: string,
+	rpId?: string,
 ) {
 	const endpoint = "/user/webauthn/";
 	const method = "PUT";
 	const data = {
 		title: title,
 		origin: origin,
+		...(rpId ? { rp_id: rpId } : {}),
 	};
 	const headers = {
 		Authorization: "Token " + token,
@@ -2465,6 +2468,8 @@ function activateWebauthn(
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {string} origin The current origin e.g. https://example.com
+ * @param {string} [rpId] The shared domain RP ID used by extensions
+ * @param {boolean} [legacy] Request an older extension-scoped credential
  *
  * @returns {Promise} Returns a promise with the verification status
  */
@@ -2472,11 +2477,15 @@ function webauthnVerifyInit(
 	token: AuthToken,
 	sessionSecretKey: SessionSecretKey,
 	origin: string,
+	rpId?: string,
+	legacy = false,
 ) {
 	const endpoint = "/authentication/webauthn-verify/";
 	const method = "PUT";
 	const data = {
 		origin: origin,
+		...(rpId ? { rp_id: rpId } : {}),
+		...(legacy ? { legacy: true } : {}),
 	};
 	const headers = {
 		Authorization: "Token " + token,

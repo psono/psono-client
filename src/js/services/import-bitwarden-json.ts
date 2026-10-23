@@ -70,6 +70,13 @@ interface BitwardenExport {
 
 type BitwardenRoot = ImportItemsFolder & { folders: ImportItemsFolder[] };
 
+function parseTotp(value: string): OTPAuth.TOTP | OTPAuth.HOTP {
+	const key = value.trim();
+	return key.startsWith("otpauth://")
+		? OTPAuth.URI.parse(key)
+		: new OTPAuth.TOTP({ secret: key.replace(/\s/g, "").toUpperCase() });
+}
+
 /**
  * Analyzes an item and return its types
  *
@@ -205,10 +212,7 @@ function transformToWebsitePassword(item: BitwardenItem): ImportedSecret {
 	};
 	if (item.login?.totp) {
 		try {
-			const value = item.login.totp.trim();
-			const parsedTotp = value.startsWith("otpauth://")
-				? OTPAuth.URI.parse(value)
-				: new OTPAuth.TOTP({ secret: value.toUpperCase() });
+			const parsedTotp = parseTotp(item.login.totp);
 			if (!parsedTotp.secret.base32) throw new Error("Missing TOTP secret");
 			websitePassword.website_password_totp_code = parsedTotp.secret.base32;
 			websitePassword.website_password_totp_algorithm = parsedTotp.algorithm;
@@ -553,7 +557,7 @@ function transformToTotpCode(item: BitwardenItem): ImportedSecret | null {
 		item["login"]["totp"] != null
 	) {
 		try {
-			const parsedTotp = OTPAuth.URI.parse(item["login"]["totp"]);
+			const parsedTotp = parseTotp(item["login"]["totp"]);
 			if (!parsedTotp.secret.base32) return null;
 			totp_period =
 				parsedTotp instanceof OTPAuth.TOTP ? parsedTotp.period : totp_period;

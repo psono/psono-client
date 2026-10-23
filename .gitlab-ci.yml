@@ -261,9 +261,9 @@ deploy-safari:
   script:
     - gem install bundler -v 2.5.22 --no-document
     - bundle install --jobs 4
-    - (cd safari && bundle exec fastlane mac appstore_upload)
+    - (cd safari && bundle exec fastlane mac testflight_upload)
   environment:
-    name: safari-appstore
+    name: safari-testflight
     url: https://appstoreconnect.apple.com/
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/

@@ -254,6 +254,11 @@ export interface SerializedRequestOptions
 	allowCredentials?: SerializedCredentialDescriptor[];
 }
 
+export interface WebauthnVerificationOptions {
+	options: SerializedRequestOptions;
+	legacy_available?: boolean;
+}
+
 export interface PasskeyCreationOptions {
 	publicKey: SerializedCreationOptions;
 }

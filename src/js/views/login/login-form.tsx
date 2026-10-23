@@ -150,6 +150,7 @@ const LoginForm = (props: LoginFormProps) => {
 	const [duoToken, setDuoToken] = useState("");
 	const [errors, setErrors] = useState<string[]>([]);
 	const [multifactors, setMultifactors] = useState<string[]>([]);
+	const webauthnAbort = React.useRef<AbortController | null>(null);
 	const [allowRegistration, setAllowRegistration] = useState(false);
 	const [loginType, setLoginType] = useState<
 		"" | "SAML" | "OIDC" | "LOAD_REMOTE_CONFIG"
@@ -276,6 +277,8 @@ const LoginForm = (props: LoginFormProps) => {
 		requirementCheckMfa(multifactors);
 	}, [multifactors]);
 
+	React.useEffect(() => () => webauthnAbort.current?.abort(), []);
+
 	const handleLogin = (loginDetails: LoginResult) => {
 		if (hasAuthField(loginDetails, "required_multifactors")) {
 			const requiredMultifactors = loginDetails["required_multifactors"];
@@ -334,32 +337,28 @@ const LoginForm = (props: LoginFormProps) => {
 	};
 
 	const verifyWebauthn = () => {
+		webauthnAbort.current?.abort();
+		const controller = new AbortController();
+		webauthnAbort.current = controller;
 		webauthnService.verifyWebauthnInit().then(
 			async (webauthn) => {
-				const options: PublicKeyCredentialRequestOptions = {
-					...webauthn.options,
-					challenge: Uint8Array.from(webauthn.options.challenge, (c) =>
-						c.charCodeAt(0),
-					),
-					allowCredentials: webauthn.options.allowCredentials!.map(
-						(credential) => ({
-							...credential,
-							id: converterService.base64UrlToArrayBuffer(credential.id),
-						}),
-					),
-				};
-
 				let credential: PublicKeyCredential;
 				try {
-					credential = (await navigator.credentials.get({
-						publicKey: options,
-					})) as PublicKeyCredential;
+					credential = await webauthnService.getCredential(
+						webauthn,
+						controller.signal,
+					);
 				} catch (error) {
-					setView("default");
+					if (!controller.signal.aborted) {
+						setView("default");
+					}
 					return;
 				}
 
 				const onSuccess = async () => {
+					if (controller.signal.aborted) {
+						return;
+					}
 					let requiredMultifactors = [...multifactors];
 					if (getStore().getState().server.multifactorEnabled) {
 						helperService.removeFromArray(requiredMultifactors, "webauthn_2fa");
@@ -370,6 +369,9 @@ const LoginForm = (props: LoginFormProps) => {
 				};
 
 				const onError = (error: unknown) => {
+					if (controller.signal.aborted) {
+						return;
+					}
 					console.log(error);
 					setErrors(["WEBAUTHN_FIDO2_TOKEN_NOT_FOUND"]);
 				};
@@ -399,6 +401,9 @@ const LoginForm = (props: LoginFormProps) => {
 					.then(onSuccess, onError);
 			},
 			(error: unknown) => {
+				if (controller.signal.aborted) {
+					return;
+				}
 				console.log(error);
 				setErrors(["WEBAUTHN_FIDO2_TOKEN_NOT_FOUND_FOR_THIS_ORIGIN"]);
 			},
@@ -682,6 +687,7 @@ const LoginForm = (props: LoginFormProps) => {
 	};
 
 	const cancel = () => {
+		webauthnAbort.current?.abort();
 		setView("default");
 		setPassword("");
 		setErrors([]);

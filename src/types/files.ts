@@ -86,6 +86,7 @@ export interface CreatedFile extends FileTransfer {
 export interface DownloadFile {
 	file_id?: string;
 	file_title: string;
+	file_size?: number;
 	file_secret_key?: string;
 	file_shard_id?: string | null;
 	file_repository_id?: string | null;

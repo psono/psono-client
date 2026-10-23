@@ -26,6 +26,8 @@ const useStyles = makeStyles((theme) => ({
 export type SelectFieldFileDestinationProps =
 	SelectFieldProps<FileDestination | null> & {
 		label?: string;
+		emptyMessage?: string;
+		disabled?: boolean;
 	};
 
 const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
@@ -47,6 +49,8 @@ const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
 		value,
 		className,
 		label = "TARGET_STORAGE",
+		emptyMessage = "NO_FILESERVER_AVAILABLE",
+		disabled,
 	} = props;
 	React.useEffect(() => {
 		loadFileDestinations();
@@ -60,7 +64,9 @@ const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
 		const promises: Promise<FileDestination[]>[] = [];
 		promises.push(
 			fileTransferService.readShards().then((shards) => {
-				shards = fileTransferService.filterShards(shards, null, true);
+				shards = fileTransferService
+					.filterShards(shards, null, true)
+					.filter((shard) => shard.fileserver.length > 0);
 				// Shard responses include a title; the shared service type omits it.
 				return (shards as (Shard & { shard_title: string })[]).map((shard) =>
 					Object.assign(shard, {
@@ -75,7 +81,7 @@ const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
 				fileRepositories = fileRepositoryService.filterFileRepositories(
 					fileRepositories!,
 					null,
-					null,
+					true,
 					true,
 					true,
 				);
@@ -89,30 +95,36 @@ const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
 			}),
 		);
 
-		Promise.all(promises).then((data) => {
-			const _shards = data[0];
-			const _fileRepositories = data[1];
-			const shardCount = _shards.length;
-			const fileRepositoryCount = _fileRepositories.length;
-			const allPossibilitiesCount = shardCount + fileRepositoryCount;
+		Promise.all(promises)
+			.then((data) => {
+				const _shards = data[0];
+				const _fileRepositories = data[1];
+				const shardCount = _shards.length;
+				const fileRepositoryCount = _fileRepositories.length;
+				const allPossibilitiesCount = shardCount + fileRepositoryCount;
 
-			if (!isSubscribed) return;
-			setOptions(_shards.concat(_fileRepositories));
-			setOptionsLoaded(true);
+				if (!isSubscribed) return;
+				setOptions(_shards.concat(_fileRepositories));
+				setOptionsLoaded(true);
 
-			if (allPossibilitiesCount === 0) {
-				// no possiblity, the user will get an error anyway when he wants to create the file
-				return;
-			}
+				if (allPossibilitiesCount === 0) {
+					// no possiblity, the user will get an error anyway when he wants to create the file
+					return;
+				}
 
-			if (shardCount > 0) {
-				// only shards are available, so lets pick the first shard as default shard
-				onChange(_shards[0]);
-			} else if (fileRepositoryCount > 0) {
-				// only repositories are available, so lets pick the first repository as default repository
-				onChange(_fileRepositories[0]);
-			}
-		});
+				if (shardCount > 0) {
+					// only shards are available, so lets pick the first shard as default shard
+					onChange(_shards[0]);
+				} else if (fileRepositoryCount > 0) {
+					// only repositories are available, so lets pick the first repository as default repository
+					onChange(_fileRepositories[0]);
+				}
+			})
+			.catch(() => {
+				if (!isSubscribed) return;
+				setOptionsLoaded(true);
+				onChange(null);
+			});
 	};
 
 	// hide the input field if there is only 1 destination and no option to choose from
@@ -121,11 +133,12 @@ const SelectFieldFileDestination = (props: SelectFieldFileDestinationProps) => {
 	}
 
 	if (optionsLoaded && options.length === 0) {
-		return <MuiAlert severity="error">{t("NO_FILESERVER_AVAILABLE")}</MuiAlert>;
+		return <MuiAlert severity="error">{t(emptyMessage)}</MuiAlert>;
 	}
 
 	return (
 		<Autocomplete
+			disabled={disabled}
 			options={options}
 			classes={{
 				option: classes.option,

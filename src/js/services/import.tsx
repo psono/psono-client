@@ -9,6 +9,8 @@ import datastorePasswordService from "./datastore-password";
 import import1passwordV7CsvService from "./import-1password-v7-csv";
 import import1passwordV8CsvService from "./import-1password-v8-csv";
 import importBitwardenJson from "./import-bitwarden-json";
+import { openBitwardenZip, importZipAttachments } from "./import-bitwarden-zip";
+import type { FileDestination } from "../../types/components";
 import importChromeCsv from "./import-chrome-csv";
 import importDashlaneCsv from "./import-dashlane-csv";
 import importDelineaSecretServerCsv from "./import-delinea-secretserver-csv";
@@ -101,6 +103,11 @@ const _importer: Record<string, Importer> = {
 		name: "Bitwarden (JSON, unencrypted)",
 		value: "bitwarden_json",
 		parser: importBitwardenJson.parser,
+	},
+	bitwarden_zip: {
+		name: "Bitwarden (ZIP, with attachments)",
+		value: "bitwarden_zip",
+		parser: () => null,
 	},
 	dashlane_csv: {
 		name: "Dashlane (CSV)",
@@ -248,6 +255,7 @@ async function parseExport(
  */
 function updateDatastore(
 	parsedData: ImportRequest<ParsedImport>,
+	complete = true,
 ): Promise<ImportRequest<ParsedImport>> {
 	return datastorePasswordService.getPasswordDatastore().then((datastore) => {
 		if (!datastore) throw new Error("Password datastore unavailable");
@@ -298,7 +306,7 @@ function updateDatastore(
 		return datastorePasswordService
 			.saveDatastoreContent(datastore, [analyzedBreadcrumbs.path.slice()])
 			.then(() => {
-				emit("import-complete", {});
+				if (complete) emit("import-complete", {});
 				return parsedData;
 			});
 	});
@@ -504,8 +512,35 @@ function importDatastore(
 	binary?: ArrayBuffer,
 	password?: string,
 	breadcrumbs?: { id_breadcrumbs: string[] },
+	archive?: Blob,
+	destination?: FileDestination | null,
 ) {
 	emit("import-started", {});
+	if (type === "bitwarden_zip") {
+		return (async () => {
+			if (!destination)
+				throw { errors: ["BITWARDEN_ZIP_REQUIRES_FILE_STORAGE"] };
+			if (!archive) throw { errors: ["FILE_FORMAT_WRONG"] };
+			const zip = await openBitwardenZip(archive);
+			try {
+				const request = {
+					type,
+					data: zip.parsed,
+					breadcrumbs: breadcrumbs || { id_breadcrumbs: [] },
+				};
+				await createSecrets(request);
+				// Persist links first so successfully imported entries remain accessible on upload failure.
+				await updateDatastore(request, false);
+				await importZipAttachments(zip.attachments, destination, (percentage) =>
+					emit("attachment-progress", percentage),
+				);
+				emit("import-complete", {});
+				return { msgs: ["IMPORT_SUCCESSFUL"] };
+			} finally {
+				await zip.reader.close();
+			}
+		})();
+	}
 
 	if (password) {
 		let decryptedJson: unknown;

@@ -6,7 +6,6 @@ import { makeStyles } from "@mui/styles";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import browserClient from "../../services/browser-client";
 import deviceService from "../../services/device";
 import { getStore } from "../../services/store";
 import MultifactorAuthenticatorDuo from "./multifactor-authentication-duo";
@@ -136,8 +135,7 @@ const MultifactorAuthenticationView = (props: AccountViewProps) => {
 					)}
 				</Grid>
 			)}
-			{browserClient.getClientType() !== "firefox_extension" &&
-				!deviceService.isElectron() &&
+			{deviceService.supportsWebauthn() &&
 				getStore()
 					.getState()
 					.server.allowedSecondFactors!.indexOf("webauthn") !== -1 && (

@@ -120,6 +120,7 @@ export interface SecretContent {
 		file_shard_id: string | null;
 		file_repository_id: string | null;
 		filename: string;
+		archive_path?: string;
 	}[];
 }
 

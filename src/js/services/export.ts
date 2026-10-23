@@ -7,6 +7,7 @@ import cryptoLibraryService from "./crypto-library";
 import datastorePasswordService from "./datastore-password";
 import helperService from "./helper";
 import secretService from "./secret";
+import { createZipExportTarget, writeZipExport } from "./export-zip";
 
 import Papa from "papaparse";
 import type { Kdbx, KdbxGroup } from "kdbxweb";
@@ -106,6 +107,7 @@ function filterDatastoreExport(
 	folder: ExportFolder,
 	includeTrashBinItems: boolean,
 	includeSharedItems: boolean,
+	includeFiles = false,
 ) {
 	let i;
 	let p;
@@ -149,7 +151,8 @@ function filterDatastoreExport(
 		for (i = folder["items"].length - 1; i >= 0; i--) {
 			if (
 				Object.hasOwn(folder["items"][i], "type") &&
-				folder["items"][i]["type"] === "file"
+				folder["items"][i]["type"] === "file" &&
+				!includeFiles
 			) {
 				folder["items"].splice(i, 1);
 			}
@@ -226,6 +229,7 @@ function filterDatastoreExport(
 				folder["folders"][i],
 				includeTrashBinItems,
 				includeSharedItems,
+				includeFiles,
 			);
 		}
 	}
@@ -839,7 +843,7 @@ async function getAllSecrets<Folder extends ExportFolder>(
 		secret_id: string;
 		secret_key: string;
 	};
-	const secrets: Record<string, LinkedExportItem> = {};
+	const secrets: Record<string, LinkedExportItem[]> = {};
 
 	const handleItems = (items: ExportItem[]) => {
 		for (const item of items) {
@@ -857,13 +861,14 @@ async function getAllSecrets<Folder extends ExportFolder>(
 				) {
 					continue;
 				}
-				secrets[item.secret_id] = item as LinkedExportItem;
+				(secrets[item.secret_id] ??= []).push(item as LinkedExportItem);
 			}
 		}
 	};
 
 	const handleFolders = (folders: ExportFolder[]) => {
 		for (const folder of folders) {
+			if (!includeTrashBinItems && folder.deleted) continue;
 			if (Object.hasOwn(folder, "share_id") && !includeSharedItems) {
 				continue;
 			}
@@ -886,14 +891,15 @@ async function getAllSecrets<Folder extends ExportFolder>(
 	}
 	const bulkObjects = Object.keys(secrets).map((secretId): [string, string] => [
 		secretId,
-		secrets[secretId]["secret_key"],
+		secrets[secretId][0]["secret_key"],
 	]);
 
 	const decryptedSecrets = await secretService.readSecretBulk(bulkObjects);
 
 	for (const s of decryptedSecrets) {
 		if (s.id !== undefined) {
-			Object.assign(secrets[s.id], s);
+			for (const item of secrets[s.id] ?? [])
+				Object.assign(item, helperService.duplicateObject(s));
 		}
 	}
 
@@ -943,13 +949,22 @@ function fetchDatastore(
 		.getPasswordDatastore(id)
 		.then((datastore) => {
 			if (!datastore) throw new Error("Password datastore unavailable");
-			return getAllSecrets(datastore, includeTrashBinItems, includeSharedItems);
+			return getAllSecrets(
+				helperService.duplicateObject(datastore),
+				includeTrashBinItems,
+				includeSharedItems,
+			);
 		})
 		.then((folder) =>
-			filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems),
+			filterDatastoreExport(
+				folder,
+				includeTrashBinItems,
+				includeSharedItems,
+				type === "zip",
+			),
 		)
 		.then((data) => {
-			emit("export-complete", {});
+			if (type !== "zip") emit("export-complete", {});
 			return composeExport(data, type, password, selectedColumns);
 		});
 }
@@ -965,13 +980,39 @@ function fetchDatastore(
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(
+async function exportDatastore(
 	type: string,
 	includeTrashBinItems: boolean,
 	includeSharedItems: boolean,
 	password?: string,
 	selectedColumns?: string[],
 ) {
+	if (type === "zip") {
+		// Open the picker before the first network request consumes user activation.
+		let target: Awaited<ReturnType<typeof createZipExportTarget>> | undefined;
+		emit("export-started", {});
+		try {
+			target = await createZipExportTarget();
+			const data = await fetchDatastore(
+				"zip",
+				undefined,
+				includeTrashBinItems,
+				includeSharedItems,
+			);
+			await writeZipExport(data, target.writable, (percentage) =>
+				emit("export-progress", percentage),
+			);
+			await target.complete();
+			return { msgs: ["EXPORT_SUCCESSFUL"] };
+		} catch (error) {
+			await target?.abort().catch(() => {});
+			if (error instanceof DOMException && error.name === "AbortError")
+				return { msgs: [] };
+			throw error;
+		} finally {
+			emit("export-complete", {});
+		}
+	}
 	return fetchDatastore(
 		type,
 		undefined,

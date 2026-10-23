@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import FooterLinks from "../../components/footer-links";
 import GridContainerErrors from "../../components/grid-container-errors";
-import browserClient from "../../services/browser-client";
 import deviceService from "../../services/device";
 import { getStore } from "../../services/store";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
@@ -180,8 +179,7 @@ const EnforceTwoFaViewForm = (props: Record<string, never>) => {
 					</Grid>
 				)}
 
-				{browserClient.getClientType() !== "firefox_extension" &&
-					!deviceService.isElectron() &&
+				{deviceService.supportsWebauthn() &&
 					getStore()
 						.getState()
 						.server.allowedSecondFactors!.indexOf("webauthn") !== -1 && (

@@ -78,6 +78,45 @@ describe("API client: transport compatibility", () => {
 		);
 	});
 
+	it("sends a shared RP ID without substituting the extension registration origin", async () => {
+		respond('{"text":"ciphertext","nonce":"response-nonce"}');
+		const origin = "chrome-extension://eljmjmgjkbmpmfljlmklcfineebidmlo";
+		await apiClient.createWebauthn(
+			"token",
+			"key",
+			"Shared key",
+			origin,
+			"example.com",
+		);
+		expect(cryptoLibrary.encryptData).toHaveBeenCalledWith(
+			JSON.stringify({ title: "Shared key", origin, rp_id: "example.com" }),
+			"key",
+		);
+	});
+
+	it.each([
+		false,
+		true,
+	])("transports automatic WebAuthn compatibility requests (legacy=%s)", async (legacy) => {
+		respond('{"text":"ciphertext","nonce":"response-nonce"}');
+		const origin = "chrome-extension://eljmjmgjkbmpmfljlmklcfineebidmlo";
+		await apiClient.webauthnVerifyInit(
+			"token",
+			"key",
+			origin,
+			"example.com",
+			legacy,
+		);
+		expect(cryptoLibrary.encryptData).toHaveBeenCalledWith(
+			JSON.stringify({
+				origin,
+				rp_id: "example.com",
+				...(legacy ? { legacy: true } : {}),
+			}),
+			"key",
+		);
+	});
+
 	it("returns cached envelopes without fetching or decrypting them again", async () => {
 		const cached = { data: { id: "cached-secret" } };
 		jest.mocked(offlineCache.get).mockResolvedValue(cached);

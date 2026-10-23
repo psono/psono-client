@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-type ExportFormat = "json" | "csv" | "kdbxv4";
+type ExportFormat = "json" | "csv" | "kdbxv4" | "zip";
 
 const OtherExportView = (_props: ManagementViewProps) => {
 	type CsvColumnKey = (typeof csvColumns)[number]["key"];
@@ -214,6 +214,7 @@ const OtherExportView = (_props: ManagementViewProps) => {
 	React.useEffect(() => {
 		exportService.on("export-started", () => {
 			setProcessing(true);
+			setPercentageComplete(0);
 		});
 
 		exportService.on("get-secret-started", () => {
@@ -235,6 +236,9 @@ const OtherExportView = (_props: ManagementViewProps) => {
 			closedRequest = 0;
 			setProcessing(false);
 		});
+		exportService.on("export-progress", (percentage) =>
+			setPercentageComplete(Number(percentage)),
+		);
 	}, []);
 
 	const exportPasswords = () => {
@@ -246,15 +250,16 @@ const OtherExportView = (_props: ManagementViewProps) => {
 			setErrors([]);
 		};
 		const onError = (data: ManagementError) => {
+			setProcessing(false);
 			console.log(data);
 
-			if (Object.hasOwn(data, "errors")) {
+			if (data && Object.hasOwn(data, "errors")) {
 				if (data.errors![0] === "RESOURCE_NOT_FOUND") {
 					setErrors(["FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE"]);
 				} else {
 					setErrors(data.errors!);
 				}
-			}
+			} else setErrors(["EXPORT_FAILED"]);
 			setMessages([]);
 		};
 
@@ -335,6 +340,7 @@ const OtherExportView = (_props: ManagementViewProps) => {
 						label={t("TYPE")}
 					>
 						<MenuItem value={"json"}>{t("JSON_IMPORT_COMPATIBLE")}</MenuItem>
+						<MenuItem value={"zip"}>{t("ZIP_WITH_FILES")}</MenuItem>
 						<MenuItem value={"kdbxv4"}>{t("KDBXV4")}</MenuItem>
 						<MenuItem value={"csv"}>{t("CSV")}</MenuItem>
 					</Select>
