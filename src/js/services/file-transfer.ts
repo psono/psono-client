@@ -678,7 +678,7 @@ function shardDownload(
 	shard: Shard,
 	hashChecksum: string,
 ) {
-	registrations["download_step_complete"]!("DOWNLOADING_FILE_CHUNK");
+	registrations["download_step_complete"]?.("DOWNLOADING_FILE_CHUNK");
 
 	const ticket = {
 		hash_checksum: hashChecksum,
@@ -728,7 +728,7 @@ function fileRepositoryDownload(
 	fileTransferSecretKey: string,
 	hashChecksum: string,
 ) {
-	registrations["download_step_complete"]!("DOWNLOADING_FILE_CHUNK");
+	registrations["download_step_complete"]?.("DOWNLOADING_FILE_CHUNK");
 
 	const onError = (result: unknown) => {
 		console.log(result);
@@ -985,13 +985,54 @@ function downloadFile(
 	}
 }
 
-/**
- * Downloads a file
- *
- * @param {string} id The id of the file to download
- *
- * @returns {Promise}
- */
+/** Pulling the next chunk waits for the consumer, bounding memory to a file chunk. */
+async function* downloadFileChunks(file: DownloadFile) {
+	const positions = Object.keys(file.file_chunks ?? {})
+		.map(Number)
+		.sort((a, b) => a - b);
+	if (positions.length === 0) {
+		if (file.file_size) throw new Error("Missing file chunks");
+		return;
+	}
+	if (!file.file_id || !file.file_secret_key)
+		throw new Error("Invalid file metadata");
+	const transfer = await readFile(file.file_id);
+	let shard: Shard | undefined;
+	if (file.file_shard_id) {
+		shard = createShardReadDict(await readShards())[file.file_shard_id];
+		if (!shard) throw { errors: ["NO_FILESERVER_AVAILABLE"] };
+	}
+	let size = 0;
+	for (const position of positions) {
+		const hash = file.file_chunks![position];
+		const encrypted = shard
+			? await shardDownload(
+					transfer.file_transfer_id,
+					transfer.file_transfer_secret_key,
+					shard,
+					hash,
+				)
+			: await fileRepositoryDownload(
+					transfer.file_transfer_id,
+					transfer.file_transfer_secret_key,
+					hash,
+				);
+		const plain = await cryptoLibrary.decryptFile(
+			new Uint8Array(encrypted),
+			file.file_secret_key,
+		);
+		size += plain.length;
+		// Small slices prevent each ZIP pipeline stage from prefetching another
+		// entire multi-megabyte server chunk.
+		for (let offset = 0; offset < plain.length; offset += 64 * 1024) {
+			yield plain.subarray(offset, offset + 64 * 1024);
+		}
+	}
+	if (file.file_size !== undefined && size !== file.file_size)
+		throw new Error("File size mismatch");
+}
+
+/** Downloads the file identified by its local storage ID. */
 function downloadFileByStorageId(id: string) {
 	return storage
 		.findKey<DownloadFile>("datastore-file-leafs", id)
@@ -1027,6 +1068,7 @@ const fileTransferService = {
 	onItemClick: onItemClick,
 	downloadFileByStorageId: downloadFileByStorageId,
 	downloadFile: downloadFile,
+	downloadFileChunks,
 	register: register,
 };
 export default fileTransferService;

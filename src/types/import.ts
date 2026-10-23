@@ -114,6 +114,14 @@ export interface ExportItem
 	urlfilter?: string;
 	allow_http?: Datastore["allow_http"];
 	password_hash?: string;
+	file_id?: string;
+	file_title?: string;
+	file_secret_key?: string;
+	file_shard_id?: string;
+	file_repository_id?: string;
+	file_size?: number;
+	file_chunks?: Record<number, string>;
+	archive_path?: string;
 }
 
 export interface ImportedSecret extends ExportItem, DatastoreItem {

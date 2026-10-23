@@ -3,6 +3,76 @@ import { KdbxEntry, KdbxGroup, ProtectedValue } from "kdbxweb";
 import Papa from "papaparse";
 import importPsonoJson from "./import-psono-json";
 import { initStore } from "./store";
+import datastorePasswordService from "./datastore-password";
+import secretService from "./secret";
+import type { Datastore } from "../../types/datastore";
+
+describe("ZIP export filtering", () => {
+	afterEach(() => jest.restoreAllMocks());
+	it("retains files for ZIP, filters shared/deleted trees, and fills every linked secret without mutating the vault", async () => {
+		const note = {
+			id: "note",
+			type: "note",
+			secret_id: "secret",
+			secret_key: "key",
+		};
+		const tree: Datastore = {
+			items: [
+				note,
+				{ ...note, id: "alias" },
+				{ id: "file", type: "file", file_title: "proof" },
+				{ ...note, id: "shared", share_id: "share" },
+				{ ...note, id: "deleted", deleted: true },
+			],
+			folders: [
+				{
+					id: "deleted-folder",
+					deleted: true,
+					items: [{ ...note, secret_id: "excluded" }],
+				},
+				{
+					id: "shared-folder",
+					share_id: "share",
+					items: [{ ...note, secret_id: "excluded" }],
+				},
+			],
+		};
+		jest
+			.spyOn(datastorePasswordService, "getPasswordDatastore")
+			.mockResolvedValue(tree);
+		const read = jest
+			.spyOn(secretService, "readSecretBulk")
+			.mockResolvedValue([
+				{ id: "secret", note_notes: "content", attachments: [] },
+			]);
+		const zip = await exportService.fetchDatastore(
+			"zip",
+			undefined,
+			false,
+			false,
+		);
+		expect(zip.items?.map(({ type }) => type)).toEqual([
+			"note",
+			"note",
+			"file",
+		]);
+		expect(zip.items?.[0].note_notes).toBe("content");
+		expect(zip.items?.[1].note_notes).toBe("content");
+		expect(zip.items?.[0].attachments).not.toBe(zip.items?.[1].attachments);
+		expect(zip.folders).toBeUndefined();
+		expect(read).toHaveBeenCalledWith([["secret", "key"]]);
+		expect(tree.items?.[0]).not.toHaveProperty("note_notes");
+		expect(tree.items?.[0].secret_key).toBe("key");
+		const json = JSON.parse(
+			await exportService.fetchDatastore("json", undefined, true, true),
+		);
+		expect(
+			json.items.every((item: { type: string }) => item.type !== "file"),
+		).toBe(true);
+		expect(json.items).toHaveLength(4);
+		expect(json.folders).toHaveLength(2);
+	});
+});
 
 describe("Service: exportService - TOTP domain filters", () => {
 	const entry = {
