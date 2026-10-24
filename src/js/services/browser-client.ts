@@ -213,6 +213,22 @@ function getClientType(url?: string) {
  * @param {string} url The url to open
  */
 function openTab(url: string) {
+	if (TARGET === "safari") {
+		// window.open() from Safari's toolbar popup creates a separate window.
+		// Resolve relative client pages before handing them to the extension API.
+		return new Promise<Window | null>((resolve, reject) => {
+			chrome.tabs.create(
+				{ url: new URL(url, window.location.href).href },
+				() => {
+					if (chrome.runtime.lastError) {
+						reject(new Error(chrome.runtime.lastError.message));
+						return;
+					}
+					resolve(null);
+				},
+			);
+		});
+	}
 	return new Promise<Window | null>((resolve) => {
 		const new_window = window.open(url, "_blank");
 		resolve(new_window);

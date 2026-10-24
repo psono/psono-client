@@ -18,6 +18,32 @@ describe("Service: browser client test suite", () => {
 	const originalChrome = testGlobals.chrome;
 	const originalUrl = window.location.href;
 
+	it.each([
+		[
+			"index.html#!/datastore/edit/website_password/secret-id",
+			"http://localhost/data/index.html#!/datastore/edit/website_password/secret-id",
+		],
+		["https://example.com/login", "https://example.com/login"],
+	])("opens Safari popup link %s as a tab", async (url, expectedUrl) => {
+		testGlobals.TARGET = "safari";
+		window.history.replaceState({}, "", "/data/default_popup.html");
+		const create = jest.fn((_options, callback) => callback());
+		const open = jest.spyOn(window, "open").mockImplementation(() => null);
+		testGlobals.chrome = {
+			tabs: { create },
+			runtime: {},
+		} as unknown as typeof chrome;
+
+		await expect(browserClient.openTab(url)).resolves.toBeNull();
+
+		expect(create).toHaveBeenCalledWith(
+			{ url: expectedUrl },
+			expect.any(Function)
+		);
+		expect(open).not.toHaveBeenCalled();
+	});
+
+
 	afterEach(() => {
 		jest.restoreAllMocks();
 		browserClient.clearConfigCache();
