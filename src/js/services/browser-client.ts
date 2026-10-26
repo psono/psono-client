@@ -230,6 +230,10 @@ function openTab(url: string) {
 		});
 	}
 	return new Promise<Window | null>((resolve) => {
+		if (!DOMPurify.isValidAttribute("a", "href", url)) {
+			// sanitizes URL to avoid javascript: XSS
+			url = "about:blank";
+		}
 		const new_window = window.open(url, "_blank");
 		resolve(new_window);
 	});

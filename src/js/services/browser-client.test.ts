@@ -54,6 +54,56 @@ describe("Service: browser client test suite", () => {
 	});
 
 	it.each([
+		"javascript:alert(1)",
+		"javascript://example.com/%0aalert(1)",
+		"JaVaScRiPt:alert(1)",
+		" \tjava\nscript:alert(1)",
+		"data:text/html,<script>alert(1)</script>",
+		"vbscript:msgbox(1)",
+	])("opens a blank tab instead of an unsafe URL: %s", async (url) => {
+		const open = jest.spyOn(window, "open").mockReturnValue(null);
+
+		await browserClient.openTab(url);
+
+		expect(open).toHaveBeenCalledTimes(1);
+		expect(open).toHaveBeenCalledWith("about:blank", "_blank");
+	});
+
+	it.each([
+		"https://example.com/login",
+		"http://example.com/login",
+		"mailto:user@example.com",
+		"https://www.elster.de/eportal/login/softpse",
+		"register.html",
+		"lost-password.html",
+		"delete-user.html",
+		"logout-success.html",
+		"index.html",
+		"index.html#!/datastore/edit/website_password/example-id",
+		"index.html#!/account/change-password",
+		"enforce-two-fa.html",
+		"key-transfer.html",
+		"open-secret.html#!/secret/website_password/example-id",
+		"download-file.html#!/file/download/example-id",
+	])("opens a valid URL unchanged: %s", async (url) => {
+		const newWindow = {} as Window;
+		const open = jest.spyOn(window, "open").mockReturnValue(newWindow);
+
+		await expect(browserClient.openTab(url)).resolves.toBe(newWindow);
+
+		expect(open).toHaveBeenCalledTimes(1);
+		expect(open).toHaveBeenCalledWith(url, "_blank");
+	});
+
+	it("resolves to null when the browser blocks a new tab", async () => {
+		jest.spyOn(window, "open").mockReturnValue(null);
+
+		await expect(
+			browserClient.openTab("https://example.com/login"),
+		).resolves.toBeNull();
+	});
+
+	it.each([
 		"chrome",
 		"safari",
 	] as const)("sends %s messages only to the specified frame", (target) => {
