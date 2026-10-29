@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField";
 import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BarLoader } from "react-spinners";
 import { hasAuthField } from "../../../types/auth-ui";
 import type {
 	AuthFieldErrors,
@@ -84,6 +85,7 @@ const RegisterForm = (_props: SsoRouteParams) => {
 	const [msgs, setMsgs] = useState<string[]>([]);
 	const [allowRegistration, setAllowRegistration] = useState(false);
 	const [allowCustomServer, setAllowCustomServer] = useState(true);
+	const [registerLoading, setRegisterLoading] = useState(false);
 
 	let isSubscribed = true;
 	React.useEffect(() => {
@@ -112,6 +114,10 @@ const RegisterForm = (_props: SsoRouteParams) => {
 	};
 
 	const register = () => {
+		if (registerLoading) {
+			return;
+		}
+		setRegisterLoading(true);
 		setErrors([]);
 		setMsgs([]);
 
@@ -151,7 +157,7 @@ const RegisterForm = (_props: SsoRouteParams) => {
 		}
 		action().setServerUrl(server);
 
-		host.info().then(
+		const registrationRequest = host.info().then(
 			(info) => {
 				const test_error = helperService.isValidPassword(
 					password,
@@ -185,7 +191,7 @@ const RegisterForm = (_props: SsoRouteParams) => {
 					return;
 				}
 
-				userService
+				return userService
 					.register(email, fullUsername, password, server)
 					.then(onRequestReturn, onError);
 			},
@@ -202,6 +208,9 @@ const RegisterForm = (_props: SsoRouteParams) => {
 				}
 			},
 		);
+		registrationRequest.finally(() => {
+			setRegisterLoading(false);
+		});
 	};
 
 	let formContent: React.ReactNode;
@@ -353,6 +362,7 @@ const RegisterForm = (_props: SsoRouteParams) => {
 								onClick={register}
 								type="submit"
 								disabled={
+									registerLoading ||
 									!username ||
 									!email ||
 									!password ||
@@ -360,7 +370,15 @@ const RegisterForm = (_props: SsoRouteParams) => {
 									password !== passwordRepeat
 								}
 							>
-								{t("REGISTER")}
+								<span style={!registerLoading ? {} : { display: "none" }}>
+									{t("REGISTER")}
+								</span>
+								<BarLoader
+									color={"#FFF"}
+									height={17}
+									width={37}
+									loading={registerLoading}
+								/>
 							</Button>
 							<Button href={"index.html"}>
 								<span className={classes.regularButtonText}>{t("ABORT")}</span>
