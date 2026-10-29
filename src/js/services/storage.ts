@@ -2,8 +2,9 @@
  * Service that handles local storage access
  */
 
-import { openDB } from "idb";
 import localforage from "localforage";
+import { seal, unseal } from "./vault-lock";
+import vaultLock from "./vault-lock";
 import type {
 	EncryptedValue,
 	FileLeaf,
@@ -62,7 +63,30 @@ function activate() {
  * @param {object|Array} items One or multiple items to put into the database
  */
 function insert<T>(db: StorageDb, items: StorageEntry<T>) {
-	dbConfig[db].setItem(items["key"], items["value"]);
+	return writeEntry(db, items.key, items.value);
+}
+
+const protectedDbs = new Set<StorageDb>([
+	"offline-cache",
+	"datastore-password-leafs",
+	"datastore-file-leafs",
+	"file-downloads",
+	"various",
+]);
+
+function scopedKey(db: StorageDb, key: string) {
+	return protectedDbs.has(db) ? `${vaultLock.getAccountId()}:${key}` : key;
+}
+
+async function writeEntry(db: StorageDb, key: string, value: unknown) {
+	if (!protectedDbs.has(db)) return dbConfig[db].setItem(key, value);
+	if (vaultLock.isBlocked()) return;
+	const secret = vaultLock.getKey();
+	if (!secret) return;
+	return dbConfig[db].setItem(
+		scopedKey(db, key),
+		seal(JSON.stringify(value), secret),
+	);
 }
 
 /**
@@ -90,9 +114,7 @@ function upsert<T extends { key: string }>(db: StorageDb, items: T | T[]) {
 	} else {
 		localItems = items;
 	}
-	for (let i = 0; i < localItems.length; i++) {
-		dbConfig[db].setItem(localItems[i]["key"], localItems[i]);
-	}
+	return Promise.all(localItems.map((item) => writeEntry(db, item.key, item)));
 }
 
 /**
@@ -109,31 +131,24 @@ function where<T>(
 	db: StorageDb,
 	filterFunction: (value: T, key?: string) => unknown,
 ): Promise<T[]>;
-function where<T>(
+async function where<T>(
 	db: StorageDb,
 	filterFunction: (value: T, key?: string) => unknown,
 ): Promise<T[]> {
 	const result: T[] = [];
-	return new Promise<T[]>(async (resolve, reject) => {
-		const conn = await openDB(db);
-
+	const id = vaultLock.getAccountId();
+	const generation = vaultLock.getRevision();
+	for (const key of await keys(db)) {
+		const value = await findKey<T>(db, key);
 		if (
-			conn.objectStoreNames &&
-			Object.values(conn.objectStoreNames).includes("keyvaluepairs")
-		) {
-			// Each database is a legacy key/value store; callers select its value schema.
-			const allValues: T[] = await conn.getAll("keyvaluepairs");
-
-			for (const value of allValues) {
-				const filterRes = await filterFunction(value);
-				if (filterRes) {
-					result.push(value);
-				}
-			}
-		}
-
-		resolve(result);
-	});
+			id !== vaultLock.getAccountId() ||
+			generation !== vaultLock.getRevision()
+		)
+			return [];
+		if (value !== null && (await filterFunction(value, key)))
+			result.push(value);
+	}
+	return result;
 }
 
 /**
@@ -143,8 +158,17 @@ function where<T>(
  *
  * @returns {Promise} Returns the list of all keys
  */
-function keys(db: StorageDb) {
-	return dbConfig[db].keys();
+async function keys(db: StorageDb) {
+	const id = vaultLock.getAccountId();
+	const generation = vaultLock.getRevision();
+	const all = await dbConfig[db].keys();
+	if (!protectedDbs.has(db)) return all;
+	if (id !== vaultLock.getAccountId() || generation !== vaultLock.getRevision())
+		return [];
+	const prefix = `${id}:`;
+	return all
+		.filter((key) => key.startsWith(prefix))
+		.map((key) => key.slice(prefix.length));
 }
 
 /**
@@ -160,8 +184,24 @@ function findKey<D extends StorageDb>(
 	key: string,
 ): Promise<StorageValues[D] | null>;
 function findKey<T>(db: StorageDb, key: string): Promise<T | null>;
-function findKey<T>(db: StorageDb, key: string): Promise<T | null> {
-	return dbConfig[db].getItem<T>(key);
+async function findKey<T>(db: StorageDb, key: string): Promise<T | null> {
+	if (!protectedDbs.has(db)) return dbConfig[db].getItem<T>(key);
+	if (vaultLock.isBlocked()) return null;
+	const secret = vaultLock.getKey();
+	if (!secret) return null;
+	const generation = vaultLock.getRevision();
+	const value = await dbConfig[db].getItem<EncryptedValue>(scopedKey(db, key));
+	if (
+		!value ||
+		generation !== vaultLock.getRevision() ||
+		secret !== vaultLock.getKey()
+	)
+		return null;
+	try {
+		return JSON.parse(unseal(value, secret)) as T;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -171,7 +211,7 @@ function findKey<T>(db: StorageDb, key: string): Promise<T | null> {
  * @param {string} key
  */
 function remove(db: StorageDb, key: string) {
-	return dbConfig[db].removeItem(key);
+	return dbConfig[db].removeItem(scopedKey(db, key));
 }
 
 /**
@@ -181,7 +221,9 @@ function remove(db: StorageDb, key: string) {
  */
 async function removeAll(db?: StorageDb) {
 	if (typeof db !== "undefined") {
-		await dbConfig[db].clear();
+		if (protectedDbs.has(db)) {
+			await Promise.all((await keys(db)).map((key) => remove(db, key)));
+		} else await dbConfig[db].clear();
 	} else {
 		for (const dbName of Object.keys(dbConfig) as StorageDb[]) {
 			if (!Object.hasOwn(dbConfig, dbName)) {
@@ -191,7 +233,7 @@ async function removeAll(db?: StorageDb) {
 				//state contains data that potentially be persisted
 				continue;
 			}
-			await dbConfig[dbName].clear();
+			await removeAll(dbName);
 		}
 	}
 }

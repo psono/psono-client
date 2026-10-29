@@ -30,6 +30,10 @@ import device from "./device";
 import offlineCache from "./offline-cache";
 import { getStore } from "./store";
 import user from "./user";
+import vaultLock from "./vault-lock";
+import type { CacheMetadata } from "./offline-cache";
+import type { CacheMode } from "../../types/cache";
+import { CacheMissError } from "../../types/cache";
 
 // TODO add later for audit log again
 //let AUDIT_LOG_HEADER = 'Audit-Log';
@@ -72,11 +76,10 @@ const decryptData = (
 			),
 		);
 	}
-	offlineCache.set(url, method, data);
 	return data;
 };
 
-function _statelessCall<T = ApiRecord>(
+async function _statelessCall<T = ApiRecord>(
 	method: HttpMethod,
 	endpoint: string,
 	body: object | null,
@@ -85,8 +88,61 @@ function _statelessCall<T = ApiRecord>(
 	serverUrl: string,
 	deviceFingerprint: string,
 	sideEffect?: ResponseSideEffect,
+	readMode: boolean | CacheMode = true,
 ): Promise<ApiResponse<T>> {
+	const mode =
+		typeof readMode === "boolean"
+			? readMode
+				? "network-first"
+				: "refresh"
+			: readMode;
+	const allowCacheFallback = mode === "network-first";
 	const url = serverUrl + endpoint;
+	const accountId = vaultLock.getAccountId();
+	const generation = vaultLock.getRevision();
+	const cacheGeneration = offlineCache.getGeneration?.();
+	if (
+		sessionSecretKey &&
+		endpoint !== "/authentication/logout/" &&
+		vaultLock.isBlocked()
+	)
+		throw { errors: ["VAULT_LOCKED"] };
+	const state = getStore()?.getState();
+	if (
+		sessionSecretKey &&
+		endpoint !== "/authentication/logout/" &&
+		state?.user?.isLoggedIn &&
+		(state.server.complianceEnforceLocking ||
+			vaultLock.getConfiguration()?.requested) &&
+		!vaultLock.getConfiguration()?.enabled
+	) {
+		throw {
+			errors: ["LOCK_SETUP_REQUIRED"],
+		};
+	}
+	if (
+		sessionSecretKey &&
+		method !== "GET" &&
+		endpoint !== "/authentication/logout/" &&
+		offlineCache.isActive?.()
+	) {
+		throw {
+			errors: ["OFFLINE_CACHE_READ_ONLY"],
+		};
+	}
+	if (mode === "cache-only") {
+		if (method !== "GET" || !sessionSecretKey) throw new CacheMissError();
+		const cached = await offlineCache.get<ApiResponse<T>>(url, method);
+		if (
+			accountId !== vaultLock.getAccountId() ||
+			generation !== vaultLock.getRevision() ||
+			vaultLock.isBlocked()
+		) {
+			throw { errors: ["VAULT_SESSION_CHANGED"] };
+		}
+		if (cached === null) throw new CacheMissError();
+		return cached;
+	}
 
 	if (sessionSecretKey && body !== null) {
 		body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
@@ -126,77 +182,108 @@ function _statelessCall<T = ApiRecord>(
 		req["body"] = JSON.stringify(body);
 	}
 
-	return offlineCache.get(url, req.method).then((cached) => {
-		if (cached !== null) {
-			return cached as ApiResponse<T>;
-		}
-
-		return new Promise<ApiResponse<T>>(async (resolve, reject) => {
-			let rawResponse;
-			try {
-				rawResponse = await fetch(url, req);
-			} catch (e) {
-				console.log(e);
-				reject({ errors: ["SERVER_OFFLINE"] });
-				return;
-			}
-
-			if (typeof sideEffect === "function") {
-				sideEffect(rawResponse);
-			}
-
-			let data: unknown = await rawResponse.text();
-			if (data) {
-				try {
-					data = JSON.parse(data as string);
-				} catch (e) {
-					// pass
-				}
-			}
-
-			let decryptedData: unknown;
-
-			// compatibility to old axios library
-			if (data) {
-				data = {
-					data,
-				};
-			}
-
-			if (!rawResponse.ok) {
-				console.log(rawResponse);
-				console.log(data);
-				if (rawResponse.status === 404) {
-					if (rawResponse.statusText) {
-						return reject(rawResponse.statusText);
-					}
-					return reject({ errors: ["RESOURCE_NOT_FOUND"] });
-				}
-
-				if (rawResponse.status >= 500) {
-					if (rawResponse.statusText) {
-						return reject(rawResponse.statusText);
-					}
-					return reject({ errors: ["SERVER_OFFLINE"] });
-				}
-				// received error 400. We fall through here and check below with rawResponse.ok whether we have to return
-				// a success or failed response
-			}
-
-			try {
-				decryptedData = decryptData(sessionSecretKey, data, url, req.method);
-			} catch (e) {
-				return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] });
-			}
-			if (rawResponse.ok) {
-				// Preserve the server's legacy empty-body result as well as JSON
-				// envelopes; the endpoint determines the expected response schema.
-				return resolve(decryptedData as ApiResponse<T>);
-			} else {
-				return reject(decryptedData);
-			}
-		});
+	const current = () =>
+		accountId === vaultLock.getAccountId() &&
+		generation === vaultLock.getRevision() &&
+		(!sessionSecretKey ||
+			endpoint === "/authentication/logout/" ||
+			!vaultLock.isBlocked());
+	const assertCurrent = () => {
+		if (!current()) throw { errors: ["VAULT_SESSION_CHANGED"] };
+	};
+	const fallback = async () => {
+		assertCurrent();
+		if (!allowCacheFallback || !sessionSecretKey || method !== "GET")
+			return null;
+		const cached = await offlineCache
+			.get<ApiResponse<T>>(url, method)
+			.catch(() => null);
+		assertCurrent();
+		if (cached !== null) offlineCache.markOffline?.();
+		return cached;
+	};
+	const controller = new AbortController();
+	req.signal = controller.signal;
+	const unsubscribe = vaultLock.subscribe(() => {
+		if (!current()) controller.abort();
 	});
+	const timeout =
+		method === "GET" && sessionSecretKey && offlineCache.canUse?.()
+			? setTimeout(() => controller.abort(), 5000)
+			: undefined;
+	try {
+		let rawResponse: Response;
+		try {
+			rawResponse = await fetch(url, req);
+		} catch {
+			const cached = await fallback();
+			if (cached !== null) return cached;
+			throw { errors: ["SERVER_OFFLINE"] };
+		}
+		assertCurrent();
+		if (rawResponse.status >= 500) {
+			const cached = await fallback();
+			if (cached !== null) return cached;
+		}
+		// Permission loss must not leave a usable copy of descendants in cache.
+		if (sessionSecretKey && [403, 404].includes(rawResponse.status))
+			await offlineCache.clear?.();
+		sideEffect?.(rawResponse);
+		let data: unknown = await rawResponse.text();
+		assertCurrent();
+		if (data) {
+			try {
+				data = JSON.parse(data as string);
+			} catch {
+				/* preserve legacy text errors */
+			}
+			data = { data };
+		}
+		if (!rawResponse.ok && rawResponse.status === 404)
+			throw rawResponse.statusText || { errors: ["RESOURCE_NOT_FOUND"] };
+		if (!rawResponse.ok && rawResponse.status >= 500)
+			throw mode === "refresh"
+				? { errors: ["SERVER_OFFLINE"], status: rawResponse.status }
+				: rawResponse.statusText || { errors: ["SERVER_OFFLINE"] };
+		let decryptedData: unknown;
+		try {
+			decryptedData = decryptData(sessionSecretKey, data, url, method);
+		} catch {
+			throw { errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] };
+		}
+		if (!rawResponse.ok) throw decryptedData;
+		if (sessionSecretKey) {
+			offlineCache.markOnline?.();
+			if (
+				method === "GET" &&
+				cacheGeneration === offlineCache.getGeneration?.()
+			)
+				await Promise.resolve(
+					offlineCache.set(url, method, decryptedData),
+				).catch(() => {});
+			else if (method !== "GET") await offlineCache.clear?.();
+		}
+		assertCurrent();
+		return decryptedData as ApiResponse<T>;
+	} finally {
+		if (timeout) clearTimeout(timeout);
+		unsubscribe();
+	}
+}
+
+function readCacheMetadata(
+	kind: "datastore" | "share",
+	token: AuthToken,
+	sessionSecretKey: SessionSecretKey,
+	id: string,
+) {
+	return call<CacheMetadata>(
+		"GET",
+		`/metadata-${kind}/${id}/`,
+		null,
+		{ Authorization: `Token ${token}` },
+		sessionSecretKey,
+	);
 }
 
 function call<T = ApiRecord>(
@@ -205,6 +292,7 @@ function call<T = ApiRecord>(
 	body: object | null,
 	headers: ApiHeaders | null,
 	sessionSecretKey?: SessionSecretKey,
+	readMode: boolean | CacheMode = true,
 ): Promise<ApiResponse<T>> {
 	const serverUrl = getStore().getState().server.url;
 	const deviceFingerprint = device.getDeviceFingerprint();
@@ -226,14 +314,6 @@ function call<T = ApiRecord>(
 			// server error, lets log the user out
 			user.logout(rawResponse.statusText);
 		}
-		if (rawResponse.status === 502 && user.isLoggedIn()) {
-			// server error, lets log the user out
-			user.logout(rawResponse.statusText);
-		}
-		if (rawResponse.status === 503 && user.isLoggedIn()) {
-			// server error, lets log the user out
-			user.logout(rawResponse.statusText);
-		}
 	};
 	return _statelessCall<T>(
 		method,
@@ -244,6 +324,26 @@ function call<T = ApiRecord>(
 		serverUrl,
 		deviceFingerprint,
 		sideEffect,
+		readMode,
+	);
+}
+
+/** Explicit cache refreshes must reach the server, never an offline fallback. */
+function refreshOfflineCacheEntry(
+	token: AuthToken,
+	sessionSecretKey: SessionSecretKey,
+	endpoint: string,
+) {
+	if (!/^\/(datastore|share|secret)\/(?:[a-z0-9_-]+\/)*$/i.test(endpoint)) {
+		return Promise.reject(new Error("OFFLINE_CACHE_ENDPOINT_UNSUPPORTED"));
+	}
+	return call(
+		"GET",
+		endpoint,
+		null,
+		{ Authorization: `Token ${token}` },
+		sessionSecretKey,
+		false,
 	);
 }
 
@@ -1084,6 +1184,7 @@ function readDatastore<Id extends string | null | undefined = undefined>(
 	token: AuthToken,
 	sessionSecretKey: SessionSecretKey,
 	datastoreId?: Id,
+	mode: CacheMode = "network-first",
 ): Promise<
 	ApiResponse<
 		ApiDetailOrList<
@@ -1100,7 +1201,7 @@ function readDatastore<Id extends string | null | undefined = undefined>(
 		Authorization: "Token " + token,
 	};
 
-	return call(method, endpoint, data, headers, sessionSecretKey);
+	return call(method, endpoint, data, headers, sessionSecretKey, mode);
 }
 
 /**
@@ -1352,6 +1453,7 @@ function readSecret(
 	token: AuthToken,
 	sessionSecretKey: SessionSecretKey,
 	secretId: string,
+	mode: CacheMode = "network-first",
 ) {
 	const endpoint = "/secret/" + secretId + "/";
 	const method = "GET";
@@ -1370,6 +1472,7 @@ function readSecret(
 		data,
 		headers,
 		sessionSecretKey,
+		mode,
 	);
 }
 
@@ -1677,6 +1780,7 @@ function readShare(
 	token: AuthToken,
 	sessionSecretKey: SessionSecretKey,
 	share_id: string,
+	mode: CacheMode = "network-first",
 ) {
 	const endpoint = "/share/" + share_id + "/";
 	const method = "GET";
@@ -1691,6 +1795,7 @@ function readShare(
 		data,
 		headers,
 		sessionSecretKey,
+		mode,
 	);
 }
 
@@ -1847,6 +1952,7 @@ function readShareRights(
 function readShareRightsOverview(
 	token: AuthToken,
 	sessionSecretKey: SessionSecretKey,
+	mode: CacheMode = "network-first",
 ) {
 	const endpoint = "/share/right/";
 	const method = "GET";
@@ -1861,6 +1967,7 @@ function readShareRightsOverview(
 		data,
 		headers,
 		sessionSecretKey,
+		mode,
 	);
 }
 
@@ -4916,6 +5023,8 @@ function claimDeviceCode(
 }
 
 const apiClientService = {
+	refreshOfflineCacheEntry,
+	readCacheMetadata,
 	info: info,
 	prelogin: prelogin,
 	login: login,

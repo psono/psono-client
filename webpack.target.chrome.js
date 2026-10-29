@@ -24,6 +24,7 @@ module.exports = merge(common, {
     'js/bundle.min.js': './src/js/index.tsx',
     'js/crypto-worker.js': './src/js/crypto-worker.ts',
     'js/background-chrome.js': './src/js/background-chrome.ts',
+    'js/lock-offscreen.js': './src/js/lock-offscreen.ts',
   },
   output: {
     filename: '[name]',

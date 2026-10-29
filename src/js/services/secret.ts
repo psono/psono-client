@@ -22,6 +22,40 @@ import type {
 	SecretMetadata,
 	SecretReference,
 } from "../../types/vault";
+import type { CacheMode } from "../../types/cache";
+
+function normalize(value: unknown): unknown {
+	if (Array.isArray(value)) return value.map(normalize);
+	if (!value || typeof value !== "object") return value;
+	return Object.fromEntries(
+		Object.entries(value)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([key, value]) => [key, normalize(value)]),
+	);
+}
+
+/** Prefer server revisions; legacy responses without dates compare content. */
+export function sameSecretRevision(
+	first: SecretContent & SecretMetadata,
+	second: SecretContent & SecretMetadata,
+) {
+	if (first.write_date && second.write_date)
+		return first.write_date === second.write_date;
+	const content = ({
+		read_count,
+		create_date,
+		write_date,
+		...rest
+	}: SecretContent & SecretMetadata) => normalize(rest);
+	return JSON.stringify(content(first)) === JSON.stringify(content(second));
+}
+
+export class SecretChangedError extends Error {
+	constructor(public latest: SecretContent & SecretMetadata) {
+		super("ENTRY_CHANGED_ON_SERVER");
+		this.name = "SecretChangedError";
+	}
+}
 
 // Keep these fields and the encrypted JSON timestamp format in sync with psono-app.
 const passwordFields = [
@@ -258,6 +292,7 @@ function createSecret(
 function readSecret<T extends SecretContent = SecretContent>(
 	secretId: string,
 	secretKey: string,
+	mode: CacheMode = "network-first",
 ): Promise<T & SecretMetadata> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
@@ -282,9 +317,11 @@ function readSecret<T extends SecretContent = SecretContent>(
 		secret["callback_pass"] = content.data["callback_pass"];
 		return secret;
 	};
-	return apiClient
-		.readSecret(token, sessionSecretKey, secretId)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readSecret(token, sessionSecretKey, secretId)
+			: apiClient.readSecret(token, sessionSecretKey, secretId, mode)
+	).then(onSuccess, onError);
 }
 
 /**
@@ -306,19 +343,31 @@ async function writeSecret(
 	callbackUrl?: string | null,
 	callbackUser?: string | null,
 	callbackPass?: string | null,
+	expected?: SecretContent & SecretMetadata,
 ) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	if (hasPasswordContent(content)) {
-		const previous = await readSecret(secretId, secretKey);
-		updatePasswordModificationDatetime(content, previous);
+	if (expected || hasPasswordContent(content)) {
+		const previous = expected
+			? await readSecret(secretId, secretKey, "refresh")
+			: await readSecret(secretId, secretKey);
+		if (expected && !sameSecretRevision(expected, previous))
+			throw new SecretChangedError(previous);
+		if (hasPasswordContent(content))
+			updatePasswordModificationDatetime(content, previous);
 	}
+	if (
+		token !== getStore().getState().user.token ||
+		sessionSecretKey !== getStore().getState().user.sessionSecretKey
+	)
+		throw new Error("VAULT_SESSION_CHANGED");
 	const jsonContent = JSON.stringify(content);
 
 	const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
 	const onError = (result: unknown) => {
+		if (expected) throw result;
 		console.log(result);
 	};
 
@@ -452,14 +501,9 @@ function onItemClick(item: SecretReference) {
 				}
 			});
 		} else {
-			browserClient
-				.openTab(
-					"open-secret.html#!/secret/" + item.type + "/" + item.secret_id,
-				)
-				.then((window) => {
-					window!.psono_offline_cache_encryption_key =
-						offlineCache.getEncryptionKey();
-				});
+			browserClient.openTab(
+				"open-secret.html#!/secret/" + item.type + "/" + item.secret_id,
+			);
 		}
 	}
 }

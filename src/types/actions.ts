@@ -37,6 +37,8 @@ export interface ServerInfoPayload extends Partial<DecodedServerInfo> {
 	compliance_disable_link_shares?: boolean;
 	compliance_disable_multiple_password_datastores?: boolean;
 	compliance_disable_offline_mode?: boolean;
+	compliance_enforce_locking?: boolean;
+	compliance_max_lock_timeout?: number;
 	compliance_max_offline_cache_time_valid?: number;
 	compliance_disable_shares?: boolean;
 	compliance_disable_recovery_codes?: boolean;

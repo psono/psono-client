@@ -22,6 +22,7 @@ import browserClientService from "../../services/browser-client";
 import optionsBlueprintService from "../../services/options-blueprint";
 import { getStore } from "../../services/store";
 import userService from "../../services/user";
+import { LockSettings } from "../../components/vault-lock";
 
 const useStyles = makeStyles((theme) => ({
 	checked: {
@@ -153,6 +154,9 @@ const SettingsGeneralView = (props: SettingsViewProps) => {
 
 	return (
 		<Grid container>
+			<Grid item xs={12}>
+				<LockSettings />
+			</Grid>
 			<Grid item xs={12} sm={12} md={12}>
 				<h2>{t("GENERAL")}</h2>
 				<p>{t("GENERAL_SETTINGS")}</p>

@@ -27,6 +27,7 @@ import browserClient from "../services/browser-client";
 import deviceService from "../services/device";
 import { getStore } from "../services/store";
 import RuleIcon from "./icons/Rule";
+import LockCountdown from "./lock-countdown";
 import type {
 	ClientConfiguration,
 	ConfigurationLink,
@@ -407,7 +408,10 @@ const Sidebar = (props: SidebarProps) => {
 					</List>
 				</>
 			)}
-			<div className={classes.version}>PSONO: {version}</div>
+			<div className={classes.version}>
+				<LockCountdown />
+				<div>PSONO: {version}</div>
+			</div>
 		</div>
 	);
 

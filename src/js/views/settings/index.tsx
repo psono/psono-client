@@ -5,6 +5,7 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
 import Base from "../../components/base";
@@ -17,11 +18,14 @@ import SettingsGeneralView from "./general";
 import SettingsGpgView from "./gpg";
 import SettingsNotificationView from "./notification";
 import SettingsPasswordGeneratorView from "./password-generator";
+import SettingsOfflineCacheView from "./offline-cache";
 
 const SettingsView = (props: SettingsViewProps) => {
 	const { t } = useTranslation();
 	const location = useLocation();
+	const offlineMode = useSelector((state) => state.client.offlineMode === true);
 	const [value, setValue] = React.useState(location.pathname);
+	React.useEffect(() => setValue(location.pathname), [location.pathname]);
 
 	return (
 		<Base {...props}>
@@ -37,6 +41,7 @@ const SettingsView = (props: SettingsViewProps) => {
 						>
 							<Tab
 								label={t("GENERATORS")}
+								disabled={offlineMode}
 								value="/settings/password-generator"
 								component={Link}
 								to={"/settings/password-generator"}
@@ -44,6 +49,7 @@ const SettingsView = (props: SettingsViewProps) => {
 							/>
 							<Tab
 								label={t("ENTRY_TYPES")}
+								disabled={offlineMode}
 								value="/settings/entry-types"
 								component={Link}
 								to={"/settings/entry-types"}
@@ -51,6 +57,7 @@ const SettingsView = (props: SettingsViewProps) => {
 							/>
 							<Tab
 								label={t("NOTIFICATIONS")}
+								disabled={offlineMode}
 								value="/settings/notification"
 								component={Link}
 								to={"/settings/notification"}
@@ -58,6 +65,7 @@ const SettingsView = (props: SettingsViewProps) => {
 							/>
 							<Tab
 								label={t("GPG")}
+								disabled={offlineMode}
 								value="/settings/gpg"
 								component={Link}
 								to={"/settings/gpg"}
@@ -65,6 +73,7 @@ const SettingsView = (props: SettingsViewProps) => {
 							/>
 							<Tab
 								label={t("DOMAIN_SYNONYMS")}
+								disabled={offlineMode}
 								value="/settings/domain-synonyms"
 								component={Link}
 								to={"/settings/domain-synonyms"}
@@ -72,10 +81,18 @@ const SettingsView = (props: SettingsViewProps) => {
 							/>
 							<Tab
 								label={t("GENERAL")}
+								disabled={offlineMode}
 								value="/settings/general"
 								component={Link}
 								to={"/settings/general"}
 								onClick={() => setValue("/settings/general")}
+							/>
+							<Tab
+								label={t("OFFLINE_CACHE")}
+								value="/settings/offline-cache"
+								component={Link}
+								to="/settings/offline-cache"
+								onClick={() => setValue("/settings/offline-cache")}
 							/>
 						</Tabs>
 					</AppBar>
@@ -96,6 +113,9 @@ const SettingsView = (props: SettingsViewProps) => {
 					</TabPanel>
 					<TabPanel value={value} index={"/settings/general"}>
 						<SettingsGeneralView {...props} />
+					</TabPanel>
+					<TabPanel value={value} index="/settings/offline-cache">
+						<SettingsOfflineCacheView {...props} />
 					</TabPanel>
 				</Paper>
 			</BaseContent>

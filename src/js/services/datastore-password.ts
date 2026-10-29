@@ -17,6 +17,7 @@ import shareService from "./share";
 import shareLinkService from "./share-link";
 import { getStore } from "./store";
 import urlSynonymsService from "./url-synonyms";
+import vaultLock from "./vault-lock";
 import type {
 	ChildShare,
 	Datastore,
@@ -28,9 +29,13 @@ import type {
 	ShareRights,
 } from "../../types/datastore";
 import type { ClosestParentShare, ShareRightsOverview } from "./share";
+import type { CacheMode } from "../../types/cache";
 
 const registrations: Record<string, ((value: unknown) => void)[]> = {};
 const _shareIndex: Record<string, string> = {};
+vaultLock.subscribe(() => {
+	for (const key of Object.keys(_shareIndex)) delete _shareIndex[key];
+});
 
 interface ElementLink {
 	id: string;
@@ -301,8 +306,10 @@ function updatePathsWithData(
 function _readShares(
 	datastore: Datastore,
 	shareRightsDict: Record<string, ShareRights>,
+	mode: CacheMode = "network-first",
 ): Promise<Datastore> {
-	return new Promise<Datastore>((resolve) => {
+	return new Promise<Datastore>((resolve, reject) => {
+		let failure: unknown;
 		let open_calls = 0;
 		const all_calls: Promise<void>[] = [];
 		const all_share_data: Record<string, ShareContent> = {};
@@ -344,6 +351,8 @@ function _readShares(
 			) => {
 				const onSuccess = (content: ShareContent | undefined) => {
 					if (typeof content === "undefined") {
+						if (mode !== "network-first")
+							failure = { errors: ["SERVER_OFFLINE"] };
 						open_calls--;
 						localResolve();
 						return;
@@ -374,14 +383,17 @@ function _readShares(
 					localResolve();
 				};
 
-				const onError = () => {
+				const onError = (error: unknown) => {
+					if (mode !== "network-first") failure = error;
 					open_calls--;
 					localResolve();
 				};
 				open_calls++;
-				return shareService
-					.readShare(share_id, _shareIndex[share_id])
-					.then(onSuccess, onError);
+				return (
+					mode === "network-first"
+						? shareService.readShare(share_id, _shareIndex[share_id])
+						: shareService.readShare(share_id, _shareIndex[share_id], mode)
+				).then(onSuccess, onError);
 			};
 
 			for (const share_id in share_index) {
@@ -516,14 +528,17 @@ function _readShares(
 			delete: true,
 		});
 
-		return Promise.all(all_calls).then((ret) => {
-			localResolve = () => {
-				if (open_calls === 0) {
-					resolve(datastore);
-				}
-			};
-			localResolve();
-		});
+		return Promise.all(all_calls)
+			.then((ret) => {
+				localResolve = () => {
+					if (open_calls === 0) {
+						if (failure) reject(failure);
+						else resolve(datastore);
+					}
+				};
+				localResolve();
+			})
+			.catch(reject);
 	});
 }
 
@@ -784,6 +799,23 @@ function getPasswordDatastore(id?: string): Promise<Datastore | undefined> {
 	};
 
 	return datastoreService.getDatastore(type, id).then(onSuccess, onError);
+}
+
+async function getPasswordDatastoreForDisplay(
+	id: string | undefined,
+	mode: CacheMode,
+): Promise<Datastore> {
+	const [datastore, rights] = await Promise.all([
+		datastoreService.getDatastoreForDisplay("password", id, mode),
+		shareService.readShareRightsOverview(mode),
+	]);
+	if (!rights || !Array.isArray(rights.share_rights))
+		throw new Error("Invalid share rights response.");
+	const byShare: Record<string, ShareRights> = {};
+	for (const right of rights.share_rights) byShare[right.share_id] = right;
+	const result = await _readShares(datastore, byShare, mode);
+	updatePathsRecursive(result, []);
+	return result;
 }
 
 /**
@@ -2267,6 +2299,7 @@ const datastorePasswordService = {
 	generateDefault: generateDefault,
 	escapeRegExp: escapeRegExp,
 	getPasswordDatastore: getPasswordDatastore,
+	getPasswordDatastoreForDisplay,
 	getDatastoreWithId: getDatastoreWithId,
 	saveDatastoreContent: saveDatastoreContent,
 	handleDatastoreContentChanged: handleDatastoreContentChanged,

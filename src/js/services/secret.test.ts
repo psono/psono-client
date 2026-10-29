@@ -4,6 +4,7 @@ import cryptoLibrary from "./crypto-library";
 import rootReducer from "../reducers";
 import * as storeService from "./store";
 import type { SecretContent } from "../../types/vault";
+import { SecretChangedError } from "./secret";
 
 describe("password modification timestamps in encrypted secrets", () => {
 	const now = "2026-10-13T12:00:00.000Z";
@@ -106,5 +107,45 @@ describe("password modification timestamps in encrypted secrets", () => {
 		expect(written.password_modification_datetime).toBe(now);
 		await secretService.createSecret({ note_notes: "note" }, "link");
 		expect(written).not.toHaveProperty("password_modification_datetime");
+	});
+
+	it("checks the live revision before saving an editor opened from cache", async () => {
+		const expected = { ...previous, write_date: "2026-01-01T00:00:00Z" };
+		await expect(
+			secretService.writeSecret(
+				"secret",
+				"key",
+				{ website_password_password: "changed" },
+				undefined,
+				undefined,
+				undefined,
+				expected,
+			),
+		).rejects.toBeInstanceOf(SecretChangedError);
+		expect(apiClient.readSecret).toHaveBeenCalledWith(
+			"",
+			"",
+			"secret",
+			"refresh",
+		);
+		expect(apiClient.writeSecret).not.toHaveBeenCalled();
+	});
+
+	it("does not save a cached draft when its live verification fails", async () => {
+		jest
+			.mocked(apiClient.readSecret)
+			.mockRejectedValue({ errors: ["SERVER_OFFLINE"] });
+		await expect(
+			secretService.writeSecret(
+				"secret",
+				"key",
+				{ note_notes: "edited" },
+				undefined,
+				undefined,
+				undefined,
+				previous,
+			),
+		).rejects.toEqual({ errors: ["SERVER_OFFLINE"] });
+		expect(apiClient.writeSecret).not.toHaveBeenCalled();
 	});
 });

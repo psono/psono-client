@@ -19,7 +19,11 @@ import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import i18n from "./i18n";
 import datastoreSettingService from "./services/datastore-setting";
-import { initLinkShareStore, initStore } from "./services/store";
+import {
+	initLinkShareStore,
+	initStore,
+	registerPersistor,
+} from "./services/store";
 import { initSentry } from "./var/sentry";
 import type { AppDispatch, AppState } from "../types/state";
 
@@ -30,6 +34,10 @@ import NotificationSnackbar from "./components/notification-snackbar";
 import backgroundService from "./services/background";
 import browserClientService from "./services/browser-client";
 import IndexView from "./views/index";
+import { VaultGate } from "./components/vault-lock";
+import CacheStatusIndicator from "./components/cache-status-indicator";
+import vaultLock from "./services/vault-lock";
+import { isLogoutPage } from "./services/user";
 
 const isLinkSharePage = window.location.pathname.endsWith(
 	"/link-share-access.html",
@@ -66,10 +74,11 @@ const LazyThemeProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 if (!isLinkSharePage) {
+	vaultLock.setReloadGuard(() => !isLogoutPage());
 	const channel = new BroadcastChannel("account");
 	channel.onmessage = (event) => {
-		if (event.data?.event === "reinitialize-app") {
-			initAndRenderApp();
+		if (event.data?.event === "reinitialize-app" && !isLogoutPage()) {
+			window.location.reload();
 		}
 	};
 }
@@ -83,7 +92,13 @@ function loadSettingsDatastore(
 	dispatch: AppDispatch,
 	getState: () => AppState,
 ): void {
-	if (getState().user.isLoggedIn) {
+	if (
+		!isLogoutPage() &&
+		getState().user.isLoggedIn &&
+		!vaultLock.isLocked() &&
+		(!getState().server.complianceEnforceLocking ||
+			vaultLock.getConfiguration()?.enabled)
+	) {
 		datastoreSettingService.getSettingsDatastore();
 	}
 }
@@ -100,11 +115,23 @@ async function initAndRenderApp() {
 	}
 
 	const store = await (isLinkSharePage ? initLinkShareStore() : initStore());
+	if (!isLinkSharePage) {
+		// Reloading also releases decrypted component/service closures on lock.
+		let previouslyLocked = vaultLock.isLocked();
+		vaultLock.subscribe(() => {
+			const locked = vaultLock.isLocked();
+			if (locked && !previouslyLocked && !isLogoutPage())
+				window.location.reload();
+			previouslyLocked = locked;
+		});
+	}
 	const persistor = isLinkSharePage
 		? null
 		: persistStore(store, undefined, () => {
+				vaultLock.completeInitialization(vaultLock.getAccountId());
 				store.dispatch(loadSettingsDatastore);
 			});
+	if (persistor) registerPersistor(persistor);
 
 	const StateGate = ({ children }: { children: React.ReactElement }) =>
 		persistor ? (
@@ -125,7 +152,14 @@ async function initAndRenderApp() {
 								<HashRouter {...routerProps}>
 									<DownloadBanner />
 									<NotificationSnackbar />
-									<IndexView />
+									{isLinkSharePage ? (
+										<IndexView />
+									) : (
+										<VaultGate>
+											<CacheStatusIndicator />
+											<IndexView />
+										</VaultGate>
+									)}
 								</HashRouter>
 							</LazyThemeProvider>
 						</I18nextProvider>

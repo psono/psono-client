@@ -1,127 +1,45 @@
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { Grid } from "@mui/material";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import { makeStyles } from "@mui/styles";
-import React, { useState } from "react";
+import {
+	Alert,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+} from "@mui/material";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import type { DialogProps } from "../../../types/dialogs";
-import offlineCacheService from "../../services/offline-cache";
-import GridContainerErrors from "../grid-container-errors";
-import TextFieldColored from "../text-field/colored";
+import vaultLock from "../../services/vault-lock";
 
-const useStyles = makeStyles((theme) => ({
-	textField: {
-		width: "100%",
-	},
-	passwordField: {
-		fontFamily: "'Fira Code', monospace",
-	},
-}));
-
-const DialogUnlockOfflineCache = (props: DialogProps) => {
-	const classes = useStyles();
-	const { open, onClose } = props;
+export default function DialogUnlockOfflineCache({
+	open,
+	onClose,
+}: DialogProps) {
 	const { t } = useTranslation();
-	const [passphrase, setPassphrase] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
-	const [errors, setErrors] = useState<string[]>([]);
-
-	const logout = async () => {
-		window.location.href = "logout-success.html";
-	};
-
+	const [error, setError] = React.useState("");
+	const [busy, setBusy] = React.useState(false);
 	const unlock = async () => {
-		setErrors([]);
-		if (offlineCacheService.unlock(passphrase)) {
+		setBusy(true);
+		try {
+			await vaultLock.unlock();
 			onClose();
-		} else {
-			setErrors(["PASSPHRASE_INCORRECT"]);
+		} catch (error) {
+			setError(error instanceof Error ? error.message : String(error));
+		} finally {
+			setBusy(false);
 		}
 	};
-
 	return (
-		<Dialog
-			fullWidth
-			maxWidth={"sm"}
-			open={open}
-			aria-labelledby="alert-dialog-title"
-			aria-describedby="alert-dialog-description"
-		>
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-				}}
-				name="unlockOfflineCache"
-				autoComplete="off"
-			>
-				<DialogTitle id="alert-dialog-title">
-					{t("UNLOCK_OFFLINE_CACHE")}
-				</DialogTitle>
-				<DialogContent>
-					<Grid container>
-						<Grid item xs={12} sm={12} md={12}>
-							<TextFieldColored
-								className={classes.textField}
-								variant="outlined"
-								margin="dense"
-								size="small"
-								id="passphrase"
-								label={t("PASSPHRASE")}
-								name="passphrase"
-								autoComplete="off"
-								value={passphrase}
-								onChange={(event) => {
-									setPassphrase(event.target.value);
-								}}
-								InputProps={{
-									type: showPassword ? "text" : "password",
-									classes: {
-										input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
-									},
-									endAdornment: (
-										<InputAdornment position="end">
-											<IconButton
-												aria-label="toggle password visibility"
-												onClick={() => setShowPassword(!showPassword)}
-												edge="end"
-												size="large"
-											>
-												{showPassword ? (
-													<Visibility fontSize="small" />
-												) : (
-													<VisibilityOff fontSize="small" />
-												)}
-											</IconButton>
-										</InputAdornment>
-									),
-								}}
-							/>
-						</Grid>
-						<GridContainerErrors errors={errors} setErrors={setErrors} />
-					</Grid>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={logout}>{t("LOGOUT")}</Button>
-					<Button
-						onClick={unlock}
-						variant="contained"
-						color="primary"
-						disabled={!passphrase}
-						type="submit"
-					>
-						<span>{t("UNLOCK")}</span>
-					</Button>
-				</DialogActions>
-			</form>
+		<Dialog open={open} fullWidth maxWidth="sm">
+			<DialogTitle>{t("VAULT_LOCKED")}</DialogTitle>
+			<DialogContent>
+				{error && <Alert severity="error">{t(error)}</Alert>}
+			</DialogContent>
+			<DialogActions>
+				<Button disabled={busy} onClick={unlock}>
+					{t("UNLOCK")}
+				</Button>
+			</DialogActions>
 		</Dialog>
 	);
-};
-
-export default DialogUnlockOfflineCache;
+}

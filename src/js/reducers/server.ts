@@ -121,6 +121,8 @@ function server(
 		complianceDisableMultiplePasswordDatastores:
 			defaultComplianceDisableMultiplePasswordDatastores,
 		complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
+		complianceEnforceLocking: false,
+		complianceMaxLockTimeout: undefined,
 		complianceMaxOfflineCacheTimeValid:
 			defaultComplianceMaxOfflineCacheTimeValid,
 		complianceDisableShares: defaultComplianceDisableShares,
@@ -178,6 +180,8 @@ function server(
 	switch (action.type) {
 		case LOGOUT:
 			return Object.assign({}, state, {
+				complianceEnforceLocking: false,
+				complianceMaxLockTimeout: undefined,
 				url: action.rememberMe ? state.url : defaultUrl,
 				allowUserSearchByEmail: defaultAllowUserSearchByEmail,
 				allowUserSearchByUsernamePartial:
@@ -265,6 +269,18 @@ function server(
 			});
 		case SET_SERVER_INFO:
 			return Object.assign({}, state, {
+				complianceEnforceLocking: Object.hasOwn(
+					action.info,
+					"compliance_enforce_locking",
+				)
+					? action.info.compliance_enforce_locking === true
+					: state.complianceEnforceLocking,
+				complianceMaxLockTimeout: Object.hasOwn(
+					action.info,
+					"compliance_max_lock_timeout",
+				)
+					? action.info.compliance_max_lock_timeout
+					: state.complianceMaxLockTimeout,
 				allowUserSearchByEmail: action.info.allow_user_search_by_email,
 				allowUserSearchByUsernamePartial:
 					action.info.allow_user_search_by_username_partial,
@@ -391,6 +407,21 @@ function server(
 				),
 			});
 		case SET_SERVER_POLICY: {
+			state = {
+				...state,
+				...(Object.hasOwn(action.policy, "compliance_enforce_locking")
+					? {
+							complianceEnforceLocking:
+								action.policy.compliance_enforce_locking === true,
+						}
+					: {}),
+				...(Object.hasOwn(action.policy, "compliance_max_lock_timeout")
+					? {
+							complianceMaxLockTimeout:
+								action.policy.compliance_max_lock_timeout,
+						}
+					: {}),
+			};
 			const data: Partial<ServerState> = {};
 
 			if (Object.hasOwn(action.policy, "allow_user_search_by_email")) {

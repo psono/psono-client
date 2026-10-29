@@ -24,6 +24,8 @@ import DialogTrashBin from "../../components/dialogs/trash-bin";
 import DialogVerify from "../../components/dialogs/verify";
 import Search from "../../components/search";
 
+import { useOfflineMode } from "../../components/use-offline-mode";
+
 const useStyles = makeStyles((theme) => ({
 	toolbarRoot: {
 		backgroundColor: theme.palette.baseTitleBackground.main,
@@ -92,7 +94,9 @@ const DatastoreToolbar = ({
 	toggleShowFilter,
 	filterCount,
 }: DatastoreToolbarProps) => {
-	const offlineMode = useSelector((state) => state.client.offlineMode);
+	const cachedReadOnly = useOfflineMode();
+	const offlineMode =
+		useSelector((state) => state.client.offlineMode) || cachedReadOnly;
 	const classes = useStyles();
 	const { t } = useTranslation();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);

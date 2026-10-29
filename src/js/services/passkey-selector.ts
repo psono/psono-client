@@ -1,5 +1,6 @@
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import vaultLock from "./vault-lock";
 
 type Sender = {
 	tab?: { id?: number; url?: string };
@@ -17,6 +18,13 @@ interface PendingSelection {
 }
 
 const pending = new Map<number, PendingSelection>();
+vaultLock.subscribe(() => {
+	if (!vaultLock.isBlocked()) return;
+	for (const [tabId, selection] of pending) {
+		finish(tabId, selection);
+		selection.reject();
+	}
+});
 
 function finish(tabId: number, selection: PendingSelection): void {
 	if (pending.get(tabId) !== selection) return;

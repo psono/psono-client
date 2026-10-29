@@ -32,9 +32,11 @@ import passkeySelectorService from "./passkey-selector";
 import secretService from "./secret";
 import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
-import { getStore } from "./store";
+import { getStore, isStoreInitialized } from "./store";
 import urlSynonymsService from "./url-synonyms";
 import user from "./user";
+import vaultLock from "./vault-lock";
+import { lockAllSessions } from "./vault-lock";
 
 type Request<E extends string> = MessageRequest<EventData<E>>;
 type Respond<E extends string> = SendResponse<EventResponse<E>>;
@@ -73,6 +75,33 @@ const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
 const CM_AUTOFILL_IDENTITY_ID = "psono-autofill-identity";
 const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
+vaultLock.subscribe(() => {
+	if (!vaultLock.isBlocked()) {
+		setTimeout(refreshOfflineCache, 0);
+		return;
+	}
+	fillpassword = [];
+	fillelstercertificate = [];
+	lastLoginCredentials = undefined as unknown as LoginCredentials;
+	for (const key of Object.keys(gpgMessages)) delete gpgMessages[key];
+	for (const key of Object.keys(entryExtraInfo)) delete entryExtraInfo[key];
+	datastorePasswordLeafIndexInitialized = false;
+	datastorePasswordLeafIndexBuildPromise = undefined;
+	if (clearFillPasswordTimeout) clearTimeout(clearFillPasswordTimeout);
+	if (clearFillElsterCertificateTimeout)
+		clearTimeout(clearFillElsterCertificateTimeout);
+});
+
+function refreshOfflineCache() {
+	if (
+		!isStoreInitialized() ||
+		vaultLock.isBlocked() ||
+		!getStore().getState().user.isLoggedIn
+	)
+		return;
+	offlineCache.incrementalUpdate().catch(() => {});
+}
+
 function activate() {
 	if (typeof browser.runtime.setUninstallURL !== "undefined") {
 		// set url to open if someone uninstalls our extension
@@ -95,6 +124,13 @@ function activate() {
 
 function activateAfterStore() {
 	browserClient.disableBrowserPasswordSaving();
+	setInterval(refreshOfflineCache, 5 * 60 * 1000);
+	refreshOfflineCache();
+	chrome.windows?.onRemoved?.addListener(() => {
+		chrome.windows.getAll({}, (windows) => {
+			if (!windows.length) lockAllSessions();
+		});
+	});
 
 	if (typeof chrome.tabs !== "undefined") {
 		chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -148,7 +184,8 @@ function activateAfterStore() {
 		browser.tabs.onRemoved.addListener((tabId) => {
 			numTabs--;
 			if (numTabs === 0 && !getStore().getState().user.trustDevice) {
-				user.logout();
+				if (vaultLock.getConfiguration()?.enabled) lockAllSessions();
+				else user.logout();
 			}
 		});
 	}
@@ -160,6 +197,7 @@ function activateAfterStore() {
 
 	if (chrome.contextMenus) {
 		chrome.contextMenus.onClicked.addListener((info, tab) => {
+			vaultLock.touch();
 			switch (info.menuItemId) {
 				case CM_DATASTORE_ID:
 					openDatastore();
@@ -511,11 +549,31 @@ function onMessage(
 	sender: MessageSender,
 	sendResponse: SendResponse,
 ) {
+	if (
+		vaultLock.isBlocked() &&
+		![
+			"open-tab",
+			"is-logged-in",
+			"logout",
+			"language-changed",
+			"launch-web-auth-flow-in-background",
+		].includes(request.event)
+	) {
+		sendResponse({ event: "status", data: "locked" });
+		return false;
+	}
+	// Passive content-script traffic must not keep the vault unlocked. Activity
+	// comes from trusted UI DOM events and native menu/omnibox interactions.
 	let responded = false;
+	const requestRevision = vaultLock.getRevision();
 	const respond: SendResponse = (response) => {
 		if (!responded) {
 			responded = true;
-			sendResponse(response);
+			sendResponse(
+				requestRevision === vaultLock.getRevision()
+					? response
+					: { event: "status", data: "locked" },
+			);
 		}
 	};
 	const eventFunctions = {
@@ -547,7 +605,6 @@ function onMessage(
 		"read-gpg": readGpg,
 		"write-gpg": writeGpg,
 		"write-gpg-complete": writeGpgComplete,
-		"set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
 		"launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
 		"language-changed": languageChanged,
 		"clear-clipboard": clearClipboard,
@@ -1522,14 +1579,6 @@ function writeGpgComplete(
  * @param {object} sender The sender of the message
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
-function setOfflineCacheEncryptionKey(
-	request: Request<"set-offline-cache-encryption-key">,
-	sender: MessageSender,
-	sendResponse: SendResponse,
-) {
-	const encryptionKey = request.data.encryption_key;
-	offlineCache.setEncryptionKey(encryptionKey);
-}
 
 /**
  * Triggers the web auth flow in the background of an extension
@@ -1777,6 +1826,7 @@ function onInputChanged(
 	text: string,
 	suggest: (suggestions: chrome.omnibox.SuggestResult[]) => void,
 ) {
+	vaultLock.touch();
 	searchDatastore(text).then(suggest);
 }
 
@@ -1787,6 +1837,7 @@ function onInputChanged(
  * @param {string} text The text entered
  */
 function onInputEntered(text: string) {
+	vaultLock.touch();
 	let toOpen = "";
 
 	try {

@@ -112,3 +112,42 @@ describe("Reducer: server admin recovery key", () => {
 		).toBe("");
 	});
 });
+
+describe("locking server policy", () => {
+	it("accepts server defaults and per-user overrides without weakening them on sparse updates", () => {
+		const defaults = server(undefined, {
+			type: SET_SERVER_INFO,
+			info: {
+				compliance_enforce_locking: true,
+				compliance_max_lock_timeout: 300,
+			},
+		});
+		const user = server(defaults, {
+			type: SET_SERVER_POLICY,
+			policy: { compliance_max_lock_timeout: 60 },
+		});
+		expect(user.complianceEnforceLocking).toBe(true);
+		expect(user.complianceMaxLockTimeout).toBe(60);
+		const sparse = server(user, { type: SET_SERVER_INFO, info: {} });
+		expect(sparse.complianceEnforceLocking).toBe(true);
+		expect(sparse.complianceMaxLockTimeout).toBe(60);
+	});
+	it("clears account policy at logout and allows an explicit server-policy relaxation", () => {
+		const enforced = server(undefined, {
+			type: SET_SERVER_POLICY,
+			policy: {
+				compliance_enforce_locking: true,
+				compliance_max_lock_timeout: 60,
+			},
+		});
+		expect(
+			server(enforced, {
+				type: SET_SERVER_POLICY,
+				policy: { compliance_enforce_locking: false },
+			}).complianceEnforceLocking,
+		).toBe(false);
+		const loggedOut = server(enforced, { type: LOGOUT, rememberMe: true });
+		expect(loggedOut.complianceEnforceLocking).toBe(false);
+		expect(loggedOut.complianceMaxLockTimeout).toBeUndefined();
+	});
+});

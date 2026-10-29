@@ -35,6 +35,51 @@ describe("Service: datastorePasswordService - unavailable data", () => {
 			errors: ["SERVER_OFFLINE"],
 		});
 	});
+
+	it.each([
+		"cache-only",
+		"refresh",
+	] as const)("does not publish a partial display snapshot when a nested share fails (%s)", async (mode) => {
+		jest.spyOn(datastoreService, "getDatastoreForDisplay").mockResolvedValue({
+			datastore_id: "ds",
+			folders: [
+				{
+					id: "outer",
+					share_id: "outer-share",
+					share_secret_key: "outer-key",
+				},
+			],
+		});
+		jest.spyOn(shareService, "readShareRightsOverview").mockResolvedValue({
+			share_rights: [
+				{ share_id: "outer-share", read: true, write: true, grant: false },
+			],
+		});
+		const failure =
+			mode === "cache-only" ? new Error("missing cache") : { status: 403 };
+		const read = jest
+			.spyOn(shareService, "readShare")
+			.mockImplementation(async (id) => {
+				if (id === "outer-share")
+					return {
+						data: {
+							folders: [
+								{
+									id: "nested",
+									share_id: "nested-share",
+									share_secret_key: "nested-key",
+								},
+							],
+						},
+						rights: { read: true, write: true, grant: false },
+					};
+				throw failure;
+			});
+		await expect(
+			datastorePasswordService.getPasswordDatastoreForDisplay("ds", mode),
+		).rejects.toBe(failure);
+		expect(read).toHaveBeenCalledWith("nested-share", "nested-key", mode);
+	});
 });
 
 describe("Service: datastorePasswordService test suite #1", () => {

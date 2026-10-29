@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import type { DialogProps } from "../../../types/dialogs";
 import type { Account } from "../../services/account";
 import accountService from "../../services/account";
+import vaultLock from "../../services/vault-lock";
 import avatarService from "../../services/avatar";
 import { getStore } from "../../services/store";
 import GridContainerErrors from "../grid-container-errors";
@@ -78,12 +79,13 @@ const DialogChangeAccount = ({
 	}, []);
 
 	const loadAccounts = async () => {
-		await accountService.updateInfoCurrent({
-			username: getStore().getState().user.username,
-			isLoggedIn: getStore().getState().user.isLoggedIn,
-			server: getStore().getState().server.url,
-			avatar: (await avatarService.readAvatarCached()) || "",
-		});
+		if (!vaultLock.isLocked())
+			await accountService.updateInfoCurrent({
+				username: getStore().getState().user.username,
+				isLoggedIn: getStore().getState().user.isLoggedIn,
+				server: getStore().getState().server.url,
+				avatar: (await avatarService.readAvatarCached()) || "",
+			});
 
 		const accounts = await accountService.listAccounts();
 		setAccounts(accounts);

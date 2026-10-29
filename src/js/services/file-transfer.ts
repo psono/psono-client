@@ -611,12 +611,7 @@ function filterShards<T extends Shard>(
 function onItemClick(item: { id: string }) {
 	readShards().then((data) => {
 		storage.upsert("file-downloads", { key: "shards", shards: data });
-		browserClient
-			.openTab("download-file.html#!/file/download/" + item.id)
-			.then((window) => {
-				window!.psono_offline_cache_encryption_key =
-					offlineCache.getEncryptionKey();
-			});
+		browserClient.openTab("download-file.html#!/file/download/" + item.id);
 	});
 }
 

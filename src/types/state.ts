@@ -93,6 +93,8 @@ export interface ServerState {
 	complianceDisableLinkShares: boolean | undefined;
 	complianceDisableMultiplePasswordDatastores: boolean;
 	complianceDisableOfflineMode: boolean | undefined;
+	complianceEnforceLocking?: boolean;
+	complianceMaxLockTimeout?: number;
 	complianceMaxOfflineCacheTimeValid: number;
 	complianceDisableShares: boolean | undefined;
 	complianceDisableRecoveryCodes: boolean | undefined;

@@ -4,6 +4,9 @@ import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import type { EntryItem, EntrySecretData } from "../../../types/entry-ui";
 import secretService from "../../services/secret";
+import offlineCache from "../../services/offline-cache";
+import { CACHE_REFRESH_DELAY } from "../../services/offline-cache";
+import { SecretChangedError } from "../../services/secret";
 import DialogEditEntry from "./edit-entry";
 import DialogNewEntry from "./new-entry";
 
@@ -20,12 +23,26 @@ jest.mock("../../services/store", () => ({
 		}),
 	}),
 }));
-jest.mock("../../services/secret", () => ({
-	readSecret: jest.fn(),
-	createSecret: jest.fn(),
-	writeSecret: jest.fn(),
-}));
-jest.mock("../../services/offline-cache", () => ({ isActive: () => false }));
+jest.mock("../../services/secret", () => {
+	const actual = jest.requireActual("../../services/secret");
+	Object.assign(actual.default, {
+		readSecret: jest.fn(),
+		createSecret: jest.fn(),
+		writeSecret: jest.fn(),
+	});
+	return actual;
+});
+jest.mock("../../services/offline-cache", () => {
+	const actual = jest.requireActual("../../services/offline-cache");
+	Object.assign(actual.default, {
+		isActive: jest.fn(() => false),
+		canUse: jest.fn(() => false),
+		markOnline: jest.fn(),
+		markOffline: jest.fn(),
+		releaseCacheDisplay: jest.fn(),
+	});
+	return actual;
+});
 jest.mock("../../services/file-transfer", () => ({
 	...jest.requireActual("../../services/file-transfer").default,
 	readShards: jest.fn().mockResolvedValue([]),
@@ -105,6 +122,8 @@ describe("standalone TOTP domain filters", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		jest.mocked(offlineCache.isActive).mockReturnValue(false);
+		jest.mocked(offlineCache.canUse).mockReturnValue(false);
 		jest.mocked(secretService.createSecret).mockResolvedValue({
 			secret_id: "secret-id",
 			secret_key: "secret-key",
@@ -121,11 +140,14 @@ describe("standalone TOTP domain filters", () => {
 			ReactDOM.unmountComponentAtNode(container);
 		});
 		container.remove();
+		jest.useRealTimers();
 	});
 
 	async function renderEdit(
 		data: EntrySecretData,
 		metadata: Partial<EntryItem> = {},
+		refresh?: Promise<EntrySecretData>,
+		showSecondaryActions = false,
 	) {
 		const item: EntryItem = {
 			id: "entry-id",
@@ -135,7 +157,11 @@ describe("standalone TOTP domain filters", () => {
 			share_rights: { read: true, write: true, grant: false, delete: false },
 			...metadata,
 		};
-		jest.mocked(secretService.readSecret).mockResolvedValue(data);
+		jest
+			.mocked(secretService.readSecret)
+			.mockImplementation(async (_id, _key, mode) =>
+				mode === "refresh" && refresh ? await refresh : data,
+			);
 		await act(async () => {
 			ReactDOM.render(
 				<ThemeProvider theme={theme}>
@@ -146,9 +172,9 @@ describe("standalone TOTP domain filters", () => {
 						onClose={() => {}}
 						onEdit={onEdit}
 						setDirty={setDirty}
-						hideMoreMenu
+						hideMoreMenu={!showSecondaryActions}
 						hideLinkToEntry
-						hideShowHistory
+						hideShowHistory={!showSecondaryActions}
 					/>
 				</ThemeProvider>,
 				container,
@@ -161,6 +187,122 @@ describe("standalone TOTP domain filters", () => {
 		await act(async () => button("SAVE").click());
 		return jest.mocked(secretService.writeSecret).mock.calls[0][2];
 	}
+
+	it("keeps History and More in place while a cached entry is verified", async () => {
+		jest.useFakeTimers();
+		jest.mocked(offlineCache.canUse).mockReturnValue(true);
+		let finish!: (data: EntrySecretData) => void;
+		const cached = { ...secret, write_date: "2026-01-01T00:00:00Z" };
+		await renderEdit(
+			cached,
+			{},
+			new Promise((resolve) => {
+				finish = resolve;
+			}),
+			true,
+		);
+		const history = button("SHOW_HISTORY");
+		const more = container.querySelector<HTMLButtonElement>(
+			'button[aria-label="open more menu"]',
+		)!;
+		expect(history.disabled).toBe(true);
+		expect(more.disabled).toBe(true);
+		await act(async () => {
+			jest.advanceTimersByTime(CACHE_REFRESH_DELAY);
+		});
+		await act(async () => {
+			finish({ ...cached });
+		});
+		expect(button("SHOW_HISTORY")).toBe(history);
+		expect(container.querySelector('button[aria-label="open more menu"]')).toBe(
+			more,
+		);
+		expect(history.disabled).toBe(false);
+		expect(more.disabled).toBe(false);
+	});
+
+	it("keeps History and More visible but disabled when offline", async () => {
+		jest.mocked(offlineCache.isActive).mockReturnValue(true);
+		await renderEdit(secret, {}, undefined, true);
+		expect(button("SHOW_HISTORY").disabled).toBe(true);
+		expect(
+			container.querySelector<HTMLButtonElement>(
+				'button[aria-label="open more menu"]',
+			)!.disabled,
+		).toBe(true);
+	});
+
+	it("renders cached fields immediately, prevents saving during verification, and preserves drafts when the server changed", async () => {
+		jest.useFakeTimers();
+		jest.mocked(offlineCache.canUse).mockReturnValue(true);
+		let finish!: (data: EntrySecretData) => void;
+		const fresh = new Promise<EntrySecretData>((resolve) => {
+			finish = resolve;
+		});
+		await renderEdit(
+			{ ...secret, write_date: "2026-01-01T00:00:00Z" },
+			{},
+			fresh,
+		);
+		expect(input("totpTitle").value).toBe("Example account");
+		expect(button("SAVE").disabled).toBe(true);
+		change("totpTitle", "My unsaved title");
+		await act(async () => {
+			jest.advanceTimersByTime(CACHE_REFRESH_DELAY);
+		});
+		await act(async () => {
+			finish({
+				...secret,
+				totp_title: "Remote title",
+				write_date: "2026-02-01T00:00:00Z",
+			});
+		});
+		expect(input("totpTitle").value).toBe("My unsaved title");
+		expect(container.textContent).toContain("ENTRY_CHANGED_ON_SERVER");
+		expect(button("SAVE").disabled).toBe(true);
+		act(() => button("RELOAD").click());
+		expect(input("totpTitle").value).toBe("Remote title");
+		expect(button("SAVE").disabled).toBe(false);
+	});
+
+	it("keeps unsaved edits when the live response confirms the cached revision", async () => {
+		jest.useFakeTimers();
+		jest.mocked(offlineCache.canUse).mockReturnValue(true);
+		let finish!: (data: EntrySecretData) => void;
+		const cached = { ...secret, write_date: "2026-01-01T00:00:00Z" };
+		await renderEdit(
+			cached,
+			{},
+			new Promise((resolve) => {
+				finish = resolve;
+			}),
+		);
+		change("totpTitle", "My unsaved title");
+		await act(async () => {
+			jest.advanceTimersByTime(CACHE_REFRESH_DELAY);
+		});
+		await act(async () => {
+			finish({ ...cached });
+		});
+		expect(input("totpTitle").value).toBe("My unsaved title");
+		expect(button("SAVE").disabled).toBe(false);
+		expect(container.textContent).not.toContain("ENTRY_CHANGED_ON_SERVER");
+	});
+
+	it("does not change the browsing label when the save preflight detects a newer version", async () => {
+		const item = await renderEdit(secret, { name: "Original label" });
+		change("totpTitle", "Unsaved label");
+		jest
+			.mocked(secretService.writeSecret)
+			.mockRejectedValue(
+				new SecretChangedError({ ...secret, totp_title: "Remote label" }),
+			);
+		await act(async () => button("SAVE").click());
+		expect(item.name).toBe("Original label");
+		expect(input("totpTitle").value).toBe("Unsaved label");
+		expect(onEdit).not.toHaveBeenCalled();
+		expect(container.textContent).toContain("ENTRY_CHANGED_ON_SERVER");
+	});
 
 	it.each([
 		"",

@@ -10,6 +10,7 @@ import helperService from "./helper";
 import secretLinkService from "./secret-link";
 import shareLinkService from "./share-link";
 import { getStore } from "./store";
+import type { CacheMode } from "../../types/cache";
 import type {
 	ChildShare,
 	DataResponse,
@@ -67,11 +68,13 @@ type ShareRightResult = DataResponse<{ share_right_id: string }>;
 function readShare(
 	shareId: string,
 	secretKey: string,
+	mode: CacheMode = "network-first",
 ): Promise<ShareContent | undefined> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
@@ -99,9 +102,11 @@ function readShare(
 		};
 	};
 
-	return apiClient
-		.readShare(token, sessionSecretKey, shareId)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readShare(token, sessionSecretKey, shareId)
+			: apiClient.readShare(token, sessionSecretKey, shareId, mode)
+	).then(onSuccess, onError);
 }
 
 /**
@@ -331,20 +336,23 @@ function readShareRights(shareId: string) {
  *
  * @returns {Promise} Returns a promise with the share rights overview
  */
-function readShareRightsOverview() {
+function readShareRightsOverview(mode: CacheMode = "network-first") {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
 	const onSuccess = (content: DataResponse<ShareRightsOverview>) =>
 		content.data;
 
-	return apiClient
-		.readShareRightsOverview(token, sessionSecretKey)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readShareRightsOverview(token, sessionSecretKey)
+			: apiClient.readShareRightsOverview(token, sessionSecretKey, mode)
+	).then(onSuccess, onError);
 }
 
 /**

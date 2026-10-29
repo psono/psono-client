@@ -2,12 +2,12 @@ import { GlobalStyles } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 import DialogDeviceClaimConsent from "../components/dialogs/claim-device-code";
 import backgroundService from "../services/background";
 import jobSchedulerService from "../services/job-scheduler";
 import statusService from "../services/status";
-import user from "../services/user";
+import user, { isLogoutPage } from "../services/user";
 import AccountView from "./account/index";
 import ActivateView from "./activate";
 import ActivateSuccessfulView from "./activate-successful";
@@ -42,6 +42,8 @@ import TrustedUsersView from "./trusted-users";
 
 const IndexView = (props: object) => {
 	const theme = useTheme();
+	const location = useLocation();
+	const loggingOut = isLogoutPage(location.pathname);
 	const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 	const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
 	const requirePasswordChange = useSelector(
@@ -54,6 +56,7 @@ const IndexView = (props: object) => {
 
 	React.useEffect(() => {
 		document.body.classList.remove("loading");
+		if (loggingOut) return;
 		statusService.getStatus();
 		jobSchedulerService.checkForJobs();
 		if (pathname.endsWith("/background.html")) {
@@ -67,7 +70,9 @@ const IndexView = (props: object) => {
 		}
 	}, [isLoggedIn, deviceCode]);
 
-	if (pathname.endsWith("/activate.html")) {
+	if (loggingOut) {
+		return <LogoutSuccessView {...props} />;
+	} else if (pathname.endsWith("/activate.html")) {
 		return (
 			<Switch>
 				<Route path="/activation-code/:activationCode">
@@ -75,14 +80,6 @@ const IndexView = (props: object) => {
 				</Route>
 				<Route path="/">
 					<ActivateView {...props} />
-				</Route>
-			</Switch>
-		);
-	} else if (pathname.endsWith("/logout-success.html")) {
-		return (
-			<Switch>
-				<Route path="/">
-					<LogoutSuccessView {...props} />
 				</Route>
 			</Switch>
 		);
