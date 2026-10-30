@@ -33,10 +33,6 @@ jest.mock("react-i18next", () => ({
 			)[key] || key,
 	}),
 }));
-jest.mock("../services/device", () => ({
-	__esModule: true,
-	default: { hasTitlebar: () => false },
-}));
 jest.mock("../services/offline-cache", () => {
 	const actual = jest.requireActual("../services/offline-cache");
 	actual.default.incrementalUpdate = jest.fn(async () => {});

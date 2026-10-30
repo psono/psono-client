@@ -17,7 +17,6 @@ import ConfigLogo from "../../components/config-logo";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import GridContainerErrors from "../../components/grid-container-errors";
 import browserClient from "../../services/browser-client";
-import deviceService from "../../services/device";
 import offlineCacheService from "../../services/offline-cache";
 import user from "../../services/user";
 
@@ -44,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	// necessary for content to be below app bar
 	toolbar: {
-		minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
+		minHeight: "50px",
 	},
 	fullContent: {
 		flexGrow: 1,

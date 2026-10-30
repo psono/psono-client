@@ -12,7 +12,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { cacheStatus } from "../services/offline-cache";
-import device from "../services/device";
 import offlineCache from "../services/offline-cache";
 
 export default function CacheStatusIndicator() {
@@ -44,7 +43,7 @@ export default function CacheStatusIndicator() {
 				aria-live="polite"
 				sx={{
 					position: "fixed",
-					top: device.hasTitlebar() ? 40 : 8,
+					top: 8,
 					right: 8,
 					zIndex: (theme) => theme.zIndex.modal + 1,
 				}}

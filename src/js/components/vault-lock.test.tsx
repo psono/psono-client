@@ -70,7 +70,6 @@ jest.mock("./dialogs/change-account", () => ({
 	default: () => null,
 }));
 jest.mock("./config-logo", () => () => null);
-jest.mock("./frame-controls", () => () => null);
 
 const theme = createTheme({
 	palette: {
@@ -450,7 +449,6 @@ describe("vault access gate", () => {
 			"LOGOUT",
 		);
 	});
-
 
 	it("permits vault access when optional locking is disabled", async () => {
 		const view = await render(

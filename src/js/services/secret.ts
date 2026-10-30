@@ -9,7 +9,6 @@ import browserClient from "../services/browser-client";
 import connectionCredentialsService from "../services/connection-credentials";
 import cryptoLibrary from "../services/crypto-library";
 import offlineCache from "../services/offline-cache";
-import deviceService from "./device";
 import notification from "./notification";
 import { getPasskeyUrl } from "./passkey-url";
 import storage from "./storage";
@@ -488,23 +487,9 @@ function onItemClick(item: SecretReference) {
 			item.type,
 		) !== -1
 	) {
-		if (deviceService.isElectron()) {
-			readSecret(item.secret_id, item.secret_key).then((content) => {
-				if (item.type === "website_password") {
-					browserClient.openTab(content.website_password_url!);
-				} else if (item.type === "bookmark") {
-					browserClient.openTab(content.bookmark_url!);
-				} else if (item.type === "passkey") {
-					browserClient.openTab(getPasskeyUrl(content));
-				} else if (item.type === "elster_certificate") {
-					browserClient.openTab("https://www.elster.de/eportal/login/softpse");
-				}
-			});
-		} else {
-			browserClient.openTab(
-				"open-secret.html#!/secret/" + item.type + "/" + item.secret_id,
-			);
-		}
+		browserClient.openTab(
+			"open-secret.html#!/secret/" + item.type + "/" + item.secret_id,
+		);
 	}
 }
 

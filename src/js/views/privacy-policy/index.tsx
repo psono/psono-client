@@ -4,7 +4,6 @@ import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import ConfigLogo from "../../components/config-logo";
-import FrameControls from "../../components/frame-controls";
 
 const useStyles = makeStyles((theme) => ({
 	dark: {
@@ -47,7 +46,6 @@ const PrivacyPolicyView = () => {
 
 	return (
 		<>
-			<FrameControls />
 			<div className={"wrapper"}>
 				<Container className={classes.privacyPolicyBox + " " + classes.dark}>
 					<Button

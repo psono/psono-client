@@ -36,57 +36,12 @@ function getDeviceFingerprint(): string {
 }
 
 /**
- * Returns weather we are supposed to show a title bar
- *
- * @returns {boolean} Is this an electron app
- */
-function hasTitlebar(): boolean | undefined {
-	return isElectron() && (isWindows() || isMac());
-}
-
-/**
- * Returns weather we have an electron app
- *
- * @returns {boolean} Is this an electron app
- */
-function isElectron(): boolean {
-	return TARGET === "electron";
-}
-
-/**
- * Returns weather we have a webclient (no electron app
+ * Returns weather we have a webclient
  *
  * @returns {boolean} Is this a webclient
  */
 function isWebclient(): boolean {
 	return TARGET !== "chrome" && TARGET !== "firefox" && TARGET !== "safari";
-}
-
-/**
- * Returns weather we have a windows machine
- *
- * @returns {boolean} Is this a windows device
- */
-function isWindows(): boolean | undefined {
-	return browserData && /Windows/i.test(browserData.os.name ?? "");
-}
-
-/**
- * Returns weather we have a mac
- *
- * @returns {boolean} Is this a mac device
- */
-function isMac(): boolean | undefined {
-	return browserData && /Mac/i.test(browserData.os.name ?? "");
-}
-
-/**
- * Returns weather we have a linux device
- *
- * @returns {boolean} Is this a linux device
- */
-function isLinux(): boolean | undefined {
-	return browserData && /Linux/i.test(browserData.os.name ?? "");
 }
 
 /**
@@ -166,9 +121,6 @@ function isFirefox(): boolean | undefined {
 
 /** Whether this client supports WebAuthn as a second factor. */
 function supportsWebauthn(): boolean {
-	if (isElectron()) {
-		return false;
-	}
 	// Firefox exposed the API on websites long before extension support arrived.
 	return TARGET !== "firefox" || Number(browserData?.browser.major) >= 150;
 }
@@ -203,12 +155,7 @@ function getDeviceDescription(): string {
 
 const deviceService = {
 	getDeviceFingerprint: getDeviceFingerprint,
-	hasTitlebar: hasTitlebar,
-	isElectron: isElectron,
 	isWebclient: isWebclient,
-	isWindows: isWindows,
-	isLinux: isLinux,
-	isMac: isMac,
 	isMobileAndroid: isMobileAndroid,
 	isMobileIos: isMobileIos,
 	isMobile: isMobile,

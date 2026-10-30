@@ -25,7 +25,6 @@ import offlineCache from "../services/offline-cache";
 import DialogChangeAccount from "./dialogs/change-account";
 import ConfigLogo from "./config-logo";
 import DarkBox from "./dark-box";
-import FrameControls from "./frame-controls";
 import AuthenticationInTab from "./authentication-in-tab";
 import { normalizeTimeoutAction } from "../../types/locking";
 import type { TimeoutAction } from "../../types/locking";
@@ -437,7 +436,6 @@ export function VaultGate({ children }: { children: React.ReactNode }) {
 					})}
 				/>
 			)}
-			<FrameControls />
 			<DarkBox className={popup ? classes.popupBox : classes.box}>
 				<ConfigLogo configKey="logo" defaultLogo="img/logo.png" height="100%" />
 				<a

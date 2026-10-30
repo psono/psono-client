@@ -85,11 +85,3 @@ a {
 /* classes for error handling */
 .form-group.has-error .help-block {
   display: block; }
-
-.drag {
-  -webkit-user-select: none;
-  -webkit-app-region: drag;
-}
-.nodrag {
-  -webkit-app-region: no-drag;
-}

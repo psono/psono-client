@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import type { SsoRouteParams } from "../../../types/auth-ui";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
-import FrameControls from "../../components/frame-controls";
 import DeleteUserViewForm from "./delete-user-form";
 
 const useStyles = makeStyles((theme) => ({
@@ -27,7 +26,6 @@ const DeleteUserView = () => {
 	const { samlTokenId, oidcTokenId } = useParams<SsoRouteParams>();
 	return (
 		<>
-			<FrameControls />
 			<DarkBox className={classes.box}>
 				<ConfigLogo
 					configKey={"logo"}

@@ -45,7 +45,6 @@ import { getStore } from "../services/store";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 import ConfigLogo from "./config-logo";
 import DialogChangeAccount from "./dialogs/change-account";
-import FrameControls from "./frame-controls";
 import type { MobileNavigationProps } from "../../types/components";
 import type { DatastoreOverviewEntry } from "../../types/datastore";
 
@@ -265,7 +264,6 @@ const Topbar = (props: TopbarProps) => {
 				settingsDatastore.noSaveMode ? classes.appBarReadOnly : classes.appBar
 			}
 		>
-			<FrameControls />
 			<Container maxWidth="lg">
 				<Toolbar disableGutters={true} className={classes.toolbar}>
 					<IconButton

@@ -24,7 +24,6 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import browserClient from "../services/browser-client";
-import deviceService from "../services/device";
 import { getStore } from "../services/store";
 import RuleIcon from "./icons/Rule";
 import LockCountdown from "./lock-countdown";
@@ -45,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 		backgroundColor: theme.palette.blueBackground.main,
 	},
 	toolbar: {
-		minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
+		minHeight: "50px",
 	},
 	drawerPaper: {
 		width: drawerWidth,

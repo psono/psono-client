@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import type { LoginViewProps, SsoRouteParams } from "../../../types/auth-ui";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
-import FrameControls from "../../components/frame-controls";
 import LoginForm from "./login-form";
 import AuthenticationInTab from "../../components/authentication-in-tab";
 
@@ -37,7 +36,6 @@ const LoginView = ({ fullWidth = false }: LoginViewProps) => {
 
 	return (
 		<>
-			<FrameControls />
 			<DarkBox className={fullWidth ? classes.popupBox : classes.box}>
 				<ConfigLogo
 					configKey={"logo"}

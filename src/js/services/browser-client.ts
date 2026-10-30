@@ -200,8 +200,6 @@ function getClientType(url?: string) {
 		return "firefox_extension";
 	} else if (TARGET === "chrome") {
 		return "chrome_extension";
-	} else if (TARGET === "electron") {
-		return "electron";
 	} else {
 		return "webclient";
 	}
@@ -253,8 +251,6 @@ function getSamlReturnToUrl(state?: string) {
 	} else if (TARGET === "chrome") {
 		return "https://psono.com/redirect#!/saml/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
-	} else if (TARGET === "electron") {
-		return "https://psono.com/redirect#!/saml/token/";
 	} else {
 		return (
 			new URL("index.html", window.location.href).href +
@@ -278,8 +274,6 @@ function getOidcReturnToUrl(state?: string) {
 	} else if (TARGET === "chrome") {
 		return "https://psono.com/redirect#!/oidc/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
-	} else if (TARGET === "electron") {
-		return "https://psono.com/redirect#!/oidc/token/";
 	} else {
 		return (
 			new URL("index.html", window.location.href).href +
@@ -740,21 +734,6 @@ function _loadConfig(): Promise<ClientConfiguration> {
 						onStorageRetrieve,
 					);
 				}
-			};
-		} else if (TARGET === "electron") {
-			onSuccess = async (origJsonConfig) => {
-				let newConfig = origJsonConfig.data;
-				const electronsConfigJson = await window.electronAPI.getConfigJson();
-				if (electronsConfigJson) {
-					try {
-						newConfig = JSON.parse(
-							electronsConfigJson,
-						) as Partial<ClientConfiguration>;
-					} catch (e) {
-						// pass
-					}
-				}
-				return resolve(standardizeConfig(newConfig, "https://www.psono.pw/"));
 			};
 		} else {
 			onSuccess = (origJsonConfig) => {
@@ -1225,10 +1204,6 @@ function notify(content: string) {
 				message: "",
 				iconUrl: "/data/img/icon-32.png",
 			});
-		});
-	} else if (TARGET === "electron") {
-		new Notification(content, {
-			silent: true,
 		});
 	} else {
 		const options = { silent: true };
