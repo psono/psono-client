@@ -2,6 +2,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import LinkIcon from "@mui/icons-material/Link";
 import OpenWithIcon from "@mui/icons-material/OpenWith";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -24,6 +25,7 @@ import type {
 } from "../../../types/datastore-ui";
 
 import folderColorService from "../../services/folder-color";
+import datastorePasswordService from "../../services/datastore-password";
 import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
@@ -183,6 +185,11 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 		props.onShare!(content, content.path, props.nodePath);
 	};
 
+	const onLinkEntry = (event: React.MouseEvent) => {
+		handleClose(event);
+		props.onLinkEntry!(content, content.path, props.nodePath);
+	};
+
 	const onNewEntry = (event: React.MouseEvent) => {
 		handleClose(event);
 		props.onNewEntry!(content, content.path);
@@ -255,6 +262,10 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 		(Object.hasOwn(content, "share_rights") &&
 			content.share_rights!.write === false) ||
 		!props.onNewUser;
+	const hideLinkEntry =
+		offline ||
+		!props.onLinkEntry ||
+		!datastorePasswordService.canLinkEntry(content);
 	const hideMove =
 		offline ||
 		(Object.hasOwn(content, "share_rights") &&
@@ -271,6 +282,7 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 		hideNewFolder &&
 		hideNewEntry &&
 		hideNewUser &&
+		hideLinkEntry &&
 		hideMove &&
 		hideDelete;
 
@@ -422,6 +434,16 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 								</Typography>
 							</MenuItem>
 						)}
+						{!hideLinkEntry && (
+							<MenuItem onClick={onLinkEntry}>
+								<ListItemIcon className={classes.listItemIcon}>
+									<LinkIcon className={classes.icon} fontSize="small" />
+								</ListItemIcon>
+								<Typography variant="body2" noWrap>
+									{t("ADD_TO_ANOTHER_FOLDER")}
+								</Typography>
+							</MenuItem>
+						)}
 						{!hideMove && (
 							<MenuItem onClick={onMoveFolder}>
 								<ListItemIcon className={classes.listItemIcon}>
@@ -515,6 +537,16 @@ const DatastoreTreeFolder = (props: DatastoreTreeFolderProps) => {
 							</ListItemIcon>
 							<Typography variant="body2" noWrap>
 								{t("SEARCH_USER")}
+							</Typography>
+						</MenuItem>
+					)}
+					{!hideLinkEntry && (
+						<MenuItem onClick={onLinkEntry}>
+							<ListItemIcon className={classes.listItemIcon}>
+								<LinkIcon className={classes.icon} fontSize="small" />
+							</ListItemIcon>
+							<Typography variant="body2" noWrap>
+								{t("ADD_TO_ANOTHER_FOLDER")}
 							</Typography>
 						</MenuItem>
 					)}

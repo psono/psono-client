@@ -2,11 +2,7 @@ import { makeStyles } from "@mui/styles";
 import cx from "classnames";
 import React from "react";
 import type { ListChildComponentProps } from "react-window";
-import type {
-	Datastore,
-	DatastoreItem,
-	DatastorePath,
-} from "../../../types/datastore";
+import type { Datastore } from "../../../types/datastore";
 import type {
 	DatastoreTreeListData,
 	DatastoreNodePath,
@@ -64,33 +60,18 @@ const DatastoreTreeVirtualElement = ({
 	// Keep undefined < length false for the first row, as in the JS comparison.
 	const isFirstInFolder = items[index - 1]?.path?.length! < content.path.length;
 
-	function getNodePathById(
-		id: string,
-		path: DatastorePath,
-		datastore: Datastore,
-		nodePath: DatastoreNodePath,
-		index = -1,
-	): DatastoreNodePath {
-		if (path[index] && path[index] === datastore.id) {
-			nodePath.push(datastore as DatastoreItem);
-		}
-
-		if (datastore.folders) {
-			datastore.folders.forEach((item) =>
-				getNodePathById(id, path, item, nodePath, index + 1),
-			);
-		}
-
-		if (datastore.items) {
-			datastore.items.forEach((item) =>
-				getNodePathById(id, path, item, nodePath, index + 1),
-			);
-		}
-
-		return nodePath;
+	// Descendant IDs are shared between folder aliases. Follow the complete
+	// location path instead of collecting matching IDs from unrelated branches.
+	const nodePath: DatastoreNodePath = [];
+	let parent: Datastore = datastore;
+	for (const id of content.path) {
+		const node =
+			parent.folders?.find((folder) => folder.id === id) ||
+			parent.items?.find((item) => item.id === id);
+		if (!node) break;
+		nodePath.push(node);
+		parent = node;
 	}
-
-	const nodePath = getNodePathById(content.id, content.path, datastore, [], -1);
 
 	return (
 		<div className={classes.virtualizedElement} style={style}>
@@ -107,6 +88,7 @@ const DatastoreTreeVirtualElement = ({
 			<div style={{ flex: 1, minWidth: 0 }}>
 				{content.is_folder ? (
 					<DatastoreTreeFolder
+						onLinkEntry={props.onLinkEntry}
 						isSelectable={props.isSelectable}
 						hideItems={props.hideItems}
 						onSelectItem={props.onSelectItem}
@@ -137,6 +119,7 @@ const DatastoreTreeVirtualElement = ({
 					/>
 				) : (
 					<DatastoreTreeItem
+						onLinkEntry={props.onLinkEntry}
 						isSelectable={props.isSelectable}
 						onSelectItem={props.onSelectItem}
 						isSelected={props.isSelected}

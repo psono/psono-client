@@ -212,6 +212,10 @@ const DatastoreView = (
 	>({});
 
 	const [moveEntryData, setMoveEntryData] = useState<DatastoreSelection[]>([]);
+	const [linkEntryData, setLinkEntryData] = useState<DatastoreSelection | null>(
+		null,
+	);
+	const [linkEntrySubmitting, setLinkEntrySubmitting] = useState(false);
 	const [moveFolderData, setMoveFolderData] = useState<DatastoreSelection[]>(
 		[],
 	);
@@ -655,6 +659,27 @@ const DatastoreView = (
 		loadDatastore();
 	};
 
+	const onLinkEntry = (item: DatastoreItem, path: DatastorePath) => {
+		setLinkEntryData({ item, path });
+	};
+
+	const onSelectNodeForLinkEntry = async (breadcrumbs: FolderSelection) => {
+		if (!linkEntryData || linkEntrySubmitting) return;
+		setLinkEntrySubmitting(true);
+		try {
+			await persistDatastoreChange(
+				() =>
+					datastorePasswordService.linkEntry(
+						linkEntryData.path,
+						breadcrumbs.id_breadcrumbs,
+					),
+				() => setLinkEntryData(null),
+			);
+		} finally {
+			setLinkEntrySubmitting(false);
+		}
+	};
+
 	const onDeleteEntry = async (item: DatastoreItem, path: DatastorePath) => {
 		await widget.markItemAsDeleted(datastore!, path, "password");
 		forceUpdate();
@@ -976,6 +1001,7 @@ const DatastoreView = (
 												onShare={onShare}
 												onEditEntry={onEditEntry}
 												onCloneEntry={onCloneEntry}
+												onLinkEntry={onLinkEntry}
 												onDeleteEntry={onDeleteEntry}
 												onEditFolder={onEditFolder}
 												onDeleteFolder={onDeleteFolder}
@@ -1092,6 +1118,28 @@ const DatastoreView = (
 									onClose={() => setRightsOverviewOpen(false)}
 									item={rightsOverviewData.item!}
 									path={rightsOverviewData.path!}
+								/>
+							)}
+							{linkEntryData && (
+								<DialogSelectFolder
+									open={true}
+									onClose={() => {
+										if (!linkEntrySubmitting) setLinkEntryData(null);
+									}}
+									title={t("CHOOSE_DESTINATION_FOLDER")}
+									description={t(
+										linkEntryData.item.type
+											? "ADD_ENTRY_TO_ANOTHER_FOLDER_DESCRIPTION"
+											: "ADD_FOLDER_TO_ANOTHER_FOLDER_DESCRIPTION",
+									)}
+									onSelectNode={onSelectNodeForLinkEntry}
+									isSelectable={(folder) =>
+										datastorePasswordService.canLinkEntryToFolder(
+											linkEntryData.item,
+											folder,
+										)
+									}
+									submitting={linkEntrySubmitting}
 								/>
 							)}
 							{moveEntryData.length > 0 && (
