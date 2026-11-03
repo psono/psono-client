@@ -628,7 +628,7 @@ function copyUrl(item: SecretReference) {
  * @param {object} item The item of which we want to load the TOTP token into our clipboard
  */
 function copyTotpToken(item: SecretReference) {
-	browserClient.copyToClipboard(() =>
+	const copyPromise = browserClient.copyToClipboard(() =>
 		readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => {
 			let totpPeriod, totpAlgorithm, totpDigits, totpCode;
 			if (item["type"] === "website_password") {
@@ -665,7 +665,21 @@ function copyTotpToken(item: SecretReference) {
 			);
 		}),
 	);
-	notification.push("totp_token_copy", i18n.t("TOTP_TOKEN_COPY_NOTIFICATION"));
+	return copyPromise.then(
+		() =>
+			notification.push(
+				"totp_token_copy",
+				i18n.t("TOTP_TOKEN_COPY_NOTIFICATION"),
+			),
+		(error) =>
+			notification.errorSend(
+				i18n.t(
+					error?.errors?.includes("SERVER_OFFLINE")
+						? "SERVER_OFFLINE"
+						: "BROKEN_REFERENCE",
+				),
+			),
+	);
 }
 
 /**

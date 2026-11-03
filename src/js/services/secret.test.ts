@@ -1,6 +1,8 @@
 import secretService from "./secret";
 import apiClient from "./api-client";
+import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import notification from "./notification";
 import rootReducer from "../reducers";
 import * as storeService from "./store";
 import type { SecretContent } from "../../types/vault";
@@ -147,5 +149,49 @@ describe("password modification timestamps in encrypted secrets", () => {
 			),
 		).rejects.toEqual({ errors: ["SERVER_OFFLINE"] });
 		expect(apiClient.writeSecret).not.toHaveBeenCalled();
+	});
+});
+
+describe("copyTotpToken notifications", () => {
+	const item = {
+		type: "totp",
+		secret_id: "secret",
+		secret_key: "key",
+	} as Parameters<typeof secretService.copyTotpToken>[0];
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("notifies only after the code was copied", async () => {
+		const push = jest.spyOn(notification, "push").mockImplementation(() => {});
+		let finishCopy: () => void = () => {};
+		jest.spyOn(browserClient, "copyToClipboard").mockReturnValue(
+			new Promise<void>((resolve) => {
+				finishCopy = resolve;
+			}),
+		);
+
+		const result = secretService.copyTotpToken(item);
+		expect(push).not.toHaveBeenCalled();
+		finishCopy();
+		await result;
+
+		expect(push).toHaveBeenCalledWith("totp_token_copy", expect.any(String));
+	});
+
+	it("reports an error if the code could not be copied", async () => {
+		const push = jest.spyOn(notification, "push").mockImplementation(() => {});
+		const errorSend = jest
+			.spyOn(notification, "errorSend")
+			.mockImplementation(() => {});
+		jest
+			.spyOn(browserClient, "copyToClipboard")
+			.mockRejectedValue({ errors: ["SERVER_OFFLINE"] });
+
+		await secretService.copyTotpToken(item);
+
+		expect(push).not.toHaveBeenCalled();
+		expect(errorSend).toHaveBeenCalledTimes(1);
 	});
 });
