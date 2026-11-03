@@ -2,8 +2,10 @@
  * managerAPIKeys collects all functions to edit / update / create api keys and to work with them.
  */
 
+import i18n from "../i18n";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
+import notification from "./notification";
 import { getStore } from "./store";
 import type {
 	ApiKey,
@@ -125,30 +127,70 @@ function addSecretToApiKey(
 }
 
 /**
+ * True if the server refused a secret because it already is part of the api key (e.g. after a
+ * request whose answer got lost), which is as good as added.
+ */
+function isAlreadyAdded(error: unknown): boolean {
+	return JSON.stringify(error ?? "").includes("API_KEY_SECRET_ALREADY_EXIST");
+}
+
+/**
  * Adds multiple secrets to an api key
  *
  * @param {uuid} apiKeyId The id of the api key
  * @param {string} apiKeySecretKey The symmetric secret assiciated with the api key
  * @param {array} secrets The array of secrets to add to the api key
+ * @param {function} [onProgress] Called after every batch with the number of secrets handled and the total
  *
- * @returns {Promise} Promise with the new id
+ * @returns {Promise} Promise with the secrets that could not be added (the user is told about them)
  */
 async function addSecretsToApiKey(
 	apiKeyId: string,
 	apiKeySecretKey: string,
 	secrets: NamedSecretReference[],
+	onProgress?: (done: number, total: number) => void,
 ) {
+	// A secret can be selected more than once (it can sit in several folders): add it only once.
+	const seen = new Set<string>();
+	let pending = secrets.filter(
+		(secret) => !seen.has(secret.secret_id) && seen.add(secret.secret_id),
+	);
+	const total = pending.length;
+
 	// Send them in small batches. Every request is stamped when it is created and the server
 	// rejects (and logs out) requests that are older than a few seconds, so too many requests
 	// created at once would fail as soon as the browser queue gets long.
+	// One failed request must not stop the others: the failed ones are tried again a few times.
 	const batchSize = 10;
-	for (let i = 0; i < secrets.length; i += batchSize) {
-		await Promise.all(
-			secrets
-				.slice(i, i + batchSize)
-				.map((secret) => addSecretToApiKey(apiKeyId, apiKeySecretKey, secret)),
+	for (let attempt = 0; attempt < 3 && pending.length > 0; attempt++) {
+		if (attempt > 0) {
+			await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+		}
+		const failed: NamedSecretReference[] = [];
+		for (let i = 0; i < pending.length; i += batchSize) {
+			const batch = pending.slice(i, i + batchSize);
+			const results = await Promise.allSettled(
+				batch.map((secret) =>
+					addSecretToApiKey(apiKeyId, apiKeySecretKey, secret),
+				),
+			);
+			results.forEach((result, index) => {
+				if (result.status === "rejected" && !isAlreadyAdded(result.reason)) {
+					failed.push(batch[index]!);
+				}
+			});
+			if (attempt === 0) onProgress?.(i + batch.length, total);
+		}
+		pending = failed;
+	}
+	onProgress?.(total, total);
+
+	if (pending.length > 0) {
+		notification.errorSend(
+			i18n.t("API_KEY_SECRETS_NOT_ADDED", { count: pending.length }),
 		);
 	}
+	return pending;
 }
 
 /**
@@ -164,6 +206,7 @@ async function addSecretsToApiKey(
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  * @param {array} secrets Array of secrets
+ * @param {function} [onProgress] Called while the secrets are added with the number handled and the total
  *
  * @returns {Promise} Promise with the new id
  */
@@ -178,6 +221,7 @@ function createApiKey(
 	allowReadAccess: boolean,
 	allowWriteAccess: boolean,
 	secrets: NamedSecretReference[],
+	onProgress?: (done: number, total: number) => void,
 ) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
@@ -206,7 +250,12 @@ function createApiKey(
 
 	const onSuccess = (result: { data: { api_key_id: string } }) => {
 		const apiKeyId = result.data["api_key_id"];
-		return addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets).then(() => ({
+		return addSecretsToApiKey(
+			apiKeyId,
+			apiKeySecretKey,
+			secrets,
+			onProgress,
+		).then(() => ({
 			api_key_id: apiKeyId,
 		}));
 	};

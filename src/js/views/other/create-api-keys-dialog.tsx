@@ -20,6 +20,7 @@ import type {
 	SelectedApiKeySecret,
 } from "../../../types/management-ui";
 import type { TableColumn, TableOptions } from "../../../types/table";
+import DialogProgress from "../../components/dialogs/progress";
 import DialogSelectSecret from "../../components/dialogs/select-secret";
 import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
@@ -61,17 +62,22 @@ const CreateApiKeysDialog = (props: ManagementDialogProps) => {
 	const [rightToRead, setRightToRead] = useState(true);
 	const [rightToWrite, setRightToWrite] = useState(false);
 	const [addSecretOpen, setAddSecretOpen] = useState(false);
+	const [progress, setProgress] = useState<number | null>(null);
 	const [secrets, setSecrets] = useState<CreateApiKeySecretRow[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 
 	const create = () => {
 		const onError = () => {
-			// pass
+			setProgress(null);
 		};
 
 		const onSuccess = () => {
+			setProgress(null);
 			onClose();
 		};
+
+		// Adding many secrets takes a while: show how far it is.
+		if (secrets.length > 0) setProgress(0);
 
 		return apiKey
 			.createApiKey(
@@ -91,6 +97,7 @@ const CreateApiKeysDialog = (props: ManagementDialogProps) => {
 						secret_key: secret[3],
 					};
 				}),
+				(done, total) => setProgress(Math.round((done * 100) / total)),
 			)
 			.then(onSuccess, onError);
 	};
@@ -350,6 +357,10 @@ const CreateApiKeysDialog = (props: ManagementDialogProps) => {
 					{t("CREATE")}
 				</Button>
 			</DialogActions>
+			<DialogProgress
+				open={progress !== null}
+				percentageComplete={progress ?? 0}
+			/>
 			{addSecretOpen && (
 				<DialogSelectSecret
 					open={addSecretOpen}

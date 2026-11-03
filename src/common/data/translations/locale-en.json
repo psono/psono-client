@@ -544,6 +544,7 @@
 	"DELETE_FOLDER_PERMANENT_WARNING": "You are about to delete the folder and all its content. This action cannot be reversed. Are you sure?",
 	"CHOOSE_SECRET": "Choose secret",
 	"ADD_SECRET_TO_API_KEY": "Add secret to API key",
+	"API_KEY_SECRETS_NOT_ADDED": "{{count}} secret(s) could not be added to the API key. Edit the API key to see which ones are missing and add them again.",
 	"DELETE_API_KEY": "Delete API Key",
 	"DELETE_API_KEY_WARNING": "You are about to delete an API key. All people and applications using this API key will lose access. Are you sure?",
 	"LEAVE_GROUP": "Leave Group",
