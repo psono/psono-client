@@ -38,11 +38,10 @@ describe("Service: browser client test suite", () => {
 
 		expect(create).toHaveBeenCalledWith(
 			{ url: expectedUrl },
-			expect.any(Function)
+			expect.any(Function),
 		);
 		expect(open).not.toHaveBeenCalled();
 	});
-
 
 	afterEach(() => {
 		jest.restoreAllMocks();
@@ -280,5 +279,90 @@ describe("Service: browser client test suite", () => {
 		).not.toThrow();
 		expect(() => browserClient.notify("test")).not.toThrow();
 		expect(infoSend).toHaveBeenCalledWith("test");
+	});
+
+	describe("writeToClipboard", () => {
+		let write: jest.Mock;
+		let writeText: jest.Mock;
+		let hasFocus: jest.SpyInstance;
+		let clipboardItems: Array<Record<string, Promise<Blob>>>;
+		const originalClipboardItem = (globalThis as { ClipboardItem?: unknown })
+			.ClipboardItem;
+
+		beforeEach(() => {
+			jest.spyOn(device, "isSafari").mockReturnValue(false);
+			hasFocus = jest.spyOn(document, "hasFocus").mockReturnValue(true);
+			write = jest.fn().mockResolvedValue(undefined);
+			writeText = jest.fn().mockResolvedValue(undefined);
+			Object.defineProperty(navigator, "clipboard", {
+				value: { write, writeText },
+				configurable: true,
+			});
+			clipboardItems = [];
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem = class {
+				constructor(items: Record<string, Promise<Blob>>) {
+					clipboardItems.push(items);
+				}
+			};
+		});
+
+		afterEach(() => {
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem =
+				originalClipboardItem;
+		});
+
+		it("hands the pending content to the browser while the popup has focus", async () => {
+			let resolveContent: (content: string) => void = () => {};
+			const pending = new Promise<string>((resolve) => {
+				resolveContent = resolve;
+			});
+
+			const result = browserClient.writeToClipboard(() => pending);
+
+			expect(write).toHaveBeenCalledTimes(1);
+			// the focus may be lost before the content arrives, the write was already handed over
+			hasFocus.mockReturnValue(false);
+			resolveContent("secret");
+			await result;
+			const blob = await clipboardItems[0]["text/plain"];
+			expect(blob.type).toBe("text/plain");
+			expect(blob.size).toBe("secret".length);
+			expect(writeText).not.toHaveBeenCalled();
+		});
+
+		it("falls back to writeText if the browser rejects the clipboard item", async () => {
+			write.mockRejectedValue(new Error("NotAllowedError"));
+
+			await browserClient.writeToClipboard(() => Promise.resolve("secret"));
+
+			expect(writeText).toHaveBeenCalledWith("secret");
+		});
+
+		it("still skips the write if the popup has no focus when copying", async () => {
+			hasFocus.mockReturnValue(false);
+
+			await browserClient.writeToClipboard(() => Promise.resolve("secret"));
+
+			expect(write).not.toHaveBeenCalled();
+			expect(writeText).not.toHaveBeenCalled();
+		});
+
+		it("rejects if the content cannot be loaded", async () => {
+			const error = { errors: ["SERVER_OFFLINE"] };
+			write.mockImplementation(async ([item]) => {
+				await (item as unknown as { items: Promise<Blob> }).items;
+			});
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem = class {
+				items: Promise<Blob>;
+				constructor(items: Record<string, Promise<Blob>>) {
+					this.items = items["text/plain"];
+				}
+			};
+
+			await expect(
+				browserClient.writeToClipboard(() => Promise.reject(error)),
+			).rejects.toBe(error);
+			expect(writeText).not.toHaveBeenCalled();
+		});
 	});
 });

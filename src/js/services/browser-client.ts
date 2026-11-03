@@ -1095,20 +1095,40 @@ function writeToClipboard(fetchContent: () => Promise<string>): Promise<void> {
 		]);
 	} else {
 		// Firefox & Chrome and everything else
-		return fetchContent().then((content) => {
-			try {
-				// Check if document is focused before attempting clipboard write
-				if (!document.hasFocus()) {
-					return Promise.resolve();
+		const contentPromise = fetchContent();
+		const writeWhenReady = () =>
+			contentPromise.then((content) => {
+				try {
+					// Check if document is focused before attempting clipboard write
+					if (!document.hasFocus()) {
+						return Promise.resolve();
+					}
+					return navigator.clipboard.writeText(content).catch((error) => {
+						console.log("Cannot write to clipboard:", error.message);
+						return Promise.resolve();
+					});
+				} catch (error) {
+					console.log(error);
 				}
-				return navigator.clipboard.writeText(content).catch((error) => {
-					console.log("Cannot write to clipboard:", error.message);
-					return Promise.resolve();
-				});
-			} catch (error) {
-				console.log(error);
-			}
-		});
+			});
+		// While the popup has focus (the user just clicked) hand the pending content to the browser as a promise.
+		// It is written as soon as it arrives, even if the user has switched to another window in the meantime.
+		if (
+			document.hasFocus() &&
+			typeof ClipboardItem !== "undefined" &&
+			navigator.clipboard.write
+		) {
+			return navigator.clipboard
+				.write([
+					new ClipboardItem({
+						"text/plain": contentPromise.then(
+							(content) => new Blob([content], { type: "text/plain" }),
+						),
+					}),
+				])
+				.catch(writeWhenReady);
+		}
+		return writeWhenReady();
 	}
 }
 
