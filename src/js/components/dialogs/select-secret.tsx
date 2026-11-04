@@ -81,20 +81,6 @@ const DialogSelectSecret = (props: DialogSelectSecretProps) => {
 		setDatastore(data);
 	};
 
-	const isSelected = (item: DatastoreItem) => {
-		return Object.hasOwn(selected, item.id);
-	};
-
-	const onSelectItem = (item: DatastoreItem) => {
-		const newSelected = { ...selected };
-		if (isSelected(item)) {
-			delete newSelected[item.id];
-		} else {
-			newSelected[item.id] = item;
-		}
-		setSelected(newSelected);
-	};
-
 	// folders can be selected too, so add everything inside of them (entries, sub folders and their entries)
 	const gatherSecrets = (
 		nodes: (DatastoreItem | DatastoreFolder)[],
@@ -111,6 +97,34 @@ const DialogSelectSecret = (props: DialogSelectSecretProps) => {
 			gatherSecrets(node.folders || [], secrets);
 		});
 		return secrets;
+	};
+
+	// Only entries are kept in "selected" (by secret id, so an entry that sits in several folders
+	// is one selection). A folder counts as selected when everything inside of it is, so checking a
+	// folder checks its sub folders and entries, and unchecking one entry unchecks the folder.
+	const secretsOf = (node: DatastoreItem | DatastoreFolder) =>
+		Object.values(gatherSecrets([node]));
+
+	const isSelected = (node: DatastoreItem) => {
+		const secrets = secretsOf(node);
+		return (
+			secrets.length > 0 &&
+			secrets.every((secret) => Object.hasOwn(selected, secret.secret_id!))
+		);
+	};
+
+	const onSelectItem = (node: DatastoreItem) => {
+		const secrets = secretsOf(node);
+		const newSelected = { ...selected };
+		const unselect = isSelected(node);
+		secrets.forEach((secret) => {
+			if (unselect) {
+				delete newSelected[secret.secret_id!];
+			} else {
+				newSelected[secret.secret_id!] = secret;
+			}
+		});
+		setSelected(newSelected);
 	};
 
 	return (
@@ -164,9 +178,7 @@ const DialogSelectSecret = (props: DialogSelectSecretProps) => {
 				</Button>
 				<Button
 					onClick={() => {
-						onSelectItems(
-							Object.values(gatherSecrets(Object.values(selected))),
-						);
+						onSelectItems(Object.values(selected));
 					}}
 					variant="contained"
 					color="primary"

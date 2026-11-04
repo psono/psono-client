@@ -28,6 +28,7 @@ import type {
 	SelectedApiKeySecret,
 } from "../../../types/management-ui";
 import type { TableColumn, TableOptions } from "../../../types/table";
+import DialogProgress from "../../components/dialogs/progress";
 import DialogSelectSecret from "../../components/dialogs/select-secret";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TabPanel from "../../components/tab-panel";
@@ -77,6 +78,7 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 	const serverVerifyKey = useSelector((state) => state.server.verifyKey);
 	const [value, setValue] = React.useState(0);
 	const [addSecretOpen, setAddSecretOpen] = useState(false);
+	const [progress, setProgress] = useState<number | null>(null);
 	const [title, setTitle] = useState("");
 	const [apiKeyPrivateKey, setApiKeyPrivateKey] = useState("");
 	const [apiKeySecretKey, setApiKeySecretKey] = useState("");
@@ -167,17 +169,21 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 
 	const onAddSecret = (items: Datastore[]) => {
 		setAddSecretOpen(false);
-		const newSecrets = [...secrets];
-		items.forEach((selectedItem) => {
-			const item = selectedItem as SelectedApiKeySecret;
-			newSecrets.push([item.id, item.name, item.secret_id]);
-		});
-		setSecrets(newSecrets);
-		apiKeysService.addSecretsToApiKey(
-			apiKeyId,
-			apiKeySecretKey,
-			items as SelectedApiKeySecret[],
+		// Secrets that already are part of the key are not added again, and the list is read from the
+		// server afterwards, so that it shows what the key really contains.
+		const present = new Set(secrets.map((secret) => secret[2]));
+		const toAdd = (items as SelectedApiKeySecret[]).filter(
+			(item) => !present.has(item.secret_id),
 		);
+		if (toAdd.length === 0) {
+			// nothing new: no requests and no progress window
+			return;
+		}
+		setProgress(0);
+		apiKeysService
+			.addSecretsToApiKey(apiKeyId, apiKeySecretKey, toAdd, setProgress)
+			.finally(() => setProgress(null))
+			.then(loadApiKeySecrets);
 	};
 
 	const deleteSecret = (secretId: string) => {
@@ -646,6 +652,10 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 					{t("SAVE")}
 				</Button>
 			</DialogActions>
+			<DialogProgress
+				open={progress !== null}
+				percentageComplete={progress ?? 0}
+			/>
 			{addSecretOpen && (
 				<DialogSelectSecret
 					open={addSecretOpen}
