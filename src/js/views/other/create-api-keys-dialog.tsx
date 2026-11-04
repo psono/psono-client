@@ -97,7 +97,7 @@ const CreateApiKeysDialog = (props: ManagementDialogProps) => {
 						secret_key: secret[3],
 					};
 				}),
-				(done, total) => setProgress(Math.round((done * 100) / total)),
+				setProgress,
 			)
 			.then(onSuccess, onError);
 	};

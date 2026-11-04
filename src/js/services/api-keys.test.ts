@@ -153,7 +153,7 @@ describe("Service: apiKeys test suite", () => {
 		expect(addSecretToApiKeyMock).toHaveBeenCalledTimes(3);
 	});
 
-	it("reports the progress after every batch and ends at the total", async () => {
+	it("reports the progress in percent after every batch", async () => {
 		addSecretToApiKeyMock.mockResolvedValue({} as Added);
 		const onProgress = jest.fn();
 
@@ -164,12 +164,21 @@ describe("Service: apiKeys test suite", () => {
 			onProgress,
 		);
 
-		expect(onProgress.mock.calls.slice(0, 3)).toEqual([
-			[10, 25],
-			[20, 25],
-			[25, 25],
-		]);
-		expect(onProgress).toHaveBeenLastCalledWith(25, 25);
+		expect(onProgress.mock.calls.map((call) => call[0])).toEqual([40, 80, 100]);
+	});
+
+	it("does not report any progress when there is nothing to add", async () => {
+		const onProgress = jest.fn();
+
+		await apiKeys.addSecretsToApiKey(
+			"api-key-id",
+			"api-key-secret-key",
+			[],
+			onProgress,
+		);
+
+		expect(onProgress).not.toHaveBeenCalled();
+		expect(addSecretToApiKeyMock).not.toHaveBeenCalled();
 	});
 
 	it("addSecretsToApiKey resolves without any secrets", async () => {

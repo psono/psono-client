@@ -140,7 +140,7 @@ function isAlreadyAdded(error: unknown): boolean {
  * @param {uuid} apiKeyId The id of the api key
  * @param {string} apiKeySecretKey The symmetric secret assiciated with the api key
  * @param {array} secrets The array of secrets to add to the api key
- * @param {function} [onProgress] Called after every batch with the number of secrets handled and the total
+ * @param {function} [onProgress] Called after every batch with the percentage (0 to 100) that is done; not called at all when there is nothing to add
  *
  * @returns {Promise} Promise with the secrets that could not be added (the user is told about them)
  */
@@ -148,7 +148,7 @@ async function addSecretsToApiKey(
 	apiKeyId: string,
 	apiKeySecretKey: string,
 	secrets: NamedSecretReference[],
-	onProgress?: (done: number, total: number) => void,
+	onProgress?: (percentage: number) => void,
 ) {
 	// A secret can be selected more than once (it can sit in several folders): add it only once.
 	const seen = new Set<string>();
@@ -179,11 +179,13 @@ async function addSecretsToApiKey(
 					failed.push(batch[index]!);
 				}
 			});
-			if (attempt === 0) onProgress?.(i + batch.length, total);
+			// total is never 0 inside the loop: with nothing to add there is no batch (and no 0 / 0)
+			if (attempt === 0) {
+				onProgress?.(Math.round(((i + batch.length) * 100) / total));
+			}
 		}
 		pending = failed;
 	}
-	onProgress?.(total, total);
 
 	if (pending.length > 0) {
 		notification.errorSend(
@@ -206,7 +208,7 @@ async function addSecretsToApiKey(
  * @param {bool} allowReadAccess
  * @param {bool} allowWriteAccess
  * @param {array} secrets Array of secrets
- * @param {function} [onProgress] Called while the secrets are added with the number handled and the total
+ * @param {function} [onProgress] Called while the secrets are added with the percentage (0 to 100) that is done
  *
  * @returns {Promise} Promise with the new id
  */
@@ -221,7 +223,7 @@ function createApiKey(
 	allowReadAccess: boolean,
 	allowWriteAccess: boolean,
 	secrets: NamedSecretReference[],
-	onProgress?: (done: number, total: number) => void,
+	onProgress?: (percentage: number) => void,
 ) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;

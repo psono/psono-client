@@ -172,16 +172,16 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 		// Secrets that already are part of the key are not added again, and the list is read from the
 		// server afterwards, so that it shows what the key really contains.
 		const present = new Set(secrets.map((secret) => secret[2]));
+		const toAdd = (items as SelectedApiKeySecret[]).filter(
+			(item) => !present.has(item.secret_id),
+		);
+		if (toAdd.length === 0) {
+			// nothing new: no requests and no progress window
+			return;
+		}
 		setProgress(0);
 		apiKeysService
-			.addSecretsToApiKey(
-				apiKeyId,
-				apiKeySecretKey,
-				(items as SelectedApiKeySecret[]).filter(
-					(item) => !present.has(item.secret_id),
-				),
-				(done, total) => setProgress(Math.round((done * 100) / total)),
-			)
+			.addSecretsToApiKey(apiKeyId, apiKeySecretKey, toAdd, setProgress)
 			.finally(() => setProgress(null))
 			.then(loadApiKeySecrets);
 	};
