@@ -21,7 +21,7 @@ let INDEX_EMAIL = 3;
 let INDEX_USERNAME = 4;
 let INDEX_PASSWORD = 5;
 let INDEX_NOTE = 6;
-const INDEX_TOTP = 7;
+let INDEX_TOTP = 7;
 const INDEX_OTHERS: number[] = [];
 
 interface ProtonCreditCard {
@@ -57,6 +57,8 @@ function identifyRows(line: CsvRow) {
 			INDEX_USERNAME = i;
 		} else if (column_description === "email") {
 			INDEX_EMAIL = i;
+		} else if (column_description === "totp") {
+			INDEX_TOTP = i;
 		} else {
 			INDEX_OTHERS.push(i);
 		}
