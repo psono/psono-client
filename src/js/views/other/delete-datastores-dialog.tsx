@@ -43,7 +43,9 @@ const DeleteDatastoresDialog = (props: DatastoreDialogProps) => {
 		const onError = (data: ManagementError) => {
 			console.log(data);
 
-			if (Object.hasOwn(data, "message")) {
+			if (Object.hasOwn(data, "non_field_errors")) {
+				setErrors(data.non_field_errors!);
+			} else if (Object.hasOwn(data, "message")) {
 				setErrors([data.message!]);
 			} else {
 				alert("Error, should not happen.");

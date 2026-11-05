@@ -152,6 +152,7 @@ export interface ImportBreadcrumbs {
 
 export interface ManagementError {
 	message?: string;
+	non_field_errors?: string[];
 	errors?: string[];
 }
 
