@@ -67,6 +67,10 @@ const DownloadBanner = () => {
 		!deviceService.isMobile() &&
 		deviceService.isFirefox() &&
 		browserClient.getClientType() === "webclient";
+	const showSafariDownload =
+		!deviceService.isMobile() &&
+		deviceService.isSafari() &&
+		browserClient.getClientType() === "webclient";
 
 	React.useEffect(() => {
 		browserClient.getConfig().then(onNewConfigLoaded);
@@ -105,6 +109,8 @@ const DownloadBanner = () => {
 	} else if (showFirefoxDownload) {
 		downloadUrl =
 			"https://addons.mozilla.org/firefox/addon/psono-pw-password-manager";
+	} else if (showSafariDownload) {
+		downloadUrl = "https://apps.apple.com/us/app/psono-for-safari/id6821535469";
 	}
 
 	return (
