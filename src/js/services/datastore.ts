@@ -7,6 +7,7 @@ import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 import notification from "./notification";
+import vaultLock from "./vault-lock";
 import storage from "./storage";
 import { getStore } from "./store";
 import type {
@@ -22,6 +23,8 @@ import type {
 	WriteResult,
 } from "../../types/datastore";
 import type { StorageDb } from "./storage";
+import type { CacheMode } from "../../types/cache";
+import { CacheMissError } from "../../types/cache";
 
 const tempDatastoreKeyStorage: Record<string, string> = {};
 
@@ -40,28 +43,37 @@ export type StorageFieldMap = readonly (readonly [
 	string | ((item: DatastoreItem) => unknown),
 ])[];
 
-function _getDatastoreOverview() {
+function _getDatastoreOverview(mode: CacheMode = "network-first") {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
 	// we dont have them in cache, so lets query and save them in cache for next time
 	const onSuccess = (result: DataResponse<DatastoreOverview>) => {
-		action().setUserDatastoreOverview(result.data);
+		if (mode !== "cache-only") action().setUserDatastoreOverview(result.data);
 		return result.data;
 	};
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
-	return apiClient
-		.readDatastore(token, sessionSecretKey)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readDatastore(token, sessionSecretKey)
+			: apiClient.readDatastore(token, sessionSecretKey, undefined, mode)
+	).then(onSuccess, onError);
 }
 
 const datastoreOverview: Record<
 	string,
 	Promise<DatastoreOverview | undefined>
 > = {};
+vaultLock.subscribe(() => {
+	for (const key of Object.keys(tempDatastoreKeyStorage))
+		delete tempDatastoreKeyStorage[key];
+	for (const key of Object.keys(datastoreOverview))
+		delete datastoreOverview[key];
+});
 /**
  returns a promise with the version string
  * @returns {Promise}
@@ -156,11 +168,13 @@ function getDatastoreId(type: string, forceFresh?: boolean) {
  */
 function getDatastoreWithId<T extends object = Datastore>(
 	datastoreId: string,
+	mode: CacheMode = "network-first",
 ): Promise<(T & DatastoreMetadata) | undefined> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
@@ -170,7 +184,8 @@ function getDatastoreWithId<T extends object = Datastore>(
 			result.data.secret_key_nonce,
 		);
 
-		tempDatastoreKeyStorage[datastoreId] = datastore_secret_key;
+		if (mode !== "cache-only")
+			tempDatastoreKeyStorage[datastoreId] = datastore_secret_key;
 
 		// The decrypted schema is selected by datastore type (tree or settings list).
 		let datastore = {} as T & DatastoreMetadata;
@@ -191,9 +206,35 @@ function getDatastoreWithId<T extends object = Datastore>(
 		return datastore;
 	};
 
-	return apiClient
-		.readDatastore(token, sessionSecretKey, datastoreId)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readDatastore(token, sessionSecretKey, datastoreId)
+			: apiClient.readDatastore(token, sessionSecretKey, datastoreId, mode)
+	).then(onSuccess, onError);
+}
+
+/** Display reads require a complete cache or a verified live response. */
+async function getDatastoreForDisplay(
+	type: string,
+	id: string | undefined,
+	mode: CacheMode,
+): Promise<Datastore> {
+	let selected = id;
+	if (!selected) {
+		const overview = await _getDatastoreOverview(mode);
+		selected = overview?.datastores.find(
+			(entry) => entry.type === type && entry.is_default,
+		)?.id;
+		if (!selected && mode === "refresh") {
+			// Preserve first-login default-datastore creation, never from cache.
+			const created = await getDatastore(type);
+			if (created) return created;
+		}
+	}
+	if (!selected) throw new CacheMissError();
+	const result = await getDatastoreWithId(selected, mode);
+	if (!result) throw new CacheMissError();
+	return result;
 }
 
 /**
@@ -930,6 +971,7 @@ function normalizeShareContent(share: DatastoreContent): void {
 }
 
 const datastoreService = {
+	getDatastoreForDisplay,
 	getDatastoreOverview: getDatastoreOverview,
 	getDatastoreId: getDatastoreId,
 	getDatastoreWithId: getDatastoreWithId,

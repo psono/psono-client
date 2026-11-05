@@ -5,11 +5,9 @@
 import apiClient from "../services/api-client";
 import cryptoLibrary from "../services/crypto-library";
 import datastoreService from "./datastore";
-import fileLinkService from "./file-link";
 import helperService from "./helper";
-import secretLinkService from "./secret-link";
-import shareLinkService from "./share-link";
 import { getStore } from "./store";
+import type { CacheMode } from "../../types/cache";
 import type {
 	ChildShare,
 	DataResponse,
@@ -67,11 +65,13 @@ type ShareRightResult = DataResponse<{ share_right_id: string }>;
 function readShare(
 	shareId: string,
 	secretKey: string,
+	mode: CacheMode = "network-first",
 ): Promise<ShareContent | undefined> {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
@@ -99,9 +99,11 @@ function readShare(
 		};
 	};
 
-	return apiClient
-		.readShare(token, sessionSecretKey, shareId)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readShare(token, sessionSecretKey, shareId)
+			: apiClient.readShare(token, sessionSecretKey, shareId, mode)
+	).then(onSuccess, onError);
 }
 
 /**
@@ -230,12 +232,24 @@ function createShare(
 	const child_shares: ChildShare[] = [];
 	registrations["get_all_child_shares"]!(content, 1, child_shares, []);
 
-	const filteredContent = helperService.duplicateObject(content);
+	const contentToMove = helperService.duplicateObject(content);
+	const filteredContent = helperService.duplicateObject(contentToMove);
 	datastoreService.normalizeShareContent(filteredContent);
-	let old_link_id: string | undefined;
+	// Nested shares remain references, never decrypted copies in the new share.
+	if (child_shares.length) {
+		filteredContent.share_index = {};
+		for (const child of child_shares) {
+			const id = child.share.share_id!;
+			filteredContent.share_index[id] ||= {
+				secret_key: child.share.share_secret_key!,
+				paths: [],
+			};
+			filteredContent.share_index[id].paths.push(child.path);
+		}
+		datastoreService.hideSubShareContent(filteredContent);
+	}
 
 	if (Object.hasOwn(filteredContent, "id")) {
-		old_link_id = filteredContent.id;
 		delete filteredContent.id;
 	}
 
@@ -250,41 +264,45 @@ function createShare(
 		return undefined;
 	};
 
-	const onSuccess = (content: DataResponse<{ share_id: string }>) => {
-		if (Object.hasOwn(filteredContent, "secret_id")) {
-			secretLinkService.moveSecretLink(old_link_id!, content.data.share_id);
-		} else {
-			secretLinkService.resetSecretLinkTimeout();
-			secretLinkService.moveSecretLinks(
-				filteredContent,
-				content.data.share_id,
-				undefined,
-				onOpenRequest,
-				onClosedRequest,
-			);
-		}
-
-		if (Object.hasOwn(filteredContent, "file_id")) {
-			fileLinkService.moveFileLink(old_link_id!, content.data.share_id);
-		} else {
-			fileLinkService.resetFileLinkTimeout();
-			fileLinkService.moveFileLinks(
-				filteredContent,
-				content.data.share_id,
-				undefined,
-				onOpenRequest,
-				onClosedRequest,
-			);
-		}
-
-		// Update all child shares to be now a child of this share.
-		for (let i = 0; i < child_shares.length; i++) {
-			shareLinkService.moveShareLink(
-				child_shares[i]["share"]["id"],
-				content.data.share_id,
-				undefined,
-			);
-		}
+	const onSuccess = async (content: DataResponse<{ share_id: string }>) => {
+		const shareId = content.data.share_id;
+		const reparent = async (node: Datastore): Promise<void> => {
+			if (node.share_id || node.secret_id || node.file_id) {
+				onOpenRequest?.();
+				try {
+					if (node.share_id) {
+						await apiClient.moveShareLink(
+							token,
+							sessionSecretKey,
+							node.id!,
+							shareId,
+						);
+					} else if (node.file_id) {
+						await apiClient.moveFileLink(
+							token,
+							sessionSecretKey,
+							node.id!,
+							shareId,
+						);
+					} else {
+						await apiClient.moveSecretLink(
+							token,
+							sessionSecretKey,
+							node.id!,
+							shareId,
+						);
+					}
+				} finally {
+					onClosedRequest?.();
+				}
+				if (node.share_id) return;
+			}
+			for (const child of [...(node.folders || []), ...(node.items || [])]) {
+				await reparent(child);
+			}
+		};
+		// Reparenting must complete before callers can publish another location.
+		await reparent(contentToMove);
 
 		return { share_id: content.data.share_id, secret_key: secretKey };
 	};
@@ -331,20 +349,23 @@ function readShareRights(shareId: string) {
  *
  * @returns {Promise} Returns a promise with the share rights overview
  */
-function readShareRightsOverview() {
+function readShareRightsOverview(mode: CacheMode = "network-first") {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 
-	const onError = () => {
+	const onError = (error: unknown) => {
+		if (mode !== "network-first") throw error;
 		return undefined;
 	};
 
 	const onSuccess = (content: DataResponse<ShareRightsOverview>) =>
 		content.data;
 
-	return apiClient
-		.readShareRightsOverview(token, sessionSecretKey)
-		.then(onSuccess, onError);
+	return (
+		mode === "network-first"
+			? apiClient.readShareRightsOverview(token, sessionSecretKey)
+			: apiClient.readShareRightsOverview(token, sessionSecretKey, mode)
+	).then(onSuccess, onError);
 }
 
 /**

@@ -13,8 +13,22 @@
 	function setup() {
 		// Override PublicKeyCredential APIs to advertise platform authenticator support
 		if (browserSupportsWebauthn && window.PublicKeyCredential) {
-			window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable =
-				() => Promise.resolve(true);
+			const credentialApi = window.PublicKeyCredential;
+			// Keep the native probe available to features that need an actual platform
+			// authenticator. Re-injection must not save our own override as native.
+			if (
+				!Object.hasOwn(
+					credentialApi,
+					"psonoOriginalIsUserVerifyingPlatformAuthenticatorAvailable",
+				)
+			) {
+				credentialApi.psonoOriginalIsUserVerifyingPlatformAuthenticatorAvailable =
+					credentialApi.isUserVerifyingPlatformAuthenticatorAvailable?.bind(
+						credentialApi,
+					);
+			}
+			credentialApi.isUserVerifyingPlatformAuthenticatorAvailable = () =>
+				Promise.resolve(true);
 
 			// Support conditional mediation (autofill UI for passkeys)
 			if (
@@ -333,6 +347,11 @@
 	 * @param options
 	 */
 	function mockedNavigatorCredentialsCreate(options) {
+		// PRF-based vault locking must use the actual authenticator, including
+		// when the web client is visited with the Psono extension installed.
+		if (options?.publicKey?.extensions?.prf) {
+			return originalNavigatorCredentialsCreate(options);
+		}
 		return new Promise((resolve, reject) => {
 			const eventId = toHex(window.crypto.getRandomValues(new Uint8Array(16)));
 
@@ -377,6 +396,9 @@
 	 * @param options
 	 */
 	function mockedNavigatorCredentialsGet(options) {
+		if (options?.publicKey?.extensions?.prf) {
+			return originalNavigatorCredentialsGet(options);
+		}
 		return new Promise((resolve, reject) => {
 			const eventId = toHex(window.crypto.getRandomValues(new Uint8Array(16)));
 

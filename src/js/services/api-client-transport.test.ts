@@ -1,6 +1,8 @@
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
+import vaultLock from "./vault-lock";
+import { CacheMissError } from "../../types/cache";
 
 jest.mock("./store", () => ({
 	getStore: () => ({
@@ -13,7 +15,15 @@ jest.mock("./device", () => ({
 }));
 jest.mock("./offline-cache", () => ({
 	__esModule: true,
-	default: { get: jest.fn(), set: jest.fn() },
+	default: {
+		get: jest.fn(),
+		set: jest.fn(),
+		isActive: jest.fn(() => false),
+		canUse: jest.fn(() => false),
+		markOffline: jest.fn(),
+		markOnline: jest.fn(),
+		clear: jest.fn(),
+	},
 }));
 jest.mock("./user", () => ({
 	__esModule: true,
@@ -49,6 +59,8 @@ describe("API client: transport compatibility", () => {
 		fetchMock.mockReset();
 		globalThis.fetch = fetchMock;
 		jest.mocked(offlineCache.get).mockResolvedValue(null);
+		jest.mocked(offlineCache.isActive).mockReturnValue(false);
+		jest.mocked(offlineCache.canUse).mockReturnValue(false);
 		jest.mocked(cryptoLibrary.decryptData).mockReturnValue('{"id":"secret"}');
 		jest.spyOn(console, "log").mockImplementation(() => {});
 	});
@@ -56,6 +68,7 @@ describe("API client: transport compatibility", () => {
 	afterEach(() => {
 		globalThis.fetch = originalFetch;
 		jest.restoreAllMocks();
+		jest.useRealTimers();
 	});
 
 	it("unwraps encrypted JSON and caches the decrypted envelope", async () => {
@@ -117,15 +130,152 @@ describe("API client: transport compatibility", () => {
 		);
 	});
 
-	it("returns cached envelopes without fetching or decrypting them again", async () => {
+	it("falls back to cached envelopes on network failure without decrypting them again", async () => {
 		const cached = { data: { id: "cached-secret" } };
 		jest.mocked(offlineCache.get).mockResolvedValue(cached);
+		fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
 
 		await expect(apiClient.readSecret("token", "key", "secret")).resolves.toBe(
 			cached,
 		);
-		expect(fetchMock).not.toHaveBeenCalled();
+		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
+	});
+
+	it("uses a fresh live response even when a cached copy exists", async () => {
+		jest.mocked(offlineCache.get).mockResolvedValue({ data: { id: "old" } });
+		respond('{"text":"ciphertext","nonce":"response-nonce"}');
+		await expect(
+			apiClient.readSecret("token", "key", "secret"),
+		).resolves.toEqual({ data: { id: "secret" } });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
+	it("serves explicit cache-only reads immediately without fetching or claiming online status", async () => {
+		const cached = { data: { id: "cached" } };
+		jest.mocked(offlineCache.get).mockResolvedValue(cached);
+		await expect(
+			apiClient.readSecret("token", "key", "secret", "cache-only"),
+		).resolves.toBe(cached);
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(offlineCache.markOnline).not.toHaveBeenCalled();
+		expect(offlineCache.markOffline).not.toHaveBeenCalled();
+	});
+
+	it("treats a cache-only miss as a miss rather than silently falling through to the network", async () => {
+		await expect(
+			apiClient.readSecret("token", "key", "secret", "cache-only"),
+		).rejects.toBeInstanceOf(CacheMissError);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("requires a live response for revalidation even if a cached secret exists", async () => {
+		jest.mocked(offlineCache.get).mockResolvedValue({ data: { id: "cached" } });
+		fetchMock.mockRejectedValue(new TypeError("offline"));
+		await expect(
+			apiClient.readSecret("token", "key", "secret", "refresh"),
+		).rejects.toEqual({ errors: ["SERVER_OFFLINE"] });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
+	it("bounds background verification when the server never responds", async () => {
+		jest.useFakeTimers();
+		jest.mocked(offlineCache.canUse).mockReturnValue(true);
+		fetchMock.mockImplementation(
+			(_url, options) =>
+				new Promise((_resolve, reject) => {
+					options?.signal?.addEventListener("abort", () =>
+						reject(new DOMException("timed out", "AbortError")),
+					);
+				}),
+		);
+		const pending = apiClient.readSecret("token", "key", "secret", "refresh");
+		const result = expect(pending).rejects.toEqual({
+			errors: ["SERVER_OFFLINE"],
+		});
+		jest.advanceTimersByTime(5000);
+		await result;
+		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
+	it("never reports an explicit cache refresh as successful using an offline fallback", async () => {
+		jest.mocked(offlineCache.get).mockResolvedValue({ data: { id: "old" } });
+		fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+		await expect(
+			apiClient.refreshOfflineCacheEntry("token", "key", "/secret/secret/"),
+		).rejects.toEqual({ errors: ["SERVER_OFFLINE"] });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
+	it("only allows relative vault GET endpoints for individual cache refreshes", async () => {
+		await expect(
+			apiClient.refreshOfflineCacheEntry(
+				"token",
+				"key",
+				"https://other.test/secret/secret/",
+			),
+		).rejects.toThrow("OFFLINE_CACHE_ENDPOINT_UNSUPPORTED");
+		await expect(
+			apiClient.refreshOfflineCacheEntry(
+				"token",
+				"key",
+				"/authentication/login/",
+			),
+		).rejects.toThrow("OFFLINE_CACHE_ENDPOINT_UNSUPPORTED");
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("permits cached fallback on server errors and never falls back on permission errors", async () => {
+		const cached = { data: { id: "cached" } };
+		jest.mocked(offlineCache.get).mockResolvedValue(cached);
+		respond("", 503);
+		await expect(
+			apiClient.readSecret("token", "key", "secret"),
+		).resolves.toEqual(cached);
+		expect(offlineCache.markOffline).toHaveBeenCalled();
+		jest.clearAllMocks();
+		respond('{"text":"ciphertext","nonce":"response-nonce"}', 403);
+		await expect(
+			apiClient.readSecret("token", "key", "secret"),
+		).rejects.toEqual({ data: { id: "secret" } });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+		expect(offlineCache.clear).toHaveBeenCalled();
+	});
+
+	it("blocks mutations while using cached responses and vault reads while locked", async () => {
+		jest.mocked(offlineCache.isActive).mockReturnValue(true);
+		await expect(
+			apiClient.createWebauthn("token", "key", "title", "https://api.test"),
+		).rejects.toEqual({
+			errors: ["OFFLINE_CACHE_READ_ONLY"],
+		});
+		jest.spyOn(vaultLock, "isBlocked").mockReturnValue(true);
+		await expect(
+			apiClient.readSecret("token", "key", "secret"),
+		).rejects.toEqual({ errors: ["VAULT_LOCKED"] });
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("discards responses from an earlier account/lock generation before decrypting or caching", async () => {
+		let finish!: (response: Response) => void;
+		fetchMock.mockImplementation(
+			() =>
+				new Promise((resolve) => {
+					finish = resolve;
+				}),
+		);
+		const pending = apiClient.readSecret("token", "key", "secret");
+		jest.spyOn(vaultLock, "getRevision").mockReturnValue(999);
+		finish({
+			ok: true,
+			status: 200,
+			text: async () => '{"text":"ciphertext","nonce":"response-nonce"}',
+		} as Response);
+		await expect(pending).rejects.toEqual({
+			errors: ["VAULT_SESSION_CHANGED"],
+		});
+		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
+		expect(offlineCache.set).not.toHaveBeenCalled();
 	});
 
 	it.each([

@@ -18,6 +18,31 @@ describe("Service: browser client test suite", () => {
 	const originalChrome = testGlobals.chrome;
 	const originalUrl = window.location.href;
 
+	it.each([
+		[
+			"index.html#!/datastore/edit/website_password/secret-id",
+			"http://localhost/data/index.html#!/datastore/edit/website_password/secret-id",
+		],
+		["https://example.com/login", "https://example.com/login"],
+	])("opens Safari popup link %s as a tab", async (url, expectedUrl) => {
+		testGlobals.TARGET = "safari";
+		window.history.replaceState({}, "", "/data/default_popup.html");
+		const create = jest.fn((_options, callback) => callback());
+		const open = jest.spyOn(window, "open").mockImplementation(() => null);
+		testGlobals.chrome = {
+			tabs: { create },
+			runtime: {},
+		} as unknown as typeof chrome;
+
+		await expect(browserClient.openTab(url)).resolves.toBeNull();
+
+		expect(create).toHaveBeenCalledWith(
+			{ url: expectedUrl },
+			expect.any(Function),
+		);
+		expect(open).not.toHaveBeenCalled();
+	});
+
 	afterEach(() => {
 		jest.restoreAllMocks();
 		browserClient.clearConfigCache();
@@ -25,6 +50,56 @@ describe("Service: browser client test suite", () => {
 		testGlobals.browser = originalBrowser;
 		testGlobals.chrome = originalChrome;
 		window.history.replaceState({}, "", originalUrl);
+	});
+
+	it.each([
+		"javascript:alert(1)",
+		"javascript://example.com/%0aalert(1)",
+		"JaVaScRiPt:alert(1)",
+		" \tjava\nscript:alert(1)",
+		"data:text/html,<script>alert(1)</script>",
+		"vbscript:msgbox(1)",
+	])("opens a blank tab instead of an unsafe URL: %s", async (url) => {
+		const open = jest.spyOn(window, "open").mockReturnValue(null);
+
+		await browserClient.openTab(url);
+
+		expect(open).toHaveBeenCalledTimes(1);
+		expect(open).toHaveBeenCalledWith("about:blank", "_blank");
+	});
+
+	it.each([
+		"https://example.com/login",
+		"http://example.com/login",
+		"mailto:user@example.com",
+		"https://www.elster.de/eportal/login/softpse",
+		"register.html",
+		"lost-password.html",
+		"delete-user.html",
+		"logout-success.html",
+		"index.html",
+		"index.html#!/datastore/edit/website_password/example-id",
+		"index.html#!/account/change-password",
+		"enforce-two-fa.html",
+		"key-transfer.html",
+		"open-secret.html#!/secret/website_password/example-id",
+		"download-file.html#!/file/download/example-id",
+	])("opens a valid URL unchanged: %s", async (url) => {
+		const newWindow = {} as Window;
+		const open = jest.spyOn(window, "open").mockReturnValue(newWindow);
+
+		await expect(browserClient.openTab(url)).resolves.toBe(newWindow);
+
+		expect(open).toHaveBeenCalledTimes(1);
+		expect(open).toHaveBeenCalledWith(url, "_blank");
+	});
+
+	it("resolves to null when the browser blocks a new tab", async () => {
+		jest.spyOn(window, "open").mockReturnValue(null);
+
+		await expect(
+			browserClient.openTab("https://example.com/login"),
+		).resolves.toBeNull();
 	});
 
 	it.each([
@@ -204,5 +279,90 @@ describe("Service: browser client test suite", () => {
 		).not.toThrow();
 		expect(() => browserClient.notify("test")).not.toThrow();
 		expect(infoSend).toHaveBeenCalledWith("test");
+	});
+
+	describe("writeToClipboard", () => {
+		let write: jest.Mock;
+		let writeText: jest.Mock;
+		let hasFocus: jest.SpyInstance;
+		let clipboardItems: Array<Record<string, Promise<Blob>>>;
+		const originalClipboardItem = (globalThis as { ClipboardItem?: unknown })
+			.ClipboardItem;
+
+		beforeEach(() => {
+			jest.spyOn(device, "isSafari").mockReturnValue(false);
+			hasFocus = jest.spyOn(document, "hasFocus").mockReturnValue(true);
+			write = jest.fn().mockResolvedValue(undefined);
+			writeText = jest.fn().mockResolvedValue(undefined);
+			Object.defineProperty(navigator, "clipboard", {
+				value: { write, writeText },
+				configurable: true,
+			});
+			clipboardItems = [];
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem = class {
+				constructor(items: Record<string, Promise<Blob>>) {
+					clipboardItems.push(items);
+				}
+			};
+		});
+
+		afterEach(() => {
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem =
+				originalClipboardItem;
+		});
+
+		it("hands the pending content to the browser while the popup has focus", async () => {
+			let resolveContent: (content: string) => void = () => {};
+			const pending = new Promise<string>((resolve) => {
+				resolveContent = resolve;
+			});
+
+			const result = browserClient.writeToClipboard(() => pending);
+
+			expect(write).toHaveBeenCalledTimes(1);
+			// the focus may be lost before the content arrives, the write was already handed over
+			hasFocus.mockReturnValue(false);
+			resolveContent("secret");
+			await result;
+			const blob = await clipboardItems[0]["text/plain"];
+			expect(blob.type).toBe("text/plain");
+			expect(blob.size).toBe("secret".length);
+			expect(writeText).not.toHaveBeenCalled();
+		});
+
+		it("falls back to writeText if the browser rejects the clipboard item", async () => {
+			write.mockRejectedValue(new Error("NotAllowedError"));
+
+			await browserClient.writeToClipboard(() => Promise.resolve("secret"));
+
+			expect(writeText).toHaveBeenCalledWith("secret");
+		});
+
+		it("still skips the write if the popup has no focus when copying", async () => {
+			hasFocus.mockReturnValue(false);
+
+			await browserClient.writeToClipboard(() => Promise.resolve("secret"));
+
+			expect(write).not.toHaveBeenCalled();
+			expect(writeText).not.toHaveBeenCalled();
+		});
+
+		it("rejects if the content cannot be loaded", async () => {
+			const error = { errors: ["SERVER_OFFLINE"] };
+			write.mockImplementation(async ([item]) => {
+				await (item as unknown as { items: Promise<Blob> }).items;
+			});
+			(globalThis as { ClipboardItem?: unknown }).ClipboardItem = class {
+				items: Promise<Blob>;
+				constructor(items: Record<string, Promise<Blob>>) {
+					this.items = items["text/plain"];
+				}
+			};
+
+			await expect(
+				browserClient.writeToClipboard(() => Promise.reject(error)),
+			).rejects.toBe(error);
+			expect(writeText).not.toHaveBeenCalled();
+		});
 	});
 });

@@ -40,6 +40,7 @@ export interface DatastoreTreeActions {
 	onLinkShare?: DatastoreNodeAction;
 	onEditEntry?: DatastoreNodeAction;
 	onCloneEntry?: DatastoreNodeAction;
+	onLinkEntry?: DatastoreNodeAction;
 	onDeleteEntry?: DatastoreNodeAction;
 	onMoveEntry?: DatastoreNodeAction;
 	onEditFolder?: DatastoreNodeAction<DatastoreFolder>;

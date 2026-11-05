@@ -175,7 +175,9 @@ function transformToWebsitePassword(item: BitwardenItem): ImportedSecret {
 			}
 			if (item["login"]["uris"].length > 1) {
 				for (let i = 1; i < item["login"]["uris"].length; i++) {
-					const parsed_url = helperService.parseUrl(website_password_url);
+					const parsed_url = helperService.parseUrl(
+						item["login"]["uris"][i]["uri"],
+					);
 					if (parsed_url.authority !== null) {
 						urlfilter = urlfilter + ", " + parsed_url.authority;
 						website_password_url_filter =

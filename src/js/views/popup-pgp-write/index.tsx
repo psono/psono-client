@@ -29,7 +29,6 @@ import Table from "../../components/table";
 import browserClient from "../../services/browser-client";
 import cryptoLibrary from "../../services/crypto-library";
 import datastoreGpgUserService from "../../services/datastore-gpg-user";
-import deviceService from "../../services/device";
 import helper from "../../services/helper";
 import user from "../../services/user";
 
@@ -56,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	// necessary for content to be below app bar
 	toolbar: {
-		minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
+		minHeight: "50px",
 	},
 	fullContent: {
 		flexGrow: 1,

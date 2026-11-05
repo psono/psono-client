@@ -46,7 +46,6 @@ describe("WebAuthn second-factor availability", () => {
 		["firefox", "", false],
 		["webclient", "149.0", true],
 		["chrome", "149.0", true],
-		["electron", "150.0", false],
 	] as const)("%s on Firefox %s: %s", (target, version, supported) => {
 		// Load dependencies without initializing extension-only listeners.
 		testGlobals.TARGET = "webclient";

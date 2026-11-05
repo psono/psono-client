@@ -20,6 +20,7 @@ import MuiAlert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
 import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -45,7 +46,6 @@ import type { SecretReference } from "../../../types/vault";
 import action from "../../actions/bound-action-creators";
 import DarkBox from "../../components/dark-box";
 import DialogChangeAccount from "../../components/dialogs/change-account";
-import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import EntryIcon from "../../components/entry-icon";
 import GatewayLaunchButton from "../../components/gateway-launch-button";
 import GeneratorStrength from "../../components/generator-strength";
@@ -59,14 +59,14 @@ import datastoreService from "../../services/datastore";
 import datastorePassword from "../../services/datastore-password";
 import { passwordEntropy } from "../../services/password-entropy";
 import helper from "../../services/helper";
-import offlineCacheService from "../../services/offline-cache";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
-import storage from "../../services/storage";
 import { getStore } from "../../services/store";
 import user from "../../services/user";
+import vaultLock from "../../services/vault-lock";
 import widgetService from "../../services/widget";
 import CreateDatastoresDialog from "../other/create-datastores-dialog";
+import { useCachedDatastore } from "../../components/use-cached-datastore";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -583,7 +583,6 @@ const PopupView = (
 	);
 	const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 	const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
-	const [unlockOfflineCache, setUnlockOfflineCache] = React.useState(false);
 	const [view, setView] = React.useState<PopupMode>("default");
 	const [includeLettersLowercase, setIncludeLettersLowercase] = useState(true);
 	const [includeLettersUppercase, setIncludeLettersUppercase] = useState(true);
@@ -626,14 +625,6 @@ const PopupView = (
 	const [anchorDatastoreMenuEl, setAnchorDatastoreMenuEl] =
 		React.useState<HTMLElement | null>(null);
 	const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
-
-	useEffect(() => {
-		if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
-			setUnlockOfflineCache(true);
-		} else {
-			datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
-		}
-	}, [passwordDatastore]);
 
 	const reloadDatastoreOverview = () => {
 		datastoreService.getDatastoreOverview().then((overview) => {
@@ -714,54 +705,12 @@ const PopupView = (
 		}
 	};
 
-	const loadFromCache = async (): Promise<PopupEntry[] | null> => {
-		try {
-			// Get all password leafs from cache
-			const leafs = await storage.where("datastore-password-leafs", () => true);
-
-			if (!leafs || leafs.length === 0) {
-				return null;
-			}
-
-			// Transform cache format to popup format
-			const entries = leafs.map((leaf) => ({
-				content: {
-					secret_id: leaf.secret_id,
-					secret_key: leaf.secret_key,
-					name: leaf.name,
-					description: leaf.description,
-					urlfilter: leaf.urlfilter,
-					type: leaf.type,
-					autosubmit: leaf.autosubmit,
-					allow_http: leaf.allow_http,
-				},
-				path: leaf.folder_path || "/",
-			}));
-
-			return entries;
-		} catch (error) {
-			console.error("Failed to load from cache:", error);
-			return null;
-		}
-	};
-
 	useEffect(() => {
-		Promise.all([loadFromCache(), browserClient.getActiveTabUrl()]).then(
-			([cachedEntries, activeUrl]) => {
-				if (cachedEntries && cachedEntries.length > 0) {
-					setItems(cachedEntries);
-				}
-				if (activeUrl) {
-					setUrl(helper.parseUrl(activeUrl));
-				}
-			},
-		);
-
-		if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
-			setUnlockOfflineCache(true);
-		} else {
-			datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
-		}
+		browserClient.getActiveTabUrl().then((activeUrl) => {
+			if (activeUrl) {
+				setUrl(helper.parseUrl(activeUrl));
+			}
+		});
 
 		reloadDatastoreOverview();
 		return () => {
@@ -769,16 +718,10 @@ const PopupView = (
 		};
 	}, []);
 
-	const onUnlockOfflineCacheClosed = () => {
-		setUnlockOfflineCache(false);
-		if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
-			setUnlockOfflineCache(true);
-		} else {
-			datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
-		}
-	};
-
-	const onNewDatastoreLoaded = (data: Datastore | undefined) => {
+	const onNewDatastoreLoaded = (
+		data: Datastore | undefined,
+		source: "cache" | "server",
+	) => {
 		if (!isSubscribed) {
 			return;
 		}
@@ -822,11 +765,26 @@ const PopupView = (
 
 		deepSearchAllItems(data);
 		setItems(entries);
-		accountService.broadcastReinitializeBackgroundEvent();
+		if (source === "server")
+			accountService.broadcastReinitializeBackgroundEvent();
 	};
+	const { error: datastoreError, reload: reloadDatastore } = useCachedDatastore(
+		passwordDatastore?.id,
+		{
+			onData: onNewDatastoreLoaded,
+			onReset: () => setItems([]),
+			onError: (_error, retained) => {
+				if (!retained) setItems([]);
+			},
+		},
+	);
 
 	const logout = () => {
 		browserClient.openTab("logout-success.html");
+		browserClient.closePopup();
+	};
+	const lock = () => {
+		vaultLock.lock();
 		browserClient.closePopup();
 	};
 	const back = () => {
@@ -1273,6 +1231,18 @@ const PopupView = (
 
 	return (
 		<DarkBox className={classes.popupContainer}>
+			{datastoreError != null && items.length === 0 && (
+				<Alert
+					severity="warning"
+					action={
+						<Button color="inherit" onClick={reloadDatastore}>
+							{t("RETRY")}
+						</Button>
+					}
+				>
+					{t("DATASTORE_LOAD_FAILED")}
+				</Alert>
+			)}
 			<Grid container>
 				<Grid item xs={12} sm={12} md={12}>
 					<TextField
@@ -1487,6 +1457,17 @@ const PopupView = (
 										</Badge>
 									</Button>
 								</Tooltip>
+								{vaultLock.getConfiguration()?.enabled && (
+									<Tooltip disableInteractive title={t("LOCK")} placement="top">
+										<Button
+											onClick={lock}
+											className={classes.menuButton}
+											aria-label={`${t("LOCK")}`}
+										>
+											<LockRoundedIcon color="primary" />
+										</Button>
+									</Tooltip>
+								)}
 								<Tooltip disableInteractive title={t("LOGOUT")} placement="top">
 									<Button onClick={logout} className={classes.menuButton}>
 										<ExitToAppRoundedIcon color="primary" />
@@ -1500,12 +1481,6 @@ const PopupView = (
 					<DialogChangeAccount
 						open={changeAccountOpen}
 						onClose={() => setChangeAccountOpen(false)}
-					/>
-				)}
-				{unlockOfflineCache && (
-					<DialogUnlockOfflineCache
-						open={unlockOfflineCache}
-						onClose={onUnlockOfflineCacheClosed}
 					/>
 				)}
 				{createDatastoreOpen && (

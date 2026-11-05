@@ -1,7 +1,8 @@
 import actualAccountService from "./account";
 import actualApiClient from "./api-client";
 import storage from "./storage";
-import user from "./user";
+import user, { isLogoutPage } from "./user";
+import vaultLock from "./vault-lock";
 import { SET_SERVER_INFO } from "../actions/action-types";
 import serverReducer from "../reducers/server";
 
@@ -29,6 +30,7 @@ jest.mock("./api-client", () => ({
 	__esModule: true,
 	default: {
 		logout: jest.fn(),
+		activateToken: jest.fn(),
 	},
 }));
 jest.mock("./account", () => ({
@@ -87,6 +89,18 @@ describe("Service: user session state", () => {
 		expect(user.requireTwoFaSetup()).toBe(false);
 	});
 
+	it("rejects token activation on an unsupported device when locking is mandatory", async () => {
+		mockState.server.complianceEnforceLocking = true;
+		const supported = jest
+			.spyOn(vaultLock, "isSupported")
+			.mockResolvedValue(false);
+		await expect(user.activateToken()).rejects.toThrow(
+			"LOCK_REQUIRED_UNAVAILABLE",
+		);
+		expect(apiClient.activateToken).not.toHaveBeenCalled();
+		supported.mockRestore();
+	});
+
 	it("does not clear local state for a token that is no longer persisted", async () => {
 		accountService.isCurrentSession.mockResolvedValue(false);
 
@@ -125,5 +139,42 @@ describe("Service: user session state", () => {
 
 		expect(accountService.isCurrentSession).not.toHaveBeenCalled();
 		expect(storage.removeAll).toHaveBeenCalled();
+	});
+
+	it("clears local state without sending an empty token when already signed out", async () => {
+		mockState.user.isLoggedIn = false;
+		mockState.user.token = "";
+		mockState.user.sessionSecretKey = "";
+
+		await expect(user.logout()).resolves.toEqual({ response: "success" });
+
+		expect(apiClient.logout).not.toHaveBeenCalled();
+		expect(storage.removeAll).toHaveBeenCalled();
+		expect(accountService.logoutAll).toHaveBeenCalled();
+	});
+});
+
+describe("logout routing", () => {
+	const originalUrl = window.location.href;
+	afterEach(() => window.history.replaceState({}, "", originalUrl));
+
+	it.each([
+		"/logout-success.html",
+		"/data/logout-success.html",
+		"/index.html#!/logout",
+		"/index.html#!/logout/?from=menu",
+	])("recognizes the logout page at %s", (url) => {
+		window.history.replaceState({}, "", url);
+		expect(isLogoutPage()).toBe(true);
+	});
+
+	it.each([
+		"/index.html#!/datastore",
+		"/index.html#!/logout-other",
+		"/index.html#!/datastore?next=/logout",
+		"/link-share-access.html#!/logout",
+	])("keeps other pages outside the logout exception at %s", (url) => {
+		window.history.replaceState({}, "", url);
+		expect(isLogoutPage()).toBe(false);
 	});
 });

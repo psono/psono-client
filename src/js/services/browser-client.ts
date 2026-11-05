@@ -200,8 +200,6 @@ function getClientType(url?: string) {
 		return "firefox_extension";
 	} else if (TARGET === "chrome") {
 		return "chrome_extension";
-	} else if (TARGET === "electron") {
-		return "electron";
 	} else {
 		return "webclient";
 	}
@@ -213,7 +211,27 @@ function getClientType(url?: string) {
  * @param {string} url The url to open
  */
 function openTab(url: string) {
+	if (TARGET === "safari") {
+		// window.open() from Safari's toolbar popup creates a separate window.
+		// Resolve relative client pages before handing them to the extension API.
+		return new Promise<Window | null>((resolve, reject) => {
+			chrome.tabs.create(
+				{ url: new URL(url, window.location.href).href },
+				() => {
+					if (chrome.runtime.lastError) {
+						reject(new Error(chrome.runtime.lastError.message));
+						return;
+					}
+					resolve(null);
+				},
+			);
+		});
+	}
 	return new Promise<Window | null>((resolve) => {
+		if (!DOMPurify.isValidAttribute("a", "href", url)) {
+			// sanitizes URL to avoid javascript: XSS
+			url = "about:blank";
+		}
 		const new_window = window.open(url, "_blank");
 		resolve(new_window);
 	});
@@ -233,8 +251,6 @@ function getSamlReturnToUrl(state?: string) {
 	} else if (TARGET === "chrome") {
 		return "https://psono.com/redirect#!/saml/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
-	} else if (TARGET === "electron") {
-		return "https://psono.com/redirect#!/saml/token/";
 	} else {
 		return (
 			new URL("index.html", window.location.href).href +
@@ -258,8 +274,6 @@ function getOidcReturnToUrl(state?: string) {
 	} else if (TARGET === "chrome") {
 		return "https://psono.com/redirect#!/oidc/token/" + statePath;
 		//return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
-	} else if (TARGET === "electron") {
-		return "https://psono.com/redirect#!/oidc/token/";
 	} else {
 		return (
 			new URL("index.html", window.location.href).href +
@@ -721,21 +735,6 @@ function _loadConfig(): Promise<ClientConfiguration> {
 					);
 				}
 			};
-		} else if (TARGET === "electron") {
-			onSuccess = async (origJsonConfig) => {
-				let newConfig = origJsonConfig.data;
-				const electronsConfigJson = await window.electronAPI.getConfigJson();
-				if (electronsConfigJson) {
-					try {
-						newConfig = JSON.parse(
-							electronsConfigJson,
-						) as Partial<ClientConfiguration>;
-					} catch (e) {
-						// pass
-					}
-				}
-				return resolve(standardizeConfig(newConfig, "https://www.psono.pw/"));
-			};
 		} else {
 			onSuccess = (origJsonConfig) => {
 				const newConfig = origJsonConfig.data;
@@ -1096,20 +1095,40 @@ function writeToClipboard(fetchContent: () => Promise<string>): Promise<void> {
 		]);
 	} else {
 		// Firefox & Chrome and everything else
-		return fetchContent().then((content) => {
-			try {
-				// Check if document is focused before attempting clipboard write
-				if (!document.hasFocus()) {
-					return Promise.resolve();
+		const contentPromise = fetchContent();
+		const writeWhenReady = () =>
+			contentPromise.then((content) => {
+				try {
+					// Check if document is focused before attempting clipboard write
+					if (!document.hasFocus()) {
+						return Promise.resolve();
+					}
+					return navigator.clipboard.writeText(content).catch((error) => {
+						console.log("Cannot write to clipboard:", error.message);
+						return Promise.resolve();
+					});
+				} catch (error) {
+					console.log(error);
 				}
-				return navigator.clipboard.writeText(content).catch((error) => {
-					console.log("Cannot write to clipboard:", error.message);
-					return Promise.resolve();
-				});
-			} catch (error) {
-				console.log(error);
-			}
-		});
+			});
+		// While the popup has focus (the user just clicked) hand the pending content to the browser as a promise.
+		// It is written as soon as it arrives, even if the user has switched to another window in the meantime.
+		if (
+			document.hasFocus() &&
+			typeof ClipboardItem !== "undefined" &&
+			navigator.clipboard.write
+		) {
+			return navigator.clipboard
+				.write([
+					new ClipboardItem({
+						"text/plain": contentPromise.then(
+							(content) => new Blob([content], { type: "text/plain" }),
+						),
+					}),
+				])
+				.catch(writeWhenReady);
+		}
+		return writeWhenReady();
 	}
 }
 
@@ -1205,10 +1224,6 @@ function notify(content: string) {
 				message: "",
 				iconUrl: "/data/img/icon-32.png",
 			});
-		});
-	} else if (TARGET === "electron") {
-		new Notification(content, {
-			silent: true,
 		});
 	} else {
 		const options = { silent: true };

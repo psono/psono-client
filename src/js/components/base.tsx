@@ -1,7 +1,6 @@
 import { makeStyles } from "@mui/styles";
 import PropTypes from "prop-types";
 import React from "react";
-import deviceService from "../services/device";
 import Sidebar from "./sidebar";
 import Topbar from "./topbar";
 
@@ -12,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	// necessary for content to be below app bar
 	toolbar: {
-		minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
+		minHeight: "50px",
 		flexShrink: 0,
 	},
 	fullContent: {

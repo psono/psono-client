@@ -6,18 +6,25 @@ import { applyMiddleware, compose, createStore } from "redux";
 import type { Middleware } from "redux";
 import { createLogger } from "redux-logger";
 import { createMigrate, persistReducer } from "redux-persist";
-import type { MigrationManifest } from "redux-persist";
+import type { MigrationManifest, Persistor } from "redux-persist";
 import type { PersistPartial } from "redux-persist/es/persistReducer";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
 import {
 	createStateSyncMiddleware,
 	initMessageListener,
 } from "redux-state-sync";
 import thunkMiddleware from "redux-thunk";
-import { SET_REQUESTS_IN_PROGRESS } from "../actions/action-types";
+import {
+	LOGOUT,
+	SET_REQUESTS_IN_PROGRESS,
+	SET_SERVER_INFO,
+	SET_SERVER_POLICY,
+} from "../actions/action-types";
 
 import rootReducer from "../reducers";
 import accountService from "./account";
 import storageService from "./storage";
+import vaultLock from "./vault-lock";
 import type {
 	OfflineCacheEncryptionKey,
 	ScryptParameters,
@@ -30,8 +37,27 @@ import type {
 	PersistentState,
 } from "../../types/state";
 
-const appReducer = rootReducer;
+const appReducer: typeof rootReducer = (state, action) => {
+	if (action.type === "@@VAULT_LOCK") {
+		const empty = rootReducer(undefined, { type: "@@INIT" });
+		return {
+			...empty,
+			persistent: state?.persistent ?? empty.persistent,
+			server: state?.server ?? empty.server,
+		};
+	}
+	if (action.type === "@@VAULT_RESTORE" && restoredState) return restoredState;
+	return rootReducer(state, action);
+};
+let restoredState: AppState | undefined;
 let store: AppStore;
+let unsubscribeLock: (() => void) | undefined;
+let activePersistor: Persistor | undefined;
+let storeGeneration = 0;
+
+export function registerPersistor(persistor: Persistor) {
+	activePersistor = persistor;
+}
 
 type PersistedAppState = AppState & PersistPartial;
 type DebugWindow = Window & {
@@ -83,15 +109,79 @@ export function migrateOfflineCacheEncryptionInfo<
 }
 
 export const initStore = async () => {
+	if (activePersistor) {
+		activePersistor.pause();
+		await activePersistor.flush();
+	}
+	await vaultLock.flush();
+	// Retired stores may still be referenced by a state-sync listener. Clear
+	// them, and permanently reject later application actions for that instance.
+	store?.dispatch({ type: "@@VAULT_LOCK" });
+	const instance = ++storeGeneration;
 	const persistAccountId = await accountService.getCurrentId();
+	await vaultLock.initialize(persistAccountId);
 
 	const config = {
 		channel: `redux_state_sync:${persistAccountId}`,
-		blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
+		// Never let the library's IndexedDB/localStorage fallback persist actions
+		// containing session keys. All supported clients have native channels.
+		broadcastChannelOption: { type: "native" as const },
+		blacklist: [
+			"persist/PERSIST",
+			"persist/REHYDRATE",
+			"@@VAULT_LOCK",
+			"@@VAULT_RESTORE",
+		],
 	};
 
 	const middlewares: Middleware<object, AppState>[] = [
+		() => (next) => (action) => {
+			if (instance !== storeGeneration && !String(action.type).startsWith("@@"))
+				return;
+			if (
+				vaultLock.isBlocked() &&
+				action.type !== LOGOUT &&
+				!String(action.type).startsWith("persist/") &&
+				!String(action.type).startsWith("@@")
+			)
+				return;
+			return next(action);
+		},
 		thunkMiddleware,
+		({ getState }) =>
+			(next) =>
+			(action) => {
+				const result = next(action);
+				if (
+					action.type === SET_SERVER_POLICY ||
+					action.type === SET_SERVER_INFO
+				) {
+					const server = getState().server;
+					const lock = vaultLock.getConfiguration();
+					if (
+						lock?.enabled &&
+						server.complianceMaxLockTimeout &&
+						server.complianceMaxLockTimeout > 0 &&
+						lock.timeout > server.complianceMaxLockTimeout
+					) {
+						vaultLock
+							.update(
+								true,
+								server.complianceMaxLockTimeout,
+								!!server.complianceEnforceLocking,
+								server.complianceMaxLockTimeout,
+							)
+							.catch(() => vaultLock.lock());
+					}
+					if (
+						server.complianceDisableOfflineMode ||
+						(server.complianceEnforceLocking && !lock?.enabled)
+					) {
+						vaultLock.clearAccountData(persistAccountId).catch(() => {});
+					}
+				}
+				return result;
+			},
 		createStateSyncMiddleware(config),
 	];
 
@@ -256,7 +346,8 @@ export const initStore = async () => {
 		key: persistAccountId,
 		blacklist: ["transient", "notification"],
 		version: 11,
-		storage: storageService.get("state"),
+		storage: vaultLock.persistence,
+		stateReconciler: autoMergeLevel2<AppState>,
 		debug: false,
 		// redux-persist exposes only _persist; these migrations operate on our roots.
 		migrate: createMigrate(migrations as unknown as MigrationManifest, {
@@ -264,7 +355,10 @@ export const initStore = async () => {
 		}),
 	};
 
-	const persistedReducer = persistReducer(persistConfig, appReducer);
+	const persistedReducer = persistReducer<AppState, AppAction>(
+		persistConfig,
+		appReducer,
+	);
 
 	store = createStore(
 		persistedReducer,
@@ -272,6 +366,37 @@ export const initStore = async () => {
 	);
 
 	initMessageListener(store);
+	unsubscribeLock?.();
+	unsubscribeLock = vaultLock.subscribe(() => {
+		if (vaultLock.isBlocked()) store.dispatch({ type: "@@VAULT_LOCK" });
+		else if (
+			vaultLock.getConfiguration()?.enabled &&
+			!store.getState().user.isLoggedIn
+		) {
+			const generation = vaultLock.getRevision();
+			vaultLock.persistence
+				.getItem(`persist:${persistAccountId}`)
+				.then((raw) => {
+					if (
+						!raw ||
+						vaultLock.isLocked() ||
+						generation !== vaultLock.getRevision()
+					)
+						return;
+					const serialized = JSON.parse(raw) as Record<string, string>;
+					const next = rootReducer(undefined, { type: "@@INIT" });
+					for (const key of Object.keys(next) as (keyof AppState)[]) {
+						if (serialized[key])
+							Object.assign(next, {
+								[key]: { ...next[key], ...JSON.parse(serialized[key]) },
+							});
+					}
+					restoredState = next;
+					store.dispatch({ type: "@@VAULT_RESTORE" });
+					restoredState = undefined;
+				});
+		}
+	});
 
 	// Expose store to window only in development for debugging (optional)
 	if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
@@ -291,7 +416,9 @@ export const initLinkShareStore = async () => {
 	const initialState = appReducer(undefined, { type: "@@INIT_LINK_SHARE" });
 	const accountId = await accountService.getCurrentId();
 	const persistedState: Record<string, string> | null = JSON.parse(
-		(await storageService.findKey("state", `persist:${accountId}`)) ?? "null",
+		(await vaultLock.readPublicState(accountId)) ??
+			(await vaultLock.readAccount(accountId)) ??
+			"null",
 	);
 
 	if (persistedState?.persistent) {

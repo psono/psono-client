@@ -1,10 +1,17 @@
-import type { Datastore } from "../../types/datastore";
+import type {
+	Datastore,
+	DatastoreFolder,
+	ShareRights,
+} from "../../types/datastore";
+import apiClient from "./api-client";
 import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
 import shareService from "./share";
 import * as storeService from "./store";
 import rootReducer from "../reducers";
 import { loadWordlist } from "./passphrase";
+import helper from "./helper";
+import offlineCache from "./offline-cache";
 
 describe("Service: datastorePasswordService - unavailable data", () => {
 	afterEach(() => {
@@ -34,6 +41,51 @@ describe("Service: datastorePasswordService - unavailable data", () => {
 		).rejects.toEqual({
 			errors: ["SERVER_OFFLINE"],
 		});
+	});
+
+	it.each([
+		"cache-only",
+		"refresh",
+	] as const)("does not publish a partial display snapshot when a nested share fails (%s)", async (mode) => {
+		jest.spyOn(datastoreService, "getDatastoreForDisplay").mockResolvedValue({
+			datastore_id: "ds",
+			folders: [
+				{
+					id: "outer",
+					share_id: "outer-share",
+					share_secret_key: "outer-key",
+				},
+			],
+		});
+		jest.spyOn(shareService, "readShareRightsOverview").mockResolvedValue({
+			share_rights: [
+				{ share_id: "outer-share", read: true, write: true, grant: false },
+			],
+		});
+		const failure =
+			mode === "cache-only" ? new Error("missing cache") : { status: 403 };
+		const read = jest
+			.spyOn(shareService, "readShare")
+			.mockImplementation(async (id) => {
+				if (id === "outer-share")
+					return {
+						data: {
+							folders: [
+								{
+									id: "nested",
+									share_id: "nested-share",
+									share_secret_key: "nested-key",
+								},
+							],
+						},
+						rights: { read: true, write: true, grant: false },
+					};
+				throw failure;
+			});
+		await expect(
+			datastorePasswordService.getPasswordDatastoreForDisplay("ds", mode),
+		).rejects.toBe(failure);
+		expect(read).toHaveBeenCalledWith("nested-share", "nested-key", mode);
 	});
 });
 
@@ -438,5 +490,626 @@ describe("Service: datastorePasswordService share_index", () => {
 			readShareSpy.mockRestore();
 			writeShareSpy.mockRestore();
 		}
+	});
+});
+
+describe("Service: datastorePasswordService - entry and folder locations", () => {
+	let stored: Datastore;
+	let shareContent: Datastore;
+	let rights: ShareRights;
+
+	beforeEach(() => {
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		jest.spyOn(storeService, "getStore").mockReturnValue({
+			getState: () => state,
+		} as ReturnType<typeof storeService.getStore>);
+		jest.spyOn(offlineCache, "isActive").mockReturnValue(false);
+		rights = { read: true, write: true, grant: true };
+		shareContent = {
+			type: "note",
+			name: "Example",
+			secret_id: "secret",
+			secret_key: "key",
+		};
+		stored = {
+			datastore_id: "ds",
+			write_date: "initial",
+			folders: [
+				{ id: "original", items: [{ id: "entry", ...shareContent }] },
+				{ id: "target" },
+				{ id: "other" },
+			],
+		};
+		jest
+			.spyOn(datastoreService, "getDatastore")
+			.mockImplementation(async () => helper.duplicateObject(stored));
+		jest
+			.spyOn(datastoreService, "fillStorage")
+			.mockImplementation(() => undefined);
+		jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockImplementation(async () => ({
+				share_rights: [{ share_id: "share", ...rights }],
+			}));
+		jest.spyOn(shareService, "readShare").mockImplementation(async () => ({
+			data: helper.duplicateObject(shareContent),
+			rights: { ...rights },
+		}));
+		jest
+			.spyOn(shareService, "createShare")
+			.mockImplementation(async (content) => {
+				shareContent = helper.duplicateObject(content);
+				datastoreService.normalizeShareContent(shareContent);
+				delete shareContent.id;
+				return { share_id: "share", secret_key: "share-key" };
+			});
+		jest.spyOn(apiClient, "createShareLink").mockResolvedValue({ data: {} });
+		jest
+			.spyOn(datastoreService, "saveDatastoreContent")
+			.mockImplementation(async (_type, _description, content) => {
+				if (!content || Array.isArray(content))
+					throw new Error("Expected a datastore");
+				stored = helper.duplicateObject(content);
+				datastoreService.hideSubShareContent(stored);
+				stored.write_date = "updated";
+				return { write_date: stored.write_date };
+			});
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	function makeShared() {
+		Object.assign(stored.folders![0].items![0], {
+			share_id: "share",
+			share_secret_key: "share-key",
+		});
+		stored.share_index = {
+			share: { secret_key: "share-key", paths: [["original", "entry"]] },
+		};
+	}
+
+	it("persists multiple locations in the same datastore and reads current content through every link", async () => {
+		makeShared();
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		await datastorePasswordService.linkEntry(["original", "entry"], ["other"]);
+		expect(shareService.createShare).not.toHaveBeenCalled();
+		expect(stored.share_index!.share.paths).toHaveLength(3);
+		const locationIds = stored.folders!.map((folder) => folder.items![0].id);
+		expect(new Set(locationIds).size).toBe(3);
+		expect(locationIds[0]).toBe("entry");
+		// Persisted locations contain no copy of the secret or its key.
+		for (const folder of stored.folders!) {
+			expect(folder.items![0].secret_id).toBeUndefined();
+			expect(folder.items![0].secret_key).toBeUndefined();
+		}
+		shareContent.name = "Updated through another location";
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		for (const folder of loaded.folders!) {
+			expect(folder.items![0].name).toBe(shareContent.name);
+			expect(folder.items![0].secret_id).toBe("secret");
+		}
+		// Unlinking one location leaves the other index paths intact.
+		datastorePasswordService.onShareDeleted(
+			"share",
+			["target", locationIds[1]],
+			loaded,
+			1,
+		);
+		expect(loaded.share_index!.share.paths).toEqual([
+			["original", "entry"],
+			["other", locationIds[2]],
+		]);
+	});
+
+	it.each([
+		"note",
+		"file",
+	])("converts an unshared %s once and retains its original location and content", async (type) => {
+		const item = stored.folders![0].items![0];
+		item.type = type;
+		if (type === "file") {
+			delete item.secret_id;
+			delete item.secret_key;
+			item.file_id = "file";
+			item.file_secret_key = "file-key";
+		}
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		expect(shareService.createShare).toHaveBeenCalledTimes(1);
+		expect(stored.folders![0].items![0].id).toBe("entry");
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		const original = loaded.folders![0].items![0];
+		const linked = loaded.folders![1].items![0];
+		expect(linked.share_id).toBe(original.share_id);
+		expect(linked.secret_id || linked.file_id).toBe(
+			type === "file" ? "file" : "secret",
+		);
+		expect(stored.share_index!.share.paths).toHaveLength(2);
+	});
+
+	it("allows a read-only share in a personal folder, but requires grant permission for shared destinations", async () => {
+		makeShared();
+		rights = { read: true, write: false, grant: false };
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		const item = (await datastorePasswordService.getPasswordDatastore())!
+			.folders![0].items![0];
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(item, {
+				id: "shared-folder",
+				share_id: "parent",
+				share_rights: { read: true, write: true, grant: true },
+			}),
+		).toBe(false);
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(item, {
+				id: "nested-folder",
+				parent_share_id: "parent",
+				share_rights: { read: true, write: true, grant: true },
+			}),
+		).toBe(false);
+	});
+
+	it.each([
+		true,
+		false,
+	])("allows repeated entries in the original folder (already shared: %s)", async (alreadyShared) => {
+		if (alreadyShared) makeShared();
+		await datastorePasswordService.linkEntry(
+			["original", "entry"],
+			["original"],
+		);
+		await datastorePasswordService.linkEntry(
+			["original", "entry"],
+			["original"],
+		);
+		const entries = stored.folders![0].items!;
+		expect(entries).toHaveLength(3);
+		expect(new Set(entries.map((entry) => entry.id)).size).toBe(3);
+		expect(entries.map((entry) => entry.share_id)).toEqual([
+			"share",
+			"share",
+			"share",
+		]);
+		expect(stored.share_index!.share.paths).toEqual(
+			entries.map((entry) => ["original", entry.id]),
+		);
+		expect(apiClient.createShareLink).toHaveBeenCalledTimes(2);
+		expect(shareService.createShare).toHaveBeenCalledTimes(
+			alreadyShared ? 0 : 1,
+		);
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		expect(loaded.folders![0].items!.map((entry) => entry.secret_id)).toEqual([
+			"secret",
+			"secret",
+			"secret",
+		]);
+	});
+
+	it("rejects read-only destination folders", () => {
+		makeShared();
+		stored.folders![0].items![0].share_rights = rights;
+		stored.folders![1].share_rights = {
+			read: true,
+			write: false,
+			grant: false,
+		};
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(
+				stored.folders![0].items![0],
+				stored.folders![1],
+			),
+		).toBe(false);
+		expect(apiClient.createShareLink).not.toHaveBeenCalled();
+		expect(datastoreService.saveDatastoreContent).not.toHaveBeenCalled();
+	});
+
+	it("leaves the original conversion usable and retryable if creating the additional link fails", async () => {
+		jest
+			.mocked(apiClient.createShareLink)
+			.mockRejectedValueOnce(new Error("Server unavailable"));
+		await expect(
+			datastorePasswordService.linkEntry(["original", "entry"], ["target"]),
+		).rejects.toThrow("Server unavailable");
+		expect(stored.share_index!.share.paths).toEqual([["original", "entry"]]);
+		expect(stored.folders![1].items).toBeUndefined();
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		expect(shareService.createShare).toHaveBeenCalledTimes(1);
+		expect(stored.share_index!.share.paths).toHaveLength(2);
+	});
+
+	it("does not persist a phantom location if the link API rejects an existing share", async () => {
+		makeShared();
+		jest
+			.mocked(apiClient.createShareLink)
+			.mockRejectedValueOnce(new Error("Forbidden"));
+		await expect(
+			datastorePasswordService.linkEntry(["original", "entry"], ["target"]),
+		).rejects.toThrow("Forbidden");
+		expect(datastoreService.saveDatastoreContent).not.toHaveBeenCalled();
+	});
+
+	it("links into a writable shared folder using that share as the backend parent", async () => {
+		makeShared();
+		stored.folders![1] = {
+			id: "target",
+			share_id: "parent",
+			share_secret_key: "parent-key",
+		};
+		let parentContent: Datastore = { name: "Shared folder", items: [] };
+		jest.mocked(shareService.readShare).mockImplementation(async (id) => ({
+			data: helper.duplicateObject(
+				id === "parent" ? parentContent : shareContent,
+			),
+			rights: { ...rights },
+		}));
+		jest.mocked(shareService.readShareRightsOverview).mockResolvedValue({
+			share_rights: [
+				{ share_id: "share", ...rights },
+				{ share_id: "parent", ...rights },
+			],
+		});
+		jest
+			.spyOn(shareService, "writeShare")
+			.mockImplementation(async (id, content) => {
+				expect(id).toBe("parent");
+				parentContent = helper.duplicateObject(content);
+				datastoreService.hideSubShareContent(parentContent);
+				return { data: {} };
+			});
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		expect(
+			jest.mocked(apiClient.createShareLink).mock.calls[0].slice(3),
+		).toEqual(["share", "parent", undefined]);
+		expect(parentContent.share_index!.share.paths).toHaveLength(1);
+		expect(stored.share_index!.share.paths).toEqual([["original", "entry"]]);
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		expect(loaded.folders![1].items![0].secret_id).toBe("secret");
+	});
+
+	it("rejects offline writes and unshared entries that cannot be shared", async () => {
+		jest.mocked(offlineCache.isActive).mockReturnValue(true);
+		await expect(
+			datastorePasswordService.linkEntry(["original", "entry"], ["target"]),
+		).rejects.toThrow("OFFLINE");
+		expect(datastoreService.getDatastore).not.toHaveBeenCalled();
+		expect(
+			datastorePasswordService.canLinkEntry({
+				id: "entry",
+				type: "note",
+				share_rights: { read: true, write: true, grant: false },
+			}),
+		).toBe(false);
+		expect(
+			datastorePasswordService.canLinkEntry({
+				id: "entry",
+				type: "note",
+				share_id: "share",
+				share_secret_key: "share-key",
+				share_rights: { read: false, write: true, grant: true },
+			}),
+		).toBe(false);
+	});
+
+	it("reloads a personal link whose read access is inherited from the original shared folder", async () => {
+		const parentContent: Datastore = {
+			name: "Shared folder",
+			items: [
+				{ id: "entry", share_id: "share", share_secret_key: "share-key" },
+			],
+			share_index: {
+				share: { secret_key: "share-key", paths: [["entry"]] },
+			},
+		};
+		stored.folders![0] = {
+			id: "original",
+			share_id: "parent",
+			share_secret_key: "parent-key",
+		};
+		jest.mocked(shareService.readShareRightsOverview).mockResolvedValue({
+			share_rights: [
+				{ share_id: "parent", read: true, write: false, grant: false },
+			],
+		});
+		jest.mocked(shareService.readShare).mockImplementation(async (id) => ({
+			data: helper.duplicateObject(
+				id === "parent" ? parentContent : shareContent,
+			),
+			rights: { read: true, write: false, grant: false },
+		}));
+		await datastorePasswordService.linkEntry(["original", "entry"], ["target"]);
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		expect(loaded.folders![1].items![0].secret_id).toBe("secret");
+		expect(loaded.folders![1].items![0].share_rights!.write).toBe(false);
+		expect(loaded.folders![0].items![0].share_rights!.delete).toBe(false);
+		expect(loaded.folders![1].items![0].share_rights!.delete).toBe(true);
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockImplementation(async () => helper.duplicateObject(stored));
+		const cached =
+			await datastorePasswordService.getPasswordDatastoreForDisplay(
+				"ds",
+				"cache-only",
+			);
+		expect(cached.folders![1].items![0].secret_id).toBe("secret");
+		// With the inherited permission gone, neither location may be loaded.
+		jest.mocked(shareService.readShareRightsOverview).mockResolvedValue({
+			share_rights: [],
+		});
+		jest.mocked(shareService.readShare).mockClear();
+		const revoked = (await datastorePasswordService.getPasswordDatastore())!;
+		expect(revoked.folders![1].items![0].secret_id).toBeUndefined();
+		expect(shareService.readShare).not.toHaveBeenCalled();
+	});
+
+	it("converts an ordinary folder and reloads its contents at independent paths", async () => {
+		stored.folders![0].name = "Folder";
+		stored.folders![0].folders = [
+			{
+				id: "child",
+				name: "Child",
+				items: [{ id: "file", type: "file", file_id: "file-id" }],
+			},
+		];
+		await datastorePasswordService.linkEntry(["original"], ["target"]);
+		expect(shareService.createShare).toHaveBeenCalledTimes(1);
+		await datastorePasswordService.linkEntry(["original"], ["target"]);
+		expect(apiClient.createShareLink).toHaveBeenCalledTimes(2);
+		const aliasId = stored.folders![1].folders![0].id;
+		const secondAliasId = stored.folders![1].folders![1].id;
+		expect(new Set(["original", aliasId, secondAliasId]).size).toBe(3);
+		expect(aliasId).not.toBe("original");
+		expect(stored.folders![1].items).toBeUndefined();
+		expect(stored.share_index!.share.paths).toEqual([
+			["original"],
+			["target", aliasId],
+			["target", secondAliasId],
+		]);
+		shareContent.items!.push({
+			id: "new",
+			type: "note",
+			name: "New content",
+			secret_id: "new-secret",
+		});
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		const original = loaded.folders![0];
+		const alias = loaded.folders![1].folders![0];
+		expect(alias.items!.map((item) => item.id)).toEqual(["entry", "new"]);
+		expect(original.items!.map((item) => item.id)).toEqual(["entry", "new"]);
+		expect(alias.folders![0]).not.toBe(original.folders![0]);
+		expect(original.folders![0].path).toEqual(["original", "child"]);
+		expect(alias.folders![0].path).toEqual(["target", aliasId, "child"]);
+		expect(loaded.folders![1].folders![1].folders![0].path).toEqual([
+			"target",
+			secondAliasId,
+			"child",
+		]);
+		expect(alias.folders![0].items![0].file_id).toBe("file-id");
+	});
+
+	it("loads nested shares through a cached folder alias inside another share", async () => {
+		shareContent = {
+			name: "Source folder",
+			folders: [
+				{
+					id: "nested",
+					share_id: "nested-share",
+					share_secret_key: "nested-key",
+				},
+			],
+			share_index: {
+				"nested-share": { secret_key: "nested-key", paths: [["nested"]] },
+			},
+		};
+		stored.folders![0] = {
+			id: "original",
+			share_id: "share",
+			share_secret_key: "share-key",
+		};
+		stored.folders![1] = {
+			id: "target",
+			share_id: "parent",
+			share_secret_key: "parent-key",
+		};
+		let parentContent: Datastore = { name: "Destination", folders: [] };
+		jest.mocked(shareService.readShareRightsOverview).mockResolvedValue({
+			share_rights: [
+				{ share_id: "share", ...rights },
+				{ share_id: "parent", ...rights },
+			],
+		});
+		jest.mocked(shareService.readShare).mockImplementation(async (id) => {
+			if (id === "parent") await Promise.resolve();
+			let data = shareContent;
+			if (id === "parent") data = parentContent;
+			else if (id !== "share") {
+				data = {
+					name: "Nested folder",
+					items: [
+						{ id: "nested-note", type: "note", secret_id: "nested-secret" },
+					],
+				};
+			}
+			return { data: helper.duplicateObject(data), rights: { ...rights } };
+		});
+		jest
+			.spyOn(shareService, "writeShare")
+			.mockImplementation(async (id, data) => {
+				expect(id).toBe("parent");
+				parentContent = helper.duplicateObject(data);
+				datastoreService.hideSubShareContent(parentContent);
+				return { data: {} };
+			});
+		await datastorePasswordService.linkEntry(["original"], ["target"]);
+		jest.mocked(shareService.readShare).mockClear();
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		const originalChild = loaded.folders![0].folders![0];
+		const alias = loaded.folders![1].folders![0];
+		expect(alias.folders![0].items![0].secret_id).toBe("nested-secret");
+		expect(originalChild.items![0].secret_id).toBe("nested-secret");
+		expect(alias.folders![0]).not.toBe(originalChild);
+		expect(alias.folders![0].path).toEqual(["target", alias.id, "nested"]);
+		expect(
+			jest
+				.mocked(shareService.readShare)
+				.mock.calls.filter(([id]) => id === "share"),
+		).toHaveLength(1);
+	});
+
+	it("rejects self, descendants, and descendant aliases before converting a folder", async () => {
+		stored.folders![0].folders = [{ id: "child", name: "Child" }];
+		await expect(
+			datastorePasswordService.linkEntry(["original"], ["original"]),
+		).rejects.toThrow();
+		await expect(
+			datastorePasswordService.linkEntry(["original"], ["original", "child"]),
+		).rejects.toThrow();
+		expect(shareService.createShare).not.toHaveBeenCalled();
+		expect(apiClient.createShareLink).not.toHaveBeenCalled();
+		const folder: Datastore = {
+			id: "source",
+			share_id: "source-share",
+			share_secret_key: "source-key",
+			share_rights: rights,
+			folders: [
+				{
+					id: "child",
+					share_id: "child-share",
+					share_secret_key: "child-key",
+					share_rights: rights,
+				},
+			],
+		};
+		for (const target of [
+			{ id: "source-alias", share_id: "source-share" },
+			{ id: "inside-source-alias", parent_share_id: "source-share" },
+			{ id: "child-alias", share_id: "child-share" },
+			{ id: "inside-child-alias", parent_share_id: "child-share" },
+		]) {
+			expect(
+				datastorePasswordService.canLinkEntryToFolder(folder, {
+					...target,
+					share_rights: rights,
+				}),
+			).toBe(false);
+		}
+	});
+
+	it("reloads an inherited-only folder alias and its nested shares in a personal location", async () => {
+		const parentContent: Datastore = {
+			folders: [
+				{ id: "source", share_id: "share", share_secret_key: "share-key" },
+			],
+			share_index: { share: { secret_key: "share-key", paths: [["source"]] } },
+		};
+		shareContent = {
+			name: "Inherited folder",
+			folders: [
+				{ id: "child", share_id: "child-share", share_secret_key: "child-key" },
+			],
+			share_index: {
+				"child-share": { secret_key: "child-key", paths: [["child"]] },
+			},
+		};
+		stored.folders![0] = {
+			id: "original",
+			share_id: "parent",
+			share_secret_key: "parent-key",
+		};
+		jest.mocked(shareService.readShareRightsOverview).mockResolvedValue({
+			share_rights: [
+				{ share_id: "parent", read: true, write: false, grant: false },
+			],
+		});
+		jest.mocked(shareService.readShare).mockImplementation(async (id) => {
+			let data = shareContent;
+			if (id === "parent") data = parentContent;
+			else if (id !== "share") {
+				data = {
+					items: [{ id: "note", type: "note", secret_id: "nested-secret" }],
+				};
+			}
+			return {
+				data: helper.duplicateObject(data),
+				rights: { read: true, write: false, grant: false },
+			};
+		});
+		await datastorePasswordService.linkEntry(
+			["original", "source"],
+			["target"],
+		);
+		const loaded = (await datastorePasswordService.getPasswordDatastore())!;
+		const alias = loaded.folders![1].folders![0];
+		expect(alias.folders![0].items![0].secret_id).toBe("nested-secret");
+		expect(alias.folders![0].path).toEqual(["target", alias.id, "child"]);
+		expect(loaded.folders![0].folders![0].share_rights!.delete).toBe(false);
+		expect(alias.share_rights!.delete).toBe(true);
+		expect(shareService.createShare).not.toHaveBeenCalled();
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockImplementation(async () => helper.duplicateObject(stored));
+		const cached =
+			await datastorePasswordService.getPasswordDatastoreForDisplay(
+				"ds",
+				"cache-only",
+			);
+		expect(cached.folders![1].folders![0].folders![0].items![0].secret_id).toBe(
+			"nested-secret",
+		);
+	});
+
+	it("requires permission to reparent nested shares when converting an ordinary folder", () => {
+		expect(
+			datastorePasswordService.canLinkEntry({
+				id: "empty",
+				share_rights: rights,
+			}),
+		).toBe(true);
+		const child: DatastoreFolder = {
+			id: "child",
+			share_id: "child-share",
+			share_secret_key: "child-key",
+			share_rights: { read: true, write: false, grant: false },
+		};
+		const folder: Datastore = {
+			id: "source",
+			share_rights: rights,
+			folders: [child],
+		};
+		expect(datastorePasswordService.canLinkEntry(folder)).toBe(false);
+		child.share_rights!.grant = true;
+		expect(datastorePasswordService.canLinkEntry(folder)).toBe(true);
+		child.share_rights = undefined;
+		expect(datastorePasswordService.canLinkEntry(folder)).toBe(false);
+	});
+
+	it("allows read-only shared folders in personal locations and rejects missing destination rights", () => {
+		const folder: Datastore = {
+			id: "source",
+			share_id: "source-share",
+			share_secret_key: "key",
+			share_rights: { read: true, write: false, grant: false },
+		};
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(folder, { id: "personal" }),
+		).toBe(true);
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(folder, {
+				id: "shared",
+				share_id: "parent",
+				share_rights: rights,
+			}),
+		).toBe(false);
+		folder.share_rights = rights;
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(folder, {
+				id: "nested",
+				parent_share_id: "parent",
+			}),
+		).toBe(false);
+		expect(
+			datastorePasswordService.canLinkEntryToFolder(folder, {
+				id: "duplicate",
+				folders: [{ ...folder, id: "alias" }],
+			}),
+		).toBe(true);
 	});
 });

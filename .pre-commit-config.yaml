@@ -6,5 +6,5 @@ repos:
         entry: node_modules/.bin/biome format --write
         language: system
         files: ^src/.*\.(ts|tsx|js|jsx|json)$
-        exclude: ^src/(electron/(dist|src|node_modules)/|common/data/js/lib/)
+        exclude: ^src/common/data/js/lib/
         pass_filenames: true

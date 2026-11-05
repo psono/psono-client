@@ -22,6 +22,7 @@ import notification from "./notification";
 import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import { getStore } from "./store";
+import vaultLock, { LOCK_REQUIRED_UNAVAILABLE } from "./vault-lock";
 import type {
 	AuthenticationMethod,
 	AuthErrorData,
@@ -52,6 +53,27 @@ import type {
 let sessionPassword = "";
 let verification: Partial<EncryptedValue> = {};
 let redirectOnTwoFaMissing: boolean | undefined;
+
+export const LOGOUT_ROUTE = "/logout";
+
+/** Logout must remain accessible without decrypting the vault. */
+export function isLogoutPage(routePath?: string): boolean {
+	if (typeof window === "undefined") return false;
+	const { pathname, hash } = window.location;
+	if (pathname.endsWith("/link-share-access.html")) return false;
+	const route = routePath ?? hash.replace(/^#!?/, "").split("?")[0];
+	return (
+		pathname.endsWith("/logout-success.html") ||
+		route === LOGOUT_ROUTE ||
+		route === `${LOGOUT_ROUTE}/`
+	);
+}
+vaultLock.subscribe(() => {
+	if (vaultLock.isBlocked()) {
+		sessionPassword = "";
+		verification = {};
+	}
+});
 
 /**
  * Activates a user account with the provided activation code after registration
@@ -508,7 +530,14 @@ function scheduleHashingUpgrade(password: string, expectedToken: string) {
 }
 
 /** Activates the verified session and schedules a background hashing upgrade. */
-function activateToken(): Promise<{ response: "success" }> {
+async function activateToken(): Promise<{ response: "success" }> {
+	if (
+		getStore().getState().server.complianceEnforceLocking &&
+		!(await vaultLock.isSupported())
+	) {
+		sessionPassword = "";
+		throw new Error(LOCK_REQUIRED_UNAVAILABLE);
+	}
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 	const userSauce = getStore().getState().user.userSauce;
@@ -889,11 +918,12 @@ function logout(
 			server: "",
 			avatar: "",
 		});
-		await accountService.logoutAll();
 		action().disableOfflineMode();
 		storage.removeAll();
 		storage.save();
 		action().logout(getStore().getState().user.rememberMe);
+		await vaultLock.forget();
+		await accountService.logoutAll();
 		if (msg) {
 			notification.infoSend(msg);
 		}
@@ -938,12 +968,15 @@ function logout(
 		if (!(await logoutLocal())) {
 			return { response: "ignored" };
 		}
+		accountService.broadcastReinitializeAppEvent();
+		accountService.broadcastReinitializeBackgroundEvent();
 
 		return {
 			response: "success",
 		};
 	};
 
+	if (!token || vaultLock.isLocked()) return onSuccess({ data: {} });
 	return apiClient
 		.logout(token, sessionSecretKey, undefined, postLogoutRedirectUri)
 		.then(onSuccess, onError);
@@ -955,7 +988,15 @@ function logout(
  * @returns {boolean} Returns whether a user is logged in
  */
 function isLoggedIn(): boolean {
-	return getStore().getState().user.isLoggedIn;
+	return (
+		!vaultLock.isLocked() &&
+		getStore().getState().user.isLoggedIn &&
+		(!(
+			getStore().getState().server.complianceEnforceLocking ||
+			vaultLock.getConfiguration()?.requested
+		) ||
+			vaultLock.getConfiguration()?.enabled === true)
+	);
 }
 
 /**

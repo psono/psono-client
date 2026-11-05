@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
@@ -58,10 +59,19 @@ export interface DialogSelectFolderProps extends DialogProps {
 	title: string;
 	onSelectNode: (breadcrumbs: FolderBreadcrumbs) => void;
 	isSelectable?: DialogNodeSelection;
+	description?: string;
+	submitting?: boolean;
 }
 
 const DialogSelectFolder = (props: DialogSelectFolderProps) => {
-	const { open, onClose, isSelectable, title } = props;
+	const {
+		open,
+		onClose,
+		isSelectable,
+		title,
+		description,
+		submitting = false,
+	} = props;
 	const { t } = useTranslation();
 	const classes = useStyles();
 
@@ -70,6 +80,16 @@ const DialogSelectFolder = (props: DialogSelectFolderProps) => {
 		null,
 	);
 	const [search, setSearch] = useState("");
+	const selectedFolder = path[path.length - 1] || datastore;
+	const validSelection =
+		!!selectedFolder &&
+		(!isSelectable ||
+			isSelectable({
+				...selectedFolder,
+				id: selectedFolder.id || "",
+				path: path.map((node) => node.id),
+				is_folder: true,
+			}));
 
 	let isSubscribed = true;
 	React.useEffect(() => {
@@ -99,7 +119,7 @@ const DialogSelectFolder = (props: DialogSelectFolderProps) => {
 	};
 
 	const onConfirm = () => {
-		if (!isSubscribed) {
+		if (!isSubscribed || !validSelection || submitting) {
 			return;
 		}
 		const breadcrumbs = {
@@ -132,6 +152,7 @@ const DialogSelectFolder = (props: DialogSelectFolderProps) => {
 				</div>
 			</DialogTitle>
 			<DialogContent>
+				{description && <DialogContentText>{description}</DialogContentText>}
 				<Grid container>
 					<Grid item xs={12} sm={12} md={12}>
 						<TextFieldPath
@@ -167,7 +188,12 @@ const DialogSelectFolder = (props: DialogSelectFolderProps) => {
 				>
 					{t("CLOSE")}
 				</Button>
-				<Button onClick={onConfirm} variant="contained" color="primary">
+				<Button
+					onClick={onConfirm}
+					variant="contained"
+					color="primary"
+					disabled={!validSelection || submitting}
+				>
 					{t("OK")}
 				</Button>
 			</DialogActions>

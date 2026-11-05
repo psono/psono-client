@@ -485,19 +485,25 @@ const LoginForm = (props: LoginFormProps) => {
 			return;
 		}
 		if (multifactors.length === 0) {
-			user.activateToken().then(() => {
-				//setLoginLoading(false);
+			user
+				.activateToken()
+				.then(() => {
+					//setLoginLoading(false);
 
-				if (props.samlTokenId) {
-					history.push("/");
-				} else if (props.oidcTokenId) {
-					history.push("/");
-				}
-				setTimeout(() => {
-					// initialize settings datastore
-					datastoreSettingService.getSettingsDatastore();
-				}, 1);
-			});
+					if (props.samlTokenId) {
+						history.push("/");
+					} else if (props.oidcTokenId) {
+						history.push("/");
+					}
+					setTimeout(() => {
+						// initialize settings datastore
+						datastoreSettingService.getSettingsDatastore();
+					}, 1);
+				})
+				.catch((error: unknown) => {
+					setLoginLoading(false);
+					setErrors([error instanceof Error ? error.message : String(error)]);
+				});
 		} else {
 			setLoginLoading(false);
 			handleMfa(multifactors);

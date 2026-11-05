@@ -9,6 +9,7 @@ import datastoreService from "./datastore";
 import domainSynonymsService from "./domain-synonyms";
 import helperService from "./helper";
 import notificationBarService from "./notification-bar";
+import offlineCache from "./offline-cache";
 import { getPasskeyUrl } from "./passkey-url";
 import { normalizeWordCount } from "./passphrase-config";
 import { passwordCharacterClasses } from "./password-entropy";
@@ -17,6 +18,7 @@ import shareService from "./share";
 import shareLinkService from "./share-link";
 import { getStore } from "./store";
 import urlSynonymsService from "./url-synonyms";
+import vaultLock from "./vault-lock";
 import type {
 	ChildShare,
 	Datastore,
@@ -28,9 +30,13 @@ import type {
 	ShareRights,
 } from "../../types/datastore";
 import type { ClosestParentShare, ShareRightsOverview } from "./share";
+import type { CacheMode } from "../../types/cache";
 
 const registrations: Record<string, ((value: unknown) => void)[]> = {};
 const _shareIndex: Record<string, string> = {};
+vaultLock.subscribe(() => {
+	for (const key of Object.keys(_shareIndex)) delete _shareIndex[key];
+});
 
 interface ElementLink {
 	id: string;
@@ -267,18 +273,22 @@ function updatePathsWithData(
 	const obj = search[0][search[1]];
 
 	// update share_rights in share object
-	obj["share_rights"] = content.rights;
-	obj["share_rights"]["delete"] = parentShareRights["write"];
+	obj["share_rights"] = {
+		...content.rights,
+		delete: parentShareRights["write"],
+	};
 
 	// update data (folder and items) in share object
-	for (const prop in content.data) {
-		if (!Object.hasOwn(content.data, prop)) {
+	const locationData =
+		content.data && helperService.duplicateObject(content.data);
+	for (const prop in locationData) {
+		if (!Object.hasOwn(locationData, prop)) {
 			continue;
 		}
 		if (prop == "share_rights") {
 			continue;
 		}
-		obj[prop] = content.data[prop];
+		obj[prop] = locationData![prop];
 	}
 
 	// update share_rights in folders and items
@@ -301,11 +311,14 @@ function updatePathsWithData(
 function _readShares(
 	datastore: Datastore,
 	shareRightsDict: Record<string, ShareRights>,
+	mode: CacheMode = "network-first",
 ): Promise<Datastore> {
-	return new Promise<Datastore>((resolve) => {
+	return new Promise<Datastore>((resolve, reject) => {
+		let failure: unknown;
 		let open_calls = 0;
 		const all_calls: Promise<void>[] = [];
 		const all_share_data: Record<string, ShareContent> = {};
+		const inheritedShareLinks: { shareId: string; path: DatastorePath }[] = [];
 		let content: ShareAccess;
 		// Reads repair indexes in memory only; a later user write persists them.
 		repairShareIndex(datastore);
@@ -344,6 +357,8 @@ function _readShares(
 			) => {
 				const onSuccess = (content: ShareContent | undefined) => {
 					if (typeof content === "undefined") {
+						if (mode !== "network-first")
+							failure = { errors: ["SERVER_OFFLINE"] };
 						open_calls--;
 						localResolve();
 						return;
@@ -374,14 +389,17 @@ function _readShares(
 					localResolve();
 				};
 
-				const onError = () => {
+				const onError = (error: unknown) => {
+					if (mode !== "network-first") failure = error;
 					open_calls--;
 					localResolve();
 				};
 				open_calls++;
-				return shareService
-					.readShare(share_id, _shareIndex[share_id])
-					.then(onSuccess, onError);
+				return (
+					mode === "network-first"
+						? shareService.readShare(share_id, _shareIndex[share_id])
+						: shareService.readShare(share_id, _shareIndex[share_id], mode)
+				).then(onSuccess, onError);
 			};
 
 			for (const share_id in share_index) {
@@ -420,13 +438,24 @@ function _readShares(
 
 					// Test if we already have it cached
 					if (Object.hasOwn(all_share_data, share_id)) {
+						const cached = all_share_data[share_id];
 						updatePathsWithData(
 							datastore,
 							share_index[share_id].paths[i],
-							all_share_data[share_id],
+							cached,
 							parent_share_rights,
 							parent_share_id,
+							parent_datastore_id,
+						);
+						readSharesRecursive(
+							sub_datastore,
+							share_rights_dict,
+							cached.data.share_index,
+							all_share_data,
+							cached.rights,
+							share_id,
 							undefined,
+							new_parent_share_stack,
 						);
 						continue;
 					}
@@ -475,11 +504,13 @@ function _readShares(
 						continue;
 					}
 
-					// No specific share rights for this share and datastore as parent (no inheritance possible) we a assume a share where we lost access rights
+					// The rights overview contains direct rights only. A personal
+					// link may inherit access through another location in the tree.
 					if (
 						!Object.hasOwn(share_rights_dict, share_id) &&
 						typeof parent_datastore_id !== "undefined"
 					) {
+						inheritedShareLinks.push({ shareId: share_id, path: path_copy });
 						continue;
 					}
 
@@ -516,14 +547,46 @@ function _readShares(
 			delete: true,
 		});
 
-		return Promise.all(all_calls).then((ret) => {
-			localResolve = () => {
-				if (open_calls === 0) {
-					resolve(datastore);
-				}
-			};
-			localResolve();
-		});
+		return Promise.all(all_calls)
+			.then((ret) => {
+				localResolve = () => {
+					if (open_calls === 0) {
+						// Only use content authorized while loading another location;
+						// missing/revoked shares remain inaccessible, including offline.
+						for (const link of inheritedShareLinks.splice(0)) {
+							const content = all_share_data[link.shareId];
+							if (!content) continue;
+							updatePathsWithData(
+								datastore,
+								link.path,
+								content,
+								parent_share_rights,
+								undefined,
+								datastore.datastore_id,
+							);
+							const found = datastoreService.findInDatastore(
+								link.path,
+								datastore,
+							);
+							readSharesRecursive(
+								found[0][found[1]],
+								shareRightsDict,
+								content.data.share_index,
+								all_share_data,
+								content.rights,
+								link.shareId,
+								undefined,
+								[link.shareId],
+							);
+						}
+						if (open_calls !== 0) return;
+						if (failure) reject(failure);
+						else resolve(datastore);
+					}
+				};
+				localResolve();
+			})
+			.catch(reject);
 	});
 }
 
@@ -784,6 +847,23 @@ function getPasswordDatastore(id?: string): Promise<Datastore | undefined> {
 	};
 
 	return datastoreService.getDatastore(type, id).then(onSuccess, onError);
+}
+
+async function getPasswordDatastoreForDisplay(
+	id: string | undefined,
+	mode: CacheMode,
+): Promise<Datastore> {
+	const [datastore, rights] = await Promise.all([
+		datastoreService.getDatastoreForDisplay("password", id, mode),
+		shareService.readShareRightsOverview(mode),
+	]);
+	if (!rights || !Array.isArray(rights.share_rights))
+		throw new Error("Invalid share rights response.");
+	const byShare: Record<string, ShareRights> = {};
+	for (const right of rights.share_rights) byShare[right.share_id] = right;
+	const result = await _readShares(datastore, byShare, mode);
+	updatePathsRecursive(result, []);
+	return result;
 }
 
 /**
@@ -1975,7 +2055,7 @@ function analyzeBreadcrumbs(breadcrumbs: Breadcrumbs, datastore: Datastore) {
  *
  * @returns {Array} The paths of changes
  */
-function createShareLinkInDatastore(
+async function createShareLinkInDatastore(
 	share: Datastore & { share_id: string },
 	target: Datastore,
 	path: DatastorePath,
@@ -1997,6 +2077,12 @@ function createShareLinkInDatastore(
 	const link_id = cryptoLibrary.generateUuid();
 
 	share.id = link_id;
+	await shareLinkService.createShareLink(
+		link_id,
+		share.share_id,
+		parentShareId,
+		parentDatastoreId,
+	);
 
 	if (typeof share.type === "undefined") {
 		//its a folder, lets add it to folders
@@ -2011,13 +2097,6 @@ function createShareLinkInDatastore(
 		}
 		target.items.push(share as DatastoreItem);
 	}
-
-	shareLinkService.createShareLink(
-		link_id,
-		share.share_id,
-		parentShareId,
-		parentDatastoreId,
-	);
 
 	path.push(share.id);
 
@@ -2038,7 +2117,7 @@ function createShareLinkInDatastore(
  *
  * @returns {Promise} Returns a promise with the success of the action
  */
-function createShareLinksInDatastore(
+async function createShareLinksInDatastore(
 	shares: (Datastore & { share_id: string })[],
 	target: Datastore,
 	parentPath: DatastorePath,
@@ -2054,7 +2133,7 @@ function createShareLinksInDatastore(
 		const share = shares[i];
 
 		changedPaths.push(
-			...createShareLinkInDatastore(
+			...(await createShareLinkInDatastore(
 				share,
 				target,
 				helperService.duplicateObject(path),
@@ -2062,7 +2141,7 @@ function createShareLinksInDatastore(
 				parentDatastoreId,
 				datastore,
 				parentShare,
-			),
+			)),
 		);
 	}
 
@@ -2259,6 +2338,135 @@ function collapseFoldersRecursive<T extends Datastore>(obj: T): T {
 	};
 }
 
+/** Converting a folder reparents its ordinary contents and its immediate shares. */
+function canConvertToShare(item: Datastore): boolean {
+	const rights = item.share_rights;
+	if (rights?.read !== true || rights.grant !== true) return false;
+	if (item.share_id) return !!item.share_secret_key;
+	if (rights.write !== true || item.type === "user") return false;
+	return [...(item.folders || []), ...(item.items || [])].every(
+		canConvertToShare,
+	);
+}
+
+/** Existing shares only need read access to be added to a personal folder. */
+function canLinkEntry(item: Datastore) {
+	if (!item.id || item.datastore_id || item.type === "user" || item.deleted)
+		return false;
+	if (item.share_rights?.read !== true) return false;
+	if (item.share_id) return !!item.share_secret_key;
+	return (
+		!getStore().getState().server.complianceDisableShares &&
+		canConvertToShare(item)
+	);
+}
+
+/** Location IDs change for aliases; share IDs and child IDs identify their contents. */
+function wouldCreateFolderCycle(source: Datastore, target: Datastore): boolean {
+	const targetShareId = target.share_id || target.parent_share_id;
+	const visitedShares = new Set<string>();
+	const containsTarget = (node: Datastore): boolean => {
+		if (node.id === target.id) return true;
+		if (node.share_id) {
+			if (node.share_id === targetShareId) return true;
+			if (visitedShares.has(node.share_id)) return false;
+			visitedShares.add(node.share_id);
+			// An unreadable subtree cannot be checked for a back-reference to
+			// a shared destination. Personal destinations cannot create that cycle.
+			if (targetShareId && node.share_rights?.read !== true) return true;
+		}
+		if (targetShareId && node.share_index?.[targetShareId]) return true;
+		return (node.folders || []).some(containsTarget);
+	};
+	return containsTarget(source);
+}
+
+function canLinkEntryToFolder(item: Datastore, folder: Datastore) {
+	if (!canLinkEntry(item) || folder.type || folder.deleted) return false;
+	const sharedTarget = !!(folder.share_id || folder.parent_share_id);
+	if (sharedTarget && !folder.share_rights) return false;
+	if (
+		folder.share_rights &&
+		(!folder.share_rights.read || !folder.share_rights.write)
+	)
+		return false;
+	if (sharedTarget && item.share_rights?.grant !== true) return false;
+	if (!item.type && wouldCreateFolderCycle(item, folder)) return false;
+	return true;
+}
+
+/** Keep an entry or folder in one encrypted share, with independent location IDs. */
+async function linkEntry(sourcePath: DatastorePath, targetPath: DatastorePath) {
+	if (offlineCache.isActive()) throw new Error("OFFLINE");
+	let datastore = await getPasswordDatastore();
+	if (!datastore) throw new Error("DATASTORE_LOAD_FAILED");
+	const source = datastoreService.findInDatastore(sourcePath, datastore);
+	let item = source[0][source[1]];
+	let target = analyzeBreadcrumbs({ id_breadcrumbs: targetPath }, datastore);
+	if (!canLinkEntryToFolder(item, target.target)) {
+		throw new Error("NO_PERMISSION_OR_NOT_EXIST");
+	}
+
+	if (!item.share_id) {
+		const parent = analyzeBreadcrumbs(
+			{ id_breadcrumbs: sourcePath.slice(0, -1) },
+			datastore,
+		);
+		const created = await shareService.createShare(
+			item,
+			parent.parent_share_id,
+			parent.parent_datastore_id,
+			item.id,
+		);
+		if (!created) throw new Error("DATASTORE_SAVE_FAILED");
+		item.share_id = created.share_id;
+		item.share_secret_key = created.secret_key;
+		const changedPaths = onShareAdded(
+			created.share_id,
+			sourcePath,
+			datastore,
+			1,
+		);
+		changedPaths.push(sourcePath.slice(0, -1));
+		// Persist the original location first, so a failed second link is retryable.
+		await saveDatastoreContent(datastore, changedPaths);
+		datastore = await getPasswordDatastore();
+		if (!datastore) throw new Error("DATASTORE_LOAD_FAILED");
+		const refreshed = datastoreService.findInDatastore(sourcePath, datastore);
+		item = refreshed[0][refreshed[1]];
+		target = analyzeBreadcrumbs({ id_breadcrumbs: targetPath }, datastore);
+	}
+	if (
+		!item.share_id ||
+		!item.share_secret_key ||
+		!canLinkEntryToFolder(item, target.target)
+	) {
+		throw new Error("NO_PERMISSION_OR_NOT_EXIST");
+	}
+
+	const linkedItem = helperService.duplicateObject(item);
+	linkedItem.id = cryptoLibrary.generateUuid();
+	await shareLinkService.createShareLink(
+		linkedItem.id,
+		item.share_id,
+		target.parent_share_id,
+		target.parent_datastore_id,
+	);
+	if (item.type) {
+		target.target.items = [...(target.target.items || []), linkedItem];
+	} else {
+		target.target.folders = [...(target.target.folders || []), linkedItem];
+	}
+	const changedPaths = onShareAdded(
+		item.share_id,
+		[...targetPath, linkedItem.id],
+		datastore,
+		1,
+	);
+	changedPaths.push(targetPath);
+	await saveDatastoreContent(datastore, changedPaths);
+}
+
 shareService.register("get_all_child_shares", getAllChildShares);
 
 const datastorePasswordService = {
@@ -2267,6 +2475,7 @@ const datastorePasswordService = {
 	generateDefault: generateDefault,
 	escapeRegExp: escapeRegExp,
 	getPasswordDatastore: getPasswordDatastore,
+	getPasswordDatastoreForDisplay,
 	getDatastoreWithId: getDatastoreWithId,
 	saveDatastoreContent: saveDatastoreContent,
 	handleDatastoreContentChanged: handleDatastoreContentChanged,
@@ -2291,6 +2500,9 @@ const datastorePasswordService = {
 	unregister: unregister,
 	analyzeBreadcrumbs: analyzeBreadcrumbs,
 	createShareLinksInDatastore: createShareLinksInDatastore,
+	canLinkEntry,
+	canLinkEntryToFolder,
+	linkEntry,
 	modifyTreeForSearch: modifyTreeForSearch,
 	getInaccessibleShares: getInaccessibleShares,
 	getAllOwnPgpKeys: getAllOwnPgpKeys,

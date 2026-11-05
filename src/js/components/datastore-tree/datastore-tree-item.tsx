@@ -26,6 +26,7 @@ import type {
 } from "../../../types/datastore-ui";
 import type { SecretReference } from "../../../types/vault";
 import secretService from "../../services/secret";
+import datastorePasswordService from "../../services/datastore-password";
 import { getStore } from "../../services/store";
 import EntryIcon from "../entry-icon";
 import ContentCopy from "../icons/ContentCopy";
@@ -224,6 +225,11 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 		props.onCloneEntry!(content, content.path, props.nodePath);
 	};
 
+	const onLinkEntry = (event: React.MouseEvent) => {
+		handleClose(event);
+		props.onLinkEntry!(content, content.path, props.nodePath);
+	};
+
 	const onShare = (event: React.MouseEvent) => {
 		handleClose(event);
 		props.onShare!(content, content.path, props.nodePath);
@@ -333,6 +339,10 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 		content.type === "file" ||
 		content.type === "user" ||
 		!props.onCloneEntry;
+	const hideLinkEntry =
+		offline ||
+		!props.onLinkEntry ||
+		!datastorePasswordService.canLinkEntry(content);
 	const hideMove =
 		offline ||
 		(Object.hasOwn(content, "share_rights") &&
@@ -353,6 +363,7 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 		hideEdit &&
 		hideShow &&
 		hideClone &&
+		hideLinkEntry &&
 		hideMove &&
 		hideDelete;
 
@@ -569,6 +580,16 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 						</Typography>
 					</MenuItem>
 				)}
+				{!hideLinkEntry && (
+					<MenuItem onClick={onLinkEntry}>
+						<ListItemIcon className={classes.listItemIcon}>
+							<LinkIcon className={classes.icon} fontSize="small" />
+						</ListItemIcon>
+						<Typography variant="body2" noWrap>
+							{t("ADD_TO_ANOTHER_FOLDER")}
+						</Typography>
+					</MenuItem>
+				)}
 				{!hideMove && (
 					<MenuItem onClick={onMoveEntry}>
 						<ListItemIcon className={classes.listItemIcon}>
@@ -703,6 +724,16 @@ const DatastoreTreeItem = (props: DatastoreTreeItemProps) => {
 						</ListItemIcon>
 						<Typography variant="body2" noWrap>
 							{t("CLONE")}
+						</Typography>
+					</MenuItem>
+				)}
+				{!hideLinkEntry && (
+					<MenuItem onClick={onLinkEntry}>
+						<ListItemIcon className={classes.listItemIcon}>
+							<LinkIcon className={classes.icon} fontSize="small" />
+						</ListItemIcon>
+						<Typography variant="body2" noWrap>
+							{t("ADD_TO_ANOTHER_FOLDER")}
 						</Typography>
 					</MenuItem>
 				)}

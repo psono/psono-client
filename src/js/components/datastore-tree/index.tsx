@@ -20,8 +20,7 @@ import type {
 	DatastoreTreeListData,
 } from "../../../types/datastore-ui";
 import datastorePassword from "../../services/datastore-password";
-import deviceService from "../../services/device";
-import offlineCache from "../../services/offline-cache";
+import { useOfflineMode } from "../use-offline-mode";
 import DatastoreTreeVirtualElement from "./datastore-tree-virtual-element";
 
 const FOLDER_EXPANSION_STORAGE_KEY_PREFIX =
@@ -148,9 +147,7 @@ const useStyles = makeStyles((theme) => ({
 		overflowX: "visible",
 		overflowY: "visible",
 		position: "relative",
-		height: deviceService.hasTitlebar()
-			? "calc(100vh - 232px)"
-			: "calc(100vh - 200px)",
+		height: "calc(100vh - 200px)",
 	},
 }));
 
@@ -159,7 +156,7 @@ const DatastoreTree = (props: DatastoreTreeProps) => {
 	const { datastore, setDatastore, search } = props;
 	const { t } = useTranslation();
 	const history = useHistory();
-	const offline = offlineCache.isActive();
+	const offline = useOfflineMode();
 	const folderExpansionStorageKey = getFolderExpansionStorageKey(
 		datastore,
 		props.datastoreContext,

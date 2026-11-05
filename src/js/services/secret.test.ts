@@ -1,9 +1,12 @@
 import secretService from "./secret";
 import apiClient from "./api-client";
+import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import notification from "./notification";
 import rootReducer from "../reducers";
 import * as storeService from "./store";
 import type { SecretContent } from "../../types/vault";
+import { SecretChangedError } from "./secret";
 
 describe("password modification timestamps in encrypted secrets", () => {
 	const now = "2026-10-13T12:00:00.000Z";
@@ -106,5 +109,89 @@ describe("password modification timestamps in encrypted secrets", () => {
 		expect(written.password_modification_datetime).toBe(now);
 		await secretService.createSecret({ note_notes: "note" }, "link");
 		expect(written).not.toHaveProperty("password_modification_datetime");
+	});
+
+	it("checks the live revision before saving an editor opened from cache", async () => {
+		const expected = { ...previous, write_date: "2026-01-01T00:00:00Z" };
+		await expect(
+			secretService.writeSecret(
+				"secret",
+				"key",
+				{ website_password_password: "changed" },
+				undefined,
+				undefined,
+				undefined,
+				expected,
+			),
+		).rejects.toBeInstanceOf(SecretChangedError);
+		expect(apiClient.readSecret).toHaveBeenCalledWith(
+			"",
+			"",
+			"secret",
+			"refresh",
+		);
+		expect(apiClient.writeSecret).not.toHaveBeenCalled();
+	});
+
+	it("does not save a cached draft when its live verification fails", async () => {
+		jest
+			.mocked(apiClient.readSecret)
+			.mockRejectedValue({ errors: ["SERVER_OFFLINE"] });
+		await expect(
+			secretService.writeSecret(
+				"secret",
+				"key",
+				{ note_notes: "edited" },
+				undefined,
+				undefined,
+				undefined,
+				previous,
+			),
+		).rejects.toEqual({ errors: ["SERVER_OFFLINE"] });
+		expect(apiClient.writeSecret).not.toHaveBeenCalled();
+	});
+});
+
+describe("copyTotpToken notifications", () => {
+	const item = {
+		type: "totp",
+		secret_id: "secret",
+		secret_key: "key",
+	} as Parameters<typeof secretService.copyTotpToken>[0];
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("notifies only after the code was copied", async () => {
+		const push = jest.spyOn(notification, "push").mockImplementation(() => {});
+		let finishCopy: () => void = () => {};
+		jest.spyOn(browserClient, "copyToClipboard").mockReturnValue(
+			new Promise<void>((resolve) => {
+				finishCopy = resolve;
+			}),
+		);
+
+		const result = secretService.copyTotpToken(item);
+		expect(push).not.toHaveBeenCalled();
+		finishCopy();
+		await result;
+
+		expect(push).toHaveBeenCalledWith("totp_token_copy", expect.any(String));
+	});
+
+	it("reports an error if the code could not be copied", async () => {
+		const push = jest.spyOn(notification, "push").mockImplementation(() => {});
+		const errorSend = jest
+			.spyOn(notification, "errorSend")
+			.mockImplementation(() => {});
+		jest
+			.spyOn(browserClient, "copyToClipboard")
+			.mockRejectedValue({ errors: ["SERVER_OFFLINE"] });
+
+		await secretService.copyTotpToken(item);
+
+		expect(push).not.toHaveBeenCalled();
+		expect(errorSend).toHaveBeenCalledTimes(1);
 	});
 });

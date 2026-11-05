@@ -30,11 +30,13 @@ const useStyles = makeStyles((theme) => ({
 const LogoutSuccessView = () => {
 	const classes = useStyles();
 	const { t } = useTranslation();
-	const [msgs, setMsgs] = useState(["LOGOUT_SUCCESSFUL"]);
+	const [msgs, setMsgs] = useState<string[]>(["LOGGING_OUT"]);
+	const [loggingOut, setLoggingOut] = useState(true);
 	const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 	const [countdown, setCountdown] = useState(3);
 
 	React.useEffect(() => {
+		let mounted = true;
 		const handleLogout = async () => {
 			// Check sessionStorage first for redirect_url (in case it was set by a previous logout call)
 			let storedRedirectUrl: string | null = null;
@@ -51,6 +53,8 @@ const LogoutSuccessView = () => {
 			try {
 				// Call logout and check for redirect_url in response
 				const response = await user.logout();
+				if (!mounted) return;
+				setMsgs(["LOGOUT_SUCCESSFUL"]);
 				if (response && response.redirect_url) {
 					setRedirectUrl(response.redirect_url);
 				} else if (storedRedirectUrl) {
@@ -58,15 +62,23 @@ const LogoutSuccessView = () => {
 					setRedirectUrl(storedRedirectUrl);
 				}
 			} catch (error) {
+				if (!mounted) return;
 				// If logout fails (e.g., 401 because session already terminated), use stored redirect_url
 				if (storedRedirectUrl) {
 					setRedirectUrl(storedRedirectUrl);
+				} else {
+					setMsgs(["LOGOUT_FAILED"]);
 				}
 				console.error("Logout error:", error);
+			} finally {
+				if (mounted) setLoggingOut(false);
 			}
 		};
 
 		handleLogout();
+		return () => {
+			mounted = false;
+		};
 	}, []);
 
 	React.useEffect(() => {
@@ -114,6 +126,7 @@ const LogoutSuccessView = () => {
 					style={{ marginTop: "5px", marginBottom: "5px" }}
 				>
 					<Button
+						disabled={loggingOut}
 						variant="contained"
 						color="primary"
 						type="submit"

@@ -5,6 +5,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import LockIcon from "@mui/icons-material/Lock";
 import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -38,12 +39,12 @@ import action from "../actions/bound-action-creators";
 import avatarService from "../services/avatar";
 import datastoreService from "../services/datastore";
 import offlineCache from "../services/offline-cache";
+import vaultLock from "../services/vault-lock";
+import { LOGOUT_ROUTE } from "../services/user";
 import { getStore } from "../services/store";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 import ConfigLogo from "./config-logo";
 import DialogChangeAccount from "./dialogs/change-account";
-import DialogGoOffline from "./dialogs/go-offline";
-import FrameControls from "./frame-controls";
 import type { MobileNavigationProps } from "../../types/components";
 import type { DatastoreOverviewEntry } from "../../types/datastore";
 
@@ -139,6 +140,9 @@ const useStyles = makeStyles((theme) => ({
 		display: "flex",
 		alignItems: "center", // Align items vertically in the middle
 		justifyContent: "space-between", // This might be adjusted based on your design
+		[theme.breakpoints.down("md")]: {
+			paddingRight: theme.spacing(5),
+		},
 	},
 	signInTextContainer: {
 		display: "flex",
@@ -157,7 +161,6 @@ const Topbar = (props: TopbarProps) => {
 		React.useState<HTMLElement | null>(null);
 	const [anchorDatastoreMenuEl, setAnchorDatastoreMenuEl] =
 		React.useState<HTMLElement | null>(null);
-	const [goOfflineOpen, setGoOfflineOpen] = React.useState(false);
 	const [changeAccountOpen, setChangeAccountOpen] = React.useState(false);
 	const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
 	const [datastores, setDatastores] = React.useState<DatastoreOverviewEntry[]>(
@@ -249,15 +252,9 @@ const Topbar = (props: TopbarProps) => {
 			});
 	};
 
-	const goOffline = () => {
-		setGoOfflineOpen(true);
-	};
 	const goOnline = () => {
 		offlineCache.disable();
-		offlineCache.clear();
-	};
-	const logout = async () => {
-		window.location.href = "logout-success.html";
+		offlineCache.incrementalUpdate(true).catch(() => {});
 	};
 
 	return (
@@ -267,7 +264,6 @@ const Topbar = (props: TopbarProps) => {
 				settingsDatastore.noSaveMode ? classes.appBarReadOnly : classes.appBar
 			}
 		>
-			<FrameControls />
 			<Container maxWidth="lg">
 				<Toolbar disableGutters={true} className={classes.toolbar}>
 					<IconButton
@@ -287,7 +283,7 @@ const Topbar = (props: TopbarProps) => {
 							height="100%"
 						/>
 					</a>
-					<div style={{ width: "100%" }}>
+					<div style={{ width: "100%", minWidth: 0 }}>
 						{datastores && datastores.length > 1 && (
 							<div style={{ float: "left" }}>
 								<Hidden smUp>
@@ -540,14 +536,19 @@ const Topbar = (props: TopbarProps) => {
 										<Typography variant="body2">{t("ACCOUNT")}</Typography>
 									</MenuItem>
 								)}
-								{!offlineCache.isActive() && (
-									<MenuItem component={Link} to="/settings/password-generator">
-										<ListItemIcon className={classes.listItemIcon}>
-											<SettingsIcon className={classes.icon} />
-										</ListItemIcon>
-										<Typography variant="body2">{t("SETTINGS")}</Typography>
-									</MenuItem>
-								)}
+								<MenuItem
+									component={Link}
+									to={
+										offlineCache.isActive()
+											? "/settings/offline-cache"
+											: "/settings/password-generator"
+									}
+								>
+									<ListItemIcon className={classes.listItemIcon}>
+										<SettingsIcon className={classes.icon} />
+									</ListItemIcon>
+									<Typography variant="body2">{t("SETTINGS")}</Typography>
+								</MenuItem>
 								{!offlineCache.isActive() && (
 									<MenuItem component={Link} to="/other/sessions">
 										<ListItemIcon className={classes.listItemIcon}>
@@ -556,16 +557,6 @@ const Topbar = (props: TopbarProps) => {
 										<Typography variant="body2">{t("OTHER")}</Typography>
 									</MenuItem>
 								)}
-								{!offlineCache.isActive() &&
-									!getStore().getState().server
-										.complianceDisableOfflineMode && (
-										<MenuItem onClick={goOffline}>
-											<ListItemIcon className={classes.listItemIcon}>
-												<AirplanemodeActiveIcon className={classes.icon} />
-											</ListItemIcon>
-											<Typography variant="body2">{t("GO_OFFLINE")}</Typography>
-										</MenuItem>
-									)}
 								{offlineCache.isActive() &&
 									!getStore().getState().server
 										.complianceDisableOfflineMode && (
@@ -576,8 +567,16 @@ const Topbar = (props: TopbarProps) => {
 											<Typography variant="body2">{t("GO_ONLINE")}</Typography>
 										</MenuItem>
 									)}
+								{vaultLock.getConfiguration()?.enabled && (
+									<MenuItem onClick={vaultLock.lock}>
+										<ListItemIcon className={classes.listItemIcon}>
+											<LockIcon className={classes.icon} />
+										</ListItemIcon>
+										<Typography variant="body2">{t("LOCK_NOW")}</Typography>
+									</MenuItem>
+								)}
 								<Divider />
-								<MenuItem onClick={logout}>
+								<MenuItem component={Link} to={LOGOUT_ROUTE}>
 									<ListItemIcon className={classes.listItemIcon}>
 										<ExitToAppIcon className={classes.icon} />
 									</ListItemIcon>
@@ -588,12 +587,6 @@ const Topbar = (props: TopbarProps) => {
 					</div>
 				</Toolbar>
 			</Container>
-			{goOfflineOpen && (
-				<DialogGoOffline
-					open={goOfflineOpen}
-					onClose={() => setGoOfflineOpen(false)}
-				/>
-			)}
 			{changeAccountOpen && (
 				<DialogChangeAccount
 					open={changeAccountOpen}

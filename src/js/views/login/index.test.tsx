@@ -10,7 +10,6 @@ jest.mock("react-i18next", () => ({
 	useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock("../../components/config-logo", () => () => null);
-jest.mock("../../components/frame-controls", () => () => null);
 jest.mock(
 	"../../components/dark-box",
 	() =>

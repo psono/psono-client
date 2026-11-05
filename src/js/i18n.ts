@@ -197,7 +197,9 @@ i18n
 	.init({
 		fallbackLng: "en",
 		supportedLngs: supportedLngs,
-		load: "all",
+		load: "currentOnly",
+		returnEmptyString: false,
+		returnNull: false,
 		debug: process.env.NODE_ENV === "development",
 		backend: {
 			// for all available options read the backend's repository readme file

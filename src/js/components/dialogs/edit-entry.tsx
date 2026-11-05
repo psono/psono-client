@@ -94,10 +94,16 @@ import DialogEditCustomField from "./edit-custom-field";
 import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import DialogGeneratePassword from "./generate-password";
 import DialogHistory from "./history";
+import { createDisplayResource } from "../../services/offline-cache";
+import type { CachedResource } from "../../services/offline-cache";
+import { sameSecretRevision, SecretChangedError } from "../../services/secret";
+import { isOfflineError } from "../../../types/cache";
+import { useOfflineMode } from "../use-offline-mode";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: "flex",
+		flexDirection: "column",
 		padding: "15px",
 	},
 	toolbarRoot: {
@@ -108,6 +114,9 @@ const useStyles = makeStyles((theme) => ({
 		position: "sticky",
 		top: "8px",
 		marginBottom: "30px",
+	},
+	entryErrorNotice: {
+		padding: theme.spacing(1, 2, 2),
 	},
 	textField: {
 		width: "100%",
@@ -184,11 +193,37 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		hideAddTag,
 		hideAttachments,
 		inline,
-		setDirty,
+		setDirty: notifyDirty,
 	} = props;
 	const { t } = useTranslation();
 	const classes = useStyles();
-	const offline = offlineCache.isActive();
+	const offline = useOfflineMode();
+	const dirty = React.useRef(false);
+	const baseline = React.useRef<EntrySecretData | null>(null);
+	const remote = React.useRef<EntrySecretData | null>(null);
+	const applyLoadedData = React.useRef<(data: EntrySecretData) => void>();
+	const entryResource = React.useRef<CachedResource<EntrySecretData>>();
+	const [entryRefreshing, setEntryRefreshing] = useState(false);
+	const [entryVerified, setEntryVerified] = useState(
+		!item.secret_id || !!props.data,
+	);
+	const [entryHasData, setEntryHasData] = useState(
+		!item.secret_id || !!props.data,
+	);
+	const [entryUnavailable, setEntryUnavailable] = useState(false);
+	const [entryError, setEntryError] = useState("");
+	const [entrySaving, setEntrySaving] = useState(false);
+	const [remoteVersion, setRemoteVersion] = useState<EntrySecretData | null>(
+		null,
+	);
+	const setDirty = (value: boolean) => {
+		dirty.current = value;
+		notifyDirty(value);
+	};
+	const showConflict = (data: EntrySecretData) => {
+		remote.current = data;
+		setRemoteVersion(data);
+	};
 
 	const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
 	const [tags, setTags] = useState<string[]>([]);
@@ -362,6 +397,9 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	const [anchorEl3, setAnchorEl3] = React.useState<HTMLElement | null>(null);
 	const [anchorElMoreMenu, setAnchorElMoreMenu] =
 		React.useState<HTMLElement | null>(null);
+	React.useEffect(() => {
+		if (offline) setAnchorElMoreMenu(null);
+	}, [offline]);
 	const [anchorEls, setAnchorEls] = React.useState<EntryMenuAnchors>({});
 	const [anchorElsCustomFields, setAnchorElsCustomFields] =
 		React.useState<EntryMenuAnchors>({});
@@ -394,6 +432,9 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		!getStore().getState().server.disableCallbacks;
 	const showGeneratePassword = item.share_rights && item.share_rights.write;
 	const readOnly =
+		entryUnavailable ||
+		!entryHasData ||
+		entrySaving ||
 		getStore().getState().settingsDatastore.noSaveMode ||
 		!item.share_rights ||
 		!item.share_rights.write;
@@ -519,12 +560,21 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	});
 
 	React.useEffect(() => {
+		dirty.current = false;
+		baseline.current = null;
+		remote.current = null;
+		setRemoteVersion(null);
+		setEntryError("");
+		setEntryUnavailable(false);
 		const onError = (result: unknown) => {
-			console.log(result);
-			// pass
+			setEntryError(
+				isOfflineError(result) ? t("ENTRY_OFFLINE") : t("ENTRY_UNAVAILABLE"),
+			);
 		};
 
 		const onSuccess = (data: EntrySecretData) => {
+			baseline.current = helperService.duplicateObject(data);
+			setEntryHasData(true);
 			if (
 				["ssh_connection", "rdp_connection", "vnc_connection"].includes(
 					item.type,
@@ -1026,6 +1076,7 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			}
 			setOriginalFullData(data);
 		};
+		applyLoadedData.current = onSuccess;
 
 		if (typeof item.secret_id === "undefined") {
 			if (Object.hasOwn(item, "type")) {
@@ -1033,16 +1084,61 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 					const secret = helperService.duplicateObject(item);
 					secret["file_title"] = item.name;
 					onSuccess(secret);
+					setEntryVerified(true);
 					return;
 				}
 			}
 			onSuccess(item);
+			setEntryVerified(true);
 		} else if (props.data) {
 			onSuccess(props.data);
+			setEntryVerified(true);
 		} else {
-			secretService
-				.readSecret(item.secret_id, item.secret_key!)
-				.then(onSuccess, onError);
+			setEntryHasData(false);
+			setEntryVerified(false);
+			const resource = createDisplayResource<EntrySecretData>({
+				kind: "entry",
+				read: (mode) =>
+					secretService.readSecret(item.secret_id!, item.secret_key!, mode),
+				onData: (data, source) => {
+					setEntryError("");
+					setEntryUnavailable(false);
+					const changed =
+						baseline.current && !sameSecretRevision(baseline.current, data);
+					if (!baseline.current) onSuccess(data);
+					else if (
+						source === "server" &&
+						(remote.current || (changed && dirty.current))
+					)
+						showConflict(data);
+					else if (changed && !dirty.current) onSuccess(data);
+				},
+				onState: (state) => {
+					setEntryRefreshing(state.refreshing);
+					setEntryVerified(
+						!state.refreshing && !state.error && state.hasData && !state.cached,
+					);
+				},
+				onError: (error, retained) => {
+					if (!retained) {
+						onSuccess({});
+						baseline.current = null;
+						setEntryHasData(false);
+						setEntryUnavailable(true);
+					}
+					onError(error);
+				},
+			});
+			entryResource.current = resource;
+			void resource.load();
+			const retry = () => {
+				void resource.load();
+			};
+			window.addEventListener("online", retry);
+			return () => {
+				resource.dispose();
+				window.removeEventListener("online", retry);
+			};
 		}
 	}, [item]);
 
@@ -1084,6 +1180,18 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	};
 
 	const onEdit = (closeEditView: boolean) => {
+		if (
+			entryRefreshing ||
+			entrySaving ||
+			!entryVerified ||
+			remote.current ||
+			entryUnavailable ||
+			offlineCache.isActive()
+		)
+			return;
+		// A failed live-version check must not mutate the browsing tree's labels
+		// or links before the draft has actually been persisted.
+		const item = helperService.duplicateObject(props.item);
 		let passwordSha1;
 		const secretObject: SecretContent = {};
 
@@ -1464,17 +1572,28 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			props.onEdit!(item);
 		} else if (!props.data) {
 			const onError = (result: unknown) => {
-				console.log(result);
+				if (result instanceof SecretChangedError) showConflict(result.latest);
+				else {
+					setEntryError(t("ENTRY_SAVE_FAILED"));
+					if (isOfflineError(result)) {
+						setEntryVerified(false);
+						offlineCache.markOffline();
+					}
+				}
 			};
 			const authenticationError = () =>
 				notification.push("connection_authentication", t("BROKEN_REFERENCE"));
 			const complete = () => {
 				if (closeEditView) {
 					props.onEdit!(item);
+				} else {
+					setDirty(false);
+					void entryResource.current?.load();
 				}
 			};
-			const writeSecret = () =>
-				secretService
+			const writeSecret = () => {
+				setEntrySaving(true);
+				return secretService
 					.writeSecret(
 						item.secret_id!,
 						item.secret_key!,
@@ -1482,13 +1601,16 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 						callbackUrl,
 						callbackUser,
 						callbackPass,
+						baseline.current ?? undefined,
 					)
 					.then((result) => {
 						if (typeof result === "undefined") {
 							return Promise.reject({ code: "SECRET_PERSISTENCE_FAILED" });
 						}
 						return result;
-					});
+					})
+					.finally(() => setEntrySaving(false));
+			};
 			if (
 				!["ssh_connection", "rdp_connection", "vnc_connection"].includes(
 					item.type,
@@ -2180,6 +2302,7 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		<React.Fragment>
 			<GatewayLaunchButton item={item} offline={offline} showLabel />
 			<Button
+				disabled={entrySaving}
 				onClick={() => {
 					onClose();
 				}}
@@ -2189,7 +2312,6 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			{item.share_rights &&
 				item.share_rights.read &&
 				item.share_rights.write &&
-				!offline &&
 				(props.onEdit || props.onCustomSave) && (
 					<Button
 						onClick={() => {
@@ -2198,7 +2320,14 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 						variant="contained"
 						color="primary"
 						disabled={
-							!canSave || getStore().getState().settingsDatastore.noSaveMode
+							!canSave ||
+							offline ||
+							entryRefreshing ||
+							entrySaving ||
+							!entryVerified ||
+							!!remoteVersion ||
+							entryUnavailable ||
+							getStore().getState().settingsDatastore.noSaveMode
 						}
 						type="submit"
 					>
@@ -2207,10 +2336,10 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 				)}
 			{!hideMoreMenu &&
 				item.share_rights &&
-				(item.share_rights.read || item.share_rights.write) &&
-				!offline && (
+				(item.share_rights.read || item.share_rights.write) && (
 					<>
 						<IconButton
+							disabled={offline}
 							aria-controls="more-menu"
 							aria-label="open more menu"
 							onClick={(event) => {
@@ -2224,7 +2353,7 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 							id="more-menu"
 							anchorEl={anchorElMoreMenu}
 							keepMounted
-							open={Boolean(anchorElMoreMenu)}
+							open={Boolean(anchorElMoreMenu) && !offline}
 							onClose={handleClose}
 						>
 							{!getStore().getState().server.complianceDisableLinkShares && (
@@ -4241,8 +4370,12 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 					>
 						{t("ADVANCED")}
 					</Button>
-					{hasHistory && !offline && (
-						<Button aria-label="settings" onClick={showHistory}>
+					{hasHistory && (
+						<Button
+							aria-label="settings"
+							onClick={showHistory}
+							disabled={offline}
+						>
 							{t("SHOW_HISTORY")}
 						</Button>
 					)}
@@ -4562,14 +4695,62 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		</Grid>
 	);
 
+	const loadLatestVersion = () => {
+		if (!remote.current || entrySaving || entryRefreshing) return;
+		applyLoadedData.current?.(remote.current);
+		remote.current = null;
+		setRemoteVersion(null);
+		setDirty(false);
+		setEntryVerified(true);
+	};
+	const displayedContent = (
+		<>
+			{remoteVersion && (
+				<MuiAlert
+					severity="warning"
+					action={
+						<Button
+							color="inherit"
+							disabled={entryRefreshing || entrySaving}
+							onClick={loadLatestVersion}
+						>
+							{t("RELOAD")}
+						</Button>
+					}
+				>
+					{t("ENTRY_CHANGED_ON_SERVER")}
+				</MuiAlert>
+			)}
+			{!entryUnavailable && content}
+		</>
+	);
+	const entryErrorNotice = entryError && (
+		<div className={classes.entryErrorNotice}>
+			<MuiAlert
+				severity="warning"
+				action={
+					<Button
+						color="inherit"
+						disabled={entryRefreshing || entrySaving}
+						onClick={() => entryResource.current?.load()}
+					>
+						{t("RETRY")}
+					</Button>
+				}
+			>
+				{entryError}
+			</MuiAlert>
+		</div>
+	);
 	if (inline) {
 		return (
 			<Paper square className={classes.inlineEditPaper}>
 				<AppBar elevation={0} position="static" color="default">
 					<Toolbar className={classes.toolbarRoot}>{title}</Toolbar>
 				</AppBar>
-				<div className={classes.root}>{content}</div>
+				<div className={classes.root}>{displayedContent}</div>
 				<DialogActions>{actions}</DialogActions>
+				{entryErrorNotice}
 			</Paper>
 		);
 	} else {
@@ -4592,8 +4773,9 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 					autoComplete="off"
 				>
 					<DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-					<DialogContent>{content}</DialogContent>
+					<DialogContent>{displayedContent}</DialogContent>
 					<DialogActions>{actions}</DialogActions>
+					{entryErrorNotice}
 				</form>
 			</Dialog>
 		);

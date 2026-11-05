@@ -24,22 +24,14 @@ function createShareLink(
 ) {
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
-	const onError = () => {
-		// pass
-	};
-
-	const onSuccess = <T>(result: T): T => result;
-
-	return apiClient
-		.createShareLink(
-			token,
-			sessionSecretKey,
-			linkId,
-			shareId,
-			parentShareId,
-			parentDatastoreId,
-		)
-		.then(onSuccess, onError);
+	return apiClient.createShareLink(
+		token,
+		sessionSecretKey,
+		linkId,
+		shareId,
+		parentShareId,
+		parentDatastoreId,
+	);
 }
 
 /**

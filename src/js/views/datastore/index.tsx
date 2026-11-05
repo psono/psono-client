@@ -1,6 +1,8 @@
 import AddIcon from "@mui/icons-material/Add";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AppBar from "@mui/material/AppBar";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
@@ -48,7 +50,6 @@ import DialogNewFolder from "../../components/dialogs/new-folder";
 import DialogProgress from "../../components/dialogs/progress";
 import DialogRightsOverview from "../../components/dialogs/rights-overview";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
-import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogVerify from "../../components/dialogs/verify";
 import FilterSideBar from "../../components/filter-sidebar";
 import datastoreService from "../../services/datastore";
@@ -56,12 +57,14 @@ import datastorePasswordService from "../../services/datastore-password";
 import fileTransferService from "../../services/file-transfer";
 import itemBlueprintService from "../../services/item-blueprint";
 import notification from "../../services/notification";
-import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import widget from "../../services/widget";
 import widgetService from "../../services/widget";
 import DatastoreToolbar from "./toolbar";
+import { useCachedDatastore } from "../../components/use-cached-datastore";
+import { useOfflineMode } from "../../components/use-offline-mode";
+import offlineCache from "../../services/offline-cache";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -154,6 +157,7 @@ const DatastoreView = (
 		(state) => state.server.disableCentralSecurityReports,
 	);
 	const classes = useStyles();
+	const cachedReadOnly = useOfflineMode();
 	const { t } = useTranslation();
 	const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
 	const [search, setSearch] = useState(defaultSearch || "");
@@ -174,7 +178,7 @@ const DatastoreView = (
 		});
 
 	const showFilters = useSelector((state) => !!state.client.showFilters);
-	const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
+	const openedRouteEntry = useRef<string>();
 
 	const [newFolderOpen, setNewFolderOpen] = useState(false);
 	const [newFolderData, setNewFolderData] = useState<Partial<NewFolderData>>(
@@ -208,6 +212,10 @@ const DatastoreView = (
 	>({});
 
 	const [moveEntryData, setMoveEntryData] = useState<DatastoreSelection[]>([]);
+	const [linkEntryData, setLinkEntryData] = useState<DatastoreSelection | null>(
+		null,
+	);
+	const [linkEntrySubmitting, setLinkEntrySubmitting] = useState(false);
 	const [moveFolderData, setMoveFolderData] = useState<DatastoreSelection[]>(
 		[],
 	);
@@ -253,9 +261,6 @@ const DatastoreView = (
 			isSubscribed = false;
 		};
 	}, []);
-	React.useEffect(() => {
-		loadDatastore();
-	}, [passwordDatastore]);
 
 	// Add beforeunload event handler to warn user when closing tab with unsaved changes
 	React.useEffect(() => {
@@ -377,21 +382,6 @@ const DatastoreView = (
 		return hasSameParent(item, selectedItem) && defaultIsSelectable;
 	};
 
-	const loadDatastore = () => {
-		if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
-			setUnlockOfflineCache(true);
-		} else {
-			datastorePasswordService
-				.getPasswordDatastore()
-				.then(onNewDatastoreLoaded);
-		}
-	};
-
-	const onUnlockOfflineCacheClosed = () => {
-		setUnlockOfflineCache(false);
-		datastorePasswordService.getPasswordDatastore().then(onNewDatastoreLoaded);
-	};
-
 	const onNewDatastoreLoaded = (data: Datastore | undefined) => {
 		if (!isSubscribed) {
 			return;
@@ -402,6 +392,8 @@ const DatastoreView = (
 		if (typeof secretType === "undefined") {
 			return;
 		}
+		const routeEntry = `${secretType}:${secretId}`;
+		if (openedRouteEntry.current === routeEntry) return;
 		const paths = datastorePasswordService.searchInDatastore(
 			secretId,
 			data!,
@@ -414,8 +406,28 @@ const DatastoreView = (
 		const search = datastoreService.findInDatastore(paths[0], data!);
 		const node = search[0][search[1]];
 
+		openedRouteEntry.current = routeEntry;
 		onEditEntry(node, paths[0]);
 	};
+	const {
+		loading: datastoreLoading,
+		error: datastoreError,
+		reload: loadDatastore,
+	} = useCachedDatastore(passwordDatastore?.id, {
+		onData: onNewDatastoreLoaded,
+		onReset: () => {
+			setDatastore(null);
+			setTags([]);
+			openedRouteEntry.current = undefined;
+		},
+		onError: (_error, retained) => {
+			if (!retained) {
+				setDatastore(undefined);
+				setTags([]);
+				setEditEntryOpen(false);
+			}
+		},
+	});
 
 	let newSecurityReport = "NOT_REQUIRED";
 	if (recurrenceInterval! > 0 && !disableCentralSecurityReports) {
@@ -466,13 +478,14 @@ const DatastoreView = (
 		persist: () => Promise<unknown>,
 		onSuccess: () => void,
 	) => {
-		if (datastoreSaveInProgress.current) {
+		if (datastoreSaveInProgress.current || offlineCache.isActive()) {
 			return;
 		}
 		datastoreSaveInProgress.current = true;
 		try {
 			await persist();
 			onSuccess();
+			loadDatastore();
 		} catch {
 			notification.errorSend("DATASTORE_SAVE_FAILED");
 		} finally {
@@ -644,6 +657,27 @@ const DatastoreView = (
 	const onCloneEntry = async (item: DatastoreItem, path: DatastorePath) => {
 		await widget.cloneItem(datastore!, item, path);
 		loadDatastore();
+	};
+
+	const onLinkEntry = (item: DatastoreItem, path: DatastorePath) => {
+		setLinkEntryData({ item, path });
+	};
+
+	const onSelectNodeForLinkEntry = async (breadcrumbs: FolderSelection) => {
+		if (!linkEntryData || linkEntrySubmitting) return;
+		setLinkEntrySubmitting(true);
+		try {
+			await persistDatastoreChange(
+				() =>
+					datastorePasswordService.linkEntry(
+						linkEntryData.path,
+						breadcrumbs.id_breadcrumbs,
+					),
+				() => setLinkEntryData(null),
+			);
+		} finally {
+			setLinkEntrySubmitting(false);
+		}
 	};
 
 	const onDeleteEntry = async (item: DatastoreItem, path: DatastorePath) => {
@@ -921,7 +955,9 @@ const DatastoreView = (
 							<div
 								className={classes.root}
 								onContextMenu={
-									newSecurityReport === "REQUIRED" ? undefined : onContextMenu
+									newSecurityReport === "REQUIRED" || cachedReadOnly
+										? undefined
+										: onContextMenu
 								}
 							>
 								<Grid
@@ -934,11 +970,27 @@ const DatastoreView = (
 										/>
 									</Grid>
 									<Grid item xs={12} sm={12} md={12}>
-										{!datastore && newSecurityReport !== "REQUIRED" && (
-											<div className={classes.loader}>
-												<ClipLoader />
-											</div>
-										)}
+										{!datastore &&
+											datastoreLoading &&
+											newSecurityReport !== "REQUIRED" && (
+												<div className={classes.loader}>
+													<ClipLoader />
+												</div>
+											)}
+										{!datastore &&
+											datastoreError != null &&
+											!datastoreLoading && (
+												<Alert
+													severity="warning"
+													action={
+														<Button color="inherit" onClick={loadDatastore}>
+															{t("RETRY")}
+														</Button>
+													}
+												>
+													{t("DATASTORE_LOAD_FAILED")}
+												</Alert>
+											)}
 										{datastore && newSecurityReport !== "REQUIRED" && (
 											<DatastoreTree
 												datastore={datastore}
@@ -949,6 +1001,7 @@ const DatastoreView = (
 												onShare={onShare}
 												onEditEntry={onEditEntry}
 												onCloneEntry={onCloneEntry}
+												onLinkEntry={onLinkEntry}
 												onDeleteEntry={onDeleteEntry}
 												onEditFolder={onEditFolder}
 												onDeleteFolder={onDeleteFolder}
@@ -1067,6 +1120,28 @@ const DatastoreView = (
 									path={rightsOverviewData.path!}
 								/>
 							)}
+							{linkEntryData && (
+								<DialogSelectFolder
+									open={true}
+									onClose={() => {
+										if (!linkEntrySubmitting) setLinkEntryData(null);
+									}}
+									title={t("CHOOSE_DESTINATION_FOLDER")}
+									description={t(
+										linkEntryData.item.type
+											? "ADD_ENTRY_TO_ANOTHER_FOLDER_DESCRIPTION"
+											: "ADD_FOLDER_TO_ANOTHER_FOLDER_DESCRIPTION",
+									)}
+									onSelectNode={onSelectNodeForLinkEntry}
+									isSelectable={(folder) =>
+										datastorePasswordService.canLinkEntryToFolder(
+											linkEntryData.item,
+											folder,
+										)
+									}
+									submitting={linkEntrySubmitting}
+								/>
+							)}
 							{moveEntryData.length > 0 && (
 								<DialogSelectFolder
 									open={moveEntryData.length > 0}
@@ -1083,12 +1158,6 @@ const DatastoreView = (
 									title={t("MOVE_FOLDER")}
 									onSelectNode={onSelectNodeForMoveFolder}
 									isSelectable={isSelectableForMoveFolder}
-								/>
-							)}
-							{unlockOfflineCache && (
-								<DialogUnlockOfflineCache
-									open={unlockOfflineCache}
-									onClose={onUnlockOfflineCacheClosed}
 								/>
 							)}
 							{error !== null && (

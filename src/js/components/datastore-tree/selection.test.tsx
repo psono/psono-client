@@ -6,9 +6,11 @@ import type {
 	DatastoreTreeActions,
 	DatastoreTreeFolderNode,
 	DatastoreTreeItemNode,
+	DatastoreTreeListData,
 } from "../../../types/datastore-ui";
 import DatastoreTreeFolder from "./datastore-tree-folder";
 import DatastoreTreeItem from "./datastore-tree-item";
+import DatastoreTreeVirtualElement from "./datastore-tree-virtual-element";
 
 jest.mock("react-i18next", () => ({
 	useTranslation: () => ({ t: (key: string) => key }),
@@ -17,6 +19,10 @@ jest.mock("../../services/store", () => ({
 	getStore: () => ({ getState: () => ({ server: {} }) }),
 }));
 jest.mock("../../services/secret", () => ({ __esModule: true, default: {} }));
+jest.mock("../../services/datastore-password", () => ({
+	__esModule: true,
+	default: { canLinkEntry: () => true },
+}));
 jest.mock("../entry-icon", () => ({ __esModule: true, default: () => null }));
 jest.mock("../gateway-launch-button", () => ({
 	__esModule: true,
@@ -206,5 +212,80 @@ describe("Datastore tree navigation and checkbox selection", () => {
 		expect(checkbox()).toBeNull();
 		click(button("Secret"));
 		expect(onSelectItem).toHaveBeenCalledWith(item, item.path, [folder, item]);
+	});
+	it.each([
+		["entry", "settings"],
+		["entry", "context"],
+		["folder", "settings"],
+		["folder", "context"],
+	])("adds an %s to another folder through the %s menu", (kind, menu) => {
+		const onLinkEntry = jest.fn();
+		const node = kind === "entry" ? item : folder;
+		const nodePath = kind === "entry" ? [folder, item] : [folder];
+		if (kind === "entry") renderItem({ onLinkEntry });
+		else renderFolder({ onLinkEntry });
+		if (menu === "settings") {
+			click(button("settings"));
+		} else {
+			act(() => {
+				button(node.name!).dispatchEvent(
+					new MouseEvent("contextmenu", {
+						bubbles: true,
+						clientX: 100,
+						clientY: 100,
+					}),
+				);
+			});
+		}
+		const link = Array.from(
+			document.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+		).find((element) => element.textContent === "ADD_TO_ANOTHER_FOLDER")!;
+		expect(link).toBeDefined();
+		click(link);
+		expect(onLinkEntry).toHaveBeenCalledWith(node, node.path, nodePath);
+		expect(onSelectItem).not.toHaveBeenCalled();
+		expect(onExpand).not.toHaveBeenCalled();
+	});
+
+	it("selects a folder alias using only the ancestors from its own location", () => {
+		const first = {
+			id: "first",
+			name: "First",
+			share_id: "shared",
+			folders: [{ id: "child", name: "Child" }],
+		};
+		const second = {
+			id: "second",
+			name: "Second",
+			share_id: "shared",
+			folders: [{ id: "child", name: "Child" }],
+		};
+		const datastore = { datastore_id: "ds", folders: [first, second] };
+		const child: DatastoreTreeFolderNode = {
+			...second.folders[0],
+			path: ["second", "child"],
+			is_folder: true,
+		};
+		const data: DatastoreTreeListData = {
+			props: { datastore, setDatastore: jest.fn(), onSelectNode },
+			datastore,
+			offline: false,
+			items: [child],
+			getIsExpandedFolder: () => false,
+			onUpdateExpandFolderProperty: jest.fn(),
+		};
+		act(() => {
+			ReactDOM.render(
+				<ThemeProvider theme={theme}>
+					<DatastoreTreeVirtualElement index={0} style={{}} data={data} />
+				</ThemeProvider>,
+				container,
+			);
+		});
+		click(button("Child"));
+		expect(onSelectNode).toHaveBeenCalledWith(child, child.path, [
+			second,
+			second.folders[0],
+		]);
 	});
 });

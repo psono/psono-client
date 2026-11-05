@@ -78,18 +78,18 @@ const MultifactorAuthenticationView = (props: AccountViewProps) => {
 				-1 && (
 				<Grid container style={{ marginBottom: "8px" }}>
 					<Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
-						{/*{t("TOTP_LIKE_QUANT_GA_MS", {'quant_authenticator': '<a href="https://google.com">Quant</a>'})}*/}
-						<Trans i18nKey="TOTP_LIKE_QUANT_GA_MS">
-							TOTP (like{" "}
-							<a
-								target={"_blank"}
-								href={"https://quantauth.app/app/"}
-								rel="noopener"
-							>
-								Quant
-							</a>
-							, Google or Microsoft Authenticator)
-						</Trans>
+						<Trans
+							i18nKey="TOTP_LIKE_QUANT_GA_MS"
+							components={{
+								1: (
+									<a
+										target="_blank"
+										href="https://quantauth.app/app/"
+										rel="noopener"
+									/>
+								),
+							}}
+						/>
 					</Grid>
 					<Grid item xs={6} sm={6} md={8}>
 						<Button

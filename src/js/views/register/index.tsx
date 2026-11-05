@@ -15,7 +15,6 @@ import { useParams } from "react-router-dom";
 import type { SsoRouteParams } from "../../../types/auth-ui";
 import ConfigLogo from "../../components/config-logo";
 import DarkBox from "../../components/dark-box";
-import FrameControls from "../../components/frame-controls";
 import RegisterViewForm from "./register-form";
 
 const useStyles = makeStyles((theme) => ({
@@ -163,7 +162,6 @@ const RegisterView = () => {
 
 	return (
 		<>
-			<FrameControls />
 			<Grid container>
 				<Grid item md={6}>
 					<div className={classes.leftSection}>

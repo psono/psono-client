@@ -13,8 +13,5 @@ declare global {
 		opera?: string;
 		psono_offline_cache_encryption_key?: string | null;
 		RunCallbackFunction?: (popup: chrome.windows.Window | undefined) => void;
-		electronAPI: {
-			getConfigJson(): Promise<string | null | undefined>;
-		};
 	}
 }
