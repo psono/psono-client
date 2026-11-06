@@ -44,11 +44,16 @@ describe("Service: datastorePasswordService - unavailable data", () => {
 	});
 
 	it.each([
-		"cache-only",
-		"refresh",
-	] as const)("does not publish a partial display snapshot when a nested share fails (%s)", async (mode) => {
+		["cache-only", "rejected"],
+		["cache-only", "missing"],
+		["refresh", "rejected"],
+		["refresh", "missing"],
+	] as const)("handles a %s display read with a %s nested share", async (mode, outcome) => {
 		jest.spyOn(datastoreService, "getDatastoreForDisplay").mockResolvedValue({
 			datastore_id: "ds",
+			items: [
+				{ id: "personal", name: "Personal password", secret_id: "secret" },
+			],
 			folders: [
 				{
 					id: "outer",
@@ -70,6 +75,13 @@ describe("Service: datastorePasswordService - unavailable data", () => {
 				if (id === "outer-share")
 					return {
 						data: {
+							items: [
+								{
+									id: "shared",
+									name: "Shared password",
+									secret_id: "shared-secret",
+								},
+							],
 							folders: [
 								{
 									id: "nested",
@@ -80,12 +92,55 @@ describe("Service: datastorePasswordService - unavailable data", () => {
 						},
 						rights: { read: true, write: true, grant: false },
 					};
+				if (outcome === "missing") return undefined;
 				throw failure;
 			});
-		await expect(
-			datastorePasswordService.getPasswordDatastoreForDisplay("ds", mode),
-		).rejects.toBe(failure);
+		const load = datastorePasswordService.getPasswordDatastoreForDisplay(
+			"ds",
+			mode,
+		);
+		if (mode === "cache-only") {
+			await expect(load).rejects.toEqual(
+				outcome === "missing" ? { errors: ["SERVER_OFFLINE"] } : failure,
+			);
+		} else {
+			const loaded = await load;
+			expect(loaded.items![0].secret_id).toBe("secret");
+			expect(loaded.folders![0].items![0].secret_id).toBe("shared-secret");
+			expect(loaded.folders![0].folders![0].share_id).toBe("nested-share");
+			expect(loaded.folders![0].folders![0].items).toBeUndefined();
+		}
 		expect(read).toHaveBeenCalledWith("nested-share", "nested-key", mode);
+	});
+
+	it("still rejects live display reads when the main datastore fails", async () => {
+		const failure = { status: 503 };
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockRejectedValue(failure);
+		jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockResolvedValue({ share_rights: [] });
+		const readShare = jest.spyOn(shareService, "readShare");
+		await expect(
+			datastorePasswordService.getPasswordDatastoreForDisplay("ds", "refresh"),
+		).rejects.toBe(failure);
+		expect(readShare).not.toHaveBeenCalled();
+	});
+
+	it("still rejects live display reads when sharing permissions fail", async () => {
+		const failure = { status: 403 };
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockResolvedValue({});
+		jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockRejectedValue(failure);
+		const readShare = jest.spyOn(shareService, "readShare");
+		await expect(
+			datastorePasswordService.getPasswordDatastoreForDisplay("ds", "refresh"),
+		).rejects.toBe(failure);
+		expect(readShare).not.toHaveBeenCalled();
 	});
 });
 

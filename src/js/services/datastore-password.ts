@@ -357,8 +357,8 @@ function _readShares(
 			) => {
 				const onSuccess = (content: ShareContent | undefined) => {
 					if (typeof content === "undefined") {
-						if (mode !== "network-first")
-							failure = { errors: ["SERVER_OFFLINE"] };
+						// Live reads tolerate unavailable shares; cached snapshots must be complete.
+						if (mode === "cache-only") failure = { errors: ["SERVER_OFFLINE"] };
 						open_calls--;
 						localResolve();
 						return;
@@ -390,7 +390,7 @@ function _readShares(
 				};
 
 				const onError = (error: unknown) => {
-					if (mode !== "network-first") failure = error;
+					if (mode === "cache-only") failure = error;
 					open_calls--;
 					localResolve();
 				};
