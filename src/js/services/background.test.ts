@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import type { MessageSender } from "../../types/browser";
+import type { PasswordLeaf } from "../../types/datastore";
 import React from "react";
 import en from "../../common/data/translations/locale-en.json";
 import i18n from "../i18n";
@@ -189,6 +190,57 @@ describe("background message responses", () => {
 			backgroundService.onMessage({ event, data: null }, {}, sendResponse),
 		).toBe(false);
 		expect(sendResponse).not.toHaveBeenCalled();
+	});
+});
+
+describe("background password-change detection", () => {
+	beforeEach(() => {
+		jest.spyOn(user, "isLoggedIn").mockReturnValue(true);
+		jest
+			.spyOn(storeService, "getStore")
+			.mockReturnValue(createStore(rootReducer));
+		jest.spyOn(notificationBarService, "create").mockResolvedValue(undefined);
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it.each<[string, Partial<PasswordLeaf>, boolean]>([
+		[
+			"a missing hash after JSON serialization",
+			JSON.parse(JSON.stringify({ password_hash: undefined })),
+			false,
+		],
+		["an explicitly undefined hash", { password_hash: undefined }, false],
+		["an unchanged password", { password_hash: "1a91d" }, false],
+		["a changed password", { password_hash: "00000" }, true],
+		["a previously empty password", { password_hash: "" }, true],
+	])("handles %s", async (_description, metadata, shouldNotify) => {
+		jest.spyOn(storage, "where").mockResolvedValue([
+			{
+				key: "secret",
+				secret_id: "secret",
+				secret_key: "key",
+				type: "website_password",
+				urlfilter: "example.com",
+				...metadata,
+			},
+		]);
+
+		backgroundService.onMessage(
+			{
+				event: "login-form-submit",
+				data: { username: "user", password: "pw" },
+			},
+			{ tab: { id: 42 }, url: "https://example.com/" },
+			jest.fn(),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(notificationBarService.create).toHaveBeenCalledTimes(
+			shouldNotify ? 1 : 0,
+		);
 	});
 });
 

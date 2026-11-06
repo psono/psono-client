@@ -236,6 +236,9 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 					"website-password-refresh",
 					document.location.toString(),
 					async (response) => {
+						if (!Array.isArray(response?.data) || response.data.length === 0) {
+							return;
+						}
 						fillAll = true;
 						requestSecret(
 							response.data[nextFillAllIndex % response.data.length].secret_id,
@@ -1240,6 +1243,9 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 			"website-password-refresh",
 			document.location.toString(),
 			async (response) => {
+				const entries = Array.isArray(response?.data) ? response.data : [];
+				const locked =
+					response?.event === "status" && response.data === "locked";
 				const openDatastoreClass = "psono_open-datastore-" + uuid.v4();
 				const generatePasswordClass = "psono_generate-password-" + uuid.v4();
 				const requestSecretClasses = [];
@@ -1248,37 +1254,38 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 
 				const isLogged = await new Promise((resolve) => {
 					base.emit("is-logged-in", undefined, (state) => {
-						resolve(state);
+						resolve(!locked && state === true);
 					});
 				});
 				dropcontent +=
 					'<div class="psono-drop-content-inner psono-password-selector' +
-					(!isLogged || response.data.length < 1
-						? " psono-selector-compact"
-						: "") +
+					(!isLogged || entries.length < 1 ? " psono-selector-compact" : "") +
 					'">';
 				dropcontent += '<ul class="navigations">';
 
-				if (isLogged) {
-					if (response.data.length === 0) {
+				if (locked) {
+					dropcontent +=
+						'<li class="psono-password-empty" role="status">Psono is locked</li>';
+				} else if (isLogged) {
+					if (entries.length === 0) {
 						dropcontent +=
 							'<li class="psono-password-empty">No passwords found</li>';
 					}
-					if (response.data.length > 5) {
+					if (entries.length > 5) {
 						dropcontent +=
 							'<li class="psono-password-search"><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
 					}
-					for (let i = 0; i < response.data.length; i++) {
-						const sanitizedName = sanitizeText(response.data[i].name);
+					for (let i = 0; i < entries.length; i++) {
+						const sanitizedName = sanitizeText(entries[i].name);
 						let sanitizedDescription = "";
 						if (
-							response.data[i].description &&
-							!response.data[i].name
+							entries[i].description &&
+							!entries[i].name
 								.toLowerCase()
-								.includes(response.data[i].description.toLowerCase())
+								.includes(entries[i].description.toLowerCase())
 						) {
 							sanitizedDescription = sanitizeText(
-								" (" + response.data[i].description + ")",
+								" (" + entries[i].description + ")",
 							);
 						}
 						if (sanitizedDescription) {
@@ -1303,13 +1310,17 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 							"</span></div></li>";
 						requestSecretClasses.push({
 							class: requestSecretClass,
-							secret_id: response.data[i].secret_id,
+							secret_id: entries[i].secret_id,
 						});
 					}
 				}
 
 				dropcontent += "</ul>";
-				const datastoreLabel = isLogged ? "Open Datastore" : "Login";
+				const datastoreLabel = locked
+					? "Unlock"
+					: isLogged
+						? "Open Datastore"
+						: "Login";
 				dropcontent +=
 					'<div class="psono-selector-actions"><button type="button" class="psono-selector-action ' +
 					openDatastoreClass +
@@ -1376,8 +1387,8 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 						}
 					}
 
-					// Setup search functionality if response.data is longer than 5
-					if (response.data.length > 5) {
+					// Setup search functionality if there are more than five entries
+					if (entries.length > 5) {
 						const searchInput = shadowRoot.querySelector(".psono-search-input");
 						const listItems = shadowRoot.querySelectorAll(
 							".psono_request-secret",

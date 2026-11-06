@@ -126,9 +126,15 @@ export const initStore = async () => {
 		// Never let the library's IndexedDB/localStorage fallback persist actions
 		// containing session keys. All supported clients have native channels.
 		broadcastChannelOption: { type: "native" as const },
+		// Persistence actions are local; several contain callbacks that cannot
+		// be structured-cloned by the native BroadcastChannel.
 		blacklist: [
 			"persist/PERSIST",
 			"persist/REHYDRATE",
+			"persist/FLUSH",
+			"persist/PAUSE",
+			"persist/PURGE",
+			"persist/REGISTER",
 			"@@VAULT_LOCK",
 			"@@VAULT_RESTORE",
 		],
@@ -399,7 +405,10 @@ export const initStore = async () => {
 	});
 
 	// Expose store to window only in development for debugging (optional)
-	if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+	if (
+		typeof window !== "undefined" &&
+		(!process.env.NODE_ENV || process.env.NODE_ENV === "development")
+	) {
 		(window as DebugWindow).store = store;
 	}
 

@@ -41,7 +41,7 @@ describe("Service: widgetService - moveItem test suite", () => {
 		);
 		handleDatastoreContentChangedSpy = jest
 			.spyOn(datastorePasswordService, "handleDatastoreContentChanged")
-			.mockImplementation(() => {});
+			.mockResolvedValue(undefined);
 
 		getDatastoreWithIdSpy = jest.spyOn(datastoreService, "getDatastoreWithId");
 
@@ -1795,7 +1795,7 @@ describe("Service: widgetService - connection clone titles", () => {
 			.mockResolvedValue([]);
 		jest
 			.spyOn(datastorePasswordService, "handleDatastoreContentChanged")
-			.mockImplementation(() => {});
+			.mockResolvedValue(undefined);
 
 		await widgetService.cloneItem(datastore, item, ["item-id"]);
 

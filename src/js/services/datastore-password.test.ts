@@ -12,6 +12,50 @@ import rootReducer from "../reducers";
 import { loadWordlist } from "./passphrase";
 import helper from "./helper";
 import offlineCache from "./offline-cache";
+import secretService from "./secret";
+
+describe("Service: datastorePasswordService - saved password hashes", () => {
+	beforeEach(() => {
+		const datastore: Datastore = { datastore_id: "ds", items: [] };
+		jest.spyOn(datastoreService, "getDatastore").mockResolvedValue(datastore);
+		jest
+			.spyOn(shareService, "readShareRightsOverview")
+			.mockResolvedValue({ share_rights: [] });
+		jest.spyOn(datastoreService, "fillStorage").mockResolvedValue(undefined);
+		jest
+			.spyOn(datastoreService, "saveDatastoreContent")
+			.mockResolvedValue(undefined);
+		jest.spyOn(secretService, "createSecret").mockResolvedValue({
+			secret_id: "secret",
+			secret_key: "key",
+		});
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it.each([
+		["pw", "1a91d"],
+		["", ""],
+		[undefined, ""],
+	])("persists the hash metadata for password %p", async (password, expectedHash) => {
+		const entry = await datastorePasswordService.savePassword(
+			"https://example.com/",
+			"user",
+			password,
+		);
+
+		expect(entry?.password_hash).toBe(expectedHash);
+		expect(datastoreService.saveDatastoreContent).toHaveBeenCalledWith(
+			"password",
+			"default",
+			expect.objectContaining({
+				items: [expect.objectContaining({ password_hash: expectedHash })],
+			}),
+		);
+	});
+});
 
 describe("Service: datastorePasswordService - unavailable data", () => {
 	afterEach(() => {
@@ -478,7 +522,7 @@ describe("Service: datastorePasswordService share_index", () => {
 			.mockResolvedValue(undefined);
 		const fillStorageSpy = jest
 			.spyOn(datastoreService, "fillStorage")
-			.mockImplementation(() => undefined);
+			.mockResolvedValue(undefined);
 		const readRightsSpy = jest
 			.spyOn(shareService, "readShareRightsOverview")
 			.mockResolvedValue({
@@ -578,9 +622,7 @@ describe("Service: datastorePasswordService - entry and folder locations", () =>
 		jest
 			.spyOn(datastoreService, "getDatastore")
 			.mockImplementation(async () => helper.duplicateObject(stored));
-		jest
-			.spyOn(datastoreService, "fillStorage")
-			.mockImplementation(() => undefined);
+		jest.spyOn(datastoreService, "fillStorage").mockResolvedValue(undefined);
 		jest
 			.spyOn(shareService, "readShareRightsOverview")
 			.mockImplementation(async () => ({
