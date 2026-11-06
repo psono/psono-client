@@ -816,10 +816,10 @@ function getPasswordDatastore(id?: string): Promise<Datastore | undefined> {
 				share_rights_dict[data.share_rights[i].share_id] = data.share_rights[i];
 			}
 
-			const onSuccess = (datastore: Datastore) => {
+			const onSuccess = async (datastore: Datastore) => {
 				updatePathsRecursive(datastore, []);
 
-				fillStorage(datastore);
+				await fillStorage(datastore);
 
 				return datastore;
 			};
@@ -922,10 +922,10 @@ function addFolderPathRecursive(
  *
  * @param {TreeObject} datastore The datastore tree
  */
-function fillStorage(datastore: Datastore | undefined) {
+async function fillStorage(datastore: Datastore | undefined) {
 	addFolderPathRecursive(datastore, "/");
 
-	datastoreService.fillStorage(
+	const passwordLeafs = datastoreService.fillStorage(
 		"datastore-password-leafs",
 		datastore,
 		[
@@ -957,7 +957,7 @@ function fillStorage(datastore: Datastore | undefined) {
 		(item) => !item.type || item.type !== "file",
 	);
 
-	datastoreService.fillStorage(
+	const fileLeafs = datastoreService.fillStorage(
 		"datastore-file-leafs",
 		datastore,
 		[
@@ -972,6 +972,7 @@ function fillStorage(datastore: Datastore | undefined) {
 		],
 		(item) => item.type && item.type === "file",
 	);
+	await Promise.all([passwordLeafs, fileLeafs]);
 }
 
 /**
@@ -985,7 +986,7 @@ function handleDatastoreContentChanged(datastore: Datastore) {
 	updatePathsRecursive(datastore_copy, []);
 
 	// datastore has changed, so lets regenerate local lookup
-	fillStorage(datastore);
+	return fillStorage(datastore);
 }
 
 /**
@@ -1082,7 +1083,7 @@ function saveInDatastore(secretObject: SecretData, datastoreObject: Datastore) {
 				datastore.items.push(datastoreObject as DatastoreItem);
 
 				await saveDatastoreContent(datastore, [[]]);
-				handleDatastoreContentChanged(datastore);
+				await handleDatastoreContentChanged(datastore);
 
 				return datastoreObject;
 			}, onError);
@@ -1227,8 +1228,8 @@ function updatePassword(url: string, username: string, password: string) {
 			entry.password_hash = passwordSha1.substring(0, 5).toLowerCase();
 
 			const onSecretWriteSuccess = () =>
-				saveDatastoreContent(datastore, [entry.path || []]).then(() => {
-					handleDatastoreContentChanged(datastore);
+				saveDatastoreContent(datastore, [entry.path || []]).then(async () => {
+					await handleDatastoreContentChanged(datastore);
 					return entry;
 				});
 

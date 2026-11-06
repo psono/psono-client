@@ -488,12 +488,12 @@ function getDatastore<T extends object = Datastore>(
  * @param {Array} map The map with key / value
  * @param {function} [filter] A function to filter
  */
-function addNodeToStorage(
+async function addNodeToStorage(
 	db: StorageDb,
 	folder: Datastore | undefined,
 	map: StorageFieldMap,
 	filter?: (item: DatastoreItem) => unknown,
-): void {
+): Promise<void> {
 	if (typeof folder === "undefined") {
 		return;
 	}
@@ -502,9 +502,10 @@ function addNodeToStorage(
 		return;
 	}
 
+	const writes: Promise<unknown>[] = [];
 	let i;
 	for (i = 0; folder.folders && i < folder.folders.length; i++) {
-		addNodeToStorage(db, folder.folders[i], map, filter);
+		writes.push(addNodeToStorage(db, folder.folders[i], map, filter));
 	}
 
 	for (i = 0; folder.items && i < folder.items.length; i++) {
@@ -534,8 +535,11 @@ function addNodeToStorage(
 		item["type"] = folder.items[i].type;
 
 		// The caller's mapping supplies the storage key (secret_id or node id).
-		storage.upsert(db, item as { key: string; [field: string]: unknown });
+		writes.push(
+			storage.upsert(db, item as { key: string; [field: string]: unknown }),
+		);
 	}
+	await Promise.all(writes);
 }
 
 /**
@@ -546,15 +550,26 @@ function addNodeToStorage(
  * @param {Array} map The map with key / value
  * @param {function} [filter] A function to filter
  */
-function fillStorage(
+async function fillStorage(
 	db: StorageDb,
 	datastore: Datastore | undefined,
 	map: StorageFieldMap,
 	filter?: (item: DatastoreItem) => unknown,
 ) {
-	storage.removeAll(db);
+	if (vaultLock.isBlocked()) return;
+	const accountId = vaultLock.getAccountId();
+	const revision = vaultLock.getRevision();
+	// Clearing account-scoped encrypted storage is asynchronous. Complete it
+	// before writing replacements, otherwise it can delete the new entries.
+	await storage.removeAll(db);
+	if (
+		vaultLock.isBlocked() ||
+		accountId !== vaultLock.getAccountId() ||
+		revision !== vaultLock.getRevision()
+	)
+		return;
 
-	addNodeToStorage(db, datastore, map, filter);
+	await addNodeToStorage(db, datastore, map, filter);
 
 	storage.save();
 }

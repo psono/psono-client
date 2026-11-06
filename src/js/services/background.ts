@@ -67,6 +67,8 @@ let clearFillElsterCertificateTimeout:
 	| undefined;
 let datastorePasswordLeafIndexInitialized = false;
 let datastorePasswordLeafIndexBuildPromise: Promise<void> | undefined;
+let stopWatchingBrowserActionState: (() => void) | undefined;
+let badgeUpdateRequest = 0;
 
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
@@ -132,23 +134,11 @@ function activateAfterStore() {
 		});
 	});
 
-	if (typeof chrome.tabs !== "undefined") {
-		chrome.tabs.onActivated.addListener((activeInfo) => {
-			activeTabId = activeInfo.tabId;
-			chrome.tabs.get(activeInfo.tabId, (tabInfo) => {
-				activeTabUrl = tabInfo.url;
-				updateContextMenu();
-				updateBadgeCounter();
-			});
-		});
-		chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
-			if (changeInfo.status !== "complete") {
-				return;
-			}
-			activeTabUrl = tabInfo.url;
-			updateContextMenu();
-			updateBadgeCounter();
-		});
+	// Chrome registers these wake-up listeners synchronously in its worker entry.
+	if (TARGET !== "chrome" && typeof chrome.tabs !== "undefined") {
+		chrome.tabs.onActivated.addListener(onTabActivated);
+		chrome.tabs.onUpdated.addListener(onTabUpdated);
+		chrome.windows?.onFocusChanged?.addListener(onWindowFocusChanged);
 	}
 
 	if (typeof chrome.omnibox !== "undefined") {
@@ -166,7 +156,8 @@ function activateAfterStore() {
 			});
 		}
 	}
-	if (typeof browser.runtime.onMessage !== "undefined") {
+	// Chrome's worker owns a synchronous startup listener in background-chrome.
+	if (TARGET !== "chrome" && typeof browser.runtime.onMessage !== "undefined") {
 		browser.runtime.onMessage.addListener(onMessage);
 	}
 	browserClient.registerAuthRequiredListener(onAuthRequired);
@@ -211,36 +202,96 @@ function activateAfterStore() {
 		});
 	}
 
-	// set the correct icon on start
-	if (user.isLoggedIn()) {
+	watchBrowserActionState();
+}
+
+function onTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
+	activeTabId = activeInfo.tabId;
+	// Invalidate the previous tab's badge lookup before tabs.get can yield.
+	void updateBadgeCounter();
+	chrome.tabs.get(activeInfo.tabId, (tabInfo) => {
+		if (activeTabId !== activeInfo.tabId) return;
+		activeTabUrl = tabInfo.url;
+		updateContextMenu();
+	});
+}
+
+function onTabUpdated(
+	tabId: number,
+	changeInfo: chrome.tabs.TabChangeInfo,
+	tabInfo: BrowserTab,
+) {
+	if (tabId !== activeTabId || changeInfo.status !== "complete") return;
+	activeTabUrl = tabInfo.url;
+	updateContextMenu();
+	void updateBadgeCounter();
+}
+
+function onWindowFocusChanged(windowId: number) {
+	if (windowId >= 0) void updateBadgeCounter();
+}
+
+/** Bind the toolbar to the current store, including asynchronous unlock restores. */
+function watchBrowserActionState() {
+	stopWatchingBrowserActionState?.();
+	let previousLoggedIn: boolean | undefined;
+	const update = () => {
+		const loggedIn = !vaultLock.isBlocked() && user.isLoggedIn();
+		if (loggedIn === previousLoggedIn) return;
+		previousLoggedIn = loggedIn;
 		browserClient.setIcon({
-			path: "/data/img/icon-32.png",
+			path: loggedIn
+				? "/data/img/icon-32.png"
+				: "/data/img/icon-32-disabled.png",
 		});
 		updateBadgeCounter();
-	} else {
-		browserClient.setIcon({
-			path: "/data/img/icon-32-disabled.png",
-		});
-		updateBadgeCounter();
-	}
+	};
+	const unsubscribeStore = getStore().subscribe(update);
+	const unsubscribeLock = vaultLock.subscribe(update);
+	stopWatchingBrowserActionState = () => {
+		unsubscribeStore();
+		unsubscribeLock();
+	};
+	update();
 }
 
 /**
  * Updates the badge counter at the top
  */
-function updateBadgeCounter() {
-	if (!getStore().getState().user.isLoggedIn || !activeTabUrl) {
+async function updateBadgeCounter() {
+	const request = ++badgeUpdateRequest;
+	if (vaultLock.isBlocked() || !getStore().getState().user.isLoggedIn) {
 		browserClient.setBadgeText("");
-	} else {
-		searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then((leafs) => {
-			if (leafs.length === 0) {
-				browserClient.setBadgeText("");
-			} else if (leafs.length < 9) {
-				browserClient.setBadgeText(leafs.length.toString());
-			} else {
-				browserClient.setBadgeText("9+");
-			}
-		});
+		return;
+	}
+	const revision = vaultLock.getRevision();
+	const current = () =>
+		request === badgeUpdateRequest &&
+		revision === vaultLock.getRevision() &&
+		!vaultLock.isBlocked() &&
+		getStore().getState().user.isLoggedIn;
+	try {
+		// A restarted worker has not seen a tab activation event yet. Always
+		// resolve the active website instead of relying on the in-memory URL.
+		const tab = await browserClient.getActiveTab();
+		if (!current()) return;
+		activeTabId = tab?.id;
+		activeTabUrl = tab?.url;
+		if (!activeTabUrl || !/^https?:\/\//.test(activeTabUrl)) {
+			browserClient.setBadgeText("");
+			return;
+		}
+		const leafs = await searchWebsitePasswordsByUrlfilter(activeTabUrl, false);
+		if (!current()) return;
+		browserClient.setBadgeText(
+			leafs.length === 0
+				? ""
+				: leafs.length < 9
+					? leafs.length.toString()
+					: "9+",
+		);
+	} catch {
+		if (current()) browserClient.setBadgeText("");
 	}
 }
 
@@ -942,6 +993,7 @@ function onLogin(
  * @returns {Promise<void>} Resolves once the index is ready (or cannot be initialized).
  */
 async function ensureDatastorePasswordLeafIndexInitialized(): Promise<void> {
+	if (vaultLock.isBlocked()) return;
 	const userState = getStore().getState().user;
 	if (!userState.isLoggedIn && !userState.token) {
 		return;
@@ -955,26 +1007,36 @@ async function ensureDatastorePasswordLeafIndexInitialized(): Promise<void> {
 		return datastorePasswordLeafIndexBuildPromise;
 	}
 
+	const accountId = vaultLock.getAccountId();
+	const revision = vaultLock.getRevision();
+	const current = () =>
+		!vaultLock.isBlocked() &&
+		accountId === vaultLock.getAccountId() &&
+		revision === vaultLock.getRevision();
 	try {
 		const leafKeys = await storage.keys("datastore-password-leafs");
+		if (!current()) return;
 		if (leafKeys.length > 0) {
 			datastorePasswordLeafIndexInitialized = true;
 			return;
 		}
 
-		datastorePasswordLeafIndexBuildPromise = datastorePasswordService
+		const buildPromise: Promise<void> = datastorePasswordService
 			.getPasswordDatastore()
 			.then(() => {
-				datastorePasswordLeafIndexInitialized = true;
+				// A pre-lock build must not mark the unlocked session's index ready.
+				if (current()) datastorePasswordLeafIndexInitialized = true;
 			})
 			.catch((error) => {
 				console.log(error);
 			})
 			.finally(() => {
-				datastorePasswordLeafIndexBuildPromise = undefined;
+				if (datastorePasswordLeafIndexBuildPromise === buildPromise)
+					datastorePasswordLeafIndexBuildPromise = undefined;
 			});
+		datastorePasswordLeafIndexBuildPromise = buildPromise;
 
-		return datastorePasswordLeafIndexBuildPromise;
+		return buildPromise;
 	} catch (error) {
 		console.log(error);
 	}
@@ -2084,6 +2146,10 @@ function updateLastLoginCredentials() {
 const backgroundService = {
 	activate,
 	activateAfterStore,
+	watchBrowserActionState,
+	onTabActivated,
+	onTabUpdated,
+	onWindowFocusChanged,
 	onMessage,
 	approveIframeLogin,
 	getSearchWebsitePasswordsByUrlfilter,

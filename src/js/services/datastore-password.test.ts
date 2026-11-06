@@ -21,9 +21,7 @@ describe("Service: datastorePasswordService - saved password hashes", () => {
 		jest
 			.spyOn(shareService, "readShareRightsOverview")
 			.mockResolvedValue({ share_rights: [] });
-		jest
-			.spyOn(datastoreService, "fillStorage")
-			.mockImplementation(() => undefined);
+		jest.spyOn(datastoreService, "fillStorage").mockResolvedValue(undefined);
 		jest
 			.spyOn(datastoreService, "saveDatastoreContent")
 			.mockResolvedValue(undefined);
@@ -524,7 +522,7 @@ describe("Service: datastorePasswordService share_index", () => {
 			.mockResolvedValue(undefined);
 		const fillStorageSpy = jest
 			.spyOn(datastoreService, "fillStorage")
-			.mockImplementation(() => undefined);
+			.mockResolvedValue(undefined);
 		const readRightsSpy = jest
 			.spyOn(shareService, "readShareRightsOverview")
 			.mockResolvedValue({
@@ -624,9 +622,7 @@ describe("Service: datastorePasswordService - entry and folder locations", () =>
 		jest
 			.spyOn(datastoreService, "getDatastore")
 			.mockImplementation(async () => helper.duplicateObject(stored));
-		jest
-			.spyOn(datastoreService, "fillStorage")
-			.mockImplementation(() => undefined);
+		jest.spyOn(datastoreService, "fillStorage").mockResolvedValue(undefined);
 		jest
 			.spyOn(shareService, "readShareRightsOverview")
 			.mockImplementation(async () => ({

@@ -76,6 +76,7 @@ describe("content script shadow DOM autofill", () => {
 		let availablePasswords = [
 			{ secret_id: "password-id", name: "Example account" },
 		];
+		let vaultLocked = false;
 		const browser = {
 			runtime: {
 				onMessage: {
@@ -83,7 +84,14 @@ describe("content script shadow DOM autofill", () => {
 				},
 				sendMessage: (message, callback) => {
 					if (message.event === "website-password-refresh") {
-						callback({ data: availablePasswords });
+						callback(
+							vaultLocked
+								? { event: "status", data: "locked" }
+								: {
+										event: "website-password-update",
+										data: availablePasswords,
+									},
+						);
 						return;
 					}
 					if (message.event === "is-logged-in") {
@@ -242,6 +250,46 @@ describe("content script shadow DOM autofill", () => {
 				(button) => button.getAttribute("aria-label"),
 			),
 		).toEqual(["Open Datastore", "Generate Password"]);
+
+		vaultLocked = true;
+		passwordClickListener.call(password, {
+			pageX: 550,
+			target: document.querySelector("ba-modal"),
+		});
+		await Promise.resolve();
+		await Promise.resolve();
+		let currentDropdowns = document.querySelectorAll('[id^="psono_drop-"]');
+		const lockedDropdown =
+			currentDropdowns[currentDropdowns.length - 1]._psonoShadowRoot;
+		expect(
+			lockedDropdown.querySelectorAll(".psono_request-secret"),
+		).toHaveLength(0);
+		expect(
+			Array.from(
+				lockedDropdown.querySelectorAll(".psono-selector-actions button"),
+				(button) => button.getAttribute("aria-label"),
+			),
+		).toEqual(["Unlock"]);
+
+		vaultLocked = false;
+		availablePasswords = [
+			{ secret_id: "password-id", name: "Example account" },
+		];
+		passwordClickListener.call(password, {
+			pageX: 550,
+			target: document.querySelector("ba-modal"),
+		});
+		await Promise.resolve();
+		await Promise.resolve();
+		currentDropdowns = document.querySelectorAll('[id^="psono_drop-"]');
+		const unlockedDropdown =
+			currentDropdowns[currentDropdowns.length - 1]._psonoShadowRoot;
+		expect(
+			unlockedDropdown.querySelectorAll(".psono_request-secret"),
+		).toHaveLength(1);
+		expect(
+			unlockedDropdown.querySelector('button[aria-label="Open Datastore"]'),
+		).not.toBeNull();
 
 		jest.useRealTimers();
 	});
