@@ -37,6 +37,7 @@ import format from "../../services/date";
 import groupsService from "../../services/groups";
 import statusService from "../../services/status";
 import CreateGroupDialog from "./create-group-dialog";
+import PendingSharesTooltip from "./pending-shares-tooltip";
 
 const useStyles = makeStyles((theme) => ({
 	toolbarRoot: {
@@ -330,14 +331,21 @@ const GroupsView = (props: AccountViewProps) => {
 								)}
 							{tableMeta.rowData[3] === true &&
 								outstandingShareIndex[tableMeta.rowData[0]] && (
-									<Button
-										className={classes.button}
-										onClick={() => {
-											acceptNewShares(tableMeta.rowData);
-										}}
+									<PendingSharesTooltip
+										groupId={tableMeta.rowData[0]}
+										outstandingShares={
+											outstandingShareIndex[tableMeta.rowData[0]]
+										}
 									>
-										{t("ACCEPT_NEW_SHARES")}
-									</Button>
+										<Button
+											className={classes.button}
+											onClick={() => {
+												acceptNewShares(tableMeta.rowData);
+											}}
+										>
+											{t("ACCEPT_NEW_SHARES")}
+										</Button>
+									</PendingSharesTooltip>
 								)}
 						</>
 					);
