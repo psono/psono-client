@@ -1121,6 +1121,9 @@ function savePassword(url: string, username?: string, password?: string) {
 		name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
 		urlfilter: parsed_url.authority || "",
 		allow_http: parsed_url.scheme && parsed_url.scheme === "http",
+		password_hash: password
+			? cryptoLibrary.sha1(password).substring(0, 5).toLowerCase()
+			: "",
 	};
 	if (username) {
 		datastore_object["description"] = username;

@@ -1685,10 +1685,11 @@ function loginFormSubmit(
 				}
 
 				if (
-					Object.hasOwn(existingPasswords[0], "password_hash") &&
 					!existingPasswords[0]["password_hash"] &&
 					existingPasswords[0]["password_hash"] !== ""
 				) {
+					// Missing hashes cannot establish a password change. JSON storage
+					// omits undefined fields; an empty string still means no password.
 					return;
 				}
 
