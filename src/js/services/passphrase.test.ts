@@ -40,6 +40,8 @@ describe("Passphrase dictionaries", () => {
 			expect(word).toBe(word.normalize("NFC"));
 			expect(Array.from(word[0].toUpperCase())).toHaveLength(1);
 			expect(Array.from(word[word.length - 1].toUpperCase())).toHaveLength(1);
+			expect(word[0].toUpperCase().toLowerCase()).toBe(word[0]);
+			expect(word.slice(-1).toUpperCase().toLowerCase()).toBe(word.slice(-1));
 			expect(word).toMatch(
 				language === "ru" || language === "uk"
 					? /^\p{Script=Cyrillic}+$/u
@@ -64,6 +66,7 @@ describe("Passphrase dictionaries", () => {
 		["no-NO", "no"],
 		["ru-RU", "ru"],
 		["uk-UA", "uk"],
+		["tr-TR", "tr"],
 		["cs-CZ", "cs"],
 		["ja", "en"],
 		["ar", "en"],

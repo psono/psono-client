@@ -35,6 +35,7 @@ LANGUAGE_CODES = [
     'ru',
     'sk',
     'sv',
+    'tr',
     'uk',
     'vi',
     'zh-Hans',

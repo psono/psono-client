@@ -139,6 +139,12 @@ const languages: Record<string, Language> = {
 		active: true,
 	},
 	sk: { code: "sk", lng_code: "LANG_SK", lng_title_native: "Slovák" },
+	tr: {
+		code: "tr",
+		lng_code: "LANG_TR",
+		lng_title_native: "Türkçe",
+		active: true,
+	},
 	uk: {
 		code: "uk",
 		lng_code: "LANG_UK",

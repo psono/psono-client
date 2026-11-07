@@ -78,6 +78,7 @@ describe("Passphrase generator preferences and strength display", () => {
 		["pt-BR", "pt"],
 		["pl-PL", "pl"],
 		["ru-RU", "ru"],
+		["tr-TR", "tr"],
 		["uk-UA", "uk"],
 	])("uses the %s frontend locale's %s dictionary by default", async (locale, language) => {
 		mockLanguage = locale;
