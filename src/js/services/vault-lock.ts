@@ -438,6 +438,13 @@ onSessionChange((id, unlocked) => {
 	if (!unlocked) {
 		serializedState = null;
 		revision++;
+		// Logout-only sessions have no authenticator from which to recover a key.
+		if (!configuration.credential) {
+			void accountService
+				.logoutTimedOutSession(id, configuration.keyId)
+				.catch((error) => console.error("Could not finish logout", error));
+			return;
+		}
 	}
 	notify();
 });
@@ -556,7 +563,12 @@ async function initialize(id: string): Promise<void> {
 			await requestSession(id, initializedConfiguration.keyId);
 		if (
 			isSessionTimedOut(id, initializedConfiguration.keyId) ||
-			accountService.hasPendingTimeoutLogout(id, initializedConfiguration.keyId)
+			accountService.hasPendingTimeoutLogout(
+				id,
+				initializedConfiguration.keyId,
+			) ||
+			(!initializedConfiguration.credential &&
+				!getSession(id, initializedConfiguration.keyId))
 		) {
 			await accountService.logoutTimedOutSession(
 				id,
@@ -832,22 +844,7 @@ async function authenticate(
 	);
 }
 
-async function enable(
-	username: string,
-	rpId: string,
-	timeout: number,
-	maximum?: number,
-	timeoutAction: TimeoutAction = normalizeTimeoutAction(
-		configuration?.timeoutAction,
-	),
-) {
-	if (!configuration || !(await isSupported()))
-		throw new LockValidationError(
-			`Enrollment precheck: configuration present: ${!!configuration}. See compatibility checks for browser support.`,
-		);
-	const lockTimeout = clampTimeout(timeout, maximum);
-	const id = accountId;
-	const generation = revision;
+async function enroll(username: string, rpId: string, id: string) {
 	const credentialInfo = {
 		id: "",
 		rpId,
@@ -909,6 +906,31 @@ async function enable(
 		prf.results?.first !== undefined
 			? deriveLockKey(getSeed(prf.results.first), credentialInfo.hkdfSalt, id)
 			: await authenticate(credentialInfo);
+	return { secret, credential: credentialInfo };
+}
+
+async function enable(
+	username: string,
+	rpId: string,
+	timeout: number,
+	maximum?: number,
+	timeoutAction: TimeoutAction = normalizeTimeoutAction(
+		configuration?.timeoutAction,
+	),
+) {
+	const action = normalizeTimeoutAction(timeoutAction);
+	if (!configuration || (action === "LOCK" && !(await isSupported())))
+		throw new LockValidationError(
+			`Enrollment precheck: configuration present: ${!!configuration}. See compatibility checks for browser support.`,
+		);
+	const lockTimeout = clampTimeout(timeout, maximum);
+	const id = accountId;
+	const generation = revision;
+	// Logout needs no authenticator: its key lives only in browser memory.
+	const { secret, credential } =
+		action === "LOCK"
+			? await enroll(username, rpId, id)
+			: { secret: randomHex(), credential: undefined };
 	if (id !== accountId || generation !== revision)
 		throw new Error("VAULT_SESSION_CHANGED");
 	const oldState = serializedState;
@@ -917,9 +939,9 @@ async function enable(
 		enabled: true,
 		requested: true,
 		timeout: lockTimeout,
-		timeoutAction: normalizeTimeoutAction(timeoutAction),
+		timeoutAction: action,
 		keyId: randomHex(),
-		credential: credentialInfo,
+		credential,
 	};
 	if (TARGET === "chrome") await createOffscreenDocument();
 	if (id !== accountId || generation !== revision)
@@ -1012,6 +1034,12 @@ async function update(
 	if (!configuration || isLocked()) throw new Error("VAULT_UNLOCK_REQUIRED");
 	if (!enabled && required) throw new Error("LOCKING_REQUIRED");
 	if (enabled && !configuration.enabled)
+		throw new Error("LOCK_CREDENTIAL_REQUIRED");
+	if (
+		enabled &&
+		normalizeTimeoutAction(timeoutAction) === "LOCK" &&
+		!configuration.credential
+	)
 		throw new Error("LOCK_CREDENTIAL_REQUIRED");
 	const id = accountId;
 	const key = getKey()!;
