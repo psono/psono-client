@@ -16,7 +16,6 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { BarLoader } from "react-spinners";
 import vaultLock, {
-	LOCK_REQUIRED_UNAVAILABLE,
 	LOCK_UNAVAILABLE,
 	type LockSupport,
 } from "../services/vault-lock";
@@ -95,6 +94,7 @@ export function LockSettings({
 	const [timeoutAction, setTimeoutAction] = React.useState<TimeoutAction>(() =>
 		normalizeTimeoutAction(config?.timeoutAction),
 	);
+	const selectedTimeoutAction = supported === false ? "LOGOUT" : timeoutAction;
 	const [busy, setBusy] = React.useState(false);
 	const [error, setError] = React.useState("");
 	const [diagnostic, setDiagnostic] = React.useState("");
@@ -122,17 +122,21 @@ export function LockSettings({
 		setBusy(true);
 		const nextTimeout = enabled ? timeout : (config?.timeout ?? 300);
 		try {
-			if (enabled && !config?.enabled) {
+			if (
+				enabled &&
+				(!config?.enabled ||
+					(selectedTimeoutAction === "LOCK" && !config.credential))
+			) {
 				const rpId =
 					TARGET === "chrome" || TARGET === "firefox"
-						? new URL(server.webClient!).hostname
+						? new URL(server.webClient || window.location.href).hostname
 						: window.location.hostname;
 				await vaultLock.enable(
 					username,
 					rpId,
 					nextTimeout,
 					server.complianceMaxLockTimeout,
-					timeoutAction,
+					selectedTimeoutAction,
 				);
 			} else
 				await vaultLock.update(
@@ -140,7 +144,7 @@ export function LockSettings({
 					nextTimeout,
 					enforce,
 					server.complianceMaxLockTimeout,
-					timeoutAction,
+					selectedTimeoutAction,
 				);
 			if (mounted.current) {
 				setTimeout(vaultLock.getConfiguration()?.timeout ?? 300);
@@ -164,8 +168,10 @@ export function LockSettings({
 				(error instanceof Error && error.message === LOCK_UNAVAILABLE) ||
 				(error instanceof DOMException &&
 					["NotSupportedError", "SecurityError"].includes(error.name))
-			)
+			) {
 				setSupported(false);
+				setTimeoutAction("LOGOUT");
+			}
 		} finally {
 			saving.current = false;
 			if (mounted.current) setBusy(false);
@@ -173,7 +179,13 @@ export function LockSettings({
 	};
 	const description = (
 		<>
-			<Typography>{t("AUTOMATIC_LOCKING_DESCRIPTION")}</Typography>
+			<Typography>
+				{t(
+					supported === false
+						? "AUTOMATIC_LOCKING_LOGOUT_ONLY_DESCRIPTION"
+						: "AUTOMATIC_LOCKING_DESCRIPTION",
+				)}
+			</Typography>
 			{diagnostic && (
 				<Alert severity="info">
 					<strong>{t("LOCK_ENROLLMENT_DIAGNOSTIC")}</strong>
@@ -193,23 +205,6 @@ export function LockSettings({
 			{t("CONTINUE_WITHOUT_LOCKING")}
 		</Button>
 	);
-	if (supported === false && !config?.enabled && setupMode) {
-		if (enforce)
-			return (
-				<Stack spacing={2}>
-					{description}
-					<Alert severity="error">{t(LOCK_REQUIRED_UNAVAILABLE)}</Alert>
-				</Stack>
-			);
-		return (
-			<Stack spacing={2} sx={{ my: 2 }}>
-				{description}
-				<Alert severity="info">{t("OPTIONAL_LOCKING_UNAVAILABLE")}</Alert>
-				{error && <Alert severity="error">{t(error)}</Alert>}
-				{continueButton}
-			</Stack>
-		);
-	}
 	if (supported === null) return null;
 	return (
 		<Stack spacing={2} sx={{ my: 2 }}>
@@ -217,11 +212,6 @@ export function LockSettings({
 				<Typography variant="h6">{t("AUTOMATIC_LOCKING")}</Typography>
 			)}
 			{description}
-			{supported === false && (
-				<Alert severity="warning">
-					{t(enforce ? LOCK_REQUIRED_UNAVAILABLE : LOCK_UNAVAILABLE)}
-				</Alert>
-			)}
 			{!setupMode && support && (
 				<details>
 					<summary>{t("LOCK_SUPPORT_DETAILS")}</summary>
@@ -246,9 +236,7 @@ export function LockSettings({
 					control={
 						<Switch
 							checked={config?.enabled ?? false}
-							disabled={
-								supported === false || busy || (enforce && !!config?.enabled)
-							}
+							disabled={busy || (enforce && !!config?.enabled)}
 							onChange={(_, enabled) => save(enabled)}
 						/>
 					}
@@ -259,7 +247,7 @@ export function LockSettings({
 				label={t("LOCK_TIMEOUT")}
 				value={timeout}
 				inputProps={{ min: 1, max: server.complianceMaxLockTimeout }}
-				disabled={busy || supported === false}
+				disabled={busy}
 				helperText={
 					server.complianceMaxLockTimeout
 						? t("LOCK_TIMEOUT_MAXIMUM", {
@@ -272,13 +260,13 @@ export function LockSettings({
 			<TextField
 				select
 				label={t("TIMEOUT_ACTION")}
-				value={timeoutAction}
-				disabled={busy || supported === false}
+				value={selectedTimeoutAction}
+				disabled={busy}
 				onChange={(event) =>
 					setTimeoutAction(normalizeTimeoutAction(event.target.value))
 				}
 			>
-				<MenuItem value="LOCK">{t("LOCK")}</MenuItem>
+				{supported && <MenuItem value="LOCK">{t("LOCK")}</MenuItem>}
 				<MenuItem value="LOGOUT">{t("LOGOUT")}</MenuItem>
 			</TextField>
 			{setupMode && (
@@ -286,7 +274,7 @@ export function LockSettings({
 					<Button
 						variant="contained"
 						color="primary"
-						disabled={busy || supported === false}
+						disabled={busy}
 						aria-busy={busy}
 						aria-label={`${t("ENABLE_AUTOMATIC_LOCKING")}`}
 						onClick={() => save(true)}
@@ -319,7 +307,7 @@ export function LockSettings({
 					<Button
 						variant="contained"
 						color="primary"
-						disabled={busy || supported === false}
+						disabled={busy}
 						onClick={() => save(true)}
 					>
 						{t("SAVE")}

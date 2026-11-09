@@ -89,15 +89,21 @@ describe("Service: user session state", () => {
 		expect(user.requireTwoFaSetup()).toBe(false);
 	});
 
-	it("rejects token activation on an unsupported device when locking is mandatory", async () => {
+	it("allows token activation without PRF when locking is mandatory", async () => {
 		mockState.server.complianceEnforceLocking = true;
 		const supported = jest
 			.spyOn(vaultLock, "isSupported")
 			.mockResolvedValue(false);
-		await expect(user.activateToken()).rejects.toThrow(
-			"LOCK_REQUIRED_UNAVAILABLE",
+		const activation = new Error("Activation reached the server");
+		apiClient.activateToken.mockRejectedValueOnce(activation);
+		await expect(user.activateToken()).rejects.toBe(activation);
+		expect(apiClient.activateToken).toHaveBeenCalledWith(
+			"old-token",
+			undefined,
+			undefined,
+			"old-session-key",
+			expect.any(String),
 		);
-		expect(apiClient.activateToken).not.toHaveBeenCalled();
 		supported.mockRestore();
 	});
 

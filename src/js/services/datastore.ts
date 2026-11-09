@@ -22,7 +22,7 @@ import type {
 	ShareRights,
 	WriteResult,
 } from "../../types/datastore";
-import type { StorageDb } from "./storage";
+import type { StorageDb, StorageIndexDb } from "./storage";
 import type { CacheMode } from "../../types/cache";
 import { CacheMissError } from "../../types/cache";
 
@@ -481,31 +481,29 @@ function getDatastore<T extends object = Datastore>(
 }
 
 /**
- * Adds a node to the storage
+ * Collects mapped index entries without issuing per-node database writes.
  *
- * @param {string} db The database to add the item to
  * @param {TreeObject} folder The Tree object
  * @param {Array} map The map with key / value
  * @param {function} [filter] A function to filter
  */
-async function addNodeToStorage(
-	db: StorageDb,
+function collectStorageEntries(
 	folder: Datastore | undefined,
 	map: StorageFieldMap,
 	filter?: (item: DatastoreItem) => unknown,
-): Promise<void> {
+	entries: { key: string; [field: string]: unknown }[] = [],
+) {
 	if (typeof folder === "undefined") {
-		return;
+		return entries;
 	}
 
 	if (Object.hasOwn(folder, "deleted") && folder["deleted"]) {
-		return;
+		return entries;
 	}
 
-	const writes: Promise<unknown>[] = [];
 	let i;
 	for (i = 0; folder.folders && i < folder.folders.length; i++) {
-		writes.push(addNodeToStorage(db, folder.folders[i], map, filter));
+		collectStorageEntries(folder.folders[i], map, filter, entries);
 	}
 
 	for (i = 0; folder.items && i < folder.items.length; i++) {
@@ -535,11 +533,18 @@ async function addNodeToStorage(
 		item["type"] = folder.items[i].type;
 
 		// The caller's mapping supplies the storage key (secret_id or node id).
-		writes.push(
-			storage.upsert(db, item as { key: string; [field: string]: unknown }),
-		);
+		entries.push(item as { key: string; [field: string]: unknown });
 	}
-	await Promise.all(writes);
+	return entries;
+}
+
+async function addNodeToStorage(
+	db: StorageDb,
+	folder: Datastore | undefined,
+	map: StorageFieldMap,
+	filter?: (item: DatastoreItem) => unknown,
+): Promise<void> {
+	await storage.upsert(db, collectStorageEntries(folder, map, filter));
 }
 
 /**
@@ -551,27 +556,14 @@ async function addNodeToStorage(
  * @param {function} [filter] A function to filter
  */
 async function fillStorage(
-	db: StorageDb,
+	db: StorageIndexDb,
 	datastore: Datastore | undefined,
 	map: StorageFieldMap,
 	filter?: (item: DatastoreItem) => unknown,
 ) {
 	if (vaultLock.isBlocked()) return;
-	const accountId = vaultLock.getAccountId();
-	const revision = vaultLock.getRevision();
-	// Clearing account-scoped encrypted storage is asynchronous. Complete it
-	// before writing replacements, otherwise it can delete the new entries.
-	await storage.removeAll(db);
-	if (
-		vaultLock.isBlocked() ||
-		accountId !== vaultLock.getAccountId() ||
-		revision !== vaultLock.getRevision()
-	)
-		return;
-
-	await addNodeToStorage(db, datastore, map, filter);
-
-	storage.save();
+	const entries = collectStorageEntries(datastore, map, filter);
+	if (await storage.replaceIndex(db, entries)) storage.save();
 }
 
 /**

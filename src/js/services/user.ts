@@ -22,7 +22,7 @@ import notification from "./notification";
 import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import { getStore } from "./store";
-import vaultLock, { LOCK_REQUIRED_UNAVAILABLE } from "./vault-lock";
+import vaultLock from "./vault-lock";
 import type {
 	AuthenticationMethod,
 	AuthErrorData,
@@ -531,13 +531,6 @@ function scheduleHashingUpgrade(password: string, expectedToken: string) {
 
 /** Activates the verified session and schedules a background hashing upgrade. */
 async function activateToken(): Promise<{ response: "success" }> {
-	if (
-		getStore().getState().server.complianceEnforceLocking &&
-		!(await vaultLock.isSupported())
-	) {
-		sessionPassword = "";
-		throw new Error(LOCK_REQUIRED_UNAVAILABLE);
-	}
 	const token = getStore().getState().user.token;
 	const sessionSecretKey = getStore().getState().user.sessionSecretKey;
 	const userSauce = getStore().getState().user.userSauce;

@@ -21,6 +21,7 @@ export const wordlistLanguages = {
 	ru: "Русский",
 	sk: "Slovenčina",
 	sv: "Svenska",
+	tr: "Türkçe",
 	uk: "Українська",
 };
 

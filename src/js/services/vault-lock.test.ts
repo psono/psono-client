@@ -19,6 +19,11 @@ jest.mock("localforage", () => ({
 				return mockDatabases.get(name)!;
 			};
 			return {
+				ready: async () => {},
+				driver: () => "mock",
+				iterate: async (callback: (value: unknown, key: string) => void) => {
+					for (const [key, value] of db()) callback(value, key);
+				},
 				getItem: async (key: string) => db().get(key) ?? null,
 				setItem: async (key: string, value: unknown) => {
 					db().set(key, value);
@@ -488,6 +493,92 @@ describe("vault lock lifecycle", () => {
 		expect(vaultLock.getKey()).toBeUndefined();
 		await finishPendingTimeoutLogouts();
 		expect(await stateDb.getItem(`persist:${id}`)).toBeNull();
+	});
+
+	it("enables logout-only locking without PRF or WebAuthn and keeps its key off disk", async () => {
+		Object.defineProperty(globalThis, "PublicKeyCredential", {
+			configurable: true,
+			value: undefined,
+		});
+		await expect(vaultLock.isSupported()).resolves.toBe(false);
+		await expect(vaultLock.enable("alice", "example.test", 60)).rejects.toThrow(
+			LOCK_UNAVAILABLE,
+		);
+		await vaultLock.enable("alice", "example.test", 600, 60, "LOGOUT");
+		expect(navigator.credentials.create).not.toHaveBeenCalled();
+		expect(navigator.credentials.get).not.toHaveBeenCalled();
+		expect(vaultLock.getConfiguration()).toMatchObject({
+			enabled: true,
+			timeout: 60,
+			timeoutAction: "LOGOUT",
+		});
+		expect(vaultLock.getConfiguration()?.credential).toBeUndefined();
+		const id = vaultLock.getAccountId();
+		const key = vaultLock.getKey()!;
+		const raw = (await stateDb.getItem<string>(`persist:${id}`))!;
+		expect(raw).not.toContain(key);
+		expect(raw).not.toContain("sensitive-token");
+		expect(await vaultLock.persistence.getItem(`persist:${id}`)).toBe(state);
+		await vaultLock.initialize(id);
+		vaultLock.completeInitialization(id);
+		expect(vaultLock.getKey()).toBe(key);
+		await vaultLock.update(true, 30, true);
+		expect(vaultLock.getConfiguration()?.timeoutAction).toBe("LOGOUT");
+		await expect(
+			vaultLock.update(true, 30, true, undefined, "LOCK"),
+		).rejects.toThrow("LOCK_CREDENTIAL_REQUIRED");
+	});
+
+	it("returns to login when a logout-only session loses its in-memory key", async () => {
+		await vaultLock.enable("alice", "example.test", 60, undefined, "LOGOUT");
+		const id = vaultLock.getAccountId();
+		vaultLock.lock();
+		expect(vaultLock.isBlocked()).toBe(true);
+		await finishPendingTimeoutLogouts();
+		await vaultLock.initialize(id);
+		vaultLock.completeInitialization(id);
+		expect(vaultLock.getConfiguration()).toMatchObject({
+			enabled: false,
+			requested: true,
+			timeoutAction: "LOGOUT",
+		});
+		expect(await vaultLock.persistence.getItem(`persist:${id}`)).not.toContain(
+			"sensitive-token",
+		);
+	});
+
+	it("discards an unrecoverable logout-only session when reopening the browser", async () => {
+		await vaultLock.enable("alice", "example.test", 60, undefined, "LOGOUT");
+		const id = vaultLock.getAccountId();
+		// Drop the key while another account is active, as if all key hosts closed.
+		await vaultLock.initialize("another-account");
+		vaultLock.lockAllSessions();
+		await vaultLock.initialize(id);
+		vaultLock.completeInitialization(id);
+		expect(vaultLock.getConfiguration()).toMatchObject({
+			enabled: false,
+			requested: true,
+			timeoutAction: "LOGOUT",
+		});
+		expect(await vaultLock.persistence.getItem(`persist:${id}`)).not.toContain(
+			"sensitive-token",
+		);
+	});
+
+	it("enrolls a recoverable key when switching from logout-only mode to Lock", async () => {
+		await vaultLock.enable("alice", "example.test", 60, undefined, "LOGOUT");
+		const oldKey = vaultLock.getKey();
+		await vaultLock.enable("alice", "example.test", 60, undefined, "LOCK");
+		expect(vaultLock.getKey()).not.toBe(oldKey);
+		expect(vaultLock.getConfiguration()?.credential).toBeDefined();
+		vaultLock.lock();
+		expect(vaultLock.isLocked()).toBe(true);
+		await vaultLock.unlock();
+		expect(
+			await vaultLock.persistence.getItem(
+				`persist:${vaultLock.getAccountId()}`,
+			),
+		).toBe(state);
 	});
 
 	it("persists the key only when locking is disabled and removes it and the encrypted session on logout", async () => {

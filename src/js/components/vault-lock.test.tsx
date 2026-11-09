@@ -296,7 +296,7 @@ describe("vault access gate", () => {
 		expect(button.disabled).toBe(false);
 	});
 
-	it("keeps unsupported locking visible and disabled in General settings", async () => {
+	it("offers logout-only locking in General settings without PRF support", async () => {
 		mockSupported = false;
 		const view = await render(<LockSettings />);
 		expect(view.textContent).toContain("Automatic locking");
@@ -305,10 +305,26 @@ describe("vault access gate", () => {
 		);
 		expect(
 			view.querySelector<HTMLInputElement>('input[type="checkbox"]')!.disabled,
-		).toBe(true);
+		).toBe(false);
+		expect(
+			view.querySelector<HTMLInputElement>('input[type="number"]')!.disabled,
+		).toBe(false);
+		expect(
+			view.querySelector<HTMLInputElement>(".MuiSelect-nativeInput")!.value,
+		).toBe("LOGOUT");
+		act(() => {
+			Simulate.mouseDown(view.querySelector('[aria-haspopup="listbox"]')!, {
+				button: 0,
+			});
+		});
+		expect(
+			Array.from(document.querySelectorAll('[role="option"]')).map(
+				(option) => option.textContent,
+			),
+		).toEqual(["Logout"]);
 	});
 
-	it("prevents enforced vault access when platform PRF support is missing", async () => {
+	it("offers enforced logout-only setup when platform PRF support is missing", async () => {
 		mockState.server.complianceEnforceLocking = true;
 		mockSupported = false;
 		const view = await render(
@@ -317,8 +333,45 @@ describe("vault access gate", () => {
 			</VaultGate>,
 		);
 		expect(view.querySelector("[data-secret]")).toBeNull();
-		expect(view.querySelector('[role="alert"]')).not.toBeNull();
-		expect(view.querySelectorAll("input")).toHaveLength(0);
+		const enable = view.querySelector<HTMLButtonElement>(
+			'button[aria-label="Enable automatic locking"]',
+		)!;
+		expect(enable.disabled).toBe(false);
+		expect(
+			view.querySelector<HTMLInputElement>(".MuiSelect-nativeInput")!.value,
+		).toBe("LOGOUT");
+		await act(async () => enable.click());
+		expect(vaultLock.enable).toHaveBeenCalledWith(
+			"alice",
+			expect.any(String),
+			60,
+			undefined,
+			"LOGOUT",
+		);
+	});
+
+	it("falls back to logout-only setup when the authenticator does not provide PRF", async () => {
+		jest.spyOn(console, "warn").mockImplementation(() => {});
+		jest
+			.mocked(vaultLock.enable)
+			.mockRejectedValueOnce(new Error("LOCK_UNAVAILABLE"));
+		const view = await render(<LockSettings setup />);
+		const enable = view.querySelector<HTMLButtonElement>(
+			'button[aria-label="Enable automatic locking"]',
+		)!;
+		await act(async () => enable.click());
+		expect(enable.disabled).toBe(false);
+		expect(
+			view.querySelector<HTMLInputElement>(".MuiSelect-nativeInput")!.value,
+		).toBe("LOGOUT");
+		await act(async () => enable.click());
+		expect(vaultLock.enable).toHaveBeenLastCalledWith(
+			"alice",
+			expect.any(String),
+			60,
+			undefined,
+			"LOGOUT",
+		);
 	});
 
 	it("uses an enable button instead of a toggle on the required setup screen", async () => {
@@ -557,7 +610,7 @@ describe("vault access gate", () => {
 		expect(skip.disabled).toBe(false);
 	});
 
-	it("explains unavailable optional locking and still permits continuing", async () => {
+	it("explains logout-only locking and offers both optional setup choices", async () => {
 		mockConfiguration.requested = true;
 		mockSupported = false;
 		const view = await render(
@@ -568,12 +621,10 @@ describe("vault access gate", () => {
 		expect(view.querySelector("h5")?.textContent).toBe(
 			"Configure automatic locking",
 		);
-		expect(view.textContent).toContain(
-			"Automatic locking isn’t available on this device",
-		);
+		expect(view.textContent).toContain("the only timeout action is Logout");
 		expect(view.textContent).toContain("Continue without automatic locking");
 		expect(
 			view.querySelector('button[aria-label="Enable automatic locking"]'),
-		).toBeNull();
+		).not.toBeNull();
 	});
 });

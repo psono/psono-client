@@ -2,6 +2,7 @@
  * Service that handles local storage access
  */
 
+import { openDB } from "idb";
 import localforage from "localforage";
 import { seal, unseal } from "./vault-lock";
 import vaultLock from "./vault-lock";
@@ -28,6 +29,9 @@ interface StorageValues {
 }
 
 export type StorageDb = keyof StorageValues;
+export type StorageIndexDb =
+	| "datastore-password-leafs"
+	| "datastore-file-leafs";
 
 const dbConfig = {
 	state: localforage.createInstance({
@@ -117,6 +121,174 @@ function upsert<T extends { key: string }>(db: StorageDb, items: T | T[]) {
 	return Promise.all(localItems.map((item) => writeEntry(db, item.key, item)));
 }
 
+function accountKeyRange(accountId: string) {
+	// ';' immediately follows ':', so this includes every account-prefixed key.
+	return IDBKeyRange.bound(`${accountId}:`, `${accountId};`, false, true);
+}
+
+/** Compare plaintext in memory; unchanged entries keep their existing ciphertext. */
+function indexChanges(
+	entries: [string, unknown][],
+	desired: Map<string, string>,
+	secret: string,
+) {
+	const existing = new Map(entries);
+	const puts: [string, EncryptedValue][] = [];
+	for (const [key, serialized] of desired) {
+		if (existing.has(key)) {
+			try {
+				if (unseal(existing.get(key) as EncryptedValue, secret) === serialized)
+					continue;
+			} catch {
+				// Corrupt entries are replaced along with changed entries.
+			}
+		}
+		puts.push([key, seal(serialized, secret)]);
+	}
+	const deletes = entries
+		.map(([key]) => key)
+		.filter((key) => !desired.has(key));
+	return { puts, deletes };
+}
+
+/** Replace an account's searchable index atomically on IndexedDB. Comparing in
+ * the same transaction also makes concurrent identical refreshes write-free. */
+async function replaceIndex<T extends { key: string }>(
+	db: StorageIndexDb,
+	items: readonly T[],
+): Promise<boolean> {
+	const accountId = vaultLock.getAccountId();
+	const revision = vaultLock.getRevision();
+	const secret = vaultLock.getKey();
+	if (vaultLock.isBlocked() || !secret) return false;
+	const current = () =>
+		accountId === vaultLock.getAccountId() &&
+		revision === vaultLock.getRevision() &&
+		!vaultLock.isBlocked() &&
+		secret === vaultLock.getKey();
+	const desired = new Map(
+		items.map((item) => [`${accountId}:${item.key}`, JSON.stringify(item)]),
+	);
+	const storage = dbConfig[db];
+	await storage.ready();
+	if (!current()) return false;
+	if (storage.driver() !== localforage.INDEXEDDB) {
+		// Fallback drivers have no transaction API. Apply only the diff, writing
+		// replacements before removing obsolete entries so the index isn't emptied.
+		const entries = await readEntries(db, accountId);
+		if (!current()) return false;
+		const { puts, deletes } = indexChanges(entries, desired, secret);
+		for (const [key, value] of puts) {
+			if (!current()) return false;
+			await storage.setItem(key, value);
+		}
+		for (const key of deletes) {
+			if (!current()) return false;
+			await storage.removeItem(key);
+		}
+		return current() && puts.length + deletes.length > 0;
+	}
+
+	const connection = await openDB(storage.config("name"));
+	try {
+		if (!current()) return false;
+		const transaction = connection.transaction(
+			storage.config("storeName"),
+			"readwrite",
+		);
+		const done = transaction.done;
+		// An abort can reject this while we're still awaiting the snapshot reads.
+		void done.catch(() => {});
+		const abort = () => {
+			try {
+				transaction.abort();
+			} catch {
+				// A completed/aborted transaction cannot be aborted again.
+			}
+		};
+		const unsubscribe = vaultLock.subscribe(() => {
+			if (!current()) abort();
+		});
+		const requests: Promise<unknown>[] = [];
+		try {
+			const range = accountKeyRange(accountId);
+			const keysRequest = transaction.store.getAllKeys(range);
+			requests.push(keysRequest);
+			const valuesRequest = transaction.store.getAll(range);
+			requests.push(valuesRequest);
+			const [keys, values] = await Promise.all([keysRequest, valuesRequest]);
+			if (!current()) {
+				abort();
+				await done.catch(() => {});
+				return false;
+			}
+			const { puts, deletes } = indexChanges(
+				keys.map((key, index) => [String(key), values[index]]),
+				desired,
+				secret,
+			);
+			if (!current()) {
+				abort();
+				await done.catch(() => {});
+				return false;
+			}
+			for (const [key, value] of puts)
+				requests.push(transaction.store.put(value, key));
+			for (const key of deletes) requests.push(transaction.store.delete(key));
+			await Promise.all([...requests, done]);
+			return current() && puts.length + deletes.length > 0;
+		} catch (error) {
+			abort();
+			// If creating a request threw synchronously, earlier queued requests
+			// still reject on abort and must be observed as well.
+			await Promise.allSettled([...requests, done]);
+			if (!current()) return false;
+			throw error;
+		} finally {
+			unsubscribe();
+		}
+	} finally {
+		connection.close();
+	}
+}
+
+/** Read a snapshot in one transaction instead of opening a read per entry. */
+async function readEntries(db: StorageDb, accountId?: string) {
+	const storage = dbConfig[db];
+	await storage.ready();
+	const prefix = accountId === undefined ? undefined : `${accountId}:`;
+	if (storage.driver() === localforage.INDEXEDDB) {
+		const connection = await openDB(storage.config("name"));
+		try {
+			const transaction = connection.transaction(
+				storage.config("storeName"),
+				"readonly",
+			);
+			const range =
+				accountId === undefined ? undefined : accountKeyRange(accountId);
+			const [keys, values] = await Promise.all([
+				transaction.store.getAllKeys(range),
+				transaction.store.getAll(range),
+				transaction.done,
+			]);
+			return keys.map((key, index): [string, unknown] => [
+				String(key),
+				values[index],
+			]);
+		} finally {
+			connection.close();
+		}
+	}
+
+	// Retain localForage's fallback drivers without issuing per-entry reads.
+	const entries: [string, unknown][] = [];
+	await storage.iterate<unknown, void>((value, key) => {
+		if (prefix === undefined || key.startsWith(prefix))
+			entries.push([key, value]);
+	});
+	return entries;
+}
+
 /**
  * Searches for multiple entries and filter according to a function
  *
@@ -138,17 +310,29 @@ async function where<T>(
 	const result: T[] = [];
 	const id = vaultLock.getAccountId();
 	const generation = vaultLock.getRevision();
-	for (const key of await keys(db)) {
-		const value = await findKey<T>(db, key);
-		if (
-			id !== vaultLock.getAccountId() ||
-			generation !== vaultLock.getRevision()
-		)
-			return [];
+	const protectedDb = protectedDbs.has(db);
+	const secret = protectedDb ? vaultLock.getKey() : undefined;
+	if (protectedDb && (vaultLock.isBlocked() || !secret)) return [];
+	const current = () =>
+		id === vaultLock.getAccountId() &&
+		generation === vaultLock.getRevision() &&
+		(!protectedDb || (!vaultLock.isBlocked() && secret === vaultLock.getKey()));
+	const entries = await readEntries(db, protectedDb ? id : undefined);
+	for (const [storedKey, storedValue] of entries) {
+		if (!current()) return [];
+		let value = storedValue as T;
+		if (protectedDb) {
+			try {
+				value = JSON.parse(unseal(storedValue as EncryptedValue, secret!)) as T;
+			} catch {
+				continue;
+			}
+		}
+		const key = protectedDb ? storedKey.slice(id.length + 1) : storedKey;
 		if (value !== null && (await filterFunction(value, key)))
 			result.push(value);
 	}
-	return result;
+	return current() ? result : [];
 }
 
 /**
@@ -338,6 +522,7 @@ const storageService = {
 	insert: insert,
 	update: update,
 	upsert: upsert,
+	replaceIndex,
 	where: where,
 	keys: keys,
 	findKey: findKey,
