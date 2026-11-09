@@ -2,6 +2,9 @@ import rootReducer from "../reducers";
 import apiClient from "./api-client";
 import datastoreService from "./datastore";
 import * as storeService from "./store";
+import storage from "./storage";
+import vaultLock from "./vault-lock";
+import type { Datastore } from "../../types/datastore";
 
 describe("Service: datastoreService - failed overview requests", () => {
 	let userNumber = 0;
@@ -72,5 +75,103 @@ describe("Service: datastoreService - failed overview requests", () => {
 		).resolves.toBeUndefined();
 		expect(read).toHaveBeenCalledTimes(2);
 		expect(create).not.toHaveBeenCalled();
+	});
+});
+
+describe("Service: datastoreService - index replacement", () => {
+	beforeEach(() => {
+		jest.spyOn(vaultLock, "isBlocked").mockReturnValue(false);
+	});
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("collects mapped nested entries and replaces the index once, after filtering deleted nodes", async () => {
+		const datastore: Datastore = {
+			items: [
+				{
+					id: "root",
+					secret_id: "root-secret",
+					name: "Root",
+					type: "website_password",
+				},
+				{ id: "deleted", secret_id: "deleted-secret", deleted: true },
+				{ id: "file", type: "file" },
+			],
+			folders: [
+				{
+					id: "folder",
+					items: [
+						{
+							id: "nested",
+							secret_id: "nested-secret",
+							name: "Nested",
+							type: "website_password",
+						},
+					],
+				},
+				{
+					id: "deleted-folder",
+					deleted: true,
+					items: [{ id: "hidden", secret_id: "hidden-secret" }],
+				},
+			],
+		};
+		let finish!: (changed: boolean) => void;
+		const replace = jest.spyOn(storage, "replaceIndex").mockReturnValue(
+			new Promise((resolve) => {
+				finish = resolve;
+			}),
+		);
+		const save = jest.spyOn(storage, "save").mockImplementation(() => {});
+		const remove = jest.spyOn(storage, "removeAll");
+		const upsert = jest.spyOn(storage, "upsert");
+		const pending = datastoreService.fillStorage(
+			"datastore-password-leafs",
+			datastore,
+			[
+				["key", "secret_id"],
+				["label", (item) => item.name?.toUpperCase()],
+			],
+			(item) => item.type !== "file",
+		);
+		expect(replace).toHaveBeenCalledTimes(1);
+		expect(replace).toHaveBeenCalledWith("datastore-password-leafs", [
+			{ key: "nested-secret", label: "NESTED", type: "website_password" },
+			{ key: "root-secret", label: "ROOT", type: "website_password" },
+		]);
+		expect(remove).not.toHaveBeenCalled();
+		expect(upsert).not.toHaveBeenCalled();
+		expect(save).not.toHaveBeenCalled();
+		finish(true);
+		await pending;
+		expect(save).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not broadcast storage reloads for unchanged indexes", async () => {
+		jest.spyOn(storage, "replaceIndex").mockResolvedValue(false);
+		const save = jest.spyOn(storage, "save").mockImplementation(() => {});
+		await datastoreService.fillStorage("datastore-file-leafs", { items: [] }, [
+			["key", "id"],
+		]);
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it("does not start rebuilding a blocked vault", async () => {
+		jest.mocked(vaultLock.isBlocked).mockReturnValue(true);
+		const replace = jest.spyOn(storage, "replaceIndex");
+		await datastoreService.fillStorage("datastore-password-leafs", {}, []);
+		expect(replace).not.toHaveBeenCalled();
+	});
+
+	it("propagates replacement failures without broadcasting a successful reload", async () => {
+		jest
+			.spyOn(storage, "replaceIndex")
+			.mockRejectedValue(new Error("Disk full"));
+		const save = jest.spyOn(storage, "save").mockImplementation(() => {});
+		await expect(
+			datastoreService.fillStorage("datastore-password-leafs", {}, []),
+		).rejects.toThrow("Disk full");
+		expect(save).not.toHaveBeenCalled();
 	});
 });

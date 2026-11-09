@@ -19,6 +19,11 @@ jest.mock("localforage", () => ({
 				return mockDatabases.get(name)!;
 			};
 			return {
+				ready: async () => {},
+				driver: () => "mock",
+				iterate: async (callback: (value: unknown, key: string) => void) => {
+					for (const [key, value] of db()) callback(value, key);
+				},
 				getItem: async (key: string) => db().get(key) ?? null,
 				setItem: async (key: string, value: unknown) => {
 					db().set(key, value);

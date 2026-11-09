@@ -1013,33 +1013,26 @@ async function ensureDatastorePasswordLeafIndexInitialized(): Promise<void> {
 		!vaultLock.isBlocked() &&
 		accountId === vaultLock.getAccountId() &&
 		revision === vaultLock.getRevision();
-	try {
-		const leafKeys = await storage.keys("datastore-password-leafs");
-		if (!current()) return;
-		if (leafKeys.length > 0) {
-			datastorePasswordLeafIndexInitialized = true;
-			return;
-		}
-
-		const buildPromise: Promise<void> = datastorePasswordService
-			.getPasswordDatastore()
-			.then(() => {
-				// A pre-lock build must not mark the unlocked session's index ready.
-				if (current()) datastorePasswordLeafIndexInitialized = true;
-			})
-			.catch((error) => {
-				console.log(error);
-			})
-			.finally(() => {
-				if (datastorePasswordLeafIndexBuildPromise === buildPromise)
-					datastorePasswordLeafIndexBuildPromise = undefined;
-			});
-		datastorePasswordLeafIndexBuildPromise = buildPromise;
-
-		return buildPromise;
-	} catch (error) {
-		console.log(error);
-	}
+	// Publish the shared promise before even checking storage: concurrent wake-up
+	// messages must share both the asynchronous index check and any ensuing build.
+	const buildPromise = Promise.resolve()
+		.then(async () => {
+			const leafKeys = await storage.keys("datastore-password-leafs");
+			if (!current()) return;
+			if (leafKeys.length === 0)
+				await datastorePasswordService.getPasswordDatastore();
+			// A pre-lock build must not mark the unlocked session's index ready.
+			if (current()) datastorePasswordLeafIndexInitialized = true;
+		})
+		.catch((error) => {
+			console.log(error);
+		})
+		.finally(() => {
+			if (datastorePasswordLeafIndexBuildPromise === buildPromise)
+				datastorePasswordLeafIndexBuildPromise = undefined;
+		});
+	datastorePasswordLeafIndexBuildPromise = buildPromise;
+	return buildPromise;
 }
 
 /**

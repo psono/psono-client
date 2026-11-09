@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import type { MessageSender } from "../../types/browser";
-import type { PasswordLeaf } from "../../types/datastore";
+import type { Datastore, PasswordLeaf } from "../../types/datastore";
 import React from "react";
 import en from "../../common/data/translations/locale-en.json";
 import i18n from "../i18n";
@@ -14,6 +14,7 @@ import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import * as storeService from "./store";
 import user from "./user";
+import vaultLock from "./vault-lock";
 import { createStore } from "redux";
 import rootReducer from "../reducers";
 
@@ -190,6 +191,148 @@ describe("background message responses", () => {
 			backgroundService.onMessage({ event, data: null }, {}, sendResponse),
 		).toBe(false);
 		expect(sendResponse).not.toHaveBeenCalled();
+	});
+});
+
+describe("background password index initialization", () => {
+	function deferred<T>() {
+		let resolve!: (value: T) => void;
+		const promise = new Promise<T>((done) => {
+			resolve = done;
+		});
+		return { promise, resolve };
+	}
+	function refresh() {
+		return new Promise<unknown>((resolve) => {
+			backgroundService.onMessage(
+				{ event: "website-password-refresh", data: undefined },
+				{ tab: { id: 42, url: "https://example.com/" } },
+				resolve,
+			);
+		});
+	}
+	function resetIndex() {
+		jest.mocked(vaultLock.isBlocked).mockReturnValue(true);
+		vaultLock.completeInitialization(vaultLock.getAccountId());
+		jest.mocked(vaultLock.isBlocked).mockReturnValue(false);
+	}
+
+	beforeEach(() => {
+		jest.spyOn(vaultLock, "isBlocked").mockReturnValue(false);
+		jest.spyOn(vaultLock, "getRevision").mockReturnValue(1);
+		resetIndex();
+		const store = createStore(rootReducer);
+		store.getState().user.isLoggedIn = true;
+		store.getState().user.token = "synthetic-token";
+		jest.spyOn(storeService, "getStore").mockReturnValue(store);
+		jest.spyOn(storage, "where").mockResolvedValue([]);
+	});
+	afterEach(() => {
+		resetIndex();
+		jest.restoreAllMocks();
+	});
+
+	it("shares a single storage check and build across simultaneous refreshes", async () => {
+		const keys = deferred<string[]>();
+		const build = deferred<Datastore>();
+		const started = deferred<void>();
+		jest.spyOn(storage, "keys").mockReturnValue(keys.promise);
+		jest
+			.spyOn(datastorePasswordService, "getPasswordDatastore")
+			.mockImplementation(() => {
+				started.resolve();
+				return build.promise;
+			});
+
+		const refreshes = Array.from({ length: 100 }, refresh);
+		await Promise.resolve();
+		expect(storage.keys).toHaveBeenCalledTimes(1);
+		keys.resolve([]);
+		await started.promise;
+		refreshes.push(refresh());
+		build.resolve({});
+		const responses = await Promise.all(refreshes);
+
+		expect(responses).toEqual(
+			Array.from({ length: 101 }, () => ({
+				event: "website-password-update",
+				data: [],
+			})),
+		);
+		expect(datastorePasswordService.getPasswordDatastore).toHaveBeenCalledTimes(
+			1,
+		);
+		await refresh();
+		expect(storage.keys).toHaveBeenCalledTimes(1);
+		expect(datastorePasswordService.getPasswordDatastore).toHaveBeenCalledTimes(
+			1,
+		);
+	});
+
+	it("uses an existing index without fetching the datastore", async () => {
+		jest.spyOn(storage, "keys").mockResolvedValue(["secret"]);
+		jest.spyOn(datastorePasswordService, "getPasswordDatastore");
+		await Promise.all([refresh(), refresh()]);
+		expect(storage.keys).toHaveBeenCalledTimes(1);
+		expect(
+			datastorePasswordService.getPasswordDatastore,
+		).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		"check",
+		"build",
+	])("retries after a failed index %s", async (failure) => {
+		jest.spyOn(console, "log").mockImplementation(() => {});
+		const keys = jest.spyOn(storage, "keys").mockResolvedValue([]);
+		const build = jest
+			.spyOn(datastorePasswordService, "getPasswordDatastore")
+			.mockResolvedValue({});
+		if (failure === "check")
+			keys.mockRejectedValueOnce(new Error("Storage unavailable"));
+		else build.mockRejectedValueOnce(new Error("Server unavailable"));
+
+		await Promise.all([refresh(), refresh()]);
+		await Promise.all([refresh(), refresh()]);
+		expect(keys).toHaveBeenCalledTimes(2);
+		expect(build).toHaveBeenCalledTimes(failure === "check" ? 1 : 2);
+	});
+
+	it("does not let a pre-lock build mark or clear the new session's initialization", async () => {
+		const oldBuild = deferred<Datastore>();
+		const newBuild = deferred<Datastore>();
+		const oldStarted = deferred<void>();
+		const newStarted = deferred<void>();
+		jest.spyOn(storage, "keys").mockResolvedValue([]);
+		jest
+			.spyOn(datastorePasswordService, "getPasswordDatastore")
+			.mockImplementationOnce(() => {
+				oldStarted.resolve();
+				return oldBuild.promise;
+			})
+			.mockImplementationOnce(() => {
+				newStarted.resolve();
+				return newBuild.promise;
+			});
+
+		const oldRefresh = refresh();
+		await oldStarted.promise;
+		resetIndex();
+		jest.mocked(vaultLock.getRevision).mockReturnValue(2);
+		const newRefresh = refresh();
+		await newStarted.promise;
+		oldBuild.resolve({});
+		await expect(oldRefresh).resolves.toEqual({
+			event: "status",
+			data: "locked",
+		});
+		const concurrentRefresh = refresh();
+		newBuild.resolve({});
+		await Promise.all([newRefresh, concurrentRefresh]);
+		expect(storage.keys).toHaveBeenCalledTimes(2);
+		expect(datastorePasswordService.getPasswordDatastore).toHaveBeenCalledTimes(
+			2,
+		);
 	});
 });
 
