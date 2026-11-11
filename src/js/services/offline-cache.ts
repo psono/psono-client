@@ -525,12 +525,20 @@ function incrementalUpdate(force = false): Promise<void> {
 			for (const share of metadata.shares ?? []) {
 				if (!share.id || shares.has(share.id)) continue;
 				shares.add(share.id);
-				const nested = await apiClient.readCacheMetadata(
-					"share",
-					token,
-					sessionSecretKey,
-					share.id,
-				);
+				let nested: { data: CacheMetadata };
+				try {
+					nested = await apiClient.readCacheMetadata(
+						"share",
+						token,
+						sessionSecretKey,
+						share.id,
+					);
+				} catch (error) {
+					// Deleted/inaccessible shares can remain in parent metadata.
+					// Leave them out of keep so the final prune removes old copies.
+					if ((error as { status?: number } | null)?.status === 400) continue;
+					throw error;
+				}
 				await refresh("share", share.id, nested.data);
 				await visit(nested.data);
 			}

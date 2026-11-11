@@ -377,6 +377,18 @@ describe("API client: transport compatibility", () => {
 		});
 	});
 
+	it("identifies HTTP 400 metadata-share responses for graceful sync skipping", async () => {
+		respond('{"text":"ciphertext","nonce":"response-nonce"}', 400);
+		await expect(
+			apiClient.readCacheMetadata("share", "token", "key", "rejected"),
+		).rejects.toEqual({ status: 400 });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+		expect(offlineCache.set).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
+	});
+
 	it("preserves empty successful responses and omitted logout fields", async () => {
 		respond("", 204);
 

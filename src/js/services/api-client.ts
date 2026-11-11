@@ -294,6 +294,12 @@ function readCacheMetadata(
 		null,
 		{ Authorization: `Token ${token}` },
 		sessionSecretKey,
+		"refresh",
+		(response) => {
+			// Expose a rejected metadata resource so sync can skip it without
+			// interpreting the server's validation-error payload.
+			if (response.status === 400) throw { status: 400 };
+		},
 	);
 }
 
@@ -304,6 +310,7 @@ function call<T = ApiRecord>(
 	headers: ApiHeaders | null,
 	sessionSecretKey?: SessionSecretKey,
 	readMode: boolean | CacheMode = true,
+	onResponse?: ResponseSideEffect,
 ): Promise<ApiResponse<T>> {
 	const serverUrl = getStore().getState().server.url;
 	const deviceFingerprint = device.getDeviceFingerprint();
@@ -325,6 +332,7 @@ function call<T = ApiRecord>(
 			// server error, lets log the user out
 			user.logout(rawResponse.statusText);
 		}
+		onResponse?.(rawResponse);
 	};
 	return _statelessCall<T>(
 		method,

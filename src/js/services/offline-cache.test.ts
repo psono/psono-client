@@ -319,6 +319,76 @@ describe("encrypted offline cache policy", () => {
 		await offlineCache.incrementalUpdate();
 		expect(apiClient.readCacheMetadata).toHaveBeenCalledTimes(4);
 	});
+
+	it("skips rejected share metadata, continues sibling and nested resources, and prunes inaccessible cached descendants", async () => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		await offlineCache.set("https://api.test/share/rejected/", "GET", {
+			data: {},
+		});
+		await offlineCache.set("https://api.test/secret/rejected-child/", "GET", {
+			data: {},
+		});
+		jest.mocked(apiClient.readDatastore).mockResolvedValue({
+			data: { datastores: [{ id: "d1" }, { id: "d2" }] },
+		} as never);
+		jest
+			.mocked(apiClient.readCacheMetadata)
+			.mockImplementation(async (_kind, _token, _key, id) => {
+				if (id === "rejected" || id === "nested-rejected")
+					throw { status: 400 };
+				return {
+					data:
+						id === "d1"
+							? {
+									shares: [{ id: "rejected" }, { id: "good" }],
+									secrets: [{ id: "root-secret" }],
+								}
+							: id === "good"
+								? {
+										shares: [{ id: "nested-rejected" }],
+										secrets: [{ id: "shared-secret" }],
+									}
+								: { secrets: [{ id: "later-datastore-secret" }] },
+				};
+			});
+		await expect(offlineCache.incrementalUpdate(true)).resolves.toBeUndefined();
+		expect(jest.mocked(apiClient.readShare).mock.calls).toEqual([
+			["token", "key", "good"],
+		]);
+		expect(jest.mocked(apiClient.readSecret).mock.calls).toEqual([
+			["token", "key", "shared-secret"],
+			["token", "key", "root-secret"],
+			["token", "key", "later-datastore-secret"],
+		]);
+		expect(mockEntries.has("https://api.test/share/rejected/")).toBe(false);
+		expect(mockEntries.has("https://api.test/secret/rejected-child/")).toBe(
+			false,
+		);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
+	});
+
+	it.each([
+		{ status: 401 },
+		{ status: 403 },
+		{ status: 503 },
+		{ errors: ["SERVER_OFFLINE"] },
+	])("does not suppress other metadata-share failures (%j)", async (error) => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		jest
+			.mocked(apiClient.readDatastore)
+			.mockResolvedValue({ data: { datastores: [{ id: "d" }] } } as never);
+		jest
+			.mocked(apiClient.readCacheMetadata)
+			.mockImplementation(async (kind) => {
+				if (kind === "share") throw error;
+				return { data: { shares: [{ id: "s" }], secrets: [{ id: "secret" }] } };
+			});
+		await expect(offlineCache.incrementalUpdate(true)).rejects.toEqual(error);
+		expect(apiClient.readSecret).not.toHaveBeenCalled();
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
+	});
 });
 
 describe("cache-first display loading", () => {
