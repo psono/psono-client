@@ -26,6 +26,8 @@ export type HashingParameters = ScryptParameters;
 
 export interface UserState {
 	isLoggedIn: boolean;
+	/** Last successful live request for this account, in epoch milliseconds. */
+	lastServerConnectionTimeSinceEpoch: number;
 	username: string;
 	rememberMe: boolean;
 	trustDevice: boolean;

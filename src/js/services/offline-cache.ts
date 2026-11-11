@@ -253,7 +253,6 @@ export function createDisplayResource<T>(options: {
 interface CachedResponse {
 	key: string;
 	value: unknown;
-	validatedAt: number;
 }
 
 export interface OfflineWriteError {
@@ -311,7 +310,6 @@ async function set(url: string, method: string, data: unknown) {
 	await storage.upsert("offline-cache", {
 		key: url.toLowerCase(),
 		value: data,
-		validatedAt: Date.now(),
 	});
 }
 
@@ -324,14 +322,18 @@ async function get<T = Record<string, unknown>>(
 		"offline-cache",
 		url.toLowerCase(),
 	);
-	const maximumAge =
-		getStore().getState().server.complianceMaxOfflineCacheTimeValid;
+	const state = getStore().getState();
+	const maximumAge = state.server.complianceMaxOfflineCacheTimeValid;
+	const lastConnection = state.user.lastServerConnectionTimeSinceEpoch;
+	// Match mobile: cached responses remain usable while the account keeps
+	// reaching the server, regardless of when an individual response was cached.
 	if (
 		!entry ||
-		!Number.isFinite(entry.validatedAt) ||
+		!Number.isFinite(lastConnection) ||
+		lastConnection <= 0 ||
 		!Number.isFinite(maximumAge) ||
 		maximumAge <= 0 ||
-		Date.now() - entry.validatedAt > maximumAge * 1000 ||
+		Date.now() - lastConnection > maximumAge * 1000 ||
 		!canUse()
 	)
 		return null;

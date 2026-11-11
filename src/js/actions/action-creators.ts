@@ -43,6 +43,7 @@ import {
 	SET_HIDE_DOWNLOAD_BANNER,
 	SET_KNOWN_HOSTS,
 	SET_LAST_POPUP_SEARCH,
+	SET_LAST_SERVER_CONNECTION_TIME,
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
@@ -272,6 +273,16 @@ function disableOfflineMode(): AppThunk {
 	return (dispatch) => {
 		dispatch({
 			type: DISABLE_OFFLINE_MODE,
+		});
+	};
+}
+function setLastServerConnectionTimeSinceEpoch(
+	lastServerConnectionTimeSinceEpoch: number,
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_LAST_SERVER_CONNECTION_TIME,
+			lastServerConnectionTimeSinceEpoch,
 		});
 	};
 }
@@ -761,6 +772,7 @@ const actionCreators = {
 	setClientUrl,
 	disableOfflineMode,
 	enableOfflineMode,
+	setLastServerConnectionTimeSinceEpoch,
 	setOfflineCacheEncryptionInfo,
 	setNotificationOnCopy,
 	setDisableBrowserPm,

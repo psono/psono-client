@@ -25,6 +25,7 @@ import type {
 } from "../../types/api";
 import type { LinkShareReadLimitInput } from "../../types/vault";
 import i18n from "../i18n";
+import action from "../actions/bound-action-creators";
 import cryptoLibrary from "./crypto-library";
 import device from "./device";
 import offlineCache from "./offline-cache";
@@ -253,6 +254,16 @@ async function _statelessCall<T = ApiRecord>(
 		}
 		if (!rawResponse.ok) throw decryptedData;
 		if (sessionSecretKey) {
+			const currentState = getStore()?.getState();
+			if (
+				currentState?.user?.isLoggedIn &&
+				serverUrl === currentState.server.url &&
+				sessionSecretKey === currentState.user.sessionSecretKey
+			) {
+				// Only a successful live response extends this account's offline
+				// window. Cache reads and stateless requests for other accounts do not.
+				action().setLastServerConnectionTimeSinceEpoch(Date.now());
+			}
 			offlineCache.markOnline?.();
 			if (
 				method === "GET" &&

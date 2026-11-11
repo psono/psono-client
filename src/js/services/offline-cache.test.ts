@@ -10,7 +10,12 @@ import {
 import type { CacheMode } from "../../types/cache";
 
 let mockState = {
-	user: { isLoggedIn: true, token: "token", sessionSecretKey: "key" },
+	user: {
+		isLoggedIn: true,
+		token: "token",
+		sessionSecretKey: "key",
+		lastServerConnectionTimeSinceEpoch: 0,
+	},
 	client: { offlineMode: false },
 	server: {
 		url: "https://api.test",
@@ -20,7 +25,7 @@ let mockState = {
 };
 let mockEntries = new Map<
 	string,
-	{ key: string; value: unknown; validatedAt: number }
+	{ key: string; value: unknown; validatedAt?: number }
 >();
 jest.mock("./store", () => ({
 	getStore: () => ({ getState: () => mockState }),
@@ -78,8 +83,11 @@ jest.mock("./api-client", () => ({
 
 describe("encrypted offline cache policy", () => {
 	beforeEach(() => {
+		jest.useFakeTimers();
+		jest.setSystemTime(new Date("2026-11-11T12:00:00Z"));
 		jest.clearAllMocks();
 		mockEntries.clear();
+		mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
 		mockState.client.offlineMode = false;
 		mockState.server.complianceDisableOfflineMode = false;
 		mockState.server.complianceMaxOfflineCacheTimeValid = 3600;
@@ -87,6 +95,9 @@ describe("encrypted offline cache policy", () => {
 			.mocked(vaultLock.getConfiguration)
 			.mockReturnValue({ enabled: true, timeout: 300, keyId: "id" });
 		jest.mocked(vaultLock.getKey).mockReturnValue("lock-key");
+	});
+	afterEach(() => {
+		jest.useRealTimers();
 	});
 
 	it("never caches without automatic locking or when server policy forbids it", async () => {
@@ -106,7 +117,7 @@ describe("encrypted offline cache policy", () => {
 		expect(storage.upsert).not.toHaveBeenCalled();
 	});
 
-	it("expires cached responses and refuses writes and authentication endpoints", async () => {
+	it("expires cache after the last server connection and refuses writes and authentication endpoints", async () => {
 		const url = "https://api.test/secret/id/";
 		await offlineCache.set(url, "GET", { data: { id: "id" } });
 		expect(await offlineCache.get(url, "GET")).toEqual({ data: { id: "id" } });
@@ -115,7 +126,50 @@ describe("encrypted offline cache policy", () => {
 			data: {},
 		});
 		expect(mockEntries.size).toBe(1);
-		mockEntries.get(url)!.validatedAt -= 3600001;
+		jest.advanceTimersByTime(3600000);
+		expect(await offlineCache.get(url, "GET")).toEqual({ data: { id: "id" } });
+		jest.advanceTimersByTime(1);
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+	});
+
+	it("keeps old responses usable while server connections renew the offline window", async () => {
+		const url = "https://api.test/secret/id/";
+		const value = { data: { id: "id" } };
+		// Existing cache records may still carry a per-response timestamp.
+		mockEntries.set(url, { key: url, value, validatedAt: Date.now() });
+		for (let hour = 0; hour < 24; hour++) {
+			jest.advanceTimersByTime(3600000);
+			mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
+			expect(await offlineCache.get(url, "GET")).toEqual(value);
+		}
+		jest.advanceTimersByTime(3600001);
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+		mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
+		expect(await offlineCache.get(url, "GET")).toEqual(value);
+	});
+
+	it.each([
+		0,
+		undefined,
+		NaN,
+	])("requires a known last server connection (%s), even for newly cached responses", async (lastConnection) => {
+		const url = "https://api.test/secret/id/";
+		await offlineCache.set(url, "GET", { data: {} });
+		Object.assign(mockState.user, {
+			lastServerConnectionTimeSinceEpoch: lastConnection,
+		});
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+	});
+
+	it.each([
+		0,
+		-1,
+		NaN,
+		Infinity,
+	])("refuses cache with an invalid maximum offline time (%s)", async (maximumAge) => {
+		const url = "https://api.test/secret/id/";
+		await offlineCache.set(url, "GET", { data: {} });
+		mockState.server.complianceMaxOfflineCacheTimeValid = maximumAge;
 		expect(await offlineCache.get(url, "GET")).toBeNull();
 	});
 

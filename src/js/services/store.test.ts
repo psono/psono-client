@@ -4,6 +4,7 @@ import type { Persistor } from "redux-persist";
 import type { AppStore } from "../../types/state";
 import {
 	LOGOUT,
+	SET_LAST_SERVER_CONNECTION_TIME,
 	SET_USER_INFO_2,
 	SET_USER_INFO_3,
 } from "../actions/action-types";
@@ -182,6 +183,12 @@ describe("Service: store encrypted Redux lifecycle", () => {
 	it("rehydrates a locked session without exposing it and restores it only after a verified unlock", async () => {
 		const first = await boot();
 		await login(first.store, first.persistor);
+		const lastConnection = Date.now() - 10000;
+		first.store.dispatch({
+			type: SET_LAST_SERVER_CONNECTION_TIME,
+			lastServerConnectionTimeSinceEpoch: lastConnection,
+		});
+		await first.persistor.flush();
 		await vaultLock.enable("alice", "example.test", 60);
 		vaultLock.lock();
 		expect(first.store.getState().user.token).toBe("");
@@ -200,6 +207,9 @@ describe("Service: store encrypted Redux lifecycle", () => {
 		await vaultLock.unlock();
 		await restored;
 		expect(reopened.store.getState().user.token).toBe("alice-token");
+		expect(
+			reopened.store.getState().user.lastServerConnectionTimeSinceEpoch,
+		).toBe(lastConnection);
 		await reopened.persistor.flush();
 		const raw = await localforage
 			.createInstance({ name: "state" })

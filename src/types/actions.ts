@@ -215,6 +215,10 @@ export interface ActionPayloads {
 	[ActionTypes.SET_CLIENT_URL]: Pick<ClientState, "url">;
 	[ActionTypes.ENABLE_OFFLINE_MODE]: Record<never, never>;
 	[ActionTypes.DISABLE_OFFLINE_MODE]: Record<never, never>;
+	[ActionTypes.SET_LAST_SERVER_CONNECTION_TIME]: Pick<
+		UserState,
+		"lastServerConnectionTimeSinceEpoch"
+	>;
 	[ActionTypes.SET_OFFLINE_CACHE_ENCRYPTION_INFO]: Pick<
 		ClientState,
 		"offlineCacheEncryptionKey" | "offlineCacheEncryptionSalt"

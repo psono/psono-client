@@ -5,6 +5,7 @@ import {
 	SET_EMAIL,
 	SET_HAS_TWO_FACTOR,
 	SET_HASHING_PARAMETERS,
+	SET_LAST_SERVER_CONNECTION_TIME,
 	SET_REQUIRE_PASSWORD_CHANGE,
 	SET_SERVER_SECRET_EXISTS,
 	SET_USER_DATASTORE_OVERVIEW,
@@ -25,6 +26,7 @@ const defaultUserDatastoreOverview = {
 function user(
 	state: UserState = {
 		isLoggedIn: false,
+		lastServerConnectionTimeSinceEpoch: 0,
 		username: defaultUsername,
 		rememberMe: defaultRememberMe,
 		trustDevice: defaultTrustDevice,
@@ -55,6 +57,15 @@ function user(
 	action: ReducerAction,
 ): UserState {
 	switch (action.type) {
+		case SET_LAST_SERVER_CONNECTION_TIME:
+			return {
+				...state,
+				// State-sync messages from another tab can arrive out of order.
+				lastServerConnectionTimeSinceEpoch: Math.max(
+					state.lastServerConnectionTimeSinceEpoch ?? 0,
+					action.lastServerConnectionTimeSinceEpoch,
+				),
+			};
 		case SET_USER_USERNAME:
 			return Object.assign({}, state, {
 				username: action.username,
@@ -124,6 +135,7 @@ function user(
 		case LOGOUT:
 			return Object.assign({}, state, {
 				isLoggedIn: false,
+				lastServerConnectionTimeSinceEpoch: 0,
 				username: state.rememberMe ? state.username : defaultUsername,
 				rememberMe: state.rememberMe ? state.rememberMe : defaultRememberMe,
 				trustDevice: state.rememberMe ? state.trustDevice : defaultTrustDevice,
