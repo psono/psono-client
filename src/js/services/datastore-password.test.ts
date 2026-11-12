@@ -14,6 +14,117 @@ import helper from "./helper";
 import offlineCache from "./offline-cache";
 import secretService from "./secret";
 
+describe("Service: datastorePasswordService - batched share loading", () => {
+	const rights = { read: true, write: true, grant: false };
+	const links = (prefix: string, count: number): DatastoreFolder[] =>
+		Array.from({ length: count }, (_, index) => ({
+			id: `${prefix}-${index}`,
+			share_id: `${prefix}-${index}`,
+			share_secret_key: `${prefix}-${index}-key`,
+		}));
+
+	afterEach(() => jest.restoreAllMocks());
+
+	it.each([
+		"network-first",
+		"refresh",
+		"cache-only",
+	] as const)("creates at most 10 %s requests at a time across all recursive levels and waits for every share", async (mode) => {
+		const datastore: Datastore = {
+			datastore_id: "ds",
+			folders: links("root", 23),
+		};
+		jest.spyOn(datastoreService, "getDatastore").mockResolvedValue(datastore);
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockResolvedValue(datastore);
+		jest.spyOn(datastoreService, "fillStorage").mockResolvedValue(undefined);
+		jest.spyOn(shareService, "readShareRightsOverview").mockResolvedValue({
+			share_rights: datastore.folders!.map((folder) => ({
+				share_id: folder.share_id!,
+				...rights,
+			})),
+		});
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let running = 0;
+		let maximum = 0;
+		const read = jest
+			.spyOn(shareService, "readShare")
+			.mockImplementation(async (id) => {
+				running++;
+				maximum = Math.max(maximum, running);
+				await gate;
+				running--;
+				const depth = id.split("-").length;
+				return {
+					rights,
+					data:
+						depth < 4
+							? { folders: links(id, depth === 2 ? 3 : 1) }
+							: { items: [{ id: "note", secret_id: `${id}-secret` }] },
+				};
+			});
+		const load =
+			mode === "network-first"
+				? datastorePasswordService.getPasswordDatastore("ds")
+				: datastorePasswordService.getPasswordDatastoreForDisplay("ds", mode);
+		// While the first batch is waiting, later requests must not even be created.
+		for (let i = 0; i < 10; i++) await Promise.resolve();
+		expect(read).toHaveBeenCalledTimes(10);
+		release();
+		const loaded = await load;
+		expect(maximum).toBe(10);
+		expect(read).toHaveBeenCalledTimes(23 * 7);
+		for (const root of loaded!.folders!) {
+			for (const child of root.folders!) {
+				const leaf = child.folders![0];
+				expect(leaf.items![0].secret_id).toBe(`${leaf.share_id}-secret`);
+			}
+		}
+	});
+
+	it.each([
+		"refresh",
+		"cache-only",
+	] as const)("finishes later batches after an unavailable share during a %s read", async (mode) => {
+		const datastore: Datastore = {
+			datastore_id: "ds",
+			folders: links("root", 23),
+		};
+		jest
+			.spyOn(datastoreService, "getDatastoreForDisplay")
+			.mockResolvedValue(datastore);
+		jest.spyOn(shareService, "readShareRightsOverview").mockResolvedValue({
+			share_rights: datastore.folders!.map((folder) => ({
+				share_id: folder.share_id!,
+				...rights,
+			})),
+		});
+		const failure = new Error("Share unavailable");
+		const read = jest
+			.spyOn(shareService, "readShare")
+			.mockImplementation(async (id) => {
+				if (id === "root-12") throw failure;
+				return { data: { name: id }, rights };
+			});
+		const load = datastorePasswordService.getPasswordDatastoreForDisplay(
+			"ds",
+			mode,
+		);
+		if (mode === "cache-only") {
+			await expect(load).rejects.toBe(failure);
+		} else {
+			const loaded = await load;
+			expect(loaded.folders![22].name).toBe("root-22");
+			expect(loaded.folders![12].name).toBeUndefined();
+		}
+		expect(read).toHaveBeenCalledTimes(23);
+	});
+});
+
 describe("Service: datastorePasswordService - saved password hashes", () => {
 	beforeEach(() => {
 		const datastore: Datastore = { datastore_id: "ds", items: [] };

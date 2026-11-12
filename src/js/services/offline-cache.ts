@@ -542,8 +542,22 @@ function incrementalUpdate(force = false): Promise<void> {
 				await refresh("share", share.id, nested.data);
 				await visit(nested.data);
 			}
-			for (const secret of metadata.secrets ?? []) {
-				if (secret.id) await refresh("secret", secret.id, secret);
+			// Keep share traversal sequential and share one bounded batch of secret
+			// downloads at a time, including across recursive levels. Requests are
+			// stamped when created, so do not create later batches ahead of time.
+			const secrets = metadata.secrets ?? [];
+			const batchSize = 10;
+			for (let i = 0; i < secrets.length; i += batchSize) {
+				const results = await Promise.allSettled(
+					secrets.slice(i, i + batchSize).map(async (secret) => {
+						if (secret.id) await refresh("secret", secret.id, secret);
+					}),
+				);
+				// Drain the current batch before aborting; a failed sync must not
+				// leave downloads running after its status/promise has settled.
+				for (const result of results) {
+					if (result.status === "rejected") throw result.reason;
+				}
 			}
 		};
 		await apiClient.readShareRightsOverview(token, sessionSecretKey);
