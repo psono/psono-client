@@ -31,6 +31,7 @@ import {
 	SET_CLIENT_CONFIG,
 	SET_CLIENT_URL,
 	SET_CONNECTION_AUTHENTICATION,
+	SET_COPY_TOTP_AFTER_AUTOFILL,
 	SET_DEVICE_CODE,
 	SET_DISABLE_BROWSER_PM,
 	SET_DOMAIN_SYNONYMS_CONFIG,
@@ -319,6 +320,14 @@ function setShowFilters(showFilters: boolean): AppThunk {
 		dispatch({
 			type: SET_SHOW_FILTERS,
 			showFilters,
+		});
+	};
+}
+function setCopyTotpAfterAutofill(copyTotpAfterAutofill: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_COPY_TOTP_AFTER_AUTOFILL,
+			copyTotpAfterAutofill,
 		});
 	};
 }
@@ -776,6 +785,7 @@ const actionCreators = {
 	setOfflineCacheEncryptionInfo,
 	setNotificationOnCopy,
 	setDisableBrowserPm,
+	setCopyTotpAfterAutofill,
 	setShowFilters,
 	setHideDownloadBanner,
 	setLastPopupSearch,

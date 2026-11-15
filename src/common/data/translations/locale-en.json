@@ -123,6 +123,8 @@
 	"EDIT_CUSTOM_FIELD": "Edit custom field",
 	"REMOVE_CUSTOM_FIELD": "Remove custom field",
 	"COPY_TO_CLIPBOARD": "Copy to clipboard",
+	"COPY_TOTP_AFTER_AUTOFILL": "Copy TOTP after autofill",
+	"COPY_TOTP_AFTER_AUTOFILL_EXPLAINED": "Automatically copy the TOTP code stored in a website password entry after autofill. This setting applies only to this device and is saved immediately.",
 	"TEXT": "Text",
 	"ADD_CUSTOM_FIELD": "Add custom field",
 	"INVALID": "Invalid",

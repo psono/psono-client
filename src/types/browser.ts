@@ -23,6 +23,8 @@ export interface FillPasswordData {
 	username?: string;
 	password?: string;
 	totp_token?: string;
+	copy_totp_after_autofill?: boolean;
+	clipboard_clear_delay?: number;
 	url_filter?: string;
 	auto_submit?: boolean;
 	submit?: boolean;

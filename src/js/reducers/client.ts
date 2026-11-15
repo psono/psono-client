@@ -5,6 +5,7 @@ import {
 	ENABLE_OFFLINE_MODE,
 	LOGOUT,
 	SET_CLIENT_URL,
+	SET_COPY_TOTP_AFTER_AUTOFILL,
 	SET_DISABLE_BROWSER_PM,
 	SET_HIDE_DOWNLOAD_BANNER,
 	SET_LAST_POPUP_SEARCH,
@@ -23,6 +24,7 @@ function client(
 		offlineCacheEncryptionSalt: null,
 		notificationOnCopy: true,
 		disableBrowserPm: true,
+		copyTotpAfterAutofill: false,
 		showFilters: true,
 		hideDownloadBanner: false,
 		lastPopupSearch: "",
@@ -59,6 +61,8 @@ function client(
 			return Object.assign({}, state, {
 				disableBrowserPm: action.disableBrowserPm,
 			});
+		case SET_COPY_TOTP_AFTER_AUTOFILL:
+			return { ...state, copyTotpAfterAutofill: action.copyTotpAfterAutofill };
 		case SET_SHOW_FILTERS:
 			return Object.assign({}, state, {
 				showFilters: action.showFilters,

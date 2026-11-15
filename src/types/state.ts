@@ -211,6 +211,7 @@ export interface ClientState {
 	offlineCacheEncryptionSalt: string | null;
 	notificationOnCopy: boolean;
 	disableBrowserPm: boolean;
+	copyTotpAfterAutofill: boolean;
 	showFilters: boolean;
 	hideDownloadBanner: boolean;
 	lastPopupSearch: string;

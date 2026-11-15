@@ -228,6 +228,10 @@ export interface ActionPayloads {
 		"notificationOnCopy"
 	>;
 	[ActionTypes.SET_DISABLE_BROWSER_PM]: Pick<ClientState, "disableBrowserPm">;
+	[ActionTypes.SET_COPY_TOTP_AFTER_AUTOFILL]: Pick<
+		ClientState,
+		"copyTotpAfterAutofill"
+	>;
 	[ActionTypes.SET_SHOW_FILTERS]: Pick<ClientState, "showFilters">;
 	[ActionTypes.SET_HIDE_DOWNLOAD_BANNER]: Pick<
 		ClientState,
