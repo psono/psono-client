@@ -1055,6 +1055,7 @@
 	"SECOND_FACTOR_LIST_LOAD_FAILED": "Could not load your second factors. Please close this dialog and try again.",
 	"DELETE_ACCOUNT_DESCRIPTION": "If you plan to delete your account, you can do that here. Be aware that all data will be lost.",
 	"SAVE": "Save",
+	"SAVE_AND_CLOSE": "Save & Close",
 	"OVERVIEW": "Overview",
 	"CHANGE_E_MAIL": "Change E-Mail",
 	"CHANGE_PASSWORD": "Change Password",

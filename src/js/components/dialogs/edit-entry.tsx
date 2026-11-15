@@ -5,7 +5,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LinkIcon from "@mui/icons-material/Link";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
@@ -74,6 +73,7 @@ import { getPasskeyUrl } from "../../services/passkey-url";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import ConnectionEntryFields from "../connection-entry-fields";
+import EntrySaveButton from "../entry-save-button";
 import GatewayLaunchButton from "../gateway-launch-button";
 import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
@@ -395,11 +395,6 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 	const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 	const [anchorEl2, setAnchorEl2] = React.useState<HTMLElement | null>(null);
 	const [anchorEl3, setAnchorEl3] = React.useState<HTMLElement | null>(null);
-	const [anchorElMoreMenu, setAnchorElMoreMenu] =
-		React.useState<HTMLElement | null>(null);
-	React.useEffect(() => {
-		if (offline) setAnchorElMoreMenu(null);
-	}, [offline]);
 	const [anchorEls, setAnchorEls] = React.useState<EntryMenuAnchors>({});
 	const [anchorElsCustomFields, setAnchorElsCustomFields] =
 		React.useState<EntryMenuAnchors>({});
@@ -1566,10 +1561,11 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 				callbackUrl,
 				callbackUser,
 				callbackPass,
+				closeEditView,
 			);
 		} else if (typeof item.secret_id === "undefined") {
 			// e.g. files
-			props.onEdit!(item);
+			props.onEdit!(item, closeEditView);
 		} else if (!props.data) {
 			const onError = (result: unknown) => {
 				if (result instanceof SecretChangedError) showConflict(result.latest);
@@ -1584,9 +1580,8 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			const authenticationError = () =>
 				notification.push("connection_authentication", t("BROKEN_REFERENCE"));
 			const complete = () => {
-				if (closeEditView) {
-					props.onEdit!(item);
-				} else {
+				props.onEdit!(item, closeEditView);
+				if (!closeEditView) {
 					setDirty(false);
 					void entryResource.current?.load();
 				}
@@ -1863,7 +1858,6 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		setAnchorEl(null);
 		setAnchorEl2(null);
 		setAnchorEl3(null);
-		setAnchorElMoreMenu(null);
 	};
 
 	const linkItem = (event: React.MouseEvent) => {
@@ -2298,6 +2292,42 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 		</React.Fragment>
 	);
 
+	const canEdit =
+		item.share_rights?.read &&
+		item.share_rights.write &&
+		!!(props.onEdit || props.onCustomSave);
+	const moreMenuItems =
+		!hideMoreMenu &&
+		item.share_rights &&
+		(item.share_rights.read || item.share_rights.write)
+			? [
+					!getStore().getState().server.complianceDisableLinkShares && (
+						<MenuItem key="link-share" onClick={onLinkShare}>
+							<ListItemIcon className={classes.listItemIcon}>
+								<LinkIcon className={classes.icon} fontSize="small" />
+							</ListItemIcon>
+							<Typography variant="body2" noWrap>
+								{t("LINK_SHARE")}
+							</Typography>
+						</MenuItem>
+					),
+					!getStore().getState().server.complianceDisableLinkShares &&
+						item.share_rights.write &&
+						props.onDeleteItem && (
+							<Divider key="trash-divider" className={classes.divider} />
+						),
+					item.share_rights.write && props.onDeleteItem && (
+						<MenuItem key="move-to-trash" onClick={onDelete}>
+							<ListItemIcon className={classes.listItemIcon}>
+								<DeleteIcon className={classes.icon} fontSize="small" />
+							</ListItemIcon>
+							<Typography variant="body2" noWrap>
+								{t("MOVE_TO_TRASH")}
+							</Typography>
+						</MenuItem>
+					),
+				].filter(Boolean)
+			: [];
 	const actions = (
 		<React.Fragment>
 			<GatewayLaunchButton item={item} offline={offline} showLabel />
@@ -2309,79 +2339,23 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			>
 				{t("CLOSE")}
 			</Button>
-			{item.share_rights &&
-				item.share_rights.read &&
-				item.share_rights.write &&
-				(props.onEdit || props.onCustomSave) && (
-					<Button
-						onClick={() => {
-							onEdit(true);
-						}}
-						variant="contained"
-						color="primary"
-						disabled={
-							!canSave ||
-							offline ||
-							entryRefreshing ||
-							entrySaving ||
-							!entryVerified ||
-							!!remoteVersion ||
-							entryUnavailable ||
-							getStore().getState().settingsDatastore.noSaveMode
-						}
-						type="submit"
-					>
-						{t("SAVE")}
-					</Button>
-				)}
-			{!hideMoreMenu &&
-				item.share_rights &&
-				(item.share_rights.read || item.share_rights.write) && (
-					<>
-						<IconButton
-							disabled={offline}
-							aria-controls="more-menu"
-							aria-label="open more menu"
-							onClick={(event) => {
-								setAnchorElMoreMenu(event.currentTarget);
-							}}
-							size="large"
-						>
-							<MoreVertIcon />
-						</IconButton>
-						<Menu
-							id="more-menu"
-							anchorEl={anchorElMoreMenu}
-							keepMounted
-							open={Boolean(anchorElMoreMenu) && !offline}
-							onClose={handleClose}
-						>
-							{!getStore().getState().server.complianceDisableLinkShares && (
-								<MenuItem onClick={onLinkShare}>
-									<ListItemIcon className={classes.listItemIcon}>
-										<LinkIcon className={classes.icon} fontSize="small" />
-									</ListItemIcon>
-									<Typography variant="body2" noWrap>
-										{t("LINK_SHARE")}
-									</Typography>
-								</MenuItem>
-							)}
-							{!getStore().getState().server.complianceDisableLinkShares &&
-								item.share_rights.write &&
-								props.onDeleteItem && <Divider className={classes.divider} />}
-							{item.share_rights.write && props.onDeleteItem && (
-								<MenuItem onClick={onDelete}>
-									<ListItemIcon className={classes.listItemIcon}>
-										<DeleteIcon className={classes.icon} fontSize="small" />
-									</ListItemIcon>
-									<Typography variant="body2" noWrap>
-										{t("MOVE_TO_TRASH")}
-									</Typography>
-								</MenuItem>
-							)}
-						</Menu>
-					</>
-				)}
+			{(canEdit || moreMenuItems.length > 0) && (
+				<EntrySaveButton
+					onSave={canEdit ? onEdit : undefined}
+					menuItems={moreMenuItems}
+					menuDisabled={offline}
+					disabled={
+						!canSave ||
+						offline ||
+						entryRefreshing ||
+						entrySaving ||
+						!entryVerified ||
+						!!remoteVersion ||
+						entryUnavailable ||
+						getStore().getState().settingsDatastore.noSaveMode
+					}
+				/>
+			)}
 			{decryptMessageDialogOpen && (
 				<DialogDecryptGpgMessage
 					open={decryptMessageDialogOpen}

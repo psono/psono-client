@@ -114,6 +114,19 @@ function button(label: string) {
 	return element;
 }
 
+async function saveAndClose() {
+	act(() => {
+		document
+			.querySelector<HTMLButtonElement>('button[aria-label="SAVE_AND_CLOSE"]')!
+			.click();
+	});
+	await act(async () => {
+		Array.from(document.querySelectorAll<HTMLElement>('[role="menuitem"]'))
+			.find((item) => item.textContent === "SAVE_AND_CLOSE")!
+			.click();
+	});
+}
+
 describe("standalone TOTP domain filters", () => {
 	let container: HTMLDivElement;
 	const onCreate = jest.fn();
@@ -148,6 +161,7 @@ describe("standalone TOTP domain filters", () => {
 		metadata: Partial<EntryItem> = {},
 		refresh?: Promise<EntrySecretData>,
 		showSecondaryActions = false,
+		inline = true,
 	) {
 		const item: EntryItem = {
 			id: "entry-id",
@@ -167,10 +181,11 @@ describe("standalone TOTP domain filters", () => {
 				<ThemeProvider theme={theme}>
 					<DialogEditEntry
 						open
-						inline
+						inline={inline}
 						item={item}
 						onClose={() => {}}
 						onEdit={onEdit}
+						onDeleteItem={showSecondaryActions ? jest.fn() : undefined}
 						setDirty={setDirty}
 						hideMoreMenu={!showSecondaryActions}
 						hideLinkToEntry
@@ -188,7 +203,31 @@ describe("standalone TOTP domain filters", () => {
 		return jest.mocked(secretService.writeSecret).mock.calls[0][2];
 	}
 
-	it("keeps History and More in place while a cached entry is verified", async () => {
+	it.each([
+		true,
+		false,
+	])("saves without closing, then saves and closes via the menu (inline: %p)", async (inline) => {
+		await renderEdit(secret, {}, undefined, false, inline);
+		change("totpTitle", "Saved title");
+		const saved = { ...secret, totp_title: "Saved title", write_date: "new" };
+		jest.mocked(secretService.readSecret).mockResolvedValue(saved);
+		await save();
+		expect(onEdit).toHaveBeenLastCalledWith(
+			expect.objectContaining({ name: "Saved title" }),
+			false,
+		);
+		expect(setDirty).toHaveBeenLastCalledWith(false);
+		expect(input("totpTitle").value).toBe("Saved title");
+		change("totpTitle", "Saved again");
+		await saveAndClose();
+		expect(secretService.writeSecret).toHaveBeenCalledTimes(2);
+		expect(onEdit).toHaveBeenLastCalledWith(
+			expect.objectContaining({ name: "Saved again" }),
+			true,
+		);
+	});
+
+	it("keeps History and the entry menu in place while a cached entry is verified", async () => {
 		jest.useFakeTimers();
 		jest.mocked(offlineCache.canUse).mockReturnValue(true);
 		let finish!: (data: EntrySecretData) => void;
@@ -203,7 +242,7 @@ describe("standalone TOTP domain filters", () => {
 		);
 		const history = button("SHOW_HISTORY");
 		const more = container.querySelector<HTMLButtonElement>(
-			'button[aria-label="open more menu"]',
+			'button[aria-label="SAVE_AND_CLOSE"]',
 		)!;
 		expect(history.disabled).toBe(true);
 		expect(more.disabled).toBe(true);
@@ -214,20 +253,26 @@ describe("standalone TOTP domain filters", () => {
 			finish({ ...cached });
 		});
 		expect(button("SHOW_HISTORY")).toBe(history);
-		expect(container.querySelector('button[aria-label="open more menu"]')).toBe(
+		expect(container.querySelector('button[aria-label="SAVE_AND_CLOSE"]')).toBe(
 			more,
 		);
 		expect(history.disabled).toBe(false);
 		expect(more.disabled).toBe(false);
+		act(() => more.click());
+		expect(
+			Array.from(
+				document.querySelectorAll('#entry-save-menu [role="menuitem"]'),
+			).map((item) => item.textContent),
+		).toEqual(["SAVE_AND_CLOSE", "LINK_SHARE", "MOVE_TO_TRASH"]);
 	});
 
-	it("keeps History and More visible but disabled when offline", async () => {
+	it("keeps History and the entry menu visible but disabled when offline", async () => {
 		jest.mocked(offlineCache.isActive).mockReturnValue(true);
 		await renderEdit(secret, {}, undefined, true);
 		expect(button("SHOW_HISTORY").disabled).toBe(true);
 		expect(
 			container.querySelector<HTMLButtonElement>(
-				'button[aria-label="open more menu"]',
+				'button[aria-label="SAVE_AND_CLOSE"]',
 			)!.disabled,
 		).toBe(true);
 	});
@@ -304,10 +349,12 @@ describe("standalone TOTP domain filters", () => {
 		expect(container.textContent).toContain("ENTRY_CHANGED_ON_SERVER");
 	});
 
-	it.each([
-		"",
-		filter,
-	])("creates an authenticator with optional filter %p", async (urlFilter) => {
+	it.each<[string, boolean]>([
+		["", false],
+		[filter, false],
+		["", true],
+		[filter, true],
+	])("creates an authenticator with optional filter %p (close: %p)", async (urlFilter, close) => {
 		act(() => {
 			ReactDOM.render(
 				<ThemeProvider theme={theme}>
@@ -326,7 +373,11 @@ describe("standalone TOTP domain filters", () => {
 		change("totpCode", secret.totp_code!);
 		act(() => button("ADVANCED").click());
 		change("totpUrlFilter", urlFilter);
-		await act(async () => button("CREATE").click());
+		if (close) {
+			await saveAndClose();
+		} else {
+			await act(async () => button("SAVE").click());
+		}
 		expect(secretService.createSecret).toHaveBeenCalledTimes(1);
 		expect(
 			jest.mocked(secretService.createSecret).mock.calls[0][0],
@@ -339,6 +390,7 @@ describe("standalone TOTP domain filters", () => {
 		}
 		expect(onCreate).toHaveBeenCalledTimes(1);
 		expect(onCreate.mock.calls[0][0].urlfilter).toBe(urlFilter || undefined);
+		expect(onCreate.mock.calls[0][1]).toBe(close);
 	});
 
 	it("preserves an app-created filter when saving another field with Advanced closed", async () => {

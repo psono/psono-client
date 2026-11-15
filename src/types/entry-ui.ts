@@ -51,7 +51,7 @@ export type EntryMenuAnchors = Record<number, HTMLElement | null>;
 export interface DialogNewEntryProps {
 	open: boolean;
 	onClose: () => void;
-	onCreate?: (item: EntryItem) => void;
+	onCreate?: (item: EntryItem, close: boolean) => void;
 	parentDatastoreId?: string;
 	parentShareId?: string;
 }
@@ -65,7 +65,7 @@ export interface DialogEditEntryProps {
 	isDirty?: boolean;
 	getShowConfirmDialog?: () => boolean;
 	setConfirmDialog?: (open: boolean) => void;
-	onEdit?: (item: EntryItem) => void;
+	onEdit?: (item: EntryItem, close: boolean) => void;
 	onDeleteItem?: () => void;
 	onCustomSave?: (
 		item: EntryItem,
@@ -73,6 +73,7 @@ export interface DialogEditEntryProps {
 		callbackUrl: SecretMetadata["callback_url"],
 		callbackUser: SecretMetadata["callback_user"],
 		callbackPass: SecretMetadata["callback_pass"],
+		close: boolean,
 	) => void;
 	hideLinkToEntry?: boolean;
 	hideShowHistory?: boolean;

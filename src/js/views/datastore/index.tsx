@@ -518,8 +518,7 @@ const DatastoreView = (
 		});
 	};
 
-	const onNewEntryCreate = (item: DatastoreItem) => {
-		// called once someone clicked the CREATE button in the dialog closes with the new name
+	const onNewEntryCreate = (item: DatastoreItem, close: boolean) => {
 		return persistDatastoreChange(
 			() =>
 				widget.newItemSave(
@@ -529,7 +528,14 @@ const DatastoreView = (
 					newEntryData.path!,
 					datastorePasswordService,
 				),
-			() => setNewEntryOpen(false),
+			() => {
+				setNewEntryOpen(false);
+				if (!close) {
+					setEditEntryData({ item, path: item.path! });
+					setEditEntryDirty(false);
+					setEditEntryOpen(true);
+				}
+			},
 		);
 	};
 	const onNewEntry = (parent: Datastore, path: DatastorePath) => {
@@ -575,7 +581,7 @@ const DatastoreView = (
 		setEditFolderOpen(true);
 	};
 
-	const onEditEntrySave = (node: Datastore) => {
+	const onEditEntrySave = (node: DatastoreItem, close: boolean) => {
 		return persistDatastoreChange(
 			() =>
 				widget.editItemSave(
@@ -585,7 +591,8 @@ const DatastoreView = (
 					datastorePasswordService,
 				),
 			() => {
-				setEditEntryOpen(false);
+				if (close) setEditEntryOpen(false);
+				else setEditEntryData({ item: node, path: editEntryData.path! });
 				setEditEntryDirty(false);
 			},
 		);

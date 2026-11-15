@@ -72,6 +72,7 @@ import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import { getStore } from "../../services/store";
 import ConnectionEntryFields from "../connection-entry-fields";
+import EntrySaveButton from "../entry-save-button";
 import GridContainerErrors from "../grid-container-errors";
 import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
@@ -780,10 +781,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 			.then(onSuccess, onError);
 	};
 
-	const onCreate = (
-		event: React.MouseEvent,
-		authenticationValidated = false,
-	) => {
+	const onCreate = (close: boolean, authenticationValidated = false) => {
 		const selectedAuthentication =
 			type === "ssh_connection"
 				? sshConnectionAuthentication
@@ -800,7 +798,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					secretService.readSecret,
 				)
 				.then(
-					() => onCreate(event, true),
+					() => onCreate(close, true),
 					() => setErrors(["BROKEN_REFERENCE"]),
 				);
 			return;
@@ -1144,7 +1142,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					item["file_repository_id"] = data!.file_repository_id;
 				}
 				item["file_size"] = data!.file_size;
-				props.onCreate!(item);
+				props.onCreate!(item, close);
 			});
 		} else {
 			setProcessing(true);
@@ -1191,7 +1189,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 								? vncConnectionAuthentication
 								: null;
 				if (!personalAuthentication) {
-					props.onCreate!(item);
+					props.onCreate!(item, close);
 					return;
 				}
 				return connectionCredentialsService
@@ -1209,7 +1207,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 						),
 					)
 					.then(
-						() => props.onCreate!(item),
+						() => props.onCreate!(item, close),
 						() => {
 							setProcessing(false);
 							notification.push(
@@ -3619,15 +3617,10 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 						{t("CLOSE")}
 					</Button>
 					{!offline && props.onCreate && (
-						<Button
-							onClick={onCreate}
-							variant="contained"
-							color="primary"
+						<EntrySaveButton
+							onSave={onCreate}
 							disabled={!canSave || processing}
-							type="submit"
-						>
-							{t("CREATE")}
-						</Button>
+						/>
 					)}
 				</DialogActions>
 				{decryptMessageDialogOpen && (

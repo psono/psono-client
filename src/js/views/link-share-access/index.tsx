@@ -24,6 +24,7 @@ import fileTransferService from "../../services/file-transfer";
 import hostService from "../../services/host";
 import host from "../../services/host";
 import linkShareService from "../../services/link-share";
+import notification from "../../services/notification";
 import { getStore } from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
@@ -589,10 +590,15 @@ const LinkShareAccessView = () => {
 						callbackUrl,
 						callbackUser,
 						callbackPass,
+						close,
 					) => {
 						const onSuccess = () => {
-							setEditEntryOpen(false);
-							setNextStep("SAVE_SUCCESS");
+							if (close) {
+								setEditEntryOpen(false);
+								setNextStep("SAVE_SUCCESS");
+							} else {
+								notification.push("save", t("SAVE_SUCCESS"));
+							}
 						};
 						const onError = (data: unknown) => {
 							// Should not happen
