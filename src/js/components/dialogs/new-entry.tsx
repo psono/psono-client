@@ -3678,8 +3678,10 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 				{addTagOpen && (
 					<DialogAddTag
 						open={addTagOpen}
+						availableTags={props.availableTags}
+						selectedTags={tags}
 						onClose={(newTag) => {
-							if (newTag) {
+							if (newTag && !tags.includes(newTag)) {
 								setTags([...tags, newTag]);
 							}
 							setAddTagOpen(false);

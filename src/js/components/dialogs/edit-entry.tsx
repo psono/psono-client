@@ -4606,8 +4606,10 @@ const DialogEditEntry = (props: DialogEditEntryProps) => {
 			{addTagOpen && (
 				<DialogAddTag
 					open={addTagOpen}
+					availableTags={props.availableTags}
+					selectedTags={tags}
 					onClose={(newTag) => {
-						if (newTag) {
+						if (newTag && !tags.includes(newTag)) {
 							setDirty(true);
 							setTags([...tags, newTag]);
 						}

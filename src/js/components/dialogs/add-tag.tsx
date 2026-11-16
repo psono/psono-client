@@ -1,4 +1,5 @@
 import { Grid } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -16,12 +17,20 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const DialogAddTag = (props: ResultDialogProps<string>) => {
-	const { open, onClose } = props;
+interface DialogAddTagProps extends ResultDialogProps<string> {
+	availableTags?: string[];
+	selectedTags?: string[];
+}
+
+const DialogAddTag = (props: DialogAddTagProps) => {
+	const { open, onClose, availableTags = [], selectedTags = [] } = props;
 	const { t } = useTranslation();
 	const classes = useStyles();
 
 	const [tag, setTag] = useState("");
+	const options = [...new Set(availableTags.map((value) => value.trim()))]
+		.filter((value) => value && !selectedTags.includes(value))
+		.sort((a, b) => a.localeCompare(b));
 
 	return (
 		<Dialog
@@ -38,20 +47,26 @@ const DialogAddTag = (props: ResultDialogProps<string>) => {
 			<DialogContent>
 				<Grid container>
 					<Grid item xs={12} sm={12} md={12}>
-						<TextField
+						<Autocomplete
 							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
+							freeSolo
+							openOnFocus
+							options={options}
 							id="tag"
-							label={t("TAG")}
-							name="tag"
-							autoComplete="off"
-							value={tag}
-							required
-							onChange={(event) => {
-								setTag(event.target.value);
-							}}
+							inputValue={tag}
+							onInputChange={(_event, value) => setTag(value)}
+							onChange={(_event, value) => setTag(value ?? "")}
+							renderInput={(params) => (
+								<TextField
+									{...params}
+									variant="outlined"
+									margin="dense"
+									size="small"
+									label={t("TAG")}
+									name="tag"
+									required
+								/>
+							)}
 						/>
 					</Grid>
 				</Grid>
@@ -66,11 +81,11 @@ const DialogAddTag = (props: ResultDialogProps<string>) => {
 				</Button>
 				<Button
 					onClick={() => {
-						onClose(tag);
+						onClose(tag.trim());
 					}}
 					variant="contained"
 					color="primary"
-					disabled={!tag}
+					disabled={!tag.trim() || selectedTags.includes(tag.trim())}
 				>
 					{t("SAVE")}
 				</Button>
