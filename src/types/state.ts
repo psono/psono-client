@@ -137,6 +137,7 @@ export interface ServerState {
 	systemWideDuoExists: boolean | undefined;
 	verifyKey: string | undefined;
 	faviconServiceUrl?: string;
+	pwnedPasswordsApiUrl?: string;
 	status: {
 		data: {
 			last_security_report_created?: string | null;

@@ -73,6 +73,7 @@ export interface ServerInfoPayload extends Partial<DecodedServerInfo> {
 	disable_central_security_reports?: boolean;
 	multifactor_enabled?: boolean;
 	favicon_service_url?: string;
+	pwned_passwords_api_url?: string;
 	system_wide_duo_exists?: boolean;
 	domain_synonyms?: DomainSynonyms;
 }

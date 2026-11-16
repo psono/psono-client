@@ -30,6 +30,7 @@ import BaseTitle from "../../components/base-title";
 import GridContainerErrors from "../../components/grid-container-errors";
 import Table from "../../components/table";
 import TextFieldColored from "../../components/text-field/colored";
+import apiPwnedpasswordsService from "../../services/api-pwnedpasswords";
 import browserClient from "../../services/browser-client";
 import cryptoLibrary from "../../services/crypto-library";
 import securityReportService from "../../services/security-report";
@@ -133,6 +134,7 @@ const SecurityReportView = (
 ) => {
 	const classes = useStyles();
 	const { t } = useTranslation();
+	const usesCustomBreachService = apiPwnedpasswordsService.usesCustomApiUrl();
 	const [password, setPassword] = useState("");
 	const [passwordTouched, setPasswordTouched] = useState(false);
 	const userAuthentication = getStore().getState().user.authentication;
@@ -821,17 +823,19 @@ const SecurityReportView = (
 											/>
 										}
 									/>
-									<Typography variant="body2">
-										{t("SECURITY_REPORT_BREACH_CHECK_DETAILS")}{" "}
-										<a
-											href="https://haveibeenpwned.com/Passwords"
-											target="_blank"
-											rel="noopener"
-										>
-											haveibeenpwned.com
-										</a>
-										.
-									</Typography>
+									{!usesCustomBreachService && (
+										<Typography variant="body2">
+											{t("SECURITY_REPORT_BREACH_CHECK_DETAILS")}{" "}
+											<a
+												href="https://haveibeenpwned.com/Passwords"
+												target="_blank"
+												rel="noopener"
+											>
+												haveibeenpwned.com
+											</a>
+											.
+										</Typography>
+									)}
 								</Grid>
 								{!hideSendToServer && (
 									<Grid item xs={12} sm={12} md={12}>

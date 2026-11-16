@@ -164,6 +164,7 @@ function server(
 		publicKey: defaultPublicKey,
 		version: defaultVersion,
 		webClient: defaultWebClient,
+		pwnedPasswordsApiUrl: "",
 		disableCentralSecurityReports: defaultDisableCentralSecurityReports,
 		disableCallbacks: defaultDisableCallbacks,
 		allowedFileRepositoryTypes: defaultAllowedFileRepositoryTypes,
@@ -183,6 +184,7 @@ function server(
 				complianceEnforceLocking: false,
 				complianceMaxLockTimeout: undefined,
 				url: action.rememberMe ? state.url : defaultUrl,
+				pwnedPasswordsApiUrl: "",
 				allowUserSearchByEmail: defaultAllowUserSearchByEmail,
 				allowUserSearchByUsernamePartial:
 					defaultAllowUserSearchByUsernamePartial,
@@ -393,6 +395,7 @@ function server(
 				multifactorEnabled: action.info.multifactor_enabled,
 				faviconServiceUrl:
 					action.info.favicon_service_url || defaultFaviconServiceUrl,
+				pwnedPasswordsApiUrl: action.info.pwned_passwords_api_url || "",
 				systemWideDuoExists: action.info.system_wide_duo_exists,
 				verifyKey: action.verifyKey,
 				domainSynonyms:
