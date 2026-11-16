@@ -1,9 +1,28 @@
 import {
 	LOGOUT,
+	SET_LAST_SERVER_CONNECTION_TIME,
 	SET_USER_INFO_2,
 	SET_USER_PASSWORD_SHA1_PREFIX,
 } from "../actions/action-types";
 import user from "./user";
+
+describe("user last server connection", () => {
+	it("keeps the newest connection across out-of-order tab updates and clears it on logout", () => {
+		const connected = user(undefined, {
+			type: SET_LAST_SERVER_CONNECTION_TIME,
+			lastServerConnectionTimeSinceEpoch: 2000,
+		});
+		const delayed = user(connected, {
+			type: SET_LAST_SERVER_CONNECTION_TIME,
+			lastServerConnectionTimeSinceEpoch: 1000,
+		});
+		expect(delayed.lastServerConnectionTimeSinceEpoch).toBe(2000);
+		expect(
+			user(delayed, { type: LOGOUT, rememberMe: false })
+				.lastServerConnectionTimeSinceEpoch,
+		).toBe(0);
+	});
+});
 
 describe("user report password prefix", () => {
 	it("replaces the prefix on login and clears it on logout or passwordless login", () => {

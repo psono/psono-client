@@ -2391,6 +2391,42 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		}
 	}
 
+	function writeClipboardText(text) {
+		// Use the extension's clipboardWrite permission, independent of the page's Clipboard API policy.
+		const focused = document.activeElement;
+		const textarea = document.createElement("textarea");
+		textarea.value = text;
+		textarea.style.cssText = "position:fixed;opacity:0;pointer-events:none";
+		textarea.addEventListener("copy", (event) => {
+			// An empty selection alone does not clear an existing clipboard value.
+			event.clipboardData.setData("text/plain", text);
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		});
+		document.body.appendChild(textarea);
+		try {
+			textarea.focus();
+			textarea.select();
+			if (!document.execCommand("copy"))
+				throw new Error("Clipboard copy failed");
+		} finally {
+			textarea.remove();
+			focused?.focus();
+		}
+	}
+
+	function copyTotpAfterAutofill(data) {
+		if (!data.copy_totp_after_autofill || !data.totp_token) return;
+		try {
+			writeClipboardText(data.totp_token);
+			if (data.clipboard_clear_delay) {
+				base.emit("clear-clipboard", { delay: data.clipboard_clear_delay });
+			}
+		} catch (error) {
+			console.warn("PSONO: Cannot copy TOTP after autofill", error);
+		}
+	}
+
 	/**
 	 * Handler for a fillpassword event
 	 *
@@ -2399,6 +2435,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param sendResponse
 	 */
 	function onFillPassword(data, sender, sendResponse) {
+		copyTotpAfterAutofill(data);
 		let foundUsername;
 		let foundPassword;
 		let foundTotp;
@@ -2880,6 +2917,7 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 		const isIframe = window !== window.top;
 
 		function autofill() {
+			copyTotpAfterAutofill(data);
 			for (let i = 0; i < myForms.length; i++) {
 				if (
 					(myForms[i].username &&
@@ -2961,7 +2999,11 @@ const ClassWorkerContentScript = (base, browser, setTimeout) => {
 	 * @param sendResponse
 	 */
 	function clearClipboard(data, sender, sendResponse) {
-		navigator.clipboard.writeText("");
+		try {
+			writeClipboardText("");
+		} catch (error) {
+			console.warn("PSONO: Cannot clear clipboard", error);
+		}
 	}
 };
 

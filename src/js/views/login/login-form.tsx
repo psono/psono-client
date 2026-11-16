@@ -148,7 +148,23 @@ const LoginForm = (props: LoginFormProps) => {
 	const [gaToken, setGaToken] = useState("");
 	const [yubikeyOtpToken, setYubikeyOtpToken] = useState("");
 	const [duoToken, setDuoToken] = useState("");
-	const [errors, setErrors] = useState<string[]>([]);
+	const [errors, setErrorMessages] = useState<string[]>([]);
+	// Promise rejections and server error payloads are not guaranteed to be arrays.
+	const setErrors = (value: unknown) => {
+		const messages: unknown[] = Array.isArray(value) ? value : [value];
+		setErrorMessages(
+			messages.map((error) => {
+				if (typeof error === "string" && error) {
+					return error;
+				}
+				if (error instanceof Error && error.message) {
+					return error.message;
+				}
+				console.error("Unexpected login error:", error);
+				return "UNKNOWN_ERROR";
+			}),
+		);
+	};
 	const [multifactors, setMultifactors] = useState<string[]>([]);
 	const webauthnAbort = React.useRef<AbortController | null>(null);
 	const [allowRegistration, setAllowRegistration] = useState(false);
@@ -250,7 +266,7 @@ const LoginForm = (props: LoginFormProps) => {
 					setLoginLoading(false);
 					handleLogin(loginDetails);
 				},
-				(errors: string[]) => {
+				(errors: unknown) => {
 					setLoginLoading(false);
 					setErrors(errors);
 				},
@@ -263,7 +279,7 @@ const LoginForm = (props: LoginFormProps) => {
 					setLoginLoading(false);
 					handleLogin(loginDetails);
 				},
-				(errors: string[]) => {
+				(errors: unknown) => {
 					setLoginLoading(false);
 					setErrors(errors);
 				},
@@ -877,7 +893,7 @@ const LoginForm = (props: LoginFormProps) => {
 										if (oidcTokenid) {
 											user
 												.oidcLogin(oidcTokenid)
-												.then(handleLogin, (errors: string[]) => {
+												.then(handleLogin, (errors: unknown) => {
 													setErrors(errors);
 												});
 										}
@@ -932,7 +948,7 @@ const LoginForm = (props: LoginFormProps) => {
 										if (samlTokenid) {
 											user
 												.samlLogin(samlTokenid)
-												.then(handleLogin, (errors: string[]) => {
+												.then(handleLogin, (errors: unknown) => {
 													setErrors(errors);
 												});
 										}

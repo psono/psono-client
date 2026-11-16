@@ -25,6 +25,7 @@ import type {
 } from "../../types/api";
 import type { LinkShareReadLimitInput } from "../../types/vault";
 import i18n from "../i18n";
+import action from "../actions/bound-action-creators";
 import cryptoLibrary from "./crypto-library";
 import device from "./device";
 import offlineCache from "./offline-cache";
@@ -253,6 +254,16 @@ async function _statelessCall<T = ApiRecord>(
 		}
 		if (!rawResponse.ok) throw decryptedData;
 		if (sessionSecretKey) {
+			const currentState = getStore()?.getState();
+			if (
+				currentState?.user?.isLoggedIn &&
+				serverUrl === currentState.server.url &&
+				sessionSecretKey === currentState.user.sessionSecretKey
+			) {
+				// Only a successful live response extends this account's offline
+				// window. Cache reads and stateless requests for other accounts do not.
+				action().setLastServerConnectionTimeSinceEpoch(Date.now());
+			}
 			offlineCache.markOnline?.();
 			if (
 				method === "GET" &&
@@ -283,6 +294,12 @@ function readCacheMetadata(
 		null,
 		{ Authorization: `Token ${token}` },
 		sessionSecretKey,
+		"refresh",
+		(response) => {
+			// Expose a rejected metadata resource so sync can skip it without
+			// interpreting the server's validation-error payload.
+			if (response.status === 400) throw { status: 400 };
+		},
 	);
 }
 
@@ -293,6 +310,7 @@ function call<T = ApiRecord>(
 	headers: ApiHeaders | null,
 	sessionSecretKey?: SessionSecretKey,
 	readMode: boolean | CacheMode = true,
+	onResponse?: ResponseSideEffect,
 ): Promise<ApiResponse<T>> {
 	const serverUrl = getStore().getState().server.url;
 	const deviceFingerprint = device.getDeviceFingerprint();
@@ -314,6 +332,7 @@ function call<T = ApiRecord>(
 			// server error, lets log the user out
 			user.logout(rawResponse.statusText);
 		}
+		onResponse?.(rawResponse);
 	};
 	return _statelessCall<T>(
 		method,

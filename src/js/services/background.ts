@@ -539,6 +539,7 @@ function fillSecretTab(secretId: string, tab: BrowserTab, frameId: number) {
 		const onSuccess = (content: AutofillSecret) => {
 			if (leaf!.type === "website_password") {
 				browserClient.emitFrame(tab.id!, frameId, "fillpassword", {
+					...autofillClipboardOptions(),
 					username: content.website_password_username,
 					password: content.website_password_password,
 					totp_token: content.website_password_totp_code
@@ -737,7 +738,10 @@ function onReady(
 					if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[ii])) {
 						fillpassword[i].submit = parsedUrl.scheme === "https";
 						sentResponse = true;
-						sendResponse({ event: "fillpassword", data: fillpassword[i] });
+						sendResponse({
+							event: "fillpassword",
+							data: { ...fillpassword[i], ...autofillClipboardOptions() },
+						});
 						found = true;
 						break;
 					}
@@ -828,7 +832,10 @@ function onFillpasswordActiveTab(
 	if (typeof activeTabId === "undefined") {
 		return;
 	}
-	browserClient.emitFrame(activeTabId, 0, "fillpassword", request.data);
+	browserClient.emitFrame(activeTabId, 0, "fillpassword", {
+		...request.data,
+		...autofillClipboardOptions(),
+	});
 }
 
 /**
@@ -1238,17 +1245,42 @@ function onWebsitePasswordRefresh(
 	return true; // Important, do not remove! Otherwise Async return wont work
 }
 
-/**
- * Reads the specified secret of the server, decrypts it and returns a promise
- *
- * @param {uuid} secretId The id of the secret
- *
- * @returns {promise} Returns a promise with the decrypted secret content
- */
-function requestSecret(secretId: string): Promise<SecretContent> {
+function autofillClipboardOptions() {
+	const { client, settingsDatastore } = getStore().getState();
+	return {
+		copy_totp_after_autofill: !!client.copyTotpAfterAutofill,
+		clipboard_clear_delay: settingsDatastore.clipboardClearDelay,
+	};
+}
+
+/** Reads a secret and optionally adds device-local autofill instructions. */
+function requestSecret(
+	secretId: string,
+	forAutofill = false,
+): Promise<SecretContent> {
 	return storage
 		.findKey("datastore-password-leafs", secretId)
-		.then((leaf) => secretService.readSecret(secretId, leaf!.secret_key));
+		.then(async (leaf) => {
+			const content = await secretService.readSecret(
+				secretId,
+				leaf!.secret_key,
+			);
+			if (!forAutofill || leaf!.type !== "website_password") return content;
+			const options = autofillClipboardOptions();
+			return {
+				...content,
+				...options,
+				totp_token:
+					options.copy_totp_after_autofill && content.website_password_totp_code
+						? cryptoLibrary.getTotpToken(
+								content.website_password_totp_code,
+								content.website_password_totp_period,
+								content.website_password_totp_algorithm,
+								content.website_password_totp_digits,
+							)
+						: "",
+			};
+		});
 }
 
 /**
@@ -1270,7 +1302,7 @@ function onRequestSecret(
 	sender: MessageSender,
 	sendResponse: Respond<"request-secret">,
 ) {
-	requestSecret(request.data.secret_id).then(
+	requestSecret(request.data.secret_id, true).then(
 		(data) => {
 			sendResponse({ event: "return-secret", data: data });
 		},

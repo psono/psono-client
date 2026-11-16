@@ -73,6 +73,7 @@ export interface ServerInfoPayload extends Partial<DecodedServerInfo> {
 	disable_central_security_reports?: boolean;
 	multifactor_enabled?: boolean;
 	favicon_service_url?: string;
+	pwned_passwords_api_url?: string;
 	system_wide_duo_exists?: boolean;
 	domain_synonyms?: DomainSynonyms;
 }
@@ -215,6 +216,10 @@ export interface ActionPayloads {
 	[ActionTypes.SET_CLIENT_URL]: Pick<ClientState, "url">;
 	[ActionTypes.ENABLE_OFFLINE_MODE]: Record<never, never>;
 	[ActionTypes.DISABLE_OFFLINE_MODE]: Record<never, never>;
+	[ActionTypes.SET_LAST_SERVER_CONNECTION_TIME]: Pick<
+		UserState,
+		"lastServerConnectionTimeSinceEpoch"
+	>;
 	[ActionTypes.SET_OFFLINE_CACHE_ENCRYPTION_INFO]: Pick<
 		ClientState,
 		"offlineCacheEncryptionKey" | "offlineCacheEncryptionSalt"
@@ -224,6 +229,10 @@ export interface ActionPayloads {
 		"notificationOnCopy"
 	>;
 	[ActionTypes.SET_DISABLE_BROWSER_PM]: Pick<ClientState, "disableBrowserPm">;
+	[ActionTypes.SET_COPY_TOTP_AFTER_AUTOFILL]: Pick<
+		ClientState,
+		"copyTotpAfterAutofill"
+	>;
 	[ActionTypes.SET_SHOW_FILTERS]: Pick<ClientState, "showFilters">;
 	[ActionTypes.SET_HIDE_DOWNLOAD_BANNER]: Pick<
 		ClientState,

@@ -315,16 +315,13 @@ function _readShares(
 ): Promise<Datastore> {
 	return new Promise<Datastore>((resolve, reject) => {
 		let failure: unknown;
-		let open_calls = 0;
-		const all_calls: Promise<void>[] = [];
+		const pendingReads: (() => Promise<void>)[] = [];
 		const all_share_data: Record<string, ShareContent> = {};
 		const inheritedShareLinks: { shareId: string; path: DatastorePath }[] = [];
 		let content: ShareAccess;
 		// Reads repair indexes in memory only; a later user write persists them.
 		repairShareIndex(datastore);
 		const share_index = datastore.share_index;
-
-		let localResolve = () => {};
 
 		const parent_share_rights = {
 			read: true,
@@ -359,8 +356,6 @@ function _readShares(
 					if (typeof content === "undefined") {
 						// Live reads tolerate unavailable shares; cached snapshots must be complete.
 						if (mode === "cache-only") failure = { errors: ["SERVER_OFFLINE"] };
-						open_calls--;
-						localResolve();
 						return;
 					}
 					repairShareIndex(content.data);
@@ -385,16 +380,11 @@ function _readShares(
 						undefined,
 						parent_share_stack,
 					);
-					open_calls--;
-					localResolve();
 				};
 
 				const onError = (error: unknown) => {
 					if (mode === "cache-only") failure = error;
-					open_calls--;
-					localResolve();
 				};
-				open_calls++;
 				return (
 					mode === "network-first"
 						? shareService.readShare(share_id, _shareIndex[share_id])
@@ -514,7 +504,7 @@ function _readShares(
 						continue;
 					}
 
-					all_calls.push(
+					pendingReads.push(() =>
 						readShareHelper(
 							share_id,
 							sub_datastore,
@@ -547,46 +537,46 @@ function _readShares(
 			delete: true,
 		});
 
-		return Promise.all(all_calls)
-			.then((ret) => {
-				localResolve = () => {
-					if (open_calls === 0) {
-						// Only use content authorized while loading another location;
-						// missing/revoked shares remain inaccessible, including offline.
-						for (const link of inheritedShareLinks.splice(0)) {
-							const content = all_share_data[link.shareId];
-							if (!content) continue;
-							updatePathsWithData(
-								datastore,
-								link.path,
-								content,
-								parent_share_rights,
-								undefined,
-								datastore.datastore_id,
-							);
-							const found = datastoreService.findInDatastore(
-								link.path,
-								datastore,
-							);
-							readSharesRecursive(
-								found[0][found[1]],
-								shareRightsDict,
-								content.data.share_index,
-								all_share_data,
-								content.rights,
-								link.shareId,
-								undefined,
-								[link.shareId],
-							);
-						}
-						if (open_calls !== 0) return;
-						if (failure) reject(failure);
-						else resolve(datastore);
-					}
-				};
-				localResolve();
-			})
-			.catch(reject);
+		const loadPendingShares = async () => {
+			// Create requests only when their batch starts so their timestamps stay fresh.
+			// All recursive levels share this queue; separate per-folder batches would
+			// multiply the number of requests waiting in the browser again.
+			const batchSize = 10;
+			do {
+				while (pendingReads.length > 0) {
+					const batch = pendingReads.splice(0, batchSize);
+					await Promise.all(batch.map((read) => read()));
+				}
+				// Only use content authorized while loading another location;
+				// missing/revoked shares remain inaccessible, including offline.
+				for (const link of inheritedShareLinks.splice(0)) {
+					const content = all_share_data[link.shareId];
+					if (!content) continue;
+					updatePathsWithData(
+						datastore,
+						link.path,
+						content,
+						parent_share_rights,
+						undefined,
+						datastore.datastore_id,
+					);
+					const found = datastoreService.findInDatastore(link.path, datastore);
+					readSharesRecursive(
+						found[0][found[1]],
+						shareRightsDict,
+						content.data.share_index,
+						all_share_data,
+						content.rights,
+						link.shareId,
+						undefined,
+						[link.shareId],
+					);
+				}
+			} while (pendingReads.length > 0);
+			if (failure) throw failure;
+			return datastore;
+		};
+		return loadPendingShares().then(resolve, reject);
 	});
 }
 

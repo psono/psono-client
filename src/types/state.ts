@@ -26,6 +26,8 @@ export type HashingParameters = ScryptParameters;
 
 export interface UserState {
 	isLoggedIn: boolean;
+	/** Last successful live request for this account, in epoch milliseconds. */
+	lastServerConnectionTimeSinceEpoch: number;
 	username: string;
 	rememberMe: boolean;
 	trustDevice: boolean;
@@ -135,6 +137,7 @@ export interface ServerState {
 	systemWideDuoExists: boolean | undefined;
 	verifyKey: string | undefined;
 	faviconServiceUrl?: string;
+	pwnedPasswordsApiUrl?: string;
 	status: {
 		data: {
 			last_security_report_created?: string | null;
@@ -209,6 +212,7 @@ export interface ClientState {
 	offlineCacheEncryptionSalt: string | null;
 	notificationOnCopy: boolean;
 	disableBrowserPm: boolean;
+	copyTotpAfterAutofill: boolean;
 	showFilters: boolean;
 	hideDownloadBanner: boolean;
 	lastPopupSearch: string;

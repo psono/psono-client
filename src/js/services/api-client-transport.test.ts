@@ -3,11 +3,33 @@ import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
 import vaultLock from "./vault-lock";
 import { CacheMissError } from "../../types/cache";
+import { applyMiddleware, createStore } from "redux";
+import thunk from "redux-thunk";
+import type { ReducerAction } from "../../types/actions";
+import userReducer from "../reducers/user";
+
+function createTestStore() {
+	const initialState = {
+		server: { url: "https://api.test" },
+		user: {
+			...userReducer(undefined, { type: "@@INIT" }),
+			isLoggedIn: true,
+			token: "token",
+			sessionSecretKey: "key",
+		},
+	};
+	return createStore(
+		(state: typeof initialState = initialState, action: ReducerAction) => ({
+			...state,
+			user: userReducer(state.user, action),
+		}),
+		applyMiddleware(thunk),
+	);
+}
+let mockStore: ReturnType<typeof createTestStore>;
 
 jest.mock("./store", () => ({
-	getStore: () => ({
-		getState: () => ({ server: { url: "https://api.test" } }),
-	}),
+	getStore: () => mockStore,
 }));
 jest.mock("./device", () => ({
 	__esModule: true,
@@ -56,6 +78,7 @@ describe("API client: transport compatibility", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockStore = createTestStore();
 		fetchMock.mockReset();
 		globalThis.fetch = fetchMock;
 		jest.mocked(offlineCache.get).mockResolvedValue(null);
@@ -89,6 +112,9 @@ describe("API client: transport compatibility", () => {
 			"GET",
 			{ data: { id: "secret" } },
 		);
+		expect(
+			mockStore.getState().user.lastServerConnectionTimeSinceEpoch,
+		).toBeGreaterThan(0);
 	});
 
 	it("sends a shared RP ID without substituting the extension registration origin", async () => {
@@ -104,6 +130,38 @@ describe("API client: transport compatibility", () => {
 		expect(cryptoLibrary.encryptData).toHaveBeenCalledWith(
 			JSON.stringify({ title: "Shared key", origin, rp_id: "example.com" }),
 			"key",
+		);
+	});
+
+	it("renews the offline window on later live requests, including non-cacheable status reads", async () => {
+		const now = jest.spyOn(Date, "now").mockReturnValue(1794398400000);
+		respond('{"text":"ciphertext","nonce":"response-nonce"}');
+		await apiClient.readSecret("token", "key", "secret");
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			1794398400000,
+		);
+		now.mockReturnValue(1794398401000);
+		await apiClient.readStatus("token", "key");
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			1794398401000,
+		);
+	});
+
+	it.each([
+		["https://other.test", "key"],
+		["https://api.test", "other-key"],
+	])("does not renew the active account's window for another server/session (%s, %s)", async (serverUrl, sessionKey) => {
+		respond("", 204);
+		await apiClient.statelessLogout(
+			"other-token",
+			sessionKey,
+			undefined,
+			undefined,
+			serverUrl,
+			"other-fingerprint",
+		);
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
 		);
 	});
 
@@ -140,6 +198,9 @@ describe("API client: transport compatibility", () => {
 		);
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("uses a fresh live response even when a cached copy exists", async () => {
@@ -160,6 +221,9 @@ describe("API client: transport compatibility", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 		expect(offlineCache.markOnline).not.toHaveBeenCalled();
 		expect(offlineCache.markOffline).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("treats a cache-only miss as a miss rather than silently falling through to the network", async () => {
@@ -240,6 +304,9 @@ describe("API client: transport compatibility", () => {
 		).rejects.toEqual({ data: { id: "secret" } });
 		expect(offlineCache.get).not.toHaveBeenCalled();
 		expect(offlineCache.clear).toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("blocks mutations while using cached responses and vault reads while locked", async () => {
@@ -276,6 +343,9 @@ describe("API client: transport compatibility", () => {
 		});
 		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
 		expect(offlineCache.set).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it.each([
@@ -289,6 +359,9 @@ describe("API client: transport compatibility", () => {
 			errors: ["UNENCRYPTED_RESPONSE_RECEIVED"],
 		});
 		expect(offlineCache.set).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("preserves decrypted server validation errors", async () => {
@@ -302,6 +375,18 @@ describe("API client: transport compatibility", () => {
 		).rejects.toEqual({
 			data: { non_field_errors: ["invalid"] },
 		});
+	});
+
+	it("identifies HTTP 400 metadata-share responses for graceful sync skipping", async () => {
+		respond('{"text":"ciphertext","nonce":"response-nonce"}', 400);
+		await expect(
+			apiClient.readCacheMetadata("share", "token", "key", "rejected"),
+		).rejects.toEqual({ status: 400 });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+		expect(offlineCache.set).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("preserves empty successful responses and omitted logout fields", async () => {
@@ -318,6 +403,9 @@ describe("API client: transport compatibility", () => {
 			data: { info: "server-info" },
 		});
 		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 	});
 
 	it("uses explicit stateless connection details and invokes the response callback", async () => {
@@ -342,6 +430,9 @@ describe("API client: transport compatibility", () => {
 			}),
 		);
 		expect(sideEffect).toHaveBeenCalledWith(response);
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
 		const validator: unknown = JSON.parse(
 			jest.mocked(cryptoLibrary.encryptData).mock.calls[1][0],
 		);

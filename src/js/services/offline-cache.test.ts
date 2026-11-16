@@ -10,7 +10,12 @@ import {
 import type { CacheMode } from "../../types/cache";
 
 let mockState = {
-	user: { isLoggedIn: true, token: "token", sessionSecretKey: "key" },
+	user: {
+		isLoggedIn: true,
+		token: "token",
+		sessionSecretKey: "key",
+		lastServerConnectionTimeSinceEpoch: 0,
+	},
 	client: { offlineMode: false },
 	server: {
 		url: "https://api.test",
@@ -20,7 +25,7 @@ let mockState = {
 };
 let mockEntries = new Map<
 	string,
-	{ key: string; value: unknown; validatedAt: number }
+	{ key: string; value: unknown; validatedAt?: number }
 >();
 jest.mock("./store", () => ({
 	getStore: () => ({ getState: () => mockState }),
@@ -78,8 +83,11 @@ jest.mock("./api-client", () => ({
 
 describe("encrypted offline cache policy", () => {
 	beforeEach(() => {
+		jest.useFakeTimers();
+		jest.setSystemTime(new Date("2026-11-11T12:00:00Z"));
 		jest.clearAllMocks();
 		mockEntries.clear();
+		mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
 		mockState.client.offlineMode = false;
 		mockState.server.complianceDisableOfflineMode = false;
 		mockState.server.complianceMaxOfflineCacheTimeValid = 3600;
@@ -87,6 +95,9 @@ describe("encrypted offline cache policy", () => {
 			.mocked(vaultLock.getConfiguration)
 			.mockReturnValue({ enabled: true, timeout: 300, keyId: "id" });
 		jest.mocked(vaultLock.getKey).mockReturnValue("lock-key");
+	});
+	afterEach(() => {
+		jest.useRealTimers();
 	});
 
 	it("never caches without automatic locking or when server policy forbids it", async () => {
@@ -106,7 +117,7 @@ describe("encrypted offline cache policy", () => {
 		expect(storage.upsert).not.toHaveBeenCalled();
 	});
 
-	it("expires cached responses and refuses writes and authentication endpoints", async () => {
+	it("expires cache after the last server connection and refuses writes and authentication endpoints", async () => {
 		const url = "https://api.test/secret/id/";
 		await offlineCache.set(url, "GET", { data: { id: "id" } });
 		expect(await offlineCache.get(url, "GET")).toEqual({ data: { id: "id" } });
@@ -115,7 +126,50 @@ describe("encrypted offline cache policy", () => {
 			data: {},
 		});
 		expect(mockEntries.size).toBe(1);
-		mockEntries.get(url)!.validatedAt -= 3600001;
+		jest.advanceTimersByTime(3600000);
+		expect(await offlineCache.get(url, "GET")).toEqual({ data: { id: "id" } });
+		jest.advanceTimersByTime(1);
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+	});
+
+	it("keeps old responses usable while server connections renew the offline window", async () => {
+		const url = "https://api.test/secret/id/";
+		const value = { data: { id: "id" } };
+		// Existing cache records may still carry a per-response timestamp.
+		mockEntries.set(url, { key: url, value, validatedAt: Date.now() });
+		for (let hour = 0; hour < 24; hour++) {
+			jest.advanceTimersByTime(3600000);
+			mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
+			expect(await offlineCache.get(url, "GET")).toEqual(value);
+		}
+		jest.advanceTimersByTime(3600001);
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+		mockState.user.lastServerConnectionTimeSinceEpoch = Date.now();
+		expect(await offlineCache.get(url, "GET")).toEqual(value);
+	});
+
+	it.each([
+		0,
+		undefined,
+		NaN,
+	])("requires a known last server connection (%s), even for newly cached responses", async (lastConnection) => {
+		const url = "https://api.test/secret/id/";
+		await offlineCache.set(url, "GET", { data: {} });
+		Object.assign(mockState.user, {
+			lastServerConnectionTimeSinceEpoch: lastConnection,
+		});
+		expect(await offlineCache.get(url, "GET")).toBeNull();
+	});
+
+	it.each([
+		0,
+		-1,
+		NaN,
+		Infinity,
+	])("refuses cache with an invalid maximum offline time (%s)", async (maximumAge) => {
+		const url = "https://api.test/secret/id/";
+		await offlineCache.set(url, "GET", { data: {} });
+		mockState.server.complianceMaxOfflineCacheTimeValid = maximumAge;
 		expect(await offlineCache.get(url, "GET")).toBeNull();
 	});
 
@@ -264,6 +318,166 @@ describe("encrypted offline cache policy", () => {
 		await offlineCache.clear();
 		await offlineCache.incrementalUpdate();
 		expect(apiClient.readCacheMetadata).toHaveBeenCalledTimes(4);
+	});
+
+	it("downloads secrets in lazy batches of at most 10 across nested shares and datastores", async () => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		jest.mocked(apiClient.readDatastore).mockResolvedValue({
+			data: { datastores: [{ id: "d1" }, { id: "d2" }] },
+		} as never);
+		jest
+			.mocked(apiClient.readCacheMetadata)
+			.mockImplementation(async (_kind, _token, _key, id) => ({
+				data: {
+					shares:
+						id === "d1"
+							? [{ id: "outer" }]
+							: id === "outer"
+								? [{ id: "inner" }]
+								: [],
+					secrets: Array.from({ length: 23 }, (_, index) => ({
+						id: `${id}-secret-${index}`,
+					})),
+				},
+			}));
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let running = 0;
+		let maximum = 0;
+		jest.mocked(apiClient.readSecret).mockImplementation(async () => {
+			running++;
+			maximum = Math.max(maximum, running);
+			await gate;
+			running--;
+			return { data: { id: "secret", data: "encrypted", data_nonce: "nonce" } };
+		});
+		const update = offlineCache.incrementalUpdate(true);
+		for (let i = 0; i < 100; i++) await Promise.resolve();
+		expect(apiClient.readSecret).toHaveBeenCalledTimes(10);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(true);
+		release();
+		await update;
+		expect(maximum).toBe(10);
+		expect(apiClient.readSecret).toHaveBeenCalledTimes(4 * 23);
+		expect(
+			new Set(
+				jest.mocked(apiClient.readSecret).mock.calls.map((call) => call[2]),
+			).size,
+		).toBe(4 * 23);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
+	});
+
+	it("drains a failed secret batch before stopping, without starting later batches or pruning", async () => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		await offlineCache.set("https://api.test/secret/previous/", "GET", {
+			data: {},
+		});
+		jest.mocked(apiClient.readDatastore).mockResolvedValue({
+			data: { datastores: [{ id: "d" }] },
+		} as never);
+		jest.mocked(apiClient.readCacheMetadata).mockResolvedValue({
+			data: {
+				secrets: Array.from({ length: 23 }, (_, index) => ({
+					id: `secret-${index}`,
+				})),
+			},
+		});
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const failure = { status: 503 };
+		jest
+			.mocked(apiClient.readSecret)
+			.mockImplementation(async (_token, _key, id) => {
+				if (id === "secret-0") throw failure;
+				await gate;
+				return { data: { id, data: "encrypted", data_nonce: "nonce" } };
+			});
+		const update = offlineCache.incrementalUpdate(true);
+		const rejected = expect(update).rejects.toEqual(failure);
+		for (let i = 0; i < 100; i++) await Promise.resolve();
+		expect(apiClient.readSecret).toHaveBeenCalledTimes(10);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(true);
+		release();
+		await rejected;
+		expect(apiClient.readSecret).toHaveBeenCalledTimes(10);
+		expect(mockEntries.has("https://api.test/secret/previous/")).toBe(true);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
+	});
+
+	it("skips rejected share metadata, continues sibling and nested resources, and prunes inaccessible cached descendants", async () => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		await offlineCache.set("https://api.test/share/rejected/", "GET", {
+			data: {},
+		});
+		await offlineCache.set("https://api.test/secret/rejected-child/", "GET", {
+			data: {},
+		});
+		jest.mocked(apiClient.readDatastore).mockResolvedValue({
+			data: { datastores: [{ id: "d1" }, { id: "d2" }] },
+		} as never);
+		jest
+			.mocked(apiClient.readCacheMetadata)
+			.mockImplementation(async (_kind, _token, _key, id) => {
+				if (id === "rejected" || id === "nested-rejected")
+					throw { status: 400 };
+				return {
+					data:
+						id === "d1"
+							? {
+									shares: [{ id: "rejected" }, { id: "good" }],
+									secrets: [{ id: "root-secret" }],
+								}
+							: id === "good"
+								? {
+										shares: [{ id: "nested-rejected" }],
+										secrets: [{ id: "shared-secret" }],
+									}
+								: { secrets: [{ id: "later-datastore-secret" }] },
+				};
+			});
+		await expect(offlineCache.incrementalUpdate(true)).resolves.toBeUndefined();
+		expect(jest.mocked(apiClient.readShare).mock.calls).toEqual([
+			["token", "key", "good"],
+		]);
+		expect(jest.mocked(apiClient.readSecret).mock.calls).toEqual([
+			["token", "key", "shared-secret"],
+			["token", "key", "root-secret"],
+			["token", "key", "later-datastore-secret"],
+		]);
+		expect(mockEntries.has("https://api.test/share/rejected/")).toBe(false);
+		expect(mockEntries.has("https://api.test/secret/rejected-child/")).toBe(
+			false,
+		);
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
+	});
+
+	it.each([
+		{ status: 401 },
+		{ status: 403 },
+		{ status: 503 },
+		{ errors: ["SERVER_OFFLINE"] },
+	])("does not suppress other metadata-share failures (%j)", async (error) => {
+		offlineCache.markOnline();
+		await offlineCache.clear();
+		jest
+			.mocked(apiClient.readDatastore)
+			.mockResolvedValue({ data: { datastores: [{ id: "d" }] } } as never);
+		jest
+			.mocked(apiClient.readCacheMetadata)
+			.mockImplementation(async (kind) => {
+				if (kind === "share") throw error;
+				return { data: { shares: [{ id: "s" }], secrets: [{ id: "secret" }] } };
+			});
+		await expect(offlineCache.incrementalUpdate(true)).rejects.toEqual(error);
+		expect(apiClient.readSecret).not.toHaveBeenCalled();
+		expect(cacheStatus.getSnapshot().refreshing).toBe(false);
 	});
 });
 

@@ -3,6 +3,22 @@
  */
 
 import type { ApiHeaders, ApiResponse, HttpMethod } from "../../types/api";
+import { getStore } from "./store";
+
+const defaultApiUrl = "https://api.pwnedpasswords.com";
+
+function getApiUrl(): string {
+	return (
+		getStore()
+			.getState()
+			.server.pwnedPasswordsApiUrl?.trim()
+			.replace(/\/+$/, "") || defaultApiUrl
+	);
+}
+
+function usesCustomApiUrl(): boolean {
+	return getApiUrl() !== defaultApiUrl;
+}
 
 function call(
 	connection_type: HttpMethod,
@@ -10,7 +26,7 @@ function call(
 	body: object | null,
 	headers: ApiHeaders,
 ): Promise<ApiResponse<string>> {
-	const backend = "https://api.pwnedpasswords.com";
+	const backend = getApiUrl();
 
 	const req: RequestInit = {
 		method: connection_type,
@@ -53,6 +69,7 @@ function range(hash_chars: string): Promise<ApiResponse<string>> {
 
 const apiPwnedpasswordsService = {
 	range: range,
+	usesCustomApiUrl,
 };
 
 export default apiPwnedpasswordsService;

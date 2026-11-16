@@ -17,6 +17,113 @@ import user from "./user";
 import vaultLock from "./vault-lock";
 import { createStore } from "redux";
 import rootReducer from "../reducers";
+import cryptoLibrary from "./crypto-library";
+import secretService from "./secret";
+import actions from "../actions/action-creators";
+import { applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import type { AppStore } from "../../types/state";
+
+describe("autofill TOTP clipboard device setting", () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		jest.spyOn(vaultLock, "isBlocked").mockReturnValue(false);
+	});
+	afterEach(() => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
+	});
+
+	it("defaults to off and updates only client settings", () => {
+		const store: AppStore = createStore(rootReducer, applyMiddleware(thunk));
+		const settingsDatastore = store.getState().settingsDatastore;
+		expect(store.getState().client.copyTotpAfterAutofill).toBe(false);
+		store.dispatch(actions.setCopyTotpAfterAutofill(true));
+		expect(store.getState().client.copyTotpAfterAutofill).toBe(true);
+		expect(store.getState().settingsDatastore).toBe(settingsDatastore);
+	});
+
+	it.each([
+		false,
+		true,
+	])("passes the current device preference (%s) to redirect autofill", (enabled) => {
+		const store = createStore(rootReducer);
+		store.getState().client.copyTotpAfterAutofill = enabled;
+		jest.spyOn(storeService, "getStore").mockReturnValue(store);
+		backgroundService.onMessage(
+			{
+				event: "fillpassword",
+				data: {
+					password: "password",
+					totp_token: "123456",
+					url_filter: "example.com",
+				},
+			},
+			{},
+			jest.fn(),
+		);
+		const respond = jest.fn();
+		backgroundService.onMessage(
+			{ event: "ready", data: null },
+			{
+				tab: { id: 42 },
+				url: "https://example.com/",
+			},
+			respond,
+		);
+		expect(respond).toHaveBeenCalledWith({
+			event: "fillpassword",
+			data: expect.objectContaining({
+				totp_token: "123456",
+				copy_totp_after_autofill: enabled,
+				clipboard_clear_delay:
+					store.getState().settingsDatastore.clipboardClearDelay,
+			}),
+		});
+	});
+
+	it.each([
+		["website_password", true, true],
+		["website_password", false, false],
+		["totp", true, false],
+	])("prepares an attached code only for %s when enabled=%s", async (type, enabled, shouldGenerate) => {
+		const store = createStore(rootReducer);
+		store.getState().client.copyTotpAfterAutofill = enabled;
+		jest.spyOn(storeService, "getStore").mockReturnValue(store);
+		jest.spyOn(storage, "findKey").mockResolvedValue({
+			key: "entry",
+			secret_id: "entry",
+			secret_key: "key",
+			type,
+		} as PasswordLeaf);
+		jest.spyOn(secretService, "readSecret").mockResolvedValue({
+			website_password_totp_code: "ATTACHED",
+			website_password_totp_period: 60,
+			website_password_totp_algorithm: "SHA256",
+			website_password_totp_digits: 8,
+			totp_code: "STANDALONE",
+		});
+		const generate = jest
+			.spyOn(cryptoLibrary, "getTotpToken")
+			.mockReturnValue("12345678");
+		const response = await new Promise<{ data: { totp_token?: string } }>(
+			(resolve) => {
+				backgroundService.onMessage(
+					{ event: "request-secret", data: { secret_id: "entry" } },
+					{},
+					(result) => resolve(result as { data: { totp_token?: string } }),
+				);
+			},
+		);
+		if (shouldGenerate) {
+			expect(generate).toHaveBeenCalledWith("ATTACHED", 60, "SHA256", 8);
+			expect(response.data.totp_token).toBe("12345678");
+		} else {
+			expect(generate).not.toHaveBeenCalled();
+			expect(response.data.totp_token || "").toBe("");
+		}
+	});
+});
 
 describe("background message responses", () => {
 	afterEach(() => {

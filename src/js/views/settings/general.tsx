@@ -4,7 +4,12 @@ import type {
 	NumericInputValue,
 	SettingsViewProps,
 } from "../../../types/settings-ui";
-import { Checkbox, Grid } from "@mui/material";
+import {
+	Checkbox,
+	FormControlLabel,
+	FormHelperText,
+	Grid,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 
 import Divider from "@mui/material/Divider";
@@ -19,6 +24,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import SelectFieldLanguage from "../../components/select-field/language";
 import { languages } from "../../i18n";
 import browserClientService from "../../services/browser-client";
+import deviceService from "../../services/device";
 import optionsBlueprintService from "../../services/options-blueprint";
 import { getStore } from "../../services/store";
 import userService from "../../services/user";
@@ -56,6 +62,9 @@ const SettingsGeneralView = (props: SettingsViewProps) => {
 		(state) => state.client.disableBrowserPm,
 	);
 	const settingsDatastore = useSelector((state) => state.settingsDatastore);
+	const copyTotpAfterAutofill = useSelector(
+		(state) => state.client.copyTotpAfterAutofill,
+	);
 	const [noSaveMode, setNoSaveMode] = useState(settingsDatastore.noSaveMode);
 	const [showNoSaveToggle, setShowNoSaveToggle] = useState(
 		settingsDatastore.showNoSaveToggle,
@@ -219,6 +228,28 @@ const SettingsGeneralView = (props: SettingsViewProps) => {
 					}}
 				/>
 			</Grid>
+			{!deviceService.isWebclient() && (
+				<Grid item xs={12} sm={12} md={12}>
+					<FormControlLabel
+						sx={{ marginLeft: 0 }}
+						control={
+							<Checkbox
+								checked={!!copyTotpAfterAutofill}
+								onChange={(event) => {
+									action().setCopyTotpAfterAutofill(event.target.checked);
+								}}
+								checkedIcon={<Check className={classes.checkedIcon} />}
+								icon={<Check className={classes.uncheckedIcon} />}
+								classes={{ checked: classes.checked }}
+							/>
+						}
+						label={t("COPY_TOTP_AFTER_AUTOFILL")}
+					/>
+					<FormHelperText sx={{ marginLeft: "15px" }}>
+						{t("COPY_TOTP_AFTER_AUTOFILL_EXPLAINED")}
+					</FormHelperText>
+				</Grid>
+			)}
 			{passwordSavingControlledByThisExtension && (
 				<Grid item xs={12} sm={12} md={12}>
 					<Checkbox

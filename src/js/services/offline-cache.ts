@@ -253,7 +253,6 @@ export function createDisplayResource<T>(options: {
 interface CachedResponse {
 	key: string;
 	value: unknown;
-	validatedAt: number;
 }
 
 export interface OfflineWriteError {
@@ -311,7 +310,6 @@ async function set(url: string, method: string, data: unknown) {
 	await storage.upsert("offline-cache", {
 		key: url.toLowerCase(),
 		value: data,
-		validatedAt: Date.now(),
 	});
 }
 
@@ -324,14 +322,18 @@ async function get<T = Record<string, unknown>>(
 		"offline-cache",
 		url.toLowerCase(),
 	);
-	const maximumAge =
-		getStore().getState().server.complianceMaxOfflineCacheTimeValid;
+	const state = getStore().getState();
+	const maximumAge = state.server.complianceMaxOfflineCacheTimeValid;
+	const lastConnection = state.user.lastServerConnectionTimeSinceEpoch;
+	// Match mobile: cached responses remain usable while the account keeps
+	// reaching the server, regardless of when an individual response was cached.
 	if (
 		!entry ||
-		!Number.isFinite(entry.validatedAt) ||
+		!Number.isFinite(lastConnection) ||
+		lastConnection <= 0 ||
 		!Number.isFinite(maximumAge) ||
 		maximumAge <= 0 ||
-		Date.now() - entry.validatedAt > maximumAge * 1000 ||
+		Date.now() - lastConnection > maximumAge * 1000 ||
 		!canUse()
 	)
 		return null;
@@ -523,17 +525,39 @@ function incrementalUpdate(force = false): Promise<void> {
 			for (const share of metadata.shares ?? []) {
 				if (!share.id || shares.has(share.id)) continue;
 				shares.add(share.id);
-				const nested = await apiClient.readCacheMetadata(
-					"share",
-					token,
-					sessionSecretKey,
-					share.id,
-				);
+				let nested: { data: CacheMetadata };
+				try {
+					nested = await apiClient.readCacheMetadata(
+						"share",
+						token,
+						sessionSecretKey,
+						share.id,
+					);
+				} catch (error) {
+					// Deleted/inaccessible shares can remain in parent metadata.
+					// Leave them out of keep so the final prune removes old copies.
+					if ((error as { status?: number } | null)?.status === 400) continue;
+					throw error;
+				}
 				await refresh("share", share.id, nested.data);
 				await visit(nested.data);
 			}
-			for (const secret of metadata.secrets ?? []) {
-				if (secret.id) await refresh("secret", secret.id, secret);
+			// Keep share traversal sequential and share one bounded batch of secret
+			// downloads at a time, including across recursive levels. Requests are
+			// stamped when created, so do not create later batches ahead of time.
+			const secrets = metadata.secrets ?? [];
+			const batchSize = 10;
+			for (let i = 0; i < secrets.length; i += batchSize) {
+				const results = await Promise.allSettled(
+					secrets.slice(i, i + batchSize).map(async (secret) => {
+						if (secret.id) await refresh("secret", secret.id, secret);
+					}),
+				);
+				// Drain the current batch before aborting; a failed sync must not
+				// leave downloads running after its status/promise has settled.
+				for (const result of results) {
+					if (result.status === "rejected") throw result.reason;
+				}
 			}
 		};
 		await apiClient.readShareRightsOverview(token, sessionSecretKey);

@@ -250,7 +250,7 @@ describe("attachments during entry creation", () => {
 		expect(uploadAttachment).not.toHaveBeenCalled();
 		expect(secretService.createSecret).not.toHaveBeenCalled();
 		expect(document.body.textContent).toContain("example.txt");
-		await act(async () => click("CREATE"));
+		await act(async () => click("SAVE"));
 		expect(uploadAttachment).toHaveBeenCalledWith(
 			expect.objectContaining({ filename: "example.txt" }),
 			"secret",
@@ -266,6 +266,7 @@ describe("attachments during entry creation", () => {
 		);
 		expect(onCreate).toHaveBeenCalledWith(
 			expect.objectContaining({ secret_id: "secret" }),
+			false,
 		);
 	});
 	it("removes queued files without uploading them", async () => {
@@ -273,7 +274,7 @@ describe("attachments during entry creation", () => {
 		act(() =>
 			(document.querySelector('[aria-label="DELETE"]') as HTMLElement).click(),
 		);
-		await act(async () => click("CREATE"));
+		await act(async () => click("SAVE"));
 		expect(uploadAttachment).not.toHaveBeenCalled();
 		expect(secretService.writeSecret).not.toHaveBeenCalled();
 		expect(onCreate).toHaveBeenCalledTimes(1);
@@ -288,10 +289,10 @@ describe("attachments during entry creation", () => {
 	it("keeps the draft after an upload failure and reuses its secret on retry", async () => {
 		queue();
 		jest.mocked(uploadAttachment).mockRejectedValueOnce(new Error("offline"));
-		await act(async () => click("CREATE"));
+		await act(async () => click("SAVE"));
 		expect(onCreate).not.toHaveBeenCalled();
 		expect(document.body.textContent).toContain("FILE_UPLOAD_FAILED");
-		await act(async () => click("CREATE"));
+		await act(async () => click("SAVE"));
 		expect(secretService.createSecret).toHaveBeenCalledTimes(1);
 		expect(onCreate).toHaveBeenCalledTimes(1);
 	});

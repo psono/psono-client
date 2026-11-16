@@ -31,6 +31,7 @@ import {
 	SET_CLIENT_CONFIG,
 	SET_CLIENT_URL,
 	SET_CONNECTION_AUTHENTICATION,
+	SET_COPY_TOTP_AFTER_AUTOFILL,
 	SET_DEVICE_CODE,
 	SET_DISABLE_BROWSER_PM,
 	SET_DOMAIN_SYNONYMS_CONFIG,
@@ -43,6 +44,7 @@ import {
 	SET_HIDE_DOWNLOAD_BANNER,
 	SET_KNOWN_HOSTS,
 	SET_LAST_POPUP_SEARCH,
+	SET_LAST_SERVER_CONNECTION_TIME,
 	SET_NOTIFICATION_ON_COPY,
 	SET_OFFLINE_CACHE_ENCRYPTION_INFO,
 	SET_PASSWORD_CONFIG,
@@ -275,6 +277,16 @@ function disableOfflineMode(): AppThunk {
 		});
 	};
 }
+function setLastServerConnectionTimeSinceEpoch(
+	lastServerConnectionTimeSinceEpoch: number,
+): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_LAST_SERVER_CONNECTION_TIME,
+			lastServerConnectionTimeSinceEpoch,
+		});
+	};
+}
 function setOfflineCacheEncryptionInfo(
 	offlineCacheEncryptionKey: ClientState["offlineCacheEncryptionKey"],
 	offlineCacheEncryptionSalt: ClientState["offlineCacheEncryptionSalt"],
@@ -308,6 +320,14 @@ function setShowFilters(showFilters: boolean): AppThunk {
 		dispatch({
 			type: SET_SHOW_FILTERS,
 			showFilters,
+		});
+	};
+}
+function setCopyTotpAfterAutofill(copyTotpAfterAutofill: boolean): AppThunk {
+	return (dispatch) => {
+		dispatch({
+			type: SET_COPY_TOTP_AFTER_AUTOFILL,
+			copyTotpAfterAutofill,
 		});
 	};
 }
@@ -761,9 +781,11 @@ const actionCreators = {
 	setClientUrl,
 	disableOfflineMode,
 	enableOfflineMode,
+	setLastServerConnectionTimeSinceEpoch,
 	setOfflineCacheEncryptionInfo,
 	setNotificationOnCopy,
 	setDisableBrowserPm,
+	setCopyTotpAfterAutofill,
 	setShowFilters,
 	setHideDownloadBanner,
 	setLastPopupSearch,
