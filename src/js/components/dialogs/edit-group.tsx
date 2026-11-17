@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EventIcon from "@mui/icons-material/Event";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -806,6 +807,13 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			];
 		},
 	);
+	const groupAdmins = users.filter(
+		(user) => isMember(user.id) && user.group_admin && user.accepted === true,
+	);
+	const isOnlyGroupAdmin =
+		!group.forced_membership &&
+		groupAdmins.length === 1 &&
+		groupAdmins[0].is_current_user;
 
 	return (
 		<Dialog
@@ -821,6 +829,16 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			<DialogTitle id="alert-dialog-title">{t("EDIT_GROUP")}</DialogTitle>
 			<DialogContent>
 				<Grid container>
+					{isOnlyGroupAdmin && (
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{ marginBottom: "5px", marginTop: "5px" }}
+							>
+								{t("CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GROUP_ADMIN_PRIVILEGE")}
+							</MuiAlert>
+						</Grid>
+					)}
 					<Grid item xs={12} sm={12} md={12}>
 						<TextField
 							className={classes.textField}
