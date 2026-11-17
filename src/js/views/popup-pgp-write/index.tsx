@@ -107,6 +107,7 @@ const PopupPgpWriteView = () => {
 	const { t } = useTranslation();
 	const [signMessage, setSignMessage] = useState(true);
 	const [recipients, setRecipients] = useState<GpgRecipientRow[]>([]);
+	const [loadingRecipients, setLoadingRecipients] = useState(false);
 	const [gpgKey, setGpgKey] = useState<PopupGpgKey | null>(null);
 	const [encryptedMessage, setEncryptedMessage] = useState("");
 	const [decryptedMessage, setDecryptedMessage] = useState("");
@@ -183,16 +184,21 @@ const PopupPgpWriteView = () => {
 			return;
 		}
 
-		const fingerprint =
-			await datastoreGpgUserService.getGpgFingerprint(publicKey);
-		const newRecipients = helper.duplicateObject(recipients);
-		newRecipients.push([
-			cryptoLibrary.generateUuid(),
-			newRecipient.user.email,
-			fingerprint,
-			publicKey,
-		]);
-		setRecipients(newRecipients);
+		setLoadingRecipients(true);
+		try {
+			const fingerprint =
+				await datastoreGpgUserService.getGpgFingerprint(publicKey);
+			const newRecipients = helper.duplicateObject(recipients);
+			newRecipients.push([
+				cryptoLibrary.generateUuid(),
+				newRecipient.user.email,
+				fingerprint,
+				publicKey,
+			]);
+			setRecipients(newRecipients);
+		} finally {
+			setLoadingRecipients(false);
+		}
 	};
 	const columns: MUIDataTableColumn[] = [
 		{ name: t("ID"), options: { display: false } },
@@ -321,6 +327,7 @@ const PopupPgpWriteView = () => {
 									<Grid item xs={12} sm={12} md={12}>
 										<Table
 											data={recipients}
+											loading={loadingRecipients}
 											columns={columns}
 											options={options}
 											onCreate={addRecipient}

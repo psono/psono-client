@@ -99,6 +99,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 		Record<string, SharingGroupUser>
 	>({});
 	const [users, setUsers] = useState<SharingGroupUser[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [shares, setShares] = useState<SharingGroupShareRight[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [originalGroupName, setOriginalGroupName] = useState("");
@@ -141,6 +142,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 	}, []);
 
 	const loadGroup = () => {
+		setLoading(true);
 		const onError = (result: unknown) => {
 			// pass
 			console.log(result);
@@ -173,27 +175,29 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			}
 
 			if (!readOnly) {
-				datastoreUserService.getUserDatastore().then((user_datastore) => {
-					const trusted_users: SharingUser[] = [];
-					helper.createList(user_datastore!, trusted_users);
+				return datastoreUserService
+					.getUserDatastore()
+					.then((user_datastore) => {
+						const trusted_users: SharingUser[] = [];
+						helper.createList(user_datastore!, trusted_users);
 
-					for (let i = 0; i < trusted_users.length; i++) {
-						if (
-							Object.hasOwn(groupMemberIndex, trusted_users[i].data.user_id)
-						) {
-							continue;
+						for (let i = 0; i < trusted_users.length; i++) {
+							if (
+								Object.hasOwn(groupMemberIndex, trusted_users[i].data.user_id)
+							) {
+								continue;
+							}
+							users.push({
+								id: trusted_users[i].data.user_id,
+								name: trusted_users[i].data.user_username,
+								public_key: trusted_users[i].data.user_public_key,
+								is_current_user: trusted_users[i].data.user_id === userId,
+							});
 						}
-						users.push({
-							id: trusted_users[i].data.user_id,
-							name: trusted_users[i].data.user_username,
-							public_key: trusted_users[i].data.user_public_key,
-							is_current_user: trusted_users[i].data.user_id === userId,
-						});
-					}
-					setGroupMemberIndex(groupMemberIndex);
-					setUsers(users);
-					setShares(shares);
-				});
+						setGroupMemberIndex(groupMemberIndex);
+						setUsers(users);
+						setShares(shares);
+					});
 			} else {
 				setGroupMemberIndex(groupMemberIndex);
 				setUsers(users);
@@ -201,7 +205,13 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			}
 		};
 
-		groupsService.readGroup(groupId).then(onSuccess, onError);
+		groupsService
+			.readGroup(groupId)
+			.then(onSuccess)
+			.catch(onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const onNewUserCreate = (userObject: SharingUser) => {
@@ -845,6 +855,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 						</Tabs>
 						<TabPanel value={value} index={0} className={classes.tabPanel}>
 							<Table
+								loading={loading}
 								data={userColumnData}
 								columns={userColumns}
 								options={options}
@@ -853,6 +864,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 						</TabPanel>
 						<TabPanel value={value} index={1} className={classes.tabPanel}>
 							<Table
+								loading={loading}
 								data={shareRightColumnData}
 								columns={shareRightColumns}
 								options={options}

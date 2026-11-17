@@ -59,7 +59,28 @@ function Table<Row extends TableRow = unknown[], Data extends object = Row>(
 		onUsers,
 		options,
 		dataFunction,
+		loading = false,
 	} = props;
+	const [loadingData, setLoadingData] = useState(Boolean(dataFunction));
+	const requestId = React.useRef(0);
+
+	const loadData = async (params: TableDataParams) => {
+		if (!dataFunction) return;
+		const currentRequestId = ++requestId.current;
+		setLoadingData(true);
+		try {
+			const data = await dataFunction(params);
+			if (currentRequestId !== requestId.current) return;
+			setCount(data.count);
+			setLoadedData(data.results);
+		} catch (response) {
+			if (currentRequestId !== requestId.current) return;
+			console.log(response);
+			setLoadedData([]);
+		} finally {
+			if (currentRequestId === requestId.current) setLoadingData(false);
+		}
+	};
 
 	React.useEffect(() => {
 		if (dataFunction) {
@@ -67,26 +88,22 @@ function Table<Row extends TableRow = unknown[], Data extends object = Row>(
 			if (Object.hasOwn(options, "rowsPerPage")) {
 				rowsPerPage = options["rowsPerPage"];
 			}
-			dataFunction({
+			loadData({
 				page: 0,
 				page_size: rowsPerPage,
-			}).then(
-				(data) => {
-					setCount(data.count);
-					setLoadedData(data.results);
-				},
-				(response) => {
-					console.log(response);
-					setLoadedData([]);
-				},
-			);
+			});
 		}
+		return () => {
+			requestId.current++;
+		};
 	}, []);
 
 	const defaultOptions: MUIDataTableOptions = {
 		textLabels: {
 			body: {
-				noMatch: t("TABLE_BODY_NO_MATCH"),
+				noMatch: t(
+					loading || loadingData ? "TABLE_BODY_LOADING" : "TABLE_BODY_NO_MATCH",
+				),
 				toolTip: t("TABLE_BODY_TOOL_TIP"),
 				columnHeaderTooltip: (column) =>
 					t("TABLE_BODY_COLUMN_HEADER_TOOLTIP") + " " + column.label,
@@ -169,16 +186,7 @@ function Table<Row extends TableRow = unknown[], Data extends object = Row>(
 				if (tableState.searchText) {
 					params["search"] = tableState.searchText;
 				}
-				dataFunction(params).then(
-					(data) => {
-						setCount(data.count);
-						setLoadedData(data.results);
-					},
-					(response) => {
-						console.log(response);
-						setLoadedData([]);
-					},
-				);
+				loadData(params);
 			} else {
 				//console.log("action not handled.", action);
 			}
@@ -197,7 +205,7 @@ function Table<Row extends TableRow = unknown[], Data extends object = Row>(
 		};
 	}
 
-	const modifiedColumns = columns;
+	const modifiedColumns = [...columns];
 
 	if (onSelect) {
 		modifiedColumns.push({
@@ -308,6 +316,7 @@ function Table<Row extends TableRow = unknown[], Data extends object = Row>(
 Table.propTypes = {
 	title: PropTypes.string,
 	data: PropTypes.array,
+	loading: PropTypes.bool,
 	columns: PropTypes.array.isRequired,
 	options: PropTypes.object.isRequired,
 	dataFunction: PropTypes.func,

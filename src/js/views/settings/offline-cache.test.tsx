@@ -72,6 +72,44 @@ describe("offline cache settings", () => {
 		)!;
 	}
 
+	it("waits for endpoints before showing an empty result, including during refresh", async () => {
+		let finishLoad!: (endpoints: string[]) => void;
+		jest.mocked(offlineCache.listEndpoints).mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					finishLoad = resolve;
+				}),
+		);
+		await render();
+		expect(container.textContent).toContain("Waiting for data…");
+		expect(container.textContent).not.toContain("The offline cache is empty.");
+
+		await act(async () => {
+			finishLoad([]);
+		});
+		expect(container.textContent).not.toContain("Waiting for data…");
+		expect(container.textContent).toContain("The offline cache is empty.");
+
+		let finishRefresh!: () => void;
+		jest.mocked(offlineCache.incrementalUpdate).mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					finishRefresh = resolve;
+				}),
+		);
+		await act(async () => {
+			refreshAll().click();
+		});
+		expect(container.textContent).toContain("Waiting for data…");
+		expect(container.textContent).not.toContain("The offline cache is empty.");
+
+		await act(async () => {
+			finishRefresh();
+		});
+		expect(container.textContent).toContain("/secret/one/");
+		expect(container.textContent).not.toContain("Waiting for data…");
+	});
+
 	it("refreshes the complete cache and disables controls until the update finishes", async () => {
 		let finish!: () => void;
 		jest.mocked(offlineCache.incrementalUpdate).mockImplementation(

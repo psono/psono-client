@@ -41,6 +41,7 @@ const PendingSharesView = (props: AccountViewProps) => {
 	const { t } = useTranslation();
 	let isSubscribed = true;
 	const [pendingRequests, setPendingRequests] = useState<PendingShareRow[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [pendingRequestsDict, setPendingRequestsDict] = useState<
 		Record<string, PendingShare>
 	>({});
@@ -56,6 +57,7 @@ const PendingSharesView = (props: AccountViewProps) => {
 	}, []);
 
 	const loadShares = () => {
+		setLoading(true);
 		const onSuccess = (data: { shares: PendingShare[] } | undefined) => {
 			if (!isSubscribed) {
 				return;
@@ -106,7 +108,12 @@ const PendingSharesView = (props: AccountViewProps) => {
 			//pass
 			console.log(data);
 		};
-		shareService.readShares().then(onSuccess, onError);
+		shareService
+			.readShares()
+			.then(onSuccess, onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const accept = (rowData: PendingShareRow) => {
@@ -216,7 +223,12 @@ const PendingSharesView = (props: AccountViewProps) => {
 						</Toolbar>
 					</AppBar>
 					<div className={classes.root}>
-						<Table data={pendingRequests} columns={columns} options={options} />
+						<Table
+							data={pendingRequests}
+							loading={loading}
+							columns={columns}
+							options={options}
+						/>
 					</div>
 					{acceptShareOpen && (
 						<DialogAcceptShare

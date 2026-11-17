@@ -38,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 const ActiveLinkShareView = (props: AccountViewProps) => {
 	const classes = useStyles();
 	const { t } = useTranslation();
+	const [loading, setLoading] = React.useState(true);
 	let isSubscribed = true;
 	const [activeLinkShares, setActiveLinkShares] = React.useState<
 		ActiveLinkShareRow[]
@@ -59,6 +60,7 @@ const ActiveLinkShareView = (props: AccountViewProps) => {
 	}, []);
 
 	const loadActiveLinkShares = () => {
+		setLoading(true);
 		const onSuccess = (
 			newActiveLinkShares: { link_shares: LinkShare[] } | void,
 		) => {
@@ -87,7 +89,12 @@ const ActiveLinkShareView = (props: AccountViewProps) => {
 			//pass
 			console.log(data);
 		};
-		return linkShareService.readLinkShares().then(onSuccess, onError);
+		return linkShareService
+			.readLinkShares()
+			.then(onSuccess, onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const onEditLinkShare = (tableMeta: TableMeta<ActiveLinkShareRow>) => {
@@ -184,6 +191,7 @@ const ActiveLinkShareView = (props: AccountViewProps) => {
 					<div className={classes.root}>
 						<Table
 							data={activeLinkShares}
+							loading={loading}
 							columns={columns}
 							options={options}
 						/>

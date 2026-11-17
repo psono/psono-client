@@ -73,6 +73,7 @@ const DialogEncryptGpgMessage = (props: DialogEncryptGpgMessageProps) => {
 	const { t } = useTranslation();
 	const [signMessage, setSignMessage] = useState(true);
 	const [recipients, setRecipients] = useState<RecipientRow[]>([]);
+	const [loadingRecipients, setLoadingRecipients] = useState(false);
 	const [gpgKey, setGpgKey] = useState<GpgSecretSelection | null>(null);
 	const [encryptedMessage, setEncryptedMessage] = useState("");
 	const [decryptedMessage, setDecryptedMessage] = useState("");
@@ -179,16 +180,21 @@ const DialogEncryptGpgMessage = (props: DialogEncryptGpgMessageProps) => {
 			return;
 		}
 
-		const fingerprint =
-			await datastoreGpgUserService.getGpgFingerprint(publicKey);
-		const newRecipients = helper.duplicateObject(recipients);
-		newRecipients.push([
-			cryptoLibrary.generateUuid(),
-			newRecipient.user.email,
-			fingerprint,
-			publicKey,
-		]);
-		setRecipients(newRecipients);
+		setLoadingRecipients(true);
+		try {
+			const fingerprint =
+				await datastoreGpgUserService.getGpgFingerprint(publicKey);
+			const newRecipients = helper.duplicateObject(recipients);
+			newRecipients.push([
+				cryptoLibrary.generateUuid(),
+				newRecipient.user.email,
+				fingerprint,
+				publicKey,
+			]);
+			setRecipients(newRecipients);
+		} finally {
+			setLoadingRecipients(false);
+		}
 	};
 	const columns: TableColumn<RecipientRow>[] = [
 		{ name: t("ID"), options: { display: false } },
@@ -280,6 +286,7 @@ const DialogEncryptGpgMessage = (props: DialogEncryptGpgMessageProps) => {
 						<Grid item xs={12} sm={12} md={12}>
 							<Table<RecipientRow>
 								data={recipients}
+								loading={loadingRecipients}
 								columns={columns}
 								options={options}
 								onCreate={addRecipient}

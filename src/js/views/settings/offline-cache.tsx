@@ -150,6 +150,11 @@ const SettingsOfflineCacheView = (_props: SettingsViewProps) => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
+								{busy && endpoints.length === 0 && (
+									<TableRow>
+										<TableCell colSpan={2}>{t("TABLE_BODY_LOADING")}</TableCell>
+									</TableRow>
+								)}
 								{endpoints
 									.slice(
 										currentPage * rowsPerPage,
@@ -176,7 +181,7 @@ const SettingsOfflineCacheView = (_props: SettingsViewProps) => {
 											</TableCell>
 										</TableRow>
 									))}
-								{!loading && endpoints.length === 0 && (
+								{!busy && endpoints.length === 0 && (
 									<TableRow>
 										<TableCell colSpan={2}>
 											{t("OFFLINE_CACHE_EMPTY")}

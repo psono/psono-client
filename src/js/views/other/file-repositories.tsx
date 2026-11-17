@@ -22,6 +22,7 @@ import EditFileRepositoriesDialog from "./edit-file-repositories-dialog";
 
 const OtherFileRepositoriesView = (props: ManagementViewProps) => {
 	const { t } = useTranslation();
+	const [loading, setLoading] = React.useState(true);
 	const [fileRepositories, setFileRepositories] = React.useState<
 		ManagementFileRepository[]
 	>([]);
@@ -41,12 +42,16 @@ const OtherFileRepositoriesView = (props: ManagementViewProps) => {
 	}, []);
 
 	const loadFileRepositories = () => {
-		return fileRepositoryService.readFileRepositories().then(
-			(data) => setFileRepositories(data!),
-			(error: unknown) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		return fileRepositoryService
+			.readFileRepositories()
+			.then(
+				(data) => setFileRepositories(data!),
+				(error: unknown) => {
+					console.log(error);
+				},
+			)
+			.finally(() => setLoading(false));
 	};
 
 	const closeModal = () => {
@@ -284,6 +289,7 @@ const OtherFileRepositoriesView = (props: ManagementViewProps) => {
 				<Grid item xs={12} sm={12} md={12}>
 					<Table
 						data={data}
+						loading={loading}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}

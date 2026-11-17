@@ -84,6 +84,7 @@ const GroupsView = (props: AccountViewProps) => {
 	} | null>(null);
 	const [leaveGroupData, setLeaveGroupData] = React.useState<GroupRow | []>([]);
 	const [groups, setGroups] = React.useState<GroupRow[]>([]);
+	const [loading, setLoading] = React.useState(true);
 	const [createOpen, setCreateOpen] = React.useState(false);
 	const [groupIdBeingDeleted, setGroupIdBeingDeleted] = React.useState("");
 	const [groupNameBeingDeleted, setGroupNameBeingDeleted] = React.useState("");
@@ -122,6 +123,7 @@ const GroupsView = (props: AccountViewProps) => {
 	}, []);
 
 	const loadGroups = () => {
+		setLoading(true);
 		const onSuccess = (newGroups: Group[] | void) => {
 			if (!isSubscribed) {
 				return;
@@ -155,7 +157,12 @@ const GroupsView = (props: AccountViewProps) => {
 			//pass
 			console.log(data);
 		};
-		return groupsService.readGroups(true).then(onSuccess, onError);
+		return groupsService
+			.readGroups(true)
+			.then(onSuccess, onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const loadOutstandingGroupShares = () => {
@@ -556,6 +563,7 @@ const GroupsView = (props: AccountViewProps) => {
 					<div className={classes.root}>
 						<Table
 							data={groups}
+							loading={loading}
 							columns={columns}
 							options={options}
 							onCreate={disableUnmanagedGroups ? undefined : onCreate}

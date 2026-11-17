@@ -18,29 +18,34 @@ import user from "../../services/user";
 const OtherSessionsView = (_props: ManagementViewProps) => {
 	const { t } = useTranslation();
 	const [sessions, setSessions] = React.useState<SessionRow[]>([]);
+	const [loading, setLoading] = React.useState(true);
 
 	React.useEffect(() => {
 		loadSessions();
 	}, []);
 
 	const loadSessions = () => {
-		user.getSessions().then(
-			(data) => {
-				setSessions(
-					data!.map((key): SessionRow => {
-						return [
-							key.id,
-							key.device_description,
-							format(new Date(key.create_date)),
-							key.current_session,
-						];
-					}),
-				);
-			},
-			(error) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		user
+			.getSessions()
+			.then(
+				(data) => {
+					setSessions(
+						data!.map((key): SessionRow => {
+							return [
+								key.id,
+								key.device_description,
+								format(new Date(key.create_date)),
+								key.current_session,
+							];
+						}),
+					);
+				},
+				(error) => {
+					console.log(error);
+				},
+			)
+			.finally(() => setLoading(false));
 	};
 
 	const onDelete = (rowData: SessionRow) => {
@@ -108,7 +113,12 @@ const OtherSessionsView = (_props: ManagementViewProps) => {
 				<Divider style={{ marginBottom: "20px" }} />
 			</Grid>
 			<Grid item xs={12} sm={12} md={12}>
-				<Table data={sessions} columns={columns} options={options} />
+				<Table
+					data={sessions}
+					loading={loading}
+					columns={columns}
+					options={options}
+				/>
 			</Grid>
 		</Grid>
 	);

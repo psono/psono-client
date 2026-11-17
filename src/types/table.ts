@@ -64,6 +64,7 @@ export interface TableProps<
 > {
 	title?: string;
 	data?: Data[] | null;
+	loading?: boolean;
 	columns: TableColumn<Row>[];
 	options: TableOptions;
 	dataFunction?: (params: TableDataParams) => Promise<TableDataResult<Data>>;

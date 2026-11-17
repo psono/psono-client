@@ -64,6 +64,7 @@ export interface DialogRightsOverviewProps {
 
 const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
 	const { open, onClose, item, path } = props;
+	const [loading, setLoading] = useState(Boolean(item.share_id));
 	const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
 	const { t } = useTranslation();
 	const classes = useStyles();
@@ -126,6 +127,7 @@ const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
 		if (!item.share_id) {
 			return;
 		}
+		setLoading(true);
 		// we already have a share and no new object that wants to become a share
 		shareService
 			.readShareRights(item.share_id)
@@ -168,6 +170,10 @@ const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
 						}),
 					);
 				}
+			})
+			.catch(console.log)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
 			});
 	};
 
@@ -1059,6 +1065,7 @@ const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
 						<TabPanel value={value} index={0} className={classes.tabPanel}>
 							<Table
 								data={userShareRights}
+								loading={loading}
 								columns={userColumns}
 								options={options}
 								onCreate={hideNewShare ? undefined : onCreateUser}
@@ -1067,6 +1074,7 @@ const DialogRightsOverview = (props: DialogRightsOverviewProps) => {
 						<TabPanel value={value} index={1} className={classes.tabPanel}>
 							<Table
 								data={groupShareRights}
+								loading={loading}
 								columns={groupColumns}
 								options={options}
 								onCreate={hideNewShare ? undefined : onCreateGroup}

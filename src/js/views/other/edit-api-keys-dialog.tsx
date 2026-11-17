@@ -93,6 +93,7 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 	const [secrets, setSecrets] = useState<EditApiKeySecretRow[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [showApiKeyId, setShowApiKeyId] = useState(false);
+	const [loadingSecrets, setLoadingSecrets] = useState(true);
 	const [showApiKeyPrivateKey, setShowApiKeyPrivateKey] = useState(false);
 	const [showApiKeySecretKey, setShowApiKeySecretKey] = useState(false);
 
@@ -124,22 +125,26 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 	};
 
 	const loadApiKeySecrets = () => {
-		apiKey.readApiKeySecrets(apiKeyId).then(
-			(secrets) => {
-				setSecrets(
-					secrets!.map(
-						(secret): EditApiKeySecretRow => [
-							secret.id,
-							secret.name,
-							secret.secret_id,
-						],
-					),
-				);
-			},
-			() => {
-				// pass
-			},
-		);
+		setLoadingSecrets(true);
+		apiKey
+			.readApiKeySecrets(apiKeyId)
+			.then(
+				(secrets) => {
+					setSecrets(
+						secrets!.map(
+							(secret): EditApiKeySecretRow => [
+								secret.id,
+								secret.name,
+								secret.secret_id,
+							],
+						),
+					);
+				},
+				() => {
+					// pass
+				},
+			)
+			.finally(() => setLoadingSecrets(false));
 	};
 
 	const edit = () => {
@@ -624,6 +629,7 @@ const EditApiKeysDialog = (props: ApiKeyDialogProps) => {
 						<TabPanel value={value} index={1} className={classes.tabPanel}>
 							<Table
 								data={secrets}
+								loading={loadingSecrets}
 								columns={columns}
 								options={options}
 								onCreate={() => setAddSecretOpen(true)}

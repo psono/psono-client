@@ -90,6 +90,7 @@ const DialogNewGroupShare = (props: DialogNewGroupShareProps) => {
 	const [write, setWrite] = useState(false);
 	const [grant, setGrant] = useState(false);
 	const [groups, setGroups] = useState<Group[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [newGroupOpen, setNewGroupOpen] = useState(false);
 	const [groupColumnData, setGroupColumnData] = useState<[string, string][]>(
 		[],
@@ -106,16 +107,23 @@ const DialogNewGroupShare = (props: DialogNewGroupShareProps) => {
 	}, []);
 
 	const loadGroups = () => {
-		groupsService.readGroups(true).then((newGroups) => {
-			if (!isSubscribed) {
-				return;
-			}
-			helper.removeFromArray(newGroups!, "", (a, b) => !a.share_admin);
-			setGroups(newGroups!);
-			setGroupColumnData(
-				newGroups!.map((group) => [group.group_id, group.name]),
-			);
-		});
+		setLoading(true);
+		groupsService
+			.readGroups(true)
+			.then((newGroups) => {
+				if (!isSubscribed) {
+					return;
+				}
+				helper.removeFromArray(newGroups!, "", (a, b) => !a.share_admin);
+				setGroups(newGroups!);
+				setGroupColumnData(
+					newGroups!.map((group) => [group.group_id, group.name]),
+				);
+			})
+			.catch(console.log)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const toggleSelect = (entityId: string) => {
@@ -304,6 +312,7 @@ const DialogNewGroupShare = (props: DialogNewGroupShareProps) => {
 							<Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
 							<Table
 								data={groupColumnData}
+								loading={loading}
 								columns={groupColumns}
 								options={options}
 								onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}

@@ -33,6 +33,7 @@ const DialogHistory = (props: DialogHistoryProps) => {
 	const { open, onClose, item } = props;
 	const { t } = useTranslation();
 	const [historyItems, setHistoryItems] = useState<HistoryRow[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [editEntryOpen, setEditEntryOpen] = useState(false);
 	const [historyData, setHistoryData] = useState<SecretContent | undefined>({});
 	const [readOnlyItem, setReadOnlyItem] = useState<EntryItem | null>(null);
@@ -54,19 +55,26 @@ const DialogHistory = (props: DialogHistoryProps) => {
 	}, []);
 
 	const loadHistoryItems = () => {
-		historyService.readSecretHistory(item.secret_id).then((history) => {
-			if (!isSubscribed || !history) {
-				return;
-			}
-			setHistoryItems(
-				history.map((historyItem) => [
-					historyItem.id,
-					format(new Date(historyItem.create_date)),
-					historyItem.username,
-					new Date(historyItem.create_date),
-				]),
-			);
-		});
+		setLoading(true);
+		historyService
+			.readSecretHistory(item.secret_id)
+			.then((history) => {
+				if (!isSubscribed || !history) {
+					return;
+				}
+				setHistoryItems(
+					history.map((historyItem) => [
+						historyItem.id,
+						format(new Date(historyItem.create_date)),
+						historyItem.username,
+						new Date(historyItem.create_date),
+					]),
+				);
+			})
+			.catch(console.log)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const showHistoryItem = (historyItemId: string) => {
@@ -135,6 +143,7 @@ const DialogHistory = (props: DialogHistoryProps) => {
 					<Grid item xs={12} sm={12} md={12}>
 						<Table<HistoryRow>
 							data={historyItems}
+							loading={loading}
 							columns={columns}
 							options={options}
 						/>
