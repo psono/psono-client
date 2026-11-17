@@ -49,6 +49,7 @@ import type {
 	PublicPrivateKeyPair,
 	ScryptParameters,
 } from "../../types/crypto";
+import type { HostCheckResult } from "../../types/host";
 
 let sessionPassword = "";
 let verification: Partial<EncryptedValue> = {};
@@ -137,15 +138,29 @@ function initiateLogin(
 }
 
 /**
- * Web callbacks arrive directly at the login page, so validate their pending
- * state before exchanging the token. Extensions validate in the background.
+ * Persist the selected host independently of the vault snapshot: enforced-lock
+ * persistence may omit host info and unremembered server URLs across a redirect.
  */
-async function validateWebClientSsoRedirect(
+function createPendingSsoRedirect(type: SsoProtocol): Promise<string> {
+	if (browserClient.getClientType() !== "webclient") {
+		return ssoRedirect.createPending(type);
+	}
+	const server = getStore().getState().server;
+	return ssoRedirect.createPending(type, {
+		url: server.url,
+		verifyKey: server.verifyKey!,
+		adminRecoveryPublicKey: server.adminRecoveryPublicKey,
+	});
+}
+
+/** Validate the callback and reload host info before using an SSO token. */
+async function getSsoServerPublicKey(
 	type: SsoProtocol,
 	tokenId: string,
-): Promise<void> {
+): Promise<string> {
 	if (browserClient.getClientType() !== "webclient") {
-		return;
+		// Extensions validate the redirect in the background and retain host info.
+		return getStore().getState().server.publicKey!;
 	}
 
 	const returnToUrl =
@@ -158,6 +173,40 @@ async function validateWebClientSsoRedirect(
 	if (!redirect || redirect.type !== type || redirect.tokenId !== tokenId) {
 		return Promise.reject(["AUTHENTICATION_FAILED"]);
 	}
+
+	let serverPublicKey = getStore().getState().server.publicKey;
+	let checked: HostCheckResult | undefined;
+	if (redirect.server) {
+		const server = redirect.server;
+		action().setServerUrl(server.url);
+		checked = await host.checkHost(server.url, server.verifyKey);
+		if (checked.status === "invalid_signature") {
+			return Promise.reject(["INVALID_SERVER_SIGNATURE"]);
+		}
+		if (
+			checked.status !== "matched" ||
+			checked.verify_key !== server.verifyKey ||
+			checked.admin_recovery_public_key !== server.adminRecoveryPublicKey
+		) {
+			return Promise.reject(["AUTHENTICATION_FAILED"]);
+		}
+		serverPublicKey = checked.info.public_key;
+	}
+	// Older pending callbacks may have only a cached key; validate that too.
+	if (
+		typeof serverPublicKey !== "string" ||
+		!/^[0-9a-f]{64}$/i.test(serverPublicKey)
+	) {
+		return Promise.reject(["RECEIVED_MALFORMED_RESPONSE"]);
+	}
+	if (checked) {
+		action().setServerInfo(
+			checked.info,
+			checked.verify_key,
+			checked.admin_recovery_public_key,
+		);
+	}
+	return serverPublicKey;
 }
 
 /**
@@ -169,10 +218,7 @@ async function validateWebClientSsoRedirect(
  * @returns {Promise}
  */
 async function samlLogin(samlTokenId: string): Promise<LoginResult> {
-	await validateWebClientSsoRedirect("saml", samlTokenId);
-
-	// SSO initiation loads and persists host info before redirecting to this callback.
-	const serverPublicKey = getStore().getState().server.publicKey!;
+	const serverPublicKey = await getSsoServerPublicKey("saml", samlTokenId);
 	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 	const password = "";
 
@@ -254,7 +300,7 @@ function initiateSamlLogin(
 function getSamlRedirectUrl(
 	providerId: string | number,
 ): Promise<{ saml_redirect_url: string }> {
-	return ssoRedirect.createPending("saml").then((state) => {
+	return createPendingSsoRedirect("saml").then((state) => {
 		const returnToUrl = browserClient.getSamlReturnToUrl(state);
 		return apiClient
 			.samlInitiateLogin(providerId, returnToUrl)
@@ -273,10 +319,7 @@ function getSamlRedirectUrl(
  * @returns {Promise}
  */
 async function oidcLogin(oidcTokenId: string): Promise<LoginResult> {
-	await validateWebClientSsoRedirect("oidc", oidcTokenId);
-
-	// SSO initiation loads and persists host info before redirecting to this callback.
-	const serverPublicKey = getStore().getState().server.publicKey!;
+	const serverPublicKey = await getSsoServerPublicKey("oidc", oidcTokenId);
 	const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 	const password = "";
 
@@ -358,7 +401,7 @@ function initiateOidcLogin(
 function getOidcRedirectUrl(
 	providerId: string | number,
 ): Promise<{ oidc_redirect_url: string }> {
-	return ssoRedirect.createPending("oidc").then((state) => {
+	return createPendingSsoRedirect("oidc").then((state) => {
 		const returnToUrl = browserClient.getOidcReturnToUrl(state);
 		return apiClient
 			.oidcInitiateLogin(providerId, returnToUrl)

@@ -98,10 +98,18 @@ export interface NotificationBarClickRequest {
 
 export type SsoType = "saml" | "oidc";
 
+/** Host identity approved before leaving the web client for the identity provider. */
+export interface SsoServerContext {
+	url: string;
+	verifyKey: string;
+	adminRecoveryPublicKey: string;
+}
+
 export interface PendingSsoRedirect {
 	state: string;
 	type: SsoType;
 	expiresAt: number;
+	server?: SsoServerContext;
 }
 
 export interface ParsedSsoRedirect {
@@ -109,4 +117,8 @@ export interface ParsedSsoRedirect {
 	type: string;
 	state: string;
 	tokenId: string;
+}
+
+export interface ConsumedSsoRedirect extends ParsedSsoRedirect {
+	server?: SsoServerContext;
 }

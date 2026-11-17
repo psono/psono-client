@@ -2,8 +2,10 @@ import type localforage from "localforage";
 import converter from "./converter";
 import storage from "./storage";
 import type {
+	ConsumedSsoRedirect,
 	ParsedSsoRedirect,
 	PendingSsoRedirect,
+	SsoServerContext,
 	SsoType,
 } from "../../types/utilities";
 
@@ -37,7 +39,10 @@ async function removeExpired(
 	);
 }
 
-async function createPending(type: SsoType): Promise<string> {
+async function createPending(
+	type: SsoType,
+	server?: SsoServerContext,
+): Promise<string> {
 	const randomBytes = new Uint8Array(16);
 	globalThis.crypto.getRandomValues(randomBytes);
 	const state = converter.toHex(randomBytes);
@@ -45,6 +50,7 @@ async function createPending(type: SsoType): Promise<string> {
 		state,
 		type,
 		expiresAt: Date.now() + PENDING_SSO_REDIRECT_LIFETIME,
+		...(server ? { server } : {}),
 	};
 	const database = storage.get("various");
 
@@ -93,7 +99,7 @@ function parse(
 async function consume(
 	url: string,
 	returnToUrl?: string,
-): Promise<ParsedSsoRedirect | null> {
+): Promise<ConsumedSsoRedirect | null> {
 	const redirect = parse(url, returnToUrl);
 	if (!redirect || consumingStates.has(redirect.state)) {
 		return null;
@@ -119,7 +125,10 @@ async function consume(
 		}
 
 		await storage.get("various").removeItem(pendingKey);
-		return redirect;
+		return {
+			...redirect,
+			...(pending.server ? { server: pending.server } : {}),
+		};
 	} finally {
 		consumingStates.delete(redirect.state);
 	}
