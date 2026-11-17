@@ -29,6 +29,7 @@
 	"ENABLE_AUTOMATIC_LOCKING": "Enable automatic locking",
 	"ENABLING_AUTOMATIC_LOCKING": "Enabling automatic locking",
 	"CONTINUE_WITHOUT_LOCKING": "Continue without automatic locking",
+	"REMEMBER_LOCKING_CHOICE": "Remember my choice on this device",
 	"OPTIONAL_LOCKING_UNAVAILABLE": "Automatic locking isn’t available on this device. You can continue without it.",
 	"LOCKING_REQUIRED": "Your server requires automatic locking.",
 	"LOCK_TIMEOUT": "Lock after inactivity (seconds)",

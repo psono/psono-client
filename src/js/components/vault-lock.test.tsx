@@ -6,6 +6,7 @@ import { MemoryRouter } from "react-router-dom";
 import type { AppState } from "../../types/state";
 import type { LockConfiguration } from "../services/vault-lock";
 import vaultLock from "../services/vault-lock";
+import { flushStorePersistence } from "../services/store";
 import { LockSettings, VaultGate } from "./vault-lock";
 
 let mockState: Pick<AppState, "user" | "server">;
@@ -57,6 +58,9 @@ jest.mock("../services/vault-lock", () => ({
 jest.mock("../services/offline-cache", () => ({
 	__esModule: true,
 	default: { incrementalUpdate: async () => {} },
+}));
+jest.mock("../services/store", () => ({
+	flushStorePersistence: jest.fn(async () => {}),
 }));
 jest.mock("../services/user", () => ({
 	__esModule: true,
@@ -347,6 +351,7 @@ describe("vault access gate", () => {
 			60,
 			undefined,
 			"LOGOUT",
+			true,
 		);
 	});
 
@@ -371,6 +376,7 @@ describe("vault access gate", () => {
 			60,
 			undefined,
 			"LOGOUT",
+			true,
 		);
 	});
 
@@ -381,7 +387,9 @@ describe("vault access gate", () => {
 				<div data-secret="private">Secret</div>
 			</VaultGate>,
 		);
-		expect(view.querySelector('input[type="checkbox"]')).toBeNull();
+		expect(
+			view.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked,
+		).toBe(true);
 		const enable = view.querySelector<HTMLButtonElement>(
 			'button[aria-label="Enable automatic locking"]',
 		);
@@ -410,7 +418,7 @@ describe("vault access gate", () => {
 		const enable = view.querySelector<HTMLButtonElement>(
 			'button[aria-label="Enable automatic locking"]',
 		)!;
-		act(() => {
+		await act(async () => {
 			enable.click();
 			enable.click();
 		});
@@ -500,6 +508,7 @@ describe("vault access gate", () => {
 			false,
 			undefined,
 			"LOGOUT",
+			undefined,
 		);
 	});
 
@@ -512,8 +521,12 @@ describe("vault access gate", () => {
 		expect(view.querySelector("[data-secret]")).not.toBeNull();
 	});
 
-	it("honors the remembered locking preference on a fresh login", async () => {
+	it.each([
+		undefined,
+		false,
+	])("shows setup when automatic application has not been remembered (%s)", async (rememberChoice) => {
 		mockConfiguration.requested = true;
+		mockConfiguration.rememberChoice = rememberChoice;
 		const view = await render(
 			<VaultGate>
 				<div data-secret="private">Secret</div>
@@ -527,7 +540,9 @@ describe("vault access gate", () => {
 		expect(view.querySelector("p")?.textContent).toMatch(
 			/^With automatic locking enabled/,
 		);
-		expect(view.querySelector('input[type="checkbox"]')).toBeNull();
+		expect(
+			view.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked,
+		).toBe(true);
 		const enable = view.querySelector<HTMLButtonElement>(
 			'button[aria-label="Enable automatic locking"]',
 		)!;
@@ -537,6 +552,174 @@ describe("vault access gate", () => {
 		expect(enable.parentElement).toBe(skip.parentElement);
 		expect(enable.parentElement!.querySelectorAll("button")[0]).toBe(enable);
 		expect(enable.parentElement!.querySelectorAll("button")[1]).toBe(skip);
+		expect(vaultLock.enable).not.toHaveBeenCalled();
+	});
+
+	it("waits for the latest login snapshot before automatically enabling locking", async () => {
+		mockConfiguration = {
+			...mockConfiguration,
+			requested: true,
+			rememberChoice: true,
+			timeoutAction: "LOGOUT",
+		};
+		let finishFlush!: () => void;
+		jest.mocked(flushStorePersistence).mockImplementationOnce(
+			() =>
+				new Promise<void>((resolve) => {
+					finishFlush = resolve;
+				}),
+		);
+		const view = await render(
+			<VaultGate>
+				<div data-secret="private">Secret</div>
+			</VaultGate>,
+		);
+		expect(vaultLock.enable).not.toHaveBeenCalled();
+		expect(view.querySelector("[data-secret]")).toBeNull();
+		expect(view.textContent).not.toContain("Configure automatic locking");
+		await act(async () => finishFlush());
+		expect(vaultLock.enable).toHaveBeenCalledTimes(1);
+	});
+
+	it.each([
+		[false, "LOGOUT"],
+		[true, "LOGOUT"],
+		[true, "LOCK"],
+	] as const)("automatically applies remembered locking (required: %s, action: %s)", async (required, timeoutAction) => {
+		mockConfiguration = {
+			...mockConfiguration,
+			requested: true,
+			rememberChoice: true,
+			timeoutAction,
+		};
+		mockState.server.complianceEnforceLocking = required;
+		mockState.server.complianceMaxLockTimeout = 30;
+		let finish!: () => void;
+		jest.mocked(vaultLock.enable).mockImplementation(
+			() =>
+				new Promise<void>((resolve) => {
+					finish = () => {
+						mockConfiguration = {
+							...mockConfiguration,
+							enabled: true,
+							timeout: 30,
+						};
+						for (const listener of mockLockListeners) listener();
+						resolve();
+					};
+				}),
+		);
+		const view = await render(
+			<VaultGate>
+				<div data-secret="private">Secret</div>
+			</VaultGate>,
+		);
+		expect(flushStorePersistence).toHaveBeenCalled();
+		expect(vaultLock.enable).toHaveBeenCalledTimes(1);
+		expect(vaultLock.enable).toHaveBeenCalledWith(
+			"alice",
+			expect.any(String),
+			60,
+			30,
+			timeoutAction,
+			true,
+		);
+		expect(view.textContent).not.toContain("Configure automatic locking");
+		expect(view.querySelector('input[type="checkbox"]')).toBeNull();
+		expect(view.querySelector("[data-secret]")).toBeNull();
+		await act(async () => finish());
+		expect(view.querySelector("[data-secret]")).not.toBeNull();
+		expect(view.textContent).not.toContain("Configure automatic locking");
+	});
+
+	it.each([
+		false,
+		true,
+	])("handles a remembered opt-out with server enforcement %s", async (required) => {
+		mockConfiguration = {
+			...mockConfiguration,
+			requested: false,
+			rememberChoice: true,
+		};
+		mockState.server.complianceEnforceLocking = required;
+		const view = await render(
+			<VaultGate>
+				<div data-secret="private">Secret</div>
+			</VaultGate>,
+		);
+		expect(view.querySelector("[data-secret]") !== null).toBe(!required);
+		expect(view.textContent!.includes("Configure automatic locking")).toBe(
+			required,
+		);
+		expect(vaultLock.enable).not.toHaveBeenCalled();
+	});
+
+	it("returns to enforced setup if applying remembered locking fails", async () => {
+		mockConfiguration = {
+			...mockConfiguration,
+			requested: true,
+			rememberChoice: true,
+		};
+		mockState.server.complianceEnforceLocking = true;
+		jest
+			.mocked(vaultLock.enable)
+			.mockRejectedValueOnce(new Error("LOCK_UNAVAILABLE"));
+		const view = await render(
+			<VaultGate>
+				<div data-secret="private">Secret</div>
+			</VaultGate>,
+		);
+		expect(view.querySelector("[data-secret]")).toBeNull();
+		expect(view.textContent).toContain("Configure automatic locking");
+		expect(view.textContent).not.toContain(
+			"Continue without automatic locking",
+		);
+		expect(
+			view.querySelector('button[aria-label="Enable automatic locking"]'),
+		).not.toBeNull();
+		expect(vaultLock.enable).toHaveBeenCalledTimes(1);
+	});
+
+	it.each([
+		false,
+		true,
+	])("allows declining to remember the setup choice (enabled: %s)", async (enabled) => {
+		const view = await render(<LockSettings setup />);
+		const checkbox = view.querySelector<HTMLInputElement>(
+			'input[type="checkbox"]',
+		)!;
+		expect(checkbox.checked).toBe(true);
+		act(() => checkbox.click());
+		expect(checkbox.checked).toBe(false);
+		await act(async () => {
+			Array.from(view.querySelectorAll("button"))
+				.find(
+					(button) =>
+						button.textContent ===
+						(enabled
+							? "Enable automatic locking"
+							: "Continue without automatic locking"),
+				)!
+				.click();
+		});
+		if (enabled)
+			expect(vaultLock.enable).toHaveBeenCalledWith(
+				"alice",
+				expect.any(String),
+				60,
+				undefined,
+				"LOCK",
+				false,
+			);
+		else
+			expect(vaultLock.update).toHaveBeenCalledWith(
+				false,
+				60,
+				false,
+				undefined,
+				"LOCK",
+				false,
+			);
 	});
 
 	it("continues without locking and clears the remembered request without prompting for WebAuthn", async () => {
@@ -572,6 +755,7 @@ describe("vault access gate", () => {
 			false,
 			undefined,
 			"LOCK",
+			true,
 		);
 		expect(vaultLock.enable).not.toHaveBeenCalled();
 		expect(view.querySelector('[data-secret="private"]')).not.toBeNull();
@@ -597,7 +781,7 @@ describe("vault access gate", () => {
 		const skip = Array.from(view.querySelectorAll("button")).find(
 			(button) => button.textContent === "Continue without automatic locking",
 		)!;
-		act(() => enable.click());
+		await act(async () => enable.click());
 		expect(enable.disabled).toBe(true);
 		expect(skip.disabled).toBe(true);
 		act(() => skip.click());
