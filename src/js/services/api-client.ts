@@ -222,12 +222,13 @@ async function _statelessCall<T = ApiRecord>(
 			throw { errors: ["SERVER_OFFLINE"] };
 		}
 		assertCurrent();
-		if (rawResponse.status >= 500) {
+		if (rawResponse.status === 404 || rawResponse.status >= 500) {
 			const cached = await fallback();
 			if (cached !== null) return cached;
 		}
 		// Permission loss must not leave a usable copy of descendants in cache.
-		if (sessionSecretKey && [403, 404].includes(rawResponse.status))
+		// A 404 can come from an unavailable API route, so preserve offline data.
+		if (sessionSecretKey && rawResponse.status === 403)
 			await offlineCache.clear?.();
 		sideEffect?.(rawResponse);
 		let data: unknown = await rawResponse.text();
@@ -241,7 +242,9 @@ async function _statelessCall<T = ApiRecord>(
 			data = { data };
 		}
 		if (!rawResponse.ok && rawResponse.status === 404)
-			throw rawResponse.statusText || { errors: ["RESOURCE_NOT_FOUND"] };
+			throw mode === "refresh"
+				? { errors: ["SERVER_OFFLINE"], status: rawResponse.status }
+				: rawResponse.statusText || { errors: ["RESOURCE_NOT_FOUND"] };
 		if (!rawResponse.ok && rawResponse.status >= 500)
 			throw mode === "refresh"
 				? { errors: ["SERVER_OFFLINE"], status: rawResponse.status }

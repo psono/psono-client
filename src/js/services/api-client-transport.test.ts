@@ -1,6 +1,6 @@
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
-import offlineCache from "./offline-cache";
+import offlineCache, { CachedResource } from "./offline-cache";
 import vaultLock from "./vault-lock";
 import { CacheMissError } from "../../types/cache";
 import { applyMiddleware, createStore } from "redux";
@@ -36,6 +36,7 @@ jest.mock("./device", () => ({
 	default: { getDeviceFingerprint: () => "fingerprint" },
 }));
 jest.mock("./offline-cache", () => ({
+	...jest.requireActual("./offline-cache"),
 	__esModule: true,
 	default: {
 		get: jest.fn(),
@@ -210,6 +211,114 @@ describe("API client: transport compatibility", () => {
 			apiClient.readSecret("token", "key", "secret"),
 		).resolves.toEqual({ data: { id: "secret" } });
 		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		["/datastore/", () => apiClient.readDatastore("token", "key")],
+		[
+			"/datastore/vault/",
+			() => apiClient.readDatastore("token", "key", "vault"),
+		],
+		["/share/shared/", () => apiClient.readShare("token", "key", "shared")],
+		["/share/right/", () => apiClient.readShareRightsOverview("token", "key")],
+		["/secret/secret/", () => apiClient.readSecret("token", "key", "secret")],
+	] as const)("falls back to cached data on HTTP 404 for %s", async (endpoint, read) => {
+		const cached = { data: { id: "cached" } };
+		jest.mocked(offlineCache.get).mockResolvedValue(cached);
+		respond("<html>Not Found</html>", 404, "Not Found");
+
+		await expect(read()).resolves.toBe(cached);
+		expect(offlineCache.get).toHaveBeenCalledWith(
+			`https://api.test${endpoint}`,
+			"GET",
+		);
+		expect(offlineCache.markOffline).toHaveBeenCalled();
+		expect(offlineCache.clear).not.toHaveBeenCalled();
+		expect(offlineCache.set).not.toHaveBeenCalled();
+		expect(cryptoLibrary.decryptData).not.toHaveBeenCalled();
+		expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+			0,
+		);
+	});
+
+	it("retains the displayed datastore after a 404 refresh and replaces it after reconnection", async () => {
+		jest.useFakeTimers();
+		const cached = { data: { id: "cached" } };
+		jest.mocked(offlineCache.get).mockResolvedValue(cached);
+		respond("<html>Not Found</html>", 404, "Not Found");
+		const onData = jest.fn();
+		const onError = jest.fn();
+		const setCacheActive = jest.fn();
+		const resource = new CachedResource({
+			kind: "datastore",
+			read: (mode) => apiClient.readDatastore("token", "key", "vault", mode),
+			canReadCache: () => true,
+			scope: () => "account",
+			setCacheActive,
+			onData,
+			onError,
+			delay: 0,
+		});
+		try {
+			await resource.load();
+			expect(onData).toHaveBeenCalledWith(cached, "cache");
+			jest.runOnlyPendingTimers();
+			await resource.refreshComplete;
+			expect(resource.data).toBe(cached);
+			expect(onError).toHaveBeenCalledWith(
+				{ errors: ["SERVER_OFFLINE"], status: 404 },
+				true,
+			);
+			expect(setCacheActive).toHaveBeenLastCalledWith(true, true);
+			expect(offlineCache.clear).not.toHaveBeenCalled();
+			expect(mockStore.getState().user.lastServerConnectionTimeSinceEpoch).toBe(
+				0,
+			);
+
+			respond('{"text":"ciphertext","nonce":"response-nonce"}');
+			await resource.load();
+			jest.runOnlyPendingTimers();
+			await resource.refreshComplete;
+			expect(onData).toHaveBeenLastCalledWith(
+				{ data: { id: "secret" } },
+				"server",
+			);
+			expect(setCacheActive).toHaveBeenLastCalledWith(false);
+		} finally {
+			resource.dispose();
+		}
+	});
+
+	it("preserves cache but rejects explicit refreshes on HTTP 404", async () => {
+		jest.mocked(offlineCache.get).mockResolvedValue({ data: { id: "cached" } });
+		respond("Not Found", 404, "Not Found");
+		await expect(
+			apiClient.refreshOfflineCacheEntry("token", "key", "/secret/secret/"),
+		).rejects.toEqual({ errors: ["SERVER_OFFLINE"], status: 404 });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+		expect(offlineCache.clear).not.toHaveBeenCalled();
+		expect(offlineCache.markOnline).not.toHaveBeenCalled();
+	});
+
+	it("reports HTTP 404 when no cached data is available", async () => {
+		respond("", 404);
+		await expect(
+			apiClient.readSecret("token", "key", "missing"),
+		).rejects.toEqual({
+			errors: ["RESOURCE_NOT_FOUND"],
+		});
+		expect(offlineCache.markOffline).not.toHaveBeenCalled();
+		expect(offlineCache.clear).not.toHaveBeenCalled();
+	});
+
+	it("does not fall back to cache for mutations returning HTTP 404", async () => {
+		jest.mocked(offlineCache.get).mockResolvedValue({ data: { id: "cached" } });
+		respond("", 404);
+		await expect(apiClient.logout("token", "key")).rejects.toEqual({
+			errors: ["RESOURCE_NOT_FOUND"],
+		});
+		expect(offlineCache.get).not.toHaveBeenCalled();
+		expect(offlineCache.markOffline).not.toHaveBeenCalled();
 	});
 
 	it("serves explicit cache-only reads immediately without fetching or claiming online status", async () => {
