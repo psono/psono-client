@@ -78,7 +78,6 @@ import ContentCopy from "../icons/ContentCopy";
 import MarkdownNotesField from "../markdown-notes-field";
 import SelectFieldEntryType from "../select-field/entry-type";
 import SelectFieldFileDestination from "../select-field/file-destination";
-import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import TextFieldColored from "../text-field/colored";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
@@ -86,6 +85,7 @@ import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-thr
 import CustomField from "../text-field/custom-field";
 import TextFieldTotp from "../text-field/totp";
 import TotpCircle from "../totp-circle";
+import TotpFields from "../totp-fields";
 import DialogAddCustomField from "./add-custom-field";
 import DialogAddAttachment from "./add-attachment";
 import DialogAddTag from "./add-tag";
@@ -247,6 +247,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 	const [totpAlgorithm, setTotpAlgorithm] = useState("SHA1");
 	const [totpDigits, setTotpDigits] = useState(6);
 	const [totpCode, setTotpCode] = useState("");
+	const [totpUriValid, setTotpUriValid] = useState(true);
 	const [totpNotes, setTotpNotes] = useState("");
 	const [totpUrlFilter, setTotpUrlFilter] = useState("");
 
@@ -365,7 +366,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 		(!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
 	const isValidIdentity = Boolean(identityTitle);
 	const isValidNote = Boolean(noteTitle);
-	const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
+	const isValidTotp = Boolean(totpTitle) && Boolean(totpCode) && totpUriValid;
 	const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
 	const isValidMailGpgOwnKey =
 		Boolean(mailGpgOwnKeyTitle) &&
@@ -2309,114 +2310,24 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 						)}
 
 						{type === "totp" && (
-							<Grid item xs={12} sm={12} md={12}>
-								<TextField
-									className={classes.textField}
-									variant="outlined"
-									margin="dense"
-									size="small"
-									id="totpPeriod"
-									label={t("PERIOD_EG_30")}
-									name="totpPeriod"
-									autoComplete="off"
-									value={totpPeriod}
-									required
-									InputProps={{
-										inputProps: {
-											min: 0,
-											step: 1,
-										},
-									}}
-									type="number"
-									onChange={(event) => {
-										setTotpPeriod(parseInt(event.target.value) || 30);
-									}}
-								/>
-							</Grid>
-						)}
-
-						{type === "totp" && (
-							<Grid item xs={12} sm={12} md={12}>
-								<SelectFieldTotpAlgorithm
-									className={classes.textField}
-									variant="outlined"
-									margin="dense"
-									size="small"
-									id="totpAlgorithm"
-									name="totpAlgorithm"
-									autoComplete="off"
-									value={totpAlgorithm}
-									required
-									onChange={(value) => {
-										setTotpAlgorithm(value);
-									}}
-								/>
-							</Grid>
-						)}
-
-						{type === "totp" && (
-							<Grid item xs={12} sm={12} md={12}>
-								<TextField
-									className={classes.textField}
-									variant="outlined"
-									margin="dense"
-									size="small"
-									id="totpDigits"
-									label={t("DIGITS_EG_6")}
-									name="totpDigits"
-									autoComplete="off"
-									value={totpDigits}
-									required
-									InputProps={{
-										inputProps: {
-											min: 0,
-											step: 1,
-										},
-									}}
-									type="number"
-									onChange={(event) => {
-										setTotpDigits(parseInt(event.target.value) || 6);
-									}}
-								/>
-							</Grid>
-						)}
-
-						{type === "totp" && (
-							<Grid item xs={12} sm={12} md={12}>
-								<TextField
-									className={classes.textField}
-									variant="outlined"
-									margin="dense"
-									size="small"
-									id="totpCode"
-									label={t("SECRET")}
-									name="totpCode"
-									autoComplete="off"
-									value={totpCode}
-									required
-									onChange={(event) => {
-										setTotpCode(event.target.value.replace(/\s+/g, ""));
-									}}
-									InputProps={{
-										type: showPassword ? "text" : "password",
-										classes: {
-											input: `psono-addPasswordFormButtons-covered ${classes.passwordField}`,
-										},
-										endAdornment: (
-											<InputAdornment position="end">
-												<IconButton
-													className={classes.iconButton}
-													aria-label="menu"
-													onClick={onShowHidePassword}
-													size="large"
-												>
-													<VisibilityOffIcon fontSize="small" />
-												</IconButton>
-											</InputAdornment>
-										),
-									}}
-								/>
-							</Grid>
+							<TotpFields
+								onValidityChange={setTotpUriValid}
+								onTitleSuggestion={(title) => {
+									setTotpTitle((current) => (current.trim() ? current : title));
+								}}
+								value={{
+									period: totpPeriod,
+									algorithm: totpAlgorithm,
+									digits: totpDigits,
+									code: totpCode,
+								}}
+								onChange={({ period, algorithm, digits, code }) => {
+									setTotpPeriod(period);
+									setTotpAlgorithm(algorithm);
+									setTotpDigits(digits);
+									setTotpCode(code);
+								}}
+							/>
 						)}
 
 						{type === "totp" && (

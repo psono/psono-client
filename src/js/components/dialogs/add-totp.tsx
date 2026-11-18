@@ -1,26 +1,15 @@
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { Grid } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import { makeStyles } from "@mui/styles";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TotpDialogCallback } from "../../../types/dialogs";
 import cryptoLibraryService from "../../services/crypto-library";
 import GridContainerErrors from "../grid-container-errors";
-import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
-
-const useStyles = makeStyles((theme) => ({
-	textField: {
-		width: "100%",
-	},
-}));
+import TotpFields from "../totp-fields";
 
 export interface DialogAddTotpProps {
 	open: boolean;
@@ -30,17 +19,12 @@ export interface DialogAddTotpProps {
 const DialogAddTotp = (props: DialogAddTotpProps) => {
 	const { open, onClose } = props;
 	const { t } = useTranslation();
-	const classes = useStyles();
 	const [errors, setErrors] = useState<string[]>([]);
 	const [totpPeriod, setTotpPeriod] = useState(30);
 	const [totpAlgorithm, setTotpAlgorithm] = useState("SHA1");
 	const [totpDigits, setTotpDigits] = useState(6);
 	const [totpCode, setTotpCode] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
-
-	const onShowHidePassword = () => {
-		setShowPassword(!showPassword);
-	};
+	const [totpUriValid, setTotpUriValid] = useState(true);
 	const onSave = () => {
 		try {
 			cryptoLibraryService.getTotpToken(
@@ -70,101 +54,21 @@ const DialogAddTotp = (props: DialogAddTotpProps) => {
 			<DialogTitle id="alert-dialog-title">{t("ADD_TOTP")}</DialogTitle>
 			<DialogContent>
 				<Grid container>
-					<Grid item xs={12} sm={12} md={12}>
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="totpPeriod"
-							label={t("PERIOD_EG_30")}
-							name="totpPeriod"
-							autoComplete="off"
-							value={totpPeriod}
-							required
-							InputProps={{
-								inputProps: {
-									min: 0,
-									step: 1,
-								},
-							}}
-							type="number"
-							onChange={(event) => {
-								setTotpPeriod(parseInt(event.target.value) || 30);
-							}}
-						/>
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<SelectFieldTotpAlgorithm
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							value={totpAlgorithm}
-							required
-							onChange={(value: string) => {
-								setTotpAlgorithm(value);
-							}}
-						/>
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="totpDigits"
-							label={t("DIGITS_EG_6")}
-							name="totpDigits"
-							autoComplete="off"
-							value={totpDigits}
-							required
-							InputProps={{
-								inputProps: {
-									min: 0,
-									step: 1,
-								},
-							}}
-							type="number"
-							onChange={(event) => {
-								setTotpDigits(parseInt(event.target.value) || 6);
-							}}
-						/>
-					</Grid>
-					<Grid item xs={12} sm={12} md={12}>
-						<TextField
-							className={classes.textField}
-							variant="outlined"
-							margin="dense"
-							size="small"
-							id="totpCode"
-							label={t("SECRET")}
-							name="totpCode"
-							autoComplete="off"
-							value={totpCode}
-							required
-							onChange={(event) => {
-								setTotpCode(event.target.value.replace(/\s+/g, ""));
-							}}
-							InputProps={{
-								type: showPassword ? "text" : "password",
-								classes: {
-									input: "psono-addPasswordFormButtons-covered",
-								},
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton
-											aria-label="menu"
-											onClick={onShowHidePassword}
-											size="large"
-										>
-											<VisibilityOffIcon fontSize="small" />
-										</IconButton>
-									</InputAdornment>
-								),
-							}}
-						/>
-					</Grid>
+					<TotpFields
+						onValidityChange={setTotpUriValid}
+						value={{
+							period: totpPeriod,
+							algorithm: totpAlgorithm,
+							digits: totpDigits,
+							code: totpCode,
+						}}
+						onChange={({ period, algorithm, digits, code }) => {
+							setTotpPeriod(period);
+							setTotpAlgorithm(algorithm);
+							setTotpDigits(digits);
+							setTotpCode(code);
+						}}
+					/>
 				</Grid>
 				<GridContainerErrors errors={errors} setErrors={setErrors} />
 			</DialogContent>
@@ -180,7 +84,7 @@ const DialogAddTotp = (props: DialogAddTotpProps) => {
 					onClick={onSave}
 					variant="contained"
 					color="primary"
-					disabled={!totpCode}
+					disabled={!totpCode || !totpUriValid}
 				>
 					{t("SAVE")}
 				</Button>
