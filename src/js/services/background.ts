@@ -73,6 +73,7 @@ let badgeUpdateRequest = 0;
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
 const CM_AUTOFILL_CREDENTIAL_ID = "psono-autofill-credential";
+const CM_AUTOFILL_TOTP_ID = "psono-autofill-totp";
 const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
 const CM_AUTOFILL_IDENTITY_ID = "psono-autofill-identity";
 const CM_RECHECK_PAGE_ID = "psono-recheck-page";
@@ -321,6 +322,13 @@ function updateContextMenu() {
 			visible: false,
 			parentId: contextMenu,
 		});
+		const contextMenuChildAutofillTotp = chrome.contextMenus.create({
+			id: CM_AUTOFILL_TOTP_ID,
+			title: i18n.t("AUTOFILL_TOTP"),
+			contexts: ["all"],
+			visible: false,
+			parentId: contextMenu,
+		});
 		const contextMenuChildAutofillCreditCard = chrome.contextMenus.create({
 			id: CM_AUTOFILL_CREDIT_CARD_ID,
 			title: i18n.t("AUTOFILL_CREDIT_CARD"),
@@ -342,7 +350,10 @@ function updateContextMenu() {
 			parentId: contextMenu,
 		});
 
-		function addAutofillCredentials(leafs: PasswordLeaf[]) {
+		function addAutofillEntries(
+			leafs: PasswordLeaf[],
+			parentId: string | number,
+		) {
 			const entries = [];
 
 			for (let ii = 0; ii < leafs.length; ii++) {
@@ -379,12 +390,12 @@ function updateContextMenu() {
 					id: entry.secret_id,
 					title: entry.name,
 					contexts: ["all"],
-					parentId: contextMenuChildAutofillCredential,
+					parentId,
 				});
 			});
 
 			if (entries.length > 0) {
-				chrome.contextMenus.update(CM_AUTOFILL_CREDENTIAL_ID, {
+				chrome.contextMenus.update(parentId, {
 					visible: true,
 				});
 			}
@@ -486,11 +497,12 @@ function updateContextMenu() {
 			}
 		}
 
-		if (!activeTabUrl) {
-			addAutofillCredentials([]);
-		} else {
-			searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(
-				addAutofillCredentials,
+		if (activeTabUrl) {
+			searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then((leafs) =>
+				addAutofillEntries(leafs, contextMenuChildAutofillCredential),
+			);
+			searchTotpsByUrlfilter(activeTabUrl).then((leafs) =>
+				addAutofillEntries(leafs, contextMenuChildAutofillTotp),
 			);
 		}
 		searchCreditCard().then(addAutofillCreditCards);
@@ -553,6 +565,17 @@ function fillSecretTab(secretId: string, tab: BrowserTab, frameId: number) {
 					url_filter: content.website_password_url_filter,
 					auto_submit: content.website_password_auto_submit,
 					custom_fields: content.custom_fields || [],
+				});
+			}
+			if (leaf!.type === "totp" && content.totp_code) {
+				browserClient.emitFrame(tab.id!, frameId, "fillpassword", {
+					totp_token: cryptoLibrary.getTotpToken(
+						content.totp_code,
+						content.totp_period,
+						content.totp_algorithm,
+						content.totp_digits,
+					),
+					url_filter: content.totp_url_filter,
 				});
 			}
 			if (leaf!.type === "credit_card") {
@@ -1047,12 +1070,14 @@ async function ensureDatastorePasswordLeafIndexInitialized(): Promise<void> {
  * for a provided url
  *
  * @param {string} url The url to match
+ * @param {string} type The secret type to match
  * @param {boolean} onlyAutoSubmit Only entries with autosubmit
  *
  * @returns {(function(*): (boolean|*))|*}
  */
-const getSearchWebsitePasswordsByUrlfilter = (
+const getSearchSecretsByUrlfilter = (
 	url: string,
+	type: "website_password" | "totp",
 	onlyAutoSubmit?: boolean,
 ) => {
 	const parsedUrl = helper.parseUrl(url);
@@ -1060,7 +1085,7 @@ const getSearchWebsitePasswordsByUrlfilter = (
 	const filter = (
 		leaf: Pick<Datastore, "type" | "urlfilter" | "autosubmit" | "allow_http">,
 	) => {
-		if (leaf.type !== "website_password") {
+		if (leaf.type !== type) {
 			return false;
 		}
 
@@ -1095,6 +1120,11 @@ const getSearchWebsitePasswordsByUrlfilter = (
 	return filter;
 };
 
+const getSearchWebsitePasswordsByUrlfilter = (
+	url: string,
+	onlyAutoSubmit?: boolean,
+) => getSearchSecretsByUrlfilter(url, "website_password", onlyAutoSubmit);
+
 /**
  * Returns all website passwords where the specified url matches the url filter
  *
@@ -1112,6 +1142,15 @@ async function searchWebsitePasswordsByUrlfilter(
 
 	return storage.where("datastore-password-leafs", (value, key) =>
 		filter(value),
+	);
+}
+
+/** Returns standalone TOTP entries whose domain filter matches the URL. */
+async function searchTotpsByUrlfilter(url: string): Promise<PasswordLeaf[]> {
+	await ensureDatastorePasswordLeafIndexInitialized();
+	return storage.where(
+		"datastore-password-leafs",
+		getSearchSecretsByUrlfilter(url, "totp"),
 	);
 }
 

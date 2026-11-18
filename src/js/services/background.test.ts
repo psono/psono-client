@@ -5,6 +5,7 @@ import React from "react";
 import en from "../../common/data/translations/locale-en.json";
 import i18n from "../i18n";
 import backgroundService from "./background";
+import browser from "./browser";
 import browserClient from "./browser-client";
 import converterService from "./converter";
 import datastorePasswordService from "./datastore-password";
@@ -23,6 +24,21 @@ import actions from "../actions/action-creators";
 import { applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import type { AppStore } from "../../types/state";
+
+jest.mock("./browser", () => ({
+	__esModule: true,
+	default: {
+		runtime: { onMessage: { addListener: jest.fn() } },
+		tabs: {
+			onActivated: { addListener: jest.fn() },
+			onUpdated: { addListener: jest.fn() },
+			onCreated: { addListener: jest.fn() },
+			onRemoved: { addListener: jest.fn() },
+			get: jest.fn(),
+			query: jest.fn(),
+		},
+	},
+}));
 
 describe("autofill TOTP clipboard device setting", () => {
 	beforeEach(() => {
@@ -770,5 +786,229 @@ describe("SSO redirect handling", () => {
 			),
 		).toBe(false);
 		expect(ssoRedirect.consume).not.toHaveBeenCalled();
+	});
+});
+
+describe("standalone TOTP context-menu autofill", () => {
+	const menus = {
+		removeAll: jest.fn((callback: () => void) => callback()),
+		create: jest.fn(
+			(properties: chrome.contextMenus.CreateProperties) => properties.id!,
+		),
+		update: jest.fn(),
+		onClicked: {
+			addListener: jest.fn<
+				void,
+				[(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void]
+			>(),
+		},
+	};
+	const getTab = browser.tabs.get as unknown as jest.Mock<
+		void,
+		[number, (tab: chrome.tabs.Tab) => void]
+	>;
+	const queryTabs = browser.tabs.query as unknown as jest.Mock<
+		void,
+		[chrome.tabs.QueryInfo, (tabs: chrome.tabs.Tab[]) => void]
+	>;
+	const entries: PasswordLeaf[] = [
+		{
+			key: "login",
+			secret_id: "login",
+			secret_key: "key",
+			type: "website_password",
+			name: "Login",
+			urlfilter: "first.example",
+		},
+		{
+			key: "totp-z",
+			secret_id: "totp-z",
+			secret_key: "key",
+			type: "totp",
+			name: "Zulu",
+			urlfilter: "first.example",
+		},
+		{
+			key: "totp-a",
+			secret_id: "totp-a",
+			secret_key: "key",
+			type: "totp",
+			name: "alpha",
+			description: "alice",
+			urlfilter: "unused.example; first.example",
+		},
+		{
+			key: "other",
+			secret_id: "other",
+			secret_key: "key",
+			type: "totp",
+			name: "Other domain",
+			urlfilter: "second.example",
+		},
+		{
+			key: "unfiltered",
+			secret_id: "unfiltered",
+			secret_key: "key",
+			type: "totp",
+			name: "No filter",
+		},
+	];
+	const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+	const activateTab = async (url?: string) => {
+		const tab = { id: 42, url };
+		jest.mocked(browserClient.getActiveTab).mockResolvedValue(tab);
+		getTab.mockImplementation((_id, callback) =>
+			callback(tab as chrome.tabs.Tab),
+		);
+		backgroundService.onTabActivated({ tabId: 42, windowId: 1 });
+		await settle();
+	};
+	const totpMenuEntries = () =>
+		menus.create.mock.calls
+			.map(([properties]) => properties)
+			.filter((properties) => properties.parentId === "psono-autofill-totp");
+
+	beforeEach(async () => {
+		Object.defineProperty(globalThis, "chrome", {
+			configurable: true,
+			value: { ...browser, contextMenus: menus },
+		});
+		const state = rootReducer(undefined, { type: "@@INIT" });
+		state.user.isLoggedIn = true;
+		jest
+			.spyOn(storeService, "getStore")
+			.mockReturnValue(createStore(rootReducer, state));
+		jest.spyOn(vaultLock, "isBlocked").mockReturnValue(false);
+		jest.spyOn(vaultLock, "touch").mockImplementation(() => {});
+		jest
+			.spyOn(browserClient, "disableBrowserPasswordSaving")
+			.mockResolvedValue(undefined);
+		jest
+			.spyOn(browserClient, "registerAuthRequiredListener")
+			.mockImplementation(() => {});
+		jest.spyOn(browserClient, "setIcon").mockImplementation(() => {});
+		jest.spyOn(browserClient, "setBadgeText").mockImplementation(() => {});
+		jest.spyOn(browserClient, "getActiveTab").mockResolvedValue({ id: 42 });
+		jest.spyOn(browserClient, "emitFrame").mockImplementation(() => {});
+		jest.spyOn(storage, "keys").mockResolvedValue(["login"]);
+		jest
+			.spyOn(storage, "where")
+			.mockImplementation(async (_db, filter) =>
+				entries.filter((entry) => filter(entry)),
+			);
+		jest
+			.spyOn(storage, "findKey")
+			.mockImplementation(async (_db, key) =>
+				entries.find((entry) => entry.key === key),
+			);
+		jest.spyOn(secretService, "readSecret").mockResolvedValue({
+			totp_code: "JBSWY3DPEHPK3PXP",
+			totp_period: 60,
+			totp_algorithm: "SHA256",
+			totp_digits: 8,
+			totp_url_filter: "first.example",
+		});
+		jest.spyOn(cryptoLibrary, "getTotpToken").mockReturnValue("12345678");
+		jest
+			.spyOn(globalThis, "setInterval")
+			.mockReturnValue(0 as unknown as ReturnType<typeof setInterval>);
+		jest.spyOn(i18n, "on").mockImplementation(() => {});
+		jest
+			.spyOn(i18n, "t")
+			.mockImplementation((key) => en[key as keyof typeof en]);
+		queryTabs.mockImplementation((_query, callback) => callback([]));
+		backgroundService.activateAfterStore();
+		await settle();
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+		delete (globalThis as { chrome?: unknown }).chrome;
+	});
+
+	it("lists only domain-matching standalone entries in title order, separately from credentials", async () => {
+		await activateTab("https://first.example/login");
+		expect(menus.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				id: "psono-autofill-totp",
+				title: "Autofill TOTP",
+				visible: false,
+			}),
+		);
+		expect(totpMenuEntries().map(({ id, title }) => ({ id, title }))).toEqual([
+			{ id: "totp-a", title: "alpha (alice)" },
+			{ id: "totp-z", title: "Zulu" },
+		]);
+		expect(menus.update).toHaveBeenCalledWith("psono-autofill-totp", {
+			visible: true,
+		});
+		expect(menus.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				id: "login",
+				parentId: "psono-autofill-credential",
+			}),
+		);
+		expect(secretService.readSecret).not.toHaveBeenCalled();
+		expect(cryptoLibrary.getTotpToken).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		"https://unmatched.example/",
+		"https://sub.first.example/",
+		"https://first.example.evil/",
+		"https://first.example:8443/",
+		"http://first.example/",
+		"about:blank",
+		undefined,
+	])("keeps TOTP autofill hidden without a matching domain at %s", async (url) => {
+		await activateTab(url);
+		expect(totpMenuEntries()).toEqual([]);
+		expect(menus.update).not.toHaveBeenCalledWith("psono-autofill-totp", {
+			visible: true,
+		});
+	});
+
+	it("generates a fresh code with the stored parameters on each click and targets the clicked frame", async () => {
+		await activateTab("https://first.example/login");
+		const click = menus.onClicked.addListener.mock.calls[0][0];
+		jest
+			.mocked(cryptoLibrary.getTotpToken)
+			.mockReturnValueOnce("12345678")
+			.mockReturnValueOnce("87654321");
+		for (const frameId of [7, undefined]) {
+			click(
+				{
+					menuItemId: "totp-z",
+					frameId,
+					editable: true,
+					pageUrl: "https://first.example/login",
+				},
+				{ id: 42 } as chrome.tabs.Tab,
+			);
+			await settle();
+		}
+		expect(secretService.readSecret).toHaveBeenCalledTimes(2);
+		expect(secretService.readSecret).toHaveBeenCalledWith("totp-z", "key");
+		expect(cryptoLibrary.getTotpToken).toHaveBeenCalledWith(
+			"JBSWY3DPEHPK3PXP",
+			60,
+			"SHA256",
+			8,
+		);
+		expect(browserClient.emitFrame).toHaveBeenNthCalledWith(
+			1,
+			42,
+			7,
+			"fillpassword",
+			{ totp_token: "12345678", url_filter: "first.example" },
+		);
+		expect(browserClient.emitFrame).toHaveBeenNthCalledWith(
+			2,
+			42,
+			0,
+			"fillpassword",
+			{ totp_token: "87654321", url_filter: "first.example" },
+		);
 	});
 });

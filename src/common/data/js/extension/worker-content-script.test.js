@@ -2,6 +2,48 @@ const ClassWorkerContentScriptBase = require("./worker-content-script-base");
 const ClassWorkerContentScript = require("./worker-content-script");
 
 describe("content script shadow DOM autofill", () => {
+	it("fills a standalone TOTP without changing username or password fields", () => {
+		jest.useFakeTimers();
+		try {
+			document.body.innerHTML = `
+				<form>
+					<input name="username" value="existing-user">
+					<input type="password" value="existing-password">
+					<input id="otp" autocomplete="one-time-code">
+				</form>
+			`;
+			const handlers = {};
+			const base = {
+				ready: (fn) => fn(),
+				inIframe: () => false,
+				on: (event, handler) => {
+					handlers[event] = handler;
+				},
+				emit: jest.fn(),
+				getAllDocuments: () => {},
+				registerObserver: () => {},
+				modifyInputField: jest.fn(),
+			};
+			ClassWorkerContentScript(base, {}, setTimeout);
+			const input = jest.fn();
+			document.querySelector("#otp").addEventListener("input", input);
+			handlers.fillpassword({
+				totp_token: "12345678",
+				url_filter: "example.com",
+			});
+			expect(document.querySelector("#otp").value).toBe("12345678");
+			expect(input).toHaveBeenCalledTimes(1);
+			expect(document.querySelector('[name="username"]').value).toBe(
+				"existing-user",
+			);
+			expect(document.querySelector('[type="password"]').value).toBe(
+				"existing-password",
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it("renders passkey choices as text in the protected password-style dropdown", () => {
 		document.body.innerHTML = "";
 		const handlers = {};

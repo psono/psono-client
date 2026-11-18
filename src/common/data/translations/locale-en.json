@@ -369,6 +369,7 @@
 	"AUTOFILL_SERVICE": "Autofill Service",
 	"AUTOFILL": "Autofill",
 	"AUTOFILL_CREDENTIAL": "Autofill credential",
+	"AUTOFILL_TOTP": "Autofill TOTP",
 	"AUTOFILL_CREDIT_CARD": "Autofill credit card",
 	"AUTOFILL_IDENTITY": "Autofill identity",
 	"DOWNLOAD_PSONO": "Download Psono",
