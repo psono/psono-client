@@ -4,6 +4,7 @@ import * as OTPAuth from "otpauth";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
+import qrCode from "../services/qr-code";
 import TotpFields, { type TotpParameters } from "./totp-fields";
 
 jest.mock("react-i18next", () => ({
@@ -11,6 +12,9 @@ jest.mock("react-i18next", () => ({
 }));
 jest.mock("../i18n", () => ({ t: (key: string) => key }));
 jest.mock("../services/store", () => ({ getStore: jest.fn() }));
+jest.mock("../services/qr-code", () => ({
+	readFromImage: jest.fn(),
+}));
 
 const theme = createTheme();
 const initialValue: TotpParameters = {
@@ -34,9 +38,31 @@ function change(name: string, value: string) {
 	});
 }
 
+function button(label: string) {
+	const element = Array.from(document.querySelectorAll("button")).find(
+		(item) => item.getAttribute("aria-label") === label,
+	);
+	if (!element) throw new Error(`Missing button: ${label}`);
+	return element;
+}
+
+function uploadImage(file: File) {
+	act(() => {
+		const element = input("totpQrImage");
+		Object.defineProperty(element, "files", {
+			configurable: true,
+			value: [file],
+		});
+		Simulate.change(element);
+	});
+}
+
 describe("TotpFields", () => {
 	let container: HTMLDivElement;
 	const onValidityChange = jest.fn();
+	const onTitleSuggestion = jest.fn();
+	const qrUri =
+		"otpauth://totp/Example:alice@example.com?secret=abc&algorithm=SHA256&digits=8&period=60";
 
 	function Form() {
 		const [value, setValue] = useState(initialValue);
@@ -47,6 +73,7 @@ describe("TotpFields", () => {
 						value={value}
 						onChange={setValue}
 						onValidityChange={onValidityChange}
+						onTitleSuggestion={onTitleSuggestion}
 					/>
 				</Grid>
 			</ThemeProvider>
@@ -55,6 +82,7 @@ describe("TotpFields", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		jest.mocked(qrCode.readFromImage).mockResolvedValue(qrUri);
 		container = document.createElement("div");
 		document.body.appendChild(container);
 		act(() => {
@@ -146,5 +174,123 @@ describe("TotpFields", () => {
 		change("totpCode", "");
 		expect(input("totpUri").value).toBe("");
 		expect(input("totpCode").value).toBe("");
+	});
+
+	it("imports a QR image using the URI parser and suggests its title", async () => {
+		const image = new File(["image"], "qr.png", { type: "image/png" });
+		uploadImage(image);
+		expect(onValidityChange).toHaveBeenLastCalledWith(false);
+		await act(async () => {});
+		expect(qrCode.readFromImage).toHaveBeenCalledWith(image);
+		expect(input("totpCode").value).toBe("abc");
+		expect(input("totpPeriod").value).toBe("60");
+		expect(input("totpDigits").value).toBe("8");
+		expect(input("totpAlgorithm").value).toBe("SHA256");
+		expect(new URL(input("totpUri").value).searchParams.get("secret")).toBe(
+			"abc",
+		);
+		expect(onTitleSuggestion).toHaveBeenLastCalledWith("Example");
+		expect(onValidityChange).toHaveBeenLastCalledWith(true);
+	});
+
+	it("opens the image picker from the URI icon to the left of show/hide", () => {
+		const uriField = input("totpUri").closest(".MuiInputBase-root")!;
+		expect(
+			Array.from(uriField.querySelectorAll("button"), (item) =>
+				item.getAttribute("aria-label"),
+			),
+		).toEqual(["TOTP_IMPORT_QR_IMAGE", "SHOW_OR_HIDE_PASSWORD"]);
+		const click = jest
+			.spyOn(input("totpQrImage"), "click")
+			.mockImplementation(() => {});
+		act(() => button("TOTP_IMPORT_QR_IMAGE").click());
+		expect(click).toHaveBeenCalled();
+		click.mockRestore();
+	});
+
+	it("extracts a TOTP from a pasted screenshot", async () => {
+		const image = new File(["image"], "screenshot.png", { type: "image/png" });
+		const preventDefault = jest.fn();
+		act(() => {
+			Simulate.paste(input("totpUri"), {
+				clipboardData: {
+					items: [{ type: "image/png", getAsFile: () => image }],
+				} as unknown as DataTransfer,
+				preventDefault,
+			});
+		});
+		await act(async () => {});
+		expect(preventDefault).toHaveBeenCalled();
+		expect(qrCode.readFromImage).toHaveBeenCalledWith(image);
+		expect(input("totpCode").value).toBe("abc");
+	});
+
+	it("leaves ordinary text paste to the URI input", () => {
+		const preventDefault = jest.fn();
+		act(() => {
+			Simulate.paste(input("totpUri"), {
+				clipboardData: {
+					items: [{ type: "text/plain" }],
+				} as unknown as DataTransfer,
+				preventDefault,
+			});
+		});
+		expect(preventDefault).not.toHaveBeenCalled();
+		expect(qrCode.readFromImage).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		"https://example.com",
+		"otpauth://hotp/Example?secret=abc&counter=1",
+		"otpauth://totp/Example?secret=INVALID!",
+	])("does not replace existing fields with a non-TOTP QR code: %s", async (text) => {
+		const uri = input("totpUri").value;
+		jest.mocked(qrCode.readFromImage).mockResolvedValue(text);
+		uploadImage(new File(["image"], "qr.png", { type: "image/png" }));
+		await act(async () => {});
+		expect(container.textContent).toContain("INVALID_TOTP_URI");
+		expect(input("totpCode").value).toBe(initialValue.code);
+		expect(input("totpUri").value).toBe(uri);
+		expect(onTitleSuggestion).not.toHaveBeenCalled();
+		expect(onValidityChange).toHaveBeenLastCalledWith(true);
+	});
+
+	it.each([
+		["TOTP_QR_NOT_FOUND", "TOTP_QR_NOT_FOUND"],
+		["Image decoding failed", "TOTP_QR_READ_ERROR"],
+	])("reports image errors without changing the existing TOTP: %s", async (message, expected) => {
+		jest.mocked(qrCode.readFromImage).mockRejectedValue(new Error(message));
+		uploadImage(new File(["image"], "qr.png", { type: "image/png" }));
+		await act(async () => {});
+		expect(container.textContent).toContain(expected);
+		expect(input("totpCode").value).toBe(initialValue.code);
+		expect(onValidityChange).toHaveBeenLastCalledWith(true);
+	});
+
+	it("skips scanning if the user edits while the scanner is loading", async () => {
+		uploadImage(new File(["image"], "qr.png", { type: "image/png" }));
+		change("totpCode", "GEZDGNBVGY3TQOJQ");
+		await act(async () => {});
+		expect(qrCode.readFromImage).not.toHaveBeenCalled();
+		expect(input("totpCode").value).toBe("GEZDGNBVGY3TQOJQ");
+		expect(onValidityChange).toHaveBeenLastCalledWith(true);
+	});
+
+	it("does not overwrite manual changes with a late scan result", async () => {
+		let finish!: (uri: string) => void;
+		jest.mocked(qrCode.readFromImage).mockReturnValue(
+			new Promise((resolve) => {
+				finish = resolve;
+			}),
+		);
+		uploadImage(new File(["image"], "qr.png", { type: "image/png" }));
+		await act(async () => {});
+		change("totpCode", "GEZDGNBVGY3TQOJQ");
+		await act(async () => {
+			finish(qrUri);
+		});
+		expect(input("totpCode").value).toBe("GEZDGNBVGY3TQOJQ");
+		expect(onTitleSuggestion).not.toHaveBeenCalled();
+		expect(onValidityChange).toHaveBeenLastCalledWith(true);
 	});
 });

@@ -1,5 +1,13 @@
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { Grid, IconButton, InputAdornment, TextField } from "@mui/material";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import {
+	Alert,
+	Grid,
+	IconButton,
+	InputAdornment,
+	LinearProgress,
+	TextField,
+} from "@mui/material";
 import * as OTPAuth from "otpauth";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -54,34 +62,132 @@ const TotpFields = ({
 	const [showPassword, setShowPassword] = useState(false);
 	const [uri, setUri] = useState(() => buildUri(value, ""));
 	const [uriError, setUriError] = useState(false);
+	const [qrError, setQrError] = useState("");
+	const [scanning, setScanning] = useState(false);
+	const fileInput = useRef<HTMLInputElement>(null);
+	const scanRequest = useRef(0);
 	const lastValidUri = useRef("");
 	const { period, algorithm, digits, code } = value;
 
 	useEffect(() => {
 		setUri(buildUri({ period, algorithm, digits, code }, lastValidUri.current));
 		setUriError(false);
-		onValidityChange(true);
-	}, [period, algorithm, digits, code, onValidityChange]);
+	}, [period, algorithm, digits, code]);
 
+	useEffect(() => {
+		onValidityChange(!uriError && !scanning);
+	}, [uriError, scanning, onValidityChange]);
+
+	useEffect(
+		() => () => {
+			scanRequest.current += 1;
+		},
+		[],
+	);
+
+	const cancelScan = () => {
+		scanRequest.current += 1;
+		setScanning(false);
+		setQrError("");
+	};
+
+	const updateParameters = (parameters: TotpParameters) => {
+		cancelScan();
+		onChange(parameters);
+	};
+
+	const applyUri = (text: string) => {
+		const sourceUri = new URL(text);
+		const normalizedUri = stringifyUri(sourceUri);
+		const parsed = OTPAuth.URI.parse(normalizedUri);
+		if (
+			!(parsed instanceof OTPAuth.TOTP) ||
+			!cryptoLibrary
+				.getSupportedTotpAlgorithm()
+				.some((option) => option.value === parsed.algorithm.toUpperCase())
+		) {
+			throw new Error("Unsupported TOTP URI");
+		}
+		// Preserve the supplied secret instead of decoding and re-encoding it.
+		// Match OTPAuth's case-insensitive, last-value-wins parameter handling.
+		let secret = "";
+		for (const [name, value] of sourceUri.searchParams) {
+			if (name.toLowerCase() === "secret") secret = value;
+		}
+		lastValidUri.current = normalizedUri;
+		setUri(text);
+		setUriError(false);
+		onChange({
+			period: parsed.period,
+			algorithm: parsed.algorithm.toUpperCase(),
+			digits: parsed.digits,
+			code: secret,
+		});
+		onTitleSuggestion?.(
+			parsed.issuer.trim() || (parsed.label.split(":")[0] || "").trim(),
+		);
+	};
+
+	const scan = async (image: Blob) => {
+		const request = ++scanRequest.current;
+		setScanning(true);
+		setQrError("");
+		try {
+			const { default: qrCode } = await import(
+				/* webpackChunkName: "totp-qr-scanner" */ "../services/qr-code"
+			);
+			if (request !== scanRequest.current) return;
+			const text = await qrCode.readFromImage(image);
+			if (request !== scanRequest.current) return;
+			try {
+				applyUri(text.trim());
+			} catch {
+				setQrError("INVALID_TOTP_URI");
+			}
+		} catch (error) {
+			if (request !== scanRequest.current) return;
+			setQrError(
+				error instanceof Error && error.message === "TOTP_QR_NOT_FOUND"
+					? error.message
+					: "TOTP_QR_READ_ERROR",
+			);
+		} finally {
+			if (request === scanRequest.current) setScanning(false);
+		}
+	};
+
+	const showHideButton = (
+		<IconButton
+			aria-label={t("SHOW_OR_HIDE_PASSWORD")}
+			onClick={() => setShowPassword(!showPassword)}
+			size="large"
+		>
+			<VisibilityOffIcon fontSize="small" />
+		</IconButton>
+	);
 	const secretInputProps = {
 		type: showPassword ? "text" : "password",
 		classes: { input: "psono-addPasswordFormButtons-covered" },
 		endAdornment: (
-			<InputAdornment position="end">
-				<IconButton
-					aria-label={t("SHOW_OR_HIDE_PASSWORD")}
-					onClick={() => setShowPassword(!showPassword)}
-					size="large"
-				>
-					<VisibilityOffIcon fontSize="small" />
-				</IconButton>
-			</InputAdornment>
+			<InputAdornment position="end">{showHideButton}</InputAdornment>
 		),
 	};
 
 	return (
 		<>
-			<Grid item xs={12}>
+			<Grid
+				item
+				xs={12}
+				aria-busy={scanning}
+				onPaste={(event) => {
+					const image = Array.from(event.clipboardData.items)
+						.find((item) => item.type.startsWith("image/"))
+						?.getAsFile();
+					if (!image) return;
+					event.preventDefault();
+					void scan(image);
+				}}
+			>
 				<TextField
 					fullWidth
 					variant="outlined"
@@ -93,51 +199,55 @@ const TotpFields = ({
 					autoComplete="off"
 					value={uri}
 					error={uriError}
-					helperText={uriError ? t("INVALID_TOTP_URI") : undefined}
-					InputProps={secretInputProps}
+					helperText={t(uriError ? "INVALID_TOTP_URI" : "TOTP_QR_HELP")}
+					InputProps={{
+						...secretInputProps,
+						endAdornment: (
+							<InputAdornment position="end">
+								<IconButton
+									aria-label={t("TOTP_IMPORT_QR_IMAGE")}
+									title={t("TOTP_IMPORT_QR_IMAGE")}
+									disabled={scanning}
+									onClick={() => fileInput.current?.click()}
+									size="large"
+								>
+									<QrCodeScannerIcon fontSize="small" />
+								</IconButton>
+								{showHideButton}
+							</InputAdornment>
+						),
+					}}
 					onChange={(event) => {
+						cancelScan();
 						const text = event.target.value.trim();
 						setUri(text);
 						setUriError(false);
-						onValidityChange(true);
 						if (!text) return;
 						try {
-							const sourceUri = new URL(text);
-							const normalizedUri = stringifyUri(sourceUri);
-							const parsed = OTPAuth.URI.parse(normalizedUri);
-							if (
-								!(parsed instanceof OTPAuth.TOTP) ||
-								!cryptoLibrary
-									.getSupportedTotpAlgorithm()
-									.some(
-										(option) => option.value === parsed.algorithm.toUpperCase(),
-									)
-							) {
-								throw new Error("Unsupported TOTP URI");
-							}
-							// Preserve the supplied secret instead of decoding and re-encoding it.
-							// Match OTPAuth's case-insensitive, last-value-wins parameter handling.
-							let secret = "";
-							for (const [name, value] of sourceUri.searchParams) {
-								if (name.toLowerCase() === "secret") secret = value;
-							}
-							lastValidUri.current = normalizedUri;
-							onChange({
-								period: parsed.period,
-								algorithm: parsed.algorithm.toUpperCase(),
-								digits: parsed.digits,
-								code: secret,
-							});
-							onTitleSuggestion?.(
-								parsed.issuer.trim() ||
-									(parsed.label.split(":")[0] || "").trim(),
-							);
+							applyUri(text);
 						} catch {
 							setUriError(true);
-							onValidityChange(false);
 						}
 					}}
 				/>
+				<input
+					ref={fileInput}
+					type="file"
+					name="totpQrImage"
+					accept="image/*"
+					hidden
+					onChange={(event) => {
+						const image = event.target.files?.[0];
+						event.target.value = "";
+						if (image) void scan(image);
+					}}
+				/>
+				{scanning && <LinearProgress aria-label={t("TOTP_SCANNING_QR")} />}
+				{qrError && (
+					<Alert severity="error" onClose={() => setQrError("")}>
+						{t(qrError)}
+					</Alert>
+				)}
 			</Grid>
 			<Grid item xs={12}>
 				<TextField
@@ -154,7 +264,10 @@ const TotpFields = ({
 					type="number"
 					InputProps={{ inputProps: { min: 1, step: 1 } }}
 					onChange={(event) =>
-						onChange({ ...value, period: parseInt(event.target.value) || 30 })
+						updateParameters({
+							...value,
+							period: parseInt(event.target.value) || 30,
+						})
 					}
 				/>
 			</Grid>
@@ -168,7 +281,7 @@ const TotpFields = ({
 					name="totpAlgorithm"
 					value={algorithm}
 					required
-					onChange={(algorithm) => onChange({ ...value, algorithm })}
+					onChange={(algorithm) => updateParameters({ ...value, algorithm })}
 				/>
 			</Grid>
 			<Grid item xs={12}>
@@ -186,7 +299,10 @@ const TotpFields = ({
 					type="number"
 					InputProps={{ inputProps: { min: 1, step: 1 } }}
 					onChange={(event) =>
-						onChange({ ...value, digits: parseInt(event.target.value) || 6 })
+						updateParameters({
+							...value,
+							digits: parseInt(event.target.value) || 6,
+						})
 					}
 				/>
 			</Grid>
@@ -204,7 +320,10 @@ const TotpFields = ({
 					required
 					InputProps={secretInputProps}
 					onChange={(event) =>
-						onChange({ ...value, code: event.target.value.replace(/\s+/g, "") })
+						updateParameters({
+							...value,
+							code: event.target.value.replace(/\s+/g, ""),
+						})
 					}
 				/>
 			</Grid>
