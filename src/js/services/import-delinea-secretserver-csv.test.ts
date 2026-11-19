@@ -69,12 +69,27 @@ describe("Delinea SecretServer CSV importer", () => {
 		}
 	});
 
-	it("is available in the import selector", () => {
+	it("is available in the import selector and loads its parser on demand", async () => {
 		expect(importService.getImporter()).toContainEqual({
 			name: "Delinea SecretServer (CSV)",
 			value: "delinea_secretserver_csv",
-			parser: importer.parser,
+			parser: expect.any(Function),
 		});
+		const registered = importService
+			.getImporter()
+			.find((entry) => entry.value === "delinea_secretserver_csv")!;
+		const parser = jest.spyOn(importer, "parser");
+		const csv =
+			"Secret Name,Username,URL,Password\nServer,alice,https://example.com,password";
+		const result = await registered.parser(csv);
+		expect(parser).toHaveBeenCalledWith(csv);
+		expect(result?.secrets).toEqual([
+			expect.objectContaining({
+				website_password_title: "Server",
+				website_password_username: "alice",
+				website_password_password: "password",
+			}),
+		]);
 	});
 
 	it("imports the sample format and reuses nested folders", () => {

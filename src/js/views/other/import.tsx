@@ -237,7 +237,8 @@ const OtherImportView = (_props: ManagementViewProps) => {
 					</Select>
 				</FormControl>
 			</Grid>
-			{exportFormat === "psono_pw_json" && (
+			{(exportFormat === "psono_pw_json" ||
+				exportFormat === "samsung_pass") && (
 				<Grid item xs={12} sm={12} md={12}>
 					<TextFieldPassword
 						className={classes.textField}

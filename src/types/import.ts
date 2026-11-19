@@ -192,6 +192,7 @@ export interface ImportResult<Folder extends ImportedFolder = ImportedFolder>
 export type ImportParser = (
 	data: string,
 	binary?: ArrayBuffer,
+	password?: string,
 ) => ParsedImport | null | Promise<ParsedImport | null>;
 
 /** Undefined selects the object form used by security reports and offline mode. */

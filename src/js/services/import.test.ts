@@ -4,6 +4,7 @@ import importService from "./import";
 import secretService from "./secret";
 import type { ExportItem } from "../../types/import";
 import type { BulkSecretInput } from "../../types/vault";
+import { TextDecoder as NativeTextDecoder } from "util";
 
 jest.mock("./datastore-password", () => ({
 	getPasswordDatastore: jest.fn(() =>
@@ -90,6 +91,42 @@ describe("Import Service: password_hash calculation test suite", () => {
 		);
 		expect(importedItem().allow_http).toBe(true);
 		expect(createdContent().website_password_allow_http).toBe(true);
+	});
+
+	it("passes the Samsung Pass export password through the import pipeline", async () => {
+		const spass =
+			"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjfQQUEbOlaF347ttHdaNWXzceUq6Cty24icyz6uSDgzz0+1bSBUUXOVoRvJh63hQjIq8dL5Q7FWTvhiKQ39mHEz88Tt0dIuj+Deljn0PM8UUr/kQk/xaBNdO66OL/ClgcjLwHB9QaeSnGIakCnDWfJvrp86/NBbjgaWjGDH3RUoph71X+c1El9pZ3uK0Y49DEqqciLRc3/EShRSYtNLCbGKITStp+lfiH+csvNWAu789oPfC4pb/96gWXLIp05dBHOOQcbIUFMtdMtjJKhvfSieH6/BkyRH3JmWLHbnBSxgARpe6KBq4BI4lOv9rLLNB8a0jvrxtXBTOOygAuAG7n6Ntt1GV2WkpHWqRo68n+rd4s/dGVV9EjSaeGs5m0qPVBKf9VlZmmlaznoNsnQST/KVXKoXOOsK7KL4oC2jGNr0j9tvsEUiReVDuZtIet0yqpnbEfW1UAu7WOc4vUBR9ItZ9lT9imBDDDKKnpEz77fd9mnA8fiFOfJ/QbiOpDXndgXevUV3Y833H3TQqLaeR3wufh4sQV6fnQaJA+tqVd7wdPiJZpTx2MSgGIfMQR8JhYxzcUmmCLIeyrTKp7JRWdWg5D5QdNwCOjZE3e9QCOzPYmuuhg8VHXJ/xpuTVIYoAhluIdorxjut2L0b5hxEK7t+t9juGCVsXyfMWhhqRtfy8Qq8pF7GWdcFKzYWoHig8YrA3NpBGV+cy91OSZU6dtBk+rd/ZbTZRaj3vjFnkGQSXdbTZh+uHkwGLi4Xk+GgGJTky9GST4uknq1p7TmKuQGwsugGKuuzLt4YDV5wrni4hol1dIXtT0iMnaafKX3CpCPlDNlQinkS4a+UelXbrpoxNd2VXcibcCHzvam82UWGhwXCzInM7Lbsb82rfxmnTcpW4qKM8aUBztBC41M/+1UWvayo8V2bvEcE03OEpAREKlZxzX1n2VEzQdUfmzh1VVANidouD4wPn5N30o4EDAEIJIUWYPh6dWbltpLBWm4DqxKZHxFH5GjqJKlZM7RBgz6fYOw4gV4Dbd0Rh3zhO+XpQZQeanrhRaP1njfDyelX80N1YHQZ33/gRRTzuqLwFIdXhmTrpjvZ15pU3pKy6QAtntaTnrLdw+n2aO0exIfIiceEXAZEvI74LZksTlcyTs9A5PYCCtPGZUlrex46tekQaONxp54t5NOZf/Wki1YZpmC1yGI0VcV49tygPZ175aMhO010qiGhIjZKr8jg7fcfUa70KhSJ/Y2mKA0Eqlh+wmHQgiHleHOw6MDIYjUh0qI1CyOPkKqJjsXlWKpSm3UdMrkoqMa5XwVmbFGwB8ElILH6rMU6qlZtqqY+O2ukUN44lNTeTsOxR71jATrAysyRHx/+NgvluuF0+QAvnoVcM=";
+		const originalDecoder = global.TextDecoder;
+		Object.defineProperty(global, "TextDecoder", { value: NativeTextDecoder });
+		try {
+			await expect(
+				importService.importDatastore(
+					"samsung_pass",
+					spass,
+					undefined,
+					"wrong",
+				),
+			).rejects.toEqual({
+				errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"],
+			});
+			expect(secretService.createSecretBulk).not.toHaveBeenCalled();
+			await expect(
+				importService.importDatastore(
+					"samsung_pass",
+					spass,
+					undefined,
+					"Samsung-test-密碼!",
+				),
+			).resolves.toEqual({ msgs: ["IMPORT_SUCCESSFUL"] });
+			expect(createdContent().website_password_password).toBe(
+				"  päss;word\nline  ",
+			);
+			expect(
+				jest.mocked(secretService.createSecretBulk).mock.calls[0][0],
+			).toHaveLength(7);
+		} finally {
+			global.TextDecoder = originalDecoder;
+		}
 	});
 
 	it("preserves an explicit HTTP autofill setting", async () => {
