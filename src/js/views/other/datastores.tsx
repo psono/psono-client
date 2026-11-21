@@ -20,6 +20,7 @@ import EditDatastoresDialog from "./edit-datastores-dialog";
 const OtherDatastoresView = (props: ManagementViewProps) => {
 	const { t } = useTranslation();
 	const [datastores, setDatastores] = React.useState<DatastoreRow[]>([]);
+	const [loading, setLoading] = React.useState(true);
 	const [editDatastoreId, setEditDatastoreId] = React.useState("");
 	const [editDatastoreDescription, setEditDatastoreDescription] =
 		React.useState("");
@@ -35,24 +36,28 @@ const OtherDatastoresView = (props: ManagementViewProps) => {
 	}, []);
 
 	const loadDatastores = () => {
-		return datastore.getDatastoreOverview(true).then(
-			(overview) => {
-				setDatastores(
-					overview!.datastores
-						.filter((datastore) => datastore["type"] === "password")
-						.map((datastore): DatastoreRow => {
-							return [
-								datastore.id,
-								datastore.description,
-								datastore.is_default,
-							];
-						}),
-				);
-			},
-			(error) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		return datastore
+			.getDatastoreOverview(true)
+			.then(
+				(overview) => {
+					setDatastores(
+						overview!.datastores
+							.filter((datastore) => datastore["type"] === "password")
+							.map((datastore): DatastoreRow => {
+								return [
+									datastore.id,
+									datastore.description,
+									datastore.is_default,
+								];
+							}),
+					);
+				},
+				(error) => {
+					console.log(error);
+				},
+			)
+			.finally(() => setLoading(false));
 	};
 
 	const closeModal = () => {
@@ -162,6 +167,7 @@ const OtherDatastoresView = (props: ManagementViewProps) => {
 				<Grid item xs={12} sm={12} md={12}>
 					<Table
 						data={datastores}
+						loading={loading}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}

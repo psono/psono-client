@@ -1,7 +1,9 @@
+import type { HostCheckResult } from "../../types/host";
 import apiClient from "./api-client";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
 import device from "./device";
+import host from "./host";
 import ssoRedirect from "./sso-redirect";
 import storage from "./storage";
 import * as store from "./store";
@@ -77,6 +79,26 @@ describe.each([
 	const originalTarget = testGlobals.TARGET;
 	const originalUrl = window.location.href;
 	const apiError = ["TEST_LOGIN_API_REACHED"];
+	const serverKeys = cryptoLibrary.generatePublicPrivateKeypair();
+	const serverContext = {
+		url: "https://custom.example/server",
+		verifyKey: "cd".repeat(32),
+		adminRecoveryPublicKey: "",
+	};
+	const checkedHost: HostCheckResult = {
+		status: "matched",
+		server_url: serverContext.url,
+		verify_key: serverContext.verifyKey,
+		admin_recovery_public_key: "",
+		info: {
+			type: "EE",
+			version: "v6.0.0",
+			web_client: "https://vault.example",
+			public_key: serverKeys.public_key,
+		},
+	};
+	let currentServer: typeof serverContext & { publicKey: string };
+	let dispatch: jest.Mock;
 	let pending: Map<string, unknown>;
 	let database: PendingDatabase;
 
@@ -118,12 +140,18 @@ describe.each([
 		jest.spyOn(apiClient, login).mockRejectedValue({
 			data: { non_field_errors: apiError },
 		});
+		currentServer = { ...serverContext, publicKey: serverKeys.public_key };
+		dispatch = jest.fn((action: unknown) => {
+			if (typeof action === "function") action(dispatch);
+		});
 		jest.spyOn(store, "getStore").mockReturnValue({
 			getState: () => ({
-				server: { publicKey: "server-public-key" },
+				server: currentServer,
 				user: { trustDevice: false },
 			}),
-		} as ReturnType<typeof store.getStore>);
+			dispatch,
+		} as unknown as ReturnType<typeof store.getStore>);
+		jest.spyOn(host, "checkHost").mockResolvedValue(checkedHost);
 		jest.spyOn(cryptoLibrary, "generatePublicPrivateKeypair").mockReturnValue({
 			public_key: "session-public-key",
 			private_key: "session-private-key",
@@ -154,6 +182,7 @@ describe.each([
 		]);
 		expect(apiClient[login]).not.toHaveBeenCalled();
 		expect(cryptoLibrary.generatePublicPrivateKeypair).not.toHaveBeenCalled();
+		expect(host.checkHost).not.toHaveBeenCalled();
 	}
 
 	it("persists state before initiation and exchanges a matching callback once", async () => {
@@ -164,6 +193,7 @@ describe.each([
 			state,
 			type,
 			expiresAt: 3601000,
+			server: serverContext,
 		});
 
 		// Navigate to the actual return URL sent to the server, with its token appended.
@@ -183,6 +213,116 @@ describe.each([
 			"AUTHENTICATION_FAILED",
 		]);
 		expect(apiClient[login]).toHaveBeenCalledTimes(1);
+	});
+
+	it("reloads the selected host after the redirect loses the server key and URL", async () => {
+		await user[initiate](7);
+		navigateToCallback();
+		// Enforced-lock persistence keeps public login labels, not host info.
+		// Without remember-me, even the selected server URL is absent on reload.
+		currentServer = {
+			url: "",
+			publicKey: "",
+			verifyKey: "",
+			adminRecoveryPublicKey: "",
+		};
+		jest.mocked(cryptoLibrary.generatePublicPrivateKeypair).mockRestore();
+		jest.mocked(cryptoLibrary.encryptDataPublicKey).mockRestore();
+
+		await expect(user[login](tokenId)).rejects.toEqual(apiError);
+		expect(host.checkHost).toHaveBeenCalledWith(
+			serverContext.url,
+			serverContext.verifyKey,
+		);
+		expect(dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({ url: serverContext.url }),
+		);
+		expect(dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				info: expect.objectContaining({ public_key: serverKeys.public_key }),
+				verifyKey: serverContext.verifyKey,
+			}),
+		);
+		const [text, nonce, publicKey] = jest.mocked(apiClient[login]).mock
+			.calls[0];
+		expect(
+			JSON.parse(
+				cryptoLibrary.decryptDataPublicKey(
+					text,
+					nonce,
+					publicKey,
+					serverKeys.private_key,
+				),
+			),
+		).toHaveProperty(`${type}_token_id`, tokenId);
+	});
+
+	it.each([
+		["invalid_signature", "INVALID_SERVER_SIGNATURE"],
+		["signature_changed", "AUTHENTICATION_FAILED"],
+		["admin_recovery_public_key_changed", "AUTHENTICATION_FAILED"],
+		["new_server", "AUTHENTICATION_FAILED"],
+		["unsupported_server_version", "AUTHENTICATION_FAILED"],
+	] as const)("does not exchange the token when host verification returns %s", async (status, error) => {
+		await user[initiate](7);
+		navigateToCallback();
+		jest.mocked(host.checkHost).mockResolvedValue({ ...checkedHost, status });
+
+		await expect(user[login](tokenId)).rejects.toEqual([error]);
+		expect(apiClient[login]).not.toHaveBeenCalled();
+		expect(cryptoLibrary.generatePublicPrivateKeypair).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		{ verify_key: "ef".repeat(32) },
+		{ admin_recovery_public_key: "ef".repeat(32) },
+	])("rejects a host identity that changed since initiation: %j", async (changed) => {
+		await user[initiate](7);
+		navigateToCallback();
+		jest
+			.mocked(host.checkHost)
+			.mockResolvedValue({ ...checkedHost, ...changed });
+
+		await expect(user[login](tokenId)).rejects.toEqual([
+			"AUTHENTICATION_FAILED",
+		]);
+		expect(apiClient[login]).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		"",
+		"ab",
+		"zz".repeat(32),
+	])("rejects an invalid advertised public key: %j", async (publicKey) => {
+		await user[initiate](7);
+		navigateToCallback();
+		jest.mocked(host.checkHost).mockResolvedValue({
+			...checkedHost,
+			info: { ...checkedHost.info, public_key: publicKey },
+		});
+
+		await expect(user[login](tokenId)).rejects.toEqual([
+			"RECEIVED_MALFORMED_RESPONSE",
+		]);
+		expect(apiClient[login]).not.toHaveBeenCalled();
+		expect(cryptoLibrary.encryptDataPublicKey).not.toHaveBeenCalled();
+	});
+
+	it("supports an older pending callback with a cached key", async () => {
+		await ssoRedirect.createPending(type);
+		navigateToCallback();
+		await expect(user[login](tokenId)).rejects.toEqual(apiError);
+		expect(host.checkHost).not.toHaveBeenCalled();
+	});
+
+	it("reports a malformed response if an older pending callback has no cached key", async () => {
+		await ssoRedirect.createPending(type);
+		navigateToCallback();
+		currentServer.publicKey = "";
+		await expect(user[login](tokenId)).rejects.toEqual([
+			"RECEIVED_MALFORMED_RESPONSE",
+		]);
+		expect(apiClient[login]).not.toHaveBeenCalled();
 	});
 
 	it("rejects a callback when this browser has no pending login", async () => {

@@ -104,6 +104,7 @@ const EditFileRepositoryDialog = (props: FileRepositoryDialogProps) => {
 		GroupFileRepositoryRightRow[]
 	>([]);
 	const [selectUserDialogOpen, setSelectUserDialogOpen] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [selectGroupDialogOpen, setSelectGroupDialogOpen] = useState(false);
 
 	React.useEffect(() => {
@@ -111,77 +112,82 @@ const EditFileRepositoryDialog = (props: FileRepositoryDialogProps) => {
 	}, []);
 
 	const loadFileRepository = () => {
-		return fileRepository.readFileRepository(fileRepositoryId).then(
-			(response) => {
-				const data = response as ManagementFileRepositoryDetail;
-				setTitle(data.title);
-				setType(data.type);
-				setActive(data.active);
-				setGcpCloudStorageBucket(data.gcp_cloud_storage_bucket || "");
-				setGcpCloudStorageJsonKey(data.gcp_cloud_storage_json_key || "");
-				setAwsS3Bucket(data.aws_s3_bucket || "");
-				setAwsS3Region(data.aws_s3_region || "");
-				setAwsS3AccessKeyId(data.aws_s3_access_key_id || "");
-				setAwsS3SecretAccessKey(data.aws_s3_secret_access_key || "");
-				setAzureBlobStorageAccountName(
-					data.azure_blob_storage_account_name || "",
-				);
-				setAzureBlobStorageAccountPrimaryKey(
-					data.azure_blob_storage_account_primary_key || "",
-				);
-				setAzureBlobStorageAccountContainerName(
-					data.azure_blob_storage_account_container_name || "",
-				);
-				setBackblazeBucket(data.backblaze_bucket || "");
-				setBackblazeRegion(data.backblaze_region || "");
-				setBackblazeAccessKeyId(data.backblaze_access_key_id || "");
-				setBackblazeSecretAccessKey(data.backblaze_secret_access_key || "");
-				setOtherS3Bucket(data.other_s3_bucket || "");
-				setOtherS3Region(data.other_s3_region || "");
-				setOtherS3EndpointUrl(data.other_s3_endpoint_url || "");
-				setOtherS3AccessKeyId(data.other_s3_access_key_id || "");
-				setOtherS3SecretAccessKey(data.other_s3_secret_access_key || "");
-				setDoSpace(data.do_space || "");
-				setDoRegion(data.do_region || "");
-				setDoKey(data.do_key || "");
-				setDoSecret(data.do_secret || "");
-				setFileRepositoryRights(
-					data.file_repository_rights.map(
-						(fileRepositoryRight): FileRepositoryRightRow => {
-							return [
-								fileRepositoryRight.id,
-								fileRepositoryRight.user_username.length <= 15
-									? fileRepositoryRight.user_username
-									: fileRepositoryRight.user_username.substring(0, 15) + "...",
-								fileRepositoryRight.read,
-								fileRepositoryRight.write,
-								fileRepositoryRight.grant,
-								fileRepositoryRight.accepted,
-								fileRepositoryRight.own_user,
-							];
-						},
-					),
-				);
-				setGroupFileRepositoryRights(
-					data.group_file_repository_rights.map(
-						(fileRepositoryRight): GroupFileRepositoryRightRow => {
-							return [
-								fileRepositoryRight.id,
-								fileRepositoryRight.group_name.length <= 15
-									? fileRepositoryRight.group_name
-									: fileRepositoryRight.group_name.substring(0, 15) + "...",
-								fileRepositoryRight.read,
-								fileRepositoryRight.write,
-								fileRepositoryRight.grant,
-							];
-						},
-					),
-				);
-			},
-			(error) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		return fileRepository
+			.readFileRepository(fileRepositoryId)
+			.then(
+				(response) => {
+					const data = response as ManagementFileRepositoryDetail;
+					setTitle(data.title);
+					setType(data.type);
+					setActive(data.active);
+					setGcpCloudStorageBucket(data.gcp_cloud_storage_bucket || "");
+					setGcpCloudStorageJsonKey(data.gcp_cloud_storage_json_key || "");
+					setAwsS3Bucket(data.aws_s3_bucket || "");
+					setAwsS3Region(data.aws_s3_region || "");
+					setAwsS3AccessKeyId(data.aws_s3_access_key_id || "");
+					setAwsS3SecretAccessKey(data.aws_s3_secret_access_key || "");
+					setAzureBlobStorageAccountName(
+						data.azure_blob_storage_account_name || "",
+					);
+					setAzureBlobStorageAccountPrimaryKey(
+						data.azure_blob_storage_account_primary_key || "",
+					);
+					setAzureBlobStorageAccountContainerName(
+						data.azure_blob_storage_account_container_name || "",
+					);
+					setBackblazeBucket(data.backblaze_bucket || "");
+					setBackblazeRegion(data.backblaze_region || "");
+					setBackblazeAccessKeyId(data.backblaze_access_key_id || "");
+					setBackblazeSecretAccessKey(data.backblaze_secret_access_key || "");
+					setOtherS3Bucket(data.other_s3_bucket || "");
+					setOtherS3Region(data.other_s3_region || "");
+					setOtherS3EndpointUrl(data.other_s3_endpoint_url || "");
+					setOtherS3AccessKeyId(data.other_s3_access_key_id || "");
+					setOtherS3SecretAccessKey(data.other_s3_secret_access_key || "");
+					setDoSpace(data.do_space || "");
+					setDoRegion(data.do_region || "");
+					setDoKey(data.do_key || "");
+					setDoSecret(data.do_secret || "");
+					setFileRepositoryRights(
+						data.file_repository_rights.map(
+							(fileRepositoryRight): FileRepositoryRightRow => {
+								return [
+									fileRepositoryRight.id,
+									fileRepositoryRight.user_username.length <= 15
+										? fileRepositoryRight.user_username
+										: fileRepositoryRight.user_username.substring(0, 15) +
+											"...",
+									fileRepositoryRight.read,
+									fileRepositoryRight.write,
+									fileRepositoryRight.grant,
+									fileRepositoryRight.accepted,
+									fileRepositoryRight.own_user,
+								];
+							},
+						),
+					);
+					setGroupFileRepositoryRights(
+						data.group_file_repository_rights.map(
+							(fileRepositoryRight): GroupFileRepositoryRightRow => {
+								return [
+									fileRepositoryRight.id,
+									fileRepositoryRight.group_name.length <= 15
+										? fileRepositoryRight.group_name
+										: fileRepositoryRight.group_name.substring(0, 15) + "...",
+									fileRepositoryRight.read,
+									fileRepositoryRight.write,
+									fileRepositoryRight.grant,
+								];
+							},
+						),
+					);
+				},
+				(error) => {
+					console.log(error);
+				},
+			)
+			.finally(() => setLoading(false));
 	};
 	const edit = () => {
 		const onError = () => {
@@ -1204,6 +1210,7 @@ const EditFileRepositoryDialog = (props: FileRepositoryDialogProps) => {
 						<TabPanel value={value} index={0} className={classes.tabPanel}>
 							<Table
 								data={fileRepositoryRights}
+								loading={loading}
 								columns={columns}
 								options={options}
 								onCreate={onCreateFileRepositoryRight}
@@ -1212,6 +1219,7 @@ const EditFileRepositoryDialog = (props: FileRepositoryDialogProps) => {
 						<TabPanel value={value} index={1} className={classes.tabPanel}>
 							<Table
 								data={groupFileRepositoryRights}
+								loading={loading}
 								columns={groupColumns}
 								options={options}
 								onCreate={onCreateGroupFileRepositoryRight}

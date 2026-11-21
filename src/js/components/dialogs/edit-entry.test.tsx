@@ -3,12 +3,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import type { EntryItem, EntrySecretData } from "../../../types/entry-ui";
-import secretService from "../../services/secret";
-import offlineCache from "../../services/offline-cache";
-import { CACHE_REFRESH_DELAY } from "../../services/offline-cache";
-import { SecretChangedError } from "../../services/secret";
+import secretService, { SecretChangedError } from "../../services/secret";
+import offlineCache, {
+	CACHE_REFRESH_DELAY,
+} from "../../services/offline-cache";
 import DialogEditEntry from "./edit-entry";
-import DialogNewEntry from "./new-entry";
 
 jest.mock("react-i18next", () => ({
 	useTranslation: () => ({ t: (key: string) => key }),
@@ -27,7 +26,6 @@ jest.mock("../../services/secret", () => {
 	const actual = jest.requireActual("../../services/secret");
 	Object.assign(actual.default, {
 		readSecret: jest.fn(),
-		createSecret: jest.fn(),
 		writeSecret: jest.fn(),
 	});
 	return actual;
@@ -60,19 +58,6 @@ jest.mock("./encrypt-gpg-message", () => () => null);
 jest.mock("./generate-new-gpg-key", () => () => null);
 jest.mock("./generate-new-ssh-key", () => () => null);
 jest.mock("./import-gpg-key-as-text", () => () => null);
-jest.mock("../select-field/entry-type", () => {
-	const React = jest.requireActual<typeof import("react")>("react");
-	return (props: { value: string; onChange: (value: string) => void }) => (
-		<select
-			name="entryType"
-			value={props.value}
-			onChange={(event) => props.onChange(event.target.value)}
-		>
-			<option value="website_password">Website password</option>
-			<option value="totp">Authenticator</option>
-		</select>
-	);
-});
 
 const theme = createTheme({
 	palette: {
@@ -91,9 +76,7 @@ const secret: EntrySecretData = {
 };
 
 function input(name: string) {
-	const element = document.querySelector<HTMLInputElement | HTMLSelectElement>(
-		`[name="${name}"]`,
-	);
+	const element = document.querySelector<HTMLInputElement>(`[name="${name}"]`);
 	if (!element) throw new Error(`Missing input: ${name}`);
 	return element;
 }
@@ -127,9 +110,8 @@ async function saveAndClose() {
 	});
 }
 
-describe("standalone TOTP domain filters", () => {
+describe("DialogEditEntry", () => {
 	let container: HTMLDivElement;
-	const onCreate = jest.fn();
 	const onEdit = jest.fn();
 	const setDirty = jest.fn();
 
@@ -137,10 +119,6 @@ describe("standalone TOTP domain filters", () => {
 		jest.clearAllMocks();
 		jest.mocked(offlineCache.isActive).mockReturnValue(false);
 		jest.mocked(offlineCache.canUse).mockReturnValue(false);
-		jest.mocked(secretService.createSecret).mockResolvedValue({
-			secret_id: "secret-id",
-			secret_key: "secret-key",
-		});
 		jest
 			.mocked(secretService.writeSecret)
 			.mockResolvedValue({ secret_id: "secret-id" });
@@ -202,6 +180,24 @@ describe("standalone TOTP domain filters", () => {
 		await act(async () => button("SAVE").click());
 		return jest.mocked(secretService.writeSecret).mock.calls[0][2];
 	}
+
+	it("hides the URI and TOTP parameters when editing an existing TOTP", async () => {
+		await renderEdit(secret);
+		for (const name of [
+			"totpUri",
+			"totpCode",
+			"totpPeriod",
+			"totpDigits",
+			"totpAlgorithm",
+		]) {
+			expect(document.querySelector(`[name="${name}"]`)).toBeNull();
+		}
+		change("totpTitle", "Renamed authenticator");
+		expect(await save()).toMatchObject({
+			...secret,
+			totp_title: "Renamed authenticator",
+		});
+	});
 
 	it.each([
 		true,
@@ -349,50 +345,6 @@ describe("standalone TOTP domain filters", () => {
 		expect(container.textContent).toContain("ENTRY_CHANGED_ON_SERVER");
 	});
 
-	it.each<[string, boolean]>([
-		["", false],
-		[filter, false],
-		["", true],
-		[filter, true],
-	])("creates an authenticator with optional filter %p (close: %p)", async (urlFilter, close) => {
-		act(() => {
-			ReactDOM.render(
-				<ThemeProvider theme={theme}>
-					<DialogNewEntry
-						open
-						onClose={() => {}}
-						onCreate={onCreate}
-						parentDatastoreId="datastore-id"
-					/>
-				</ThemeProvider>,
-				container,
-			);
-		});
-		change("entryType", "totp");
-		change("totpTitle", secret.totp_title!);
-		change("totpCode", secret.totp_code!);
-		act(() => button("ADVANCED").click());
-		change("totpUrlFilter", urlFilter);
-		if (close) {
-			await saveAndClose();
-		} else {
-			await act(async () => button("SAVE").click());
-		}
-		expect(secretService.createSecret).toHaveBeenCalledTimes(1);
-		expect(
-			jest.mocked(secretService.createSecret).mock.calls[0][0],
-		).toMatchObject(secret);
-		const content = jest.mocked(secretService.createSecret).mock.calls[0][0];
-		if (urlFilter) {
-			expect(content).toHaveProperty("totp_url_filter", urlFilter);
-		} else {
-			expect(content).not.toHaveProperty("totp_url_filter");
-		}
-		expect(onCreate).toHaveBeenCalledTimes(1);
-		expect(onCreate.mock.calls[0][0].urlfilter).toBe(urlFilter || undefined);
-		expect(onCreate.mock.calls[0][1]).toBe(close);
-	});
-
 	it("preserves an app-created filter when saving another field with Advanced closed", async () => {
 		await renderEdit(
 			{ ...secret, totp_url_filter: filter },
@@ -466,7 +418,7 @@ describe("standalone TOTP domain filters", () => {
 			},
 		);
 		act(() => button("ADVANCED").click());
-		expect((input("totpUrlFilter") as HTMLInputElement).readOnly).toBe(true);
+		expect(input("totpUrlFilter").readOnly).toBe(true);
 		expect(secretService.writeSecret).not.toHaveBeenCalled();
 	});
 });

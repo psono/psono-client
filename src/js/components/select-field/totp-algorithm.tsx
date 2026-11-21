@@ -36,6 +36,8 @@ const SelectFieldTotpAlgorithm = (props: SelectFieldTotpAlgorithmProps) => {
 		onChange,
 		value,
 		className,
+		id,
+		name,
 	} = props;
 
 	let defaulValue: SelectOption | null | undefined = null;
@@ -45,6 +47,7 @@ const SelectFieldTotpAlgorithm = (props: SelectFieldTotpAlgorithmProps) => {
 
 	return (
 		<Autocomplete
+			id={id}
 			options={totpAlogrithms}
 			classes={{
 				option: classes.option,
@@ -82,6 +85,7 @@ const SelectFieldTotpAlgorithm = (props: SelectFieldTotpAlgorithmProps) => {
 					fullWidth={fullWidth}
 					inputProps={{
 						...params.inputProps,
+						name,
 						autoComplete: "new-password", // disable autocomplete and autofill
 					}}
 				/>

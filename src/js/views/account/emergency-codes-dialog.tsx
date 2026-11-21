@@ -43,6 +43,7 @@ const EmergencyCodesDialog = (props: AccountDialogProps) => {
 	const { open, onClose } = props;
 	const { t } = useTranslation();
 	const classes = useStyles();
+	const [loading, setLoading] = React.useState(true);
 	const [value, setValue] = React.useState(0);
 	const [person, setPerson] = React.useState("");
 	const [leadTime, setLeadTime] = React.useState<NumericInputValue>(24);
@@ -62,23 +63,27 @@ const EmergencyCodesDialog = (props: AccountDialogProps) => {
 	}, []);
 
 	const loadEmergencyCodes = () => {
-		emergencyCode.readEmergencyCodes().then(
-			(codes) => {
-				setEmergencyCodes(
-					codes!.map((code): EmergencyCodeRow => {
-						return [
-							code.id,
-							code.description,
-							code.activation_delay / 3600,
-							code.activation_date === null ? t("NO") : code.activation_date,
-						];
-					}),
-				);
-			},
-			(error) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		emergencyCode
+			.readEmergencyCodes()
+			.then(
+				(codes) => {
+					setEmergencyCodes(
+						codes!.map((code): EmergencyCodeRow => {
+							return [
+								code.id,
+								code.description,
+								code.activation_delay / 3600,
+								code.activation_date === null ? t("NO") : code.activation_date,
+							];
+						}),
+					);
+				},
+				(error) => {
+					console.log(error);
+				},
+			)
+			.finally(() => setLoading(false));
 	};
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -170,6 +175,7 @@ const EmergencyCodesDialog = (props: AccountDialogProps) => {
 				<DialogContent>
 					<Table
 						data={emergencyCodes}
+						loading={loading}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}

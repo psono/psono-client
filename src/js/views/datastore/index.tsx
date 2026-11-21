@@ -1085,6 +1085,7 @@ const DatastoreView = (
 							{newEntryOpen && (
 								<DialogNewEntry
 									open={newEntryOpen}
+									availableTags={tags}
 									onClose={() => setNewEntryOpen(false)}
 									onCreate={onNewEntryCreate}
 									parentDatastoreId={newEntryData.parentDatastoreId}
@@ -1102,6 +1103,7 @@ const DatastoreView = (
 							{editEntryOpen && !bigScreen && (
 								<DialogEditEntry
 									open={editEntryOpen}
+									availableTags={tags}
 									onClose={onCloseEdit}
 									onEdit={onEditEntrySave}
 									setDirty={setEditEntryDirty}
@@ -1182,6 +1184,7 @@ const DatastoreView = (
 							{editEntryOpen && (
 								<DialogEditEntry
 									open={editEntryOpen}
+									availableTags={tags}
 									onClose={onCloseEdit}
 									onEdit={onEditEntrySave}
 									item={editEntryData.item as EntryItem}

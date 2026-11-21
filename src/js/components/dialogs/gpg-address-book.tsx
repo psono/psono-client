@@ -70,6 +70,7 @@ const DialogGpgAddressBook = (props: DialogGpgAddressBookProps) => {
 	const [fingerprint, setFingerprint] = useState("");
 	const [defaultFingerprint, setDefaultFingerprint] = useState("");
 	const [addresses, setAddresses] = useState<AddressRow[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [userDict, setUserDict] = useState<Record<string, GpgUser>>({});
 
@@ -82,6 +83,7 @@ const DialogGpgAddressBook = (props: DialogGpgAddressBookProps) => {
 	}, []);
 
 	const loadGpgUsers = () => {
+		setLoading(true);
 		const onSuccess = (datastore: Datastore | undefined) => {
 			if (!isSubscribed) {
 				return;
@@ -101,7 +103,10 @@ const DialogGpgAddressBook = (props: DialogGpgAddressBookProps) => {
 		};
 		return datastoreGpgUserService
 			.getGpgUserDatastore()
-			.then(onSuccess, onError);
+			.then(onSuccess, onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const searchPublicKeyServer = (searchEmail: string) => {
@@ -430,6 +435,7 @@ const DialogGpgAddressBook = (props: DialogGpgAddressBookProps) => {
 						<Grid item xs={12} sm={12} md={12}>
 							<Table<AddressRow>
 								data={addresses}
+								loading={loading}
 								columns={columns}
 								options={options}
 								onCreate={() => setView("adding_address")}

@@ -6,29 +6,7 @@ import i18n from "../i18n";
 import cryptoLibraryService from "./crypto-library";
 import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
-import import1passwordV7CsvService from "./import-1password-v7-csv";
-import import1passwordV8CsvService from "./import-1password-v8-csv";
-import importBitwardenJson from "./import-bitwarden-json";
-import { openBitwardenZip, importZipAttachments } from "./import-bitwarden-zip";
 import type { FileDestination } from "../../types/components";
-import importChromeCsv from "./import-chrome-csv";
-import importDashlaneCsv from "./import-dashlane-csv";
-import importDelineaSecretServerCsv from "./import-delinea-secretserver-csv";
-import importEnpassJson from "./import-enpass-json";
-import importFirefoxCsvService from "./import-firefox-csv";
-import importKeepassInfoCsv from "./import-keepass-info-csv";
-import importKeepassInfoXml from "./import-keepass-info-xml";
-import importKeepassxOrgCsv from "./import-keepassx-org-csv";
-import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
-import importLastpassComCsv from "./import-lastpass-com-csv";
-import importNextcloudCsvService from "./import-nextcloud-csv";
-import importPasswordManagerProXls from "./import-password-pamanager-pro-xls";
-import importPasswordstateComCsv from "./import-passwordstate-com-csv";
-import importProtonPassCsvService from "./import-protonpass-csv";
-import importPsonoJson from "./import-psono-json";
-import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
-import importSafariCsvService from "./import-safari-csv";
-import importTeampassNetCsv from "./import-teampass-net-csv";
 import secretService from "./secret";
 import type { ImportParser, ParsedImport } from "../../types/import";
 import type {
@@ -48,24 +26,47 @@ interface ImportRequest<Data> {
 	type: string;
 	data: Data;
 	binary?: ArrayBuffer;
+	password?: string;
 	breadcrumbs: { id_breadcrumbs: string[] };
+}
+
+// Keep format-specific parsers and their dependencies out of the initial bundle.
+function lazyParser(
+	load: () => Promise<{ default: { parser: ImportParser } }>,
+): ImportParser {
+	return async (...args) => (await load()).default.parser(...args);
 }
 
 const _importer: Record<string, Importer> = {
 	psono_pw_json: {
 		name: "Psono.pw (JSON)",
 		value: "psono_pw_json",
-		parser: importPsonoJson.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-psono-json" */ "./import-psono-json"
+				),
+		),
 	},
 	one_password_v8: {
 		name: "1Password v8 (CSV)",
 		value: "one_password_v8",
-		parser: import1passwordV8CsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-1password-v8-csv" */ "./import-1password-v8-csv"
+				),
+		),
 	},
 	one_password_v7: {
 		name: "1Password v7 (CSV)",
 		value: "one_password_v7",
-		parser: import1passwordV7CsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-1password-v7-csv" */ "./import-1password-v7-csv"
+				),
+		),
 	},
 	chrome_csv: {
 		name: "Chrome (CSV)",
@@ -82,27 +83,62 @@ const _importer: Record<string, Importer> = {
 			</>
 		),
 		value: "chrome_csv",
-		parser: importChromeCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-chrome-csv" */ "./import-chrome-csv"
+				),
+		),
 	},
 	firefox_csv: {
 		name: "Firefox (CSV)",
 		value: "firefox_csv",
-		parser: importFirefoxCsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-firefox-csv" */ "./import-firefox-csv"
+				),
+		),
 	},
 	protonpass_csv: {
 		name: "Proton Pass (CSV)",
 		value: "protonpass_csv",
-		parser: importProtonPassCsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-protonpass-csv" */ "./import-protonpass-csv"
+				),
+		),
 	},
 	safari_csv: {
 		name: "Safari (CSV)",
 		value: "safari_csv",
-		parser: importSafariCsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-safari-csv" */ "./import-safari-csv"
+				),
+		),
 	},
 	bitwarden_json: {
 		name: "Bitwarden (JSON, unencrypted)",
 		value: "bitwarden_json",
-		parser: importBitwardenJson.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-bitwarden-json" */ "./import-bitwarden-json"
+				),
+		),
+	},
+	samsung_pass: {
+		name: "Samsung Pass (.spass)",
+		value: "samsung_pass",
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-samsung-pass" */ "./import-samsung-pass"
+				),
+		),
 	},
 	bitwarden_zip: {
 		name: "Bitwarden (ZIP, with attachments)",
@@ -112,69 +148,134 @@ const _importer: Record<string, Importer> = {
 	dashlane_csv: {
 		name: "Dashlane (CSV)",
 		value: "dashlane_csv",
-		parser: importDashlaneCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-dashlane-csv" */ "./import-dashlane-csv"
+				),
+		),
 	},
 	delinea_secretserver_csv: {
 		name: "Delinea SecretServer (CSV)",
 		value: "delinea_secretserver_csv",
-		parser: importDelineaSecretServerCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-delinea-secretserver-csv" */ "./import-delinea-secretserver-csv"
+				),
+		),
 	},
 	enpass_json: {
 		name: "Enpass (JSON)",
 		value: "enpass_json",
-		parser: importEnpassJson.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-enpass-json" */ "./import-enpass-json"
+				),
+		),
 	},
 	keepass_info_csv: {
 		name: "KeePass.info (CSV)",
 		value: "keepass_info_csv",
-		parser: importKeepassInfoCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-keepass-info-csv" */ "./import-keepass-info-csv"
+				),
+		),
 	},
 	keepass_info_xml: {
 		name: "KeePass.info (XML)",
 		value: "keepass_info_xml",
-		parser: importKeepassInfoXml.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-keepass-info-xml" */ "./import-keepass-info-xml"
+				),
+		),
 	},
 	keepassx_org_csv: {
 		name: "KeePassX.org (CSV)",
 		value: "keepassx_org_csv",
-		parser: importKeepassxOrgCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-keepassx-org-csv" */ "./import-keepassx-org-csv"
+				),
+		),
 	},
 	keepassxc_org_csv: {
 		name: "KeePassXC.org (CSV)",
 		value: "keepassxc_org_csv",
-		parser: importKeepassXCOrgCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-keepassxc-org-csv" */ "./import-keepassxc-org-csv"
+				),
+		),
 	},
 	lastpass_com_csv: {
 		name: "LastPass.com (CSV)",
 		value: "lastpass_com_csv",
-		parser: importLastpassComCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-lastpass-com-csv" */ "./import-lastpass-com-csv"
+				),
+		),
 	},
 	password_manager_pro_xls: {
 		name: "Password Manager Pro (XLS)",
 		value: "password_manager_pro_xls",
-		parser: importPasswordManagerProXls.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-password-manager-pro-xls" */ "./import-password-pamanager-pro-xls"
+				),
+		),
 	},
 	pwsafe_org_csv: {
 		name: "Password Safe (CSV)",
 		value: "pwsafe_org_csv",
-		parser: importPwsafeOrgCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-pwsafe-org-csv" */ "./import-pwsafe-org-csv"
+				),
+		),
 	},
 	teampass_net_csv: {
 		name: "Teampass (CSV)",
 		value: "teampass_net_csv",
-		parser: importTeampassNetCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-teampass-net-csv" */ "./import-teampass-net-csv"
+				),
+		),
 	},
 	nextcloud_csv: {
 		name: "Nextcloud (CSV)",
 		help: () =>
 			i18n.t("NEXTCLOUD_EXPORT_EXTRACT_ZIP_AND_UPLOAD_THE_PASSWORD_CSV"),
 		value: "nextcloud_csv",
-		parser: importNextcloudCsvService.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-nextcloud-csv" */ "./import-nextcloud-csv"
+				),
+		),
 	},
 	passwordstate_com_csv: {
 		name: "Passwordstate (CSV)",
 		value: "passwordstate_com_csv",
-		parser: importPasswordstateComCsv.parser,
+		parser: lazyParser(
+			() =>
+				import(
+					/* webpackChunkName: "import-passwordstate-com-csv" */ "./import-passwordstate-com-csv"
+				),
+		),
 	},
 };
 const registrations: Record<string, ((data: unknown) => void)[]> = {};
@@ -238,7 +339,7 @@ async function parseExport(
 		return Promise.reject({ errors: ["PARSER_NOT_FOUND"] });
 	}
 
-	const parsed_data = await parse(data["data"], data["binary"]);
+	const parsed_data = await parse(data["data"], data["binary"], data.password);
 	if (parsed_data === null) {
 		return Promise.reject({ errors: ["FILE_FORMAT_WRONG"] });
 	}
@@ -521,6 +622,9 @@ function importDatastore(
 			if (!destination)
 				throw { errors: ["BITWARDEN_ZIP_REQUIRES_FILE_STORAGE"] };
 			if (!archive) throw { errors: ["FILE_FORMAT_WRONG"] };
+			const { openBitwardenZip, importZipAttachments } = await import(
+				/* webpackChunkName: "import-bitwarden-zip" */ "./import-bitwarden-zip"
+			);
 			const zip = await openBitwardenZip(archive);
 			try {
 				const request = {
@@ -576,6 +680,7 @@ function importDatastore(
 		type: type,
 		data: data,
 		binary: binary,
+		password: password,
 		breadcrumbs: breadcrumbs || { id_breadcrumbs: [] },
 	})
 		.then(parseExport)

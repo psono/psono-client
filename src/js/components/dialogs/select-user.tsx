@@ -55,6 +55,7 @@ const DialogSelectUser = (props: DialogSelectUserProps) => {
 	const classes = useStyles();
 
 	const [users, setUsers] = useState<SharingUser[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [newUserOpen, setNewUserOpen] = useState(false);
 	const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
@@ -68,14 +69,21 @@ const DialogSelectUser = (props: DialogSelectUserProps) => {
 	}, []);
 
 	const loadUsers = () => {
-		datastoreUserService.getUserDatastore().then((userDatastore) => {
-			if (!isSubscribed) {
-				return;
-			}
-			const newUsers: SharingUser[] = [];
-			helperService.createList(userDatastore!, newUsers);
-			setUsers(newUsers);
-		});
+		setLoading(true);
+		datastoreUserService
+			.getUserDatastore()
+			.then((userDatastore) => {
+				if (!isSubscribed) {
+					return;
+				}
+				const newUsers: SharingUser[] = [];
+				helperService.createList(userDatastore!, newUsers);
+				setUsers(newUsers);
+			})
+			.catch(console.log)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const onNewUserCreate = (userObject: SharingUser) => {
@@ -161,6 +169,7 @@ const DialogSelectUser = (props: DialogSelectUserProps) => {
 					<Grid item xs={12} sm={12} md={12} className={classes.tree}>
 						<Table
 							data={userColumnData}
+							loading={loading}
 							columns={columns}
 							options={options}
 							onCreate={onSearchUser}

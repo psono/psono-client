@@ -17,6 +17,7 @@ import host from "../../services/host";
 const OtherKnownHostsView = (_props: ManagementViewProps) => {
 	const { t } = useTranslation();
 	const [knownHosts, setKnownHosts] = React.useState<KnownHostRow[]>([]);
+	const [loading, setLoading] = React.useState(true);
 
 	React.useEffect(() => {
 		loadKnownHosts();
@@ -37,6 +38,7 @@ const OtherKnownHostsView = (_props: ManagementViewProps) => {
 				];
 			}),
 		);
+		setLoading(false);
 	};
 
 	const onDelete = (rowData: KnownHostRow) => {
@@ -97,7 +99,12 @@ const OtherKnownHostsView = (_props: ManagementViewProps) => {
 					<Divider style={{ marginBottom: "20px" }} />
 				</Grid>
 				<Grid item xs={12} sm={12} md={12}>
-					<Table data={knownHosts} columns={columns} options={options} />
+					<Table
+						data={knownHosts}
+						loading={loading}
+						columns={columns}
+						options={options}
+					/>
 				</Grid>
 			</Grid>
 		</>

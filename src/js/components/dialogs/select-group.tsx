@@ -58,6 +58,7 @@ const DialogSelectGroup = (props: DialogSelectGroupProps) => {
 	);
 
 	const [groups, setGroups] = useState<Group[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [newGroupOpen, setNewGroupOpen] = useState(false);
 	const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
@@ -71,13 +72,20 @@ const DialogSelectGroup = (props: DialogSelectGroupProps) => {
 	}, []);
 
 	const loadGroups = () => {
-		groupsService.readGroups(true).then((newGroups) => {
-			if (!isSubscribed) {
-				return;
-			}
-			helper.removeFromArray(newGroups!, "", (a, b) => !a.share_admin);
-			setGroups(newGroups!);
-		});
+		setLoading(true);
+		groupsService
+			.readGroups(true)
+			.then((newGroups) => {
+				if (!isSubscribed) {
+					return;
+				}
+				helper.removeFromArray(newGroups!, "", (a, b) => !a.share_admin);
+				setGroups(newGroups!);
+			})
+			.catch(console.log)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const onNewGroupClose = () => {
@@ -154,6 +162,7 @@ const DialogSelectGroup = (props: DialogSelectGroupProps) => {
 					<Grid item xs={12} sm={12} md={12} className={classes.tree}>
 						<Table
 							data={groupColumnData}
+							loading={loading}
 							columns={columns}
 							options={options}
 							onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}

@@ -639,6 +639,73 @@ describe("vault lock lifecycle", () => {
 		);
 	});
 
+	it.each([
+		true,
+		false,
+	])("retains the explicit remember choice (%s), timeout, and action across logout", async (rememberChoice) => {
+		await vaultLock.enable(
+			"alice",
+			"example.test",
+			120,
+			undefined,
+			"LOGOUT",
+			rememberChoice,
+		);
+		// Routine state writes and policy clamps must preserve the explicit choice.
+		await vaultLock.persistence.setItem(
+			`persist:${vaultLock.getAccountId()}`,
+			state,
+		);
+		await vaultLock.update(true, 60, true, 60);
+		const id = vaultLock.getAccountId();
+		const key = vaultLock.getKey();
+		await vaultLock.forget();
+		await vaultLock.initialize(id);
+		vaultLock.completeInitialization(id);
+		expect(vaultLock.getConfiguration()).toMatchObject({
+			enabled: false,
+			requested: true,
+			rememberChoice,
+			timeout: 60,
+			timeoutAction: "LOGOUT",
+		});
+		expect(vaultLock.getKey()).not.toBe(key);
+		expect(await vaultLock.persistence.getItem(`persist:${id}`)).not.toContain(
+			"sensitive-token",
+		);
+	});
+
+	it.each([
+		true,
+		false,
+	])("only skips future setup after opting out when remember choice is %s", async (rememberChoice) => {
+		await vaultLock.enable(
+			"alice",
+			"example.test",
+			60,
+			undefined,
+			"LOGOUT",
+			true,
+		);
+		await vaultLock.update(
+			false,
+			60,
+			false,
+			undefined,
+			"LOGOUT",
+			rememberChoice,
+		);
+		const id = vaultLock.getAccountId();
+		await vaultLock.forget();
+		await vaultLock.initialize(id);
+		vaultLock.completeInitialization(id);
+		expect(vaultLock.getConfiguration()).toMatchObject({
+			enabled: false,
+			requested: !rememberChoice,
+			rememberChoice,
+		});
+	});
+
 	it("does not let an old tab overwrite changed lock settings or resurrect a removed session", async () => {
 		const id = `persist:${vaultLock.getAccountId()}`;
 		const raw = JSON.parse((await stateDb.getItem<string>(id))!);

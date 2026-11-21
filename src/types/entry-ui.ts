@@ -50,6 +50,7 @@ export type EntryMenuAnchors = Record<number, HTMLElement | null>;
 
 export interface DialogNewEntryProps {
 	open: boolean;
+	availableTags?: string[];
 	onClose: () => void;
 	onCreate?: (item: EntryItem, close: boolean) => void;
 	parentDatastoreId?: string;
@@ -58,6 +59,7 @@ export interface DialogNewEntryProps {
 
 export interface DialogEditEntryProps {
 	open: boolean;
+	availableTags?: string[];
 	onClose: () => void;
 	item: EntryItem;
 	data?: EntrySecretData;

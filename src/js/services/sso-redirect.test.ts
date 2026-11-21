@@ -128,6 +128,31 @@ describe("Service: SSO redirect test suite", () => {
 		expect(database.removeItem).toHaveBeenCalledTimes(1);
 	});
 
+	it("persists host context and returns it only when consuming a valid callback", async () => {
+		const server = {
+			url: "https://custom.example/server",
+			verifyKey: "ab".repeat(32),
+			adminRecoveryPublicKey: "",
+		};
+		await ssoRedirect.createPending("oidc", server);
+		const url = `https://psono.com/redirect#!/oidc/token/${state}/${tokenId}`;
+
+		expect(pending.get(`pending-sso-redirect-${state}`)).toEqual({
+			type: "oidc",
+			state,
+			expiresAt: 3601000,
+			server,
+		});
+		expect(ssoRedirect.parse(url)).toEqual({ type: "oidc", state, tokenId });
+		await expect(ssoRedirect.consume(url)).resolves.toEqual({
+			type: "oidc",
+			state,
+			tokenId,
+			server,
+		});
+		await expect(ssoRedirect.consume(url)).resolves.toBeNull();
+	});
+
 	it("allows overlapping login attempts with different state", async () => {
 		await ssoRedirect.createPending("saml");
 		jest

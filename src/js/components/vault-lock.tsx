@@ -1,6 +1,7 @@
 import {
 	Alert,
 	Button,
+	Checkbox,
 	FormControlLabel,
 	GlobalStyles,
 	MenuItem,
@@ -21,6 +22,7 @@ import vaultLock, {
 } from "../services/vault-lock";
 import user, { isLogoutPage } from "../services/user";
 import offlineCache from "../services/offline-cache";
+import { flushStorePersistence } from "../services/store";
 import DialogChangeAccount from "./dialogs/change-account";
 import ConfigLogo from "./config-logo";
 import DarkBox from "./dark-box";
@@ -68,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
 		"& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track": {
 			backgroundColor: theme.palette.lightGreyText.main,
 		},
+		"& .MuiCheckbox-root:not(.Mui-checked)": {
+			color: theme.palette.lightGreyText.main,
+		},
 	},
 }));
 
@@ -75,6 +80,12 @@ function useLock() {
 	const [, render] = React.useReducer((value) => value + 1, 0);
 	React.useEffect(() => vaultLock.subscribe(render), []);
 	return vaultLock.getConfiguration();
+}
+
+function getRpId(webClient?: string) {
+	return TARGET === "chrome" || TARGET === "firefox"
+		? new URL(webClient || window.location.href).hostname
+		: window.location.hostname;
 }
 
 export function LockSettings({
@@ -96,6 +107,7 @@ export function LockSettings({
 	);
 	const selectedTimeoutAction = supported === false ? "LOGOUT" : timeoutAction;
 	const [busy, setBusy] = React.useState(false);
+	const [rememberChoice, setRememberChoice] = React.useState(true);
 	const [error, setError] = React.useState("");
 	const [diagnostic, setDiagnostic] = React.useState("");
 	const mounted = React.useRef(false);
@@ -122,21 +134,19 @@ export function LockSettings({
 		setBusy(true);
 		const nextTimeout = enabled ? timeout : (config?.timeout ?? 300);
 		try {
+			await flushStorePersistence();
 			if (
 				enabled &&
 				(!config?.enabled ||
 					(selectedTimeoutAction === "LOCK" && !config.credential))
 			) {
-				const rpId =
-					TARGET === "chrome" || TARGET === "firefox"
-						? new URL(server.webClient || window.location.href).hostname
-						: window.location.hostname;
 				await vaultLock.enable(
 					username,
-					rpId,
+					getRpId(server.webClient),
 					nextTimeout,
 					server.complianceMaxLockTimeout,
 					selectedTimeoutAction,
+					setupMode ? rememberChoice : config?.rememberChoice,
 				);
 			} else
 				await vaultLock.update(
@@ -145,6 +155,7 @@ export function LockSettings({
 					enforce,
 					server.complianceMaxLockTimeout,
 					selectedTimeoutAction,
+					setupMode ? rememberChoice : config?.rememberChoice,
 				);
 			if (mounted.current) {
 				setTimeout(vaultLock.getConfiguration()?.timeout ?? 300);
@@ -270,6 +281,18 @@ export function LockSettings({
 				<MenuItem value="LOGOUT">{t("LOGOUT")}</MenuItem>
 			</TextField>
 			{setupMode && (
+				<FormControlLabel
+					label={t("REMEMBER_LOCKING_CHOICE")}
+					control={
+						<Checkbox
+							checked={rememberChoice}
+							disabled={busy}
+							onChange={(_, checked) => setRememberChoice(checked)}
+						/>
+					}
+				/>
+			)}
+			{setupMode && (
 				<Stack direction="row" spacing={1}>
 					<Button
 						variant="contained"
@@ -331,6 +354,17 @@ export function VaultGate({ children }: { children: React.ReactNode }) {
 		(state) => state.server.complianceEnforceLocking,
 	);
 	const maximum = useSelector((state) => state.server.complianceMaxLockTimeout);
+	const username = useSelector((state) => state.user.username);
+	const webClient = useSelector((state) => state.server.webClient);
+	const [failedSetupKeyId, setFailedSetupKeyId] = React.useState("");
+	const automaticSetupStarted = React.useRef("");
+	const automaticSetup =
+		!loggingOut &&
+		loggedIn &&
+		!config?.enabled &&
+		config?.requested === true &&
+		config.rememberChoice === true &&
+		failedSetupKeyId !== config.keyId;
 	const [error, setError] = React.useState("");
 	const [busy, setBusy] = React.useState(false);
 	const [accounts, setAccounts] = React.useState(false);
@@ -339,6 +373,24 @@ export function VaultGate({ children }: { children: React.ReactNode }) {
 	React.useEffect(() => {
 		document.body.classList.remove("loading");
 	}, []);
+	React.useEffect(() => {
+		if (!automaticSetup || automaticSetupStarted.current === config.keyId)
+			return;
+		automaticSetupStarted.current = config.keyId;
+		const apply = async () => {
+			await flushStorePersistence();
+			if (vaultLock.getConfiguration() !== config) return;
+			await vaultLock.enable(
+				username,
+				getRpId(webClient),
+				config.timeout,
+				maximum,
+				normalizeTimeoutAction(config.timeoutAction),
+				true,
+			);
+		};
+		apply().catch(() => setFailedSetupKeyId(config.keyId));
+	}, [automaticSetup, config, username, webClient, maximum]);
 	React.useEffect(() => {
 		const activity = (event: Event) => {
 			if (event.isTrusted) vaultLock.touch();
@@ -439,9 +491,11 @@ export function VaultGate({ children }: { children: React.ReactNode }) {
 					<Typography variant="h5" gutterBottom>
 						{locked || restoring
 							? t("VAULT_LOCKED")
-							: t("CONFIGURE_AUTOMATIC_LOCKING")}
+							: automaticSetup
+								? t("ENABLING_AUTOMATIC_LOCKING")
+								: t("CONFIGURE_AUTOMATIC_LOCKING")}
 					</Typography>
-					{restoring ? (
+					{restoring || automaticSetup ? (
 						<Typography>{t("LOADING")}</Typography>
 					) : locked ? (
 						<Stack spacing={2}>

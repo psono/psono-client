@@ -326,8 +326,9 @@ export const LOCK_REQUIRED_UNAVAILABLE = "LOCK_REQUIRED_UNAVAILABLE";
 
 export interface LockConfiguration {
 	enabled: boolean;
-	/** Retained device preference; a fresh login must enroll before use. */
+	/** Retained device preference; a fresh login must enable locking before use. */
 	requested?: boolean;
+	rememberChoice?: boolean;
 	timeout: number;
 	timeoutAction?: TimeoutAction;
 	keyId: string;
@@ -343,6 +344,7 @@ interface VaultRecord {
 
 interface LockPreference {
 	enabled: boolean;
+	rememberChoice?: boolean;
 	timeout: number;
 	timeoutAction?: TimeoutAction;
 	publicState?: string;
@@ -426,6 +428,7 @@ async function savePreference(
 		await preferencesDb.setItem(id, {
 			...previous,
 			enabled: config.enabled || config.requested === true,
+			rememberChoice: config.rememberChoice,
 			timeout: config.timeout,
 			timeoutAction: normalizeTimeoutAction(config.timeoutAction),
 			...(snapshot ? { publicState: publicState(snapshot) } : {}),
@@ -534,7 +537,10 @@ async function initialize(id: string): Promise<void> {
 		if (!next) {
 			next = {
 				enabled: false,
-				requested: preference?.enabled === true,
+				// An explicitly unremembered choice must reopen setup next login.
+				requested:
+					preference?.enabled === true || preference?.rememberChoice === false,
+				rememberChoice: preference?.rememberChoice,
 				timeout: preference?.timeout ?? 300,
 				timeoutAction: normalizeTimeoutAction(preference?.timeoutAction),
 				keyId: randomHex(),
@@ -917,6 +923,7 @@ async function enable(
 	timeoutAction: TimeoutAction = normalizeTimeoutAction(
 		configuration?.timeoutAction,
 	),
+	rememberChoice = configuration?.rememberChoice,
 ) {
 	const action = normalizeTimeoutAction(timeoutAction);
 	if (!configuration || (action === "LOCK" && !(await isSupported())))
@@ -938,6 +945,7 @@ async function enable(
 	const next: LockConfiguration = {
 		enabled: true,
 		requested: true,
+		rememberChoice,
 		timeout: lockTimeout,
 		timeoutAction: action,
 		keyId: randomHex(),
@@ -1030,6 +1038,7 @@ async function update(
 	timeoutAction: TimeoutAction = normalizeTimeoutAction(
 		configuration?.timeoutAction,
 	),
+	rememberChoice = configuration?.rememberChoice,
 ) {
 	if (!configuration || isLocked()) throw new Error("VAULT_UNLOCK_REQUIRED");
 	if (!enabled && required) throw new Error("LOCKING_REQUIRED");
@@ -1048,6 +1057,7 @@ async function update(
 	const next = {
 		...configuration,
 		requested: enabled,
+		rememberChoice,
 		keyId: randomHex(),
 		enabled,
 		timeout: clampTimeout(timeout, maximum),

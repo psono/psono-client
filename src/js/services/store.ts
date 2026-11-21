@@ -59,6 +59,11 @@ export function registerPersistor(persistor: Persistor) {
 	activePersistor = persistor;
 }
 
+/** Make the latest login state available before rotating the vault key. */
+export async function flushStorePersistence() {
+	await activePersistor?.flush();
+}
+
 type PersistedAppState = AppState & PersistPartial;
 type DebugWindow = Window & {
 	store?: AppStore;

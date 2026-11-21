@@ -21,6 +21,7 @@ import EditApiKeysDialog from "./edit-api-keys-dialog";
 const OtherApiKeysView = (props: ManagementViewProps) => {
 	const { t } = useTranslation();
 	const [apiKeys, setApiKeys] = React.useState<ApiKeyRow[]>([]);
+	const [loading, setLoading] = React.useState(true);
 	const [editApiKeyId, setEditApiKeyId] = React.useState("");
 	const [deleteApiKeyId, setDeleteApiKeyId] = React.useState("");
 	const [createOpen, setCreateOpen] = React.useState(false);
@@ -36,31 +37,37 @@ const OtherApiKeysView = (props: ManagementViewProps) => {
 	}, []);
 
 	const loadApiKeys = () => {
-		return apiKey.readApiKeys().then(
-			(response) => {
-				// The list endpoint returns an envelope; the shared service type needs updating.
-				const data = response as unknown as ApiKeyOverview;
-				if (!isSubscribed) {
-					return false;
-				}
-				setApiKeys(
-					data.api_keys.map((apiKey): ApiKeyRow => {
-						return [
-							apiKey.id,
-							apiKey.title,
-							apiKey.restrict_to_secrets,
-							apiKey.allow_insecure_access,
-							apiKey.read,
-							apiKey.write,
-							apiKey.active,
-						];
-					}),
-				);
-			},
-			(error) => {
-				console.log(error);
-			},
-		);
+		setLoading(true);
+		return apiKey
+			.readApiKeys()
+			.then(
+				(response) => {
+					// The list endpoint returns an envelope; the shared service type needs updating.
+					const data = response as unknown as ApiKeyOverview;
+					if (!isSubscribed) {
+						return false;
+					}
+					setApiKeys(
+						data.api_keys.map((apiKey): ApiKeyRow => {
+							return [
+								apiKey.id,
+								apiKey.title,
+								apiKey.restrict_to_secrets,
+								apiKey.allow_insecure_access,
+								apiKey.read,
+								apiKey.write,
+								apiKey.active,
+							];
+						}),
+					);
+				},
+				(error) => {
+					console.log(error);
+				},
+			)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const closeModal = () => {
@@ -215,6 +222,7 @@ const OtherApiKeysView = (props: ManagementViewProps) => {
 				<Grid item xs={12} sm={12} md={12}>
 					<Table
 						data={apiKeys}
+						loading={loading}
 						columns={columns}
 						options={options}
 						onCreate={onCreate}

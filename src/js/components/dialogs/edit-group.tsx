@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EventIcon from "@mui/icons-material/Event";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { Grid } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -99,6 +100,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 		Record<string, SharingGroupUser>
 	>({});
 	const [users, setUsers] = useState<SharingGroupUser[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [shares, setShares] = useState<SharingGroupShareRight[]>([]);
 	const [errors, setErrors] = useState<string[]>([]);
 	const [originalGroupName, setOriginalGroupName] = useState("");
@@ -141,6 +143,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 	}, []);
 
 	const loadGroup = () => {
+		setLoading(true);
 		const onError = (result: unknown) => {
 			// pass
 			console.log(result);
@@ -173,27 +176,29 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			}
 
 			if (!readOnly) {
-				datastoreUserService.getUserDatastore().then((user_datastore) => {
-					const trusted_users: SharingUser[] = [];
-					helper.createList(user_datastore!, trusted_users);
+				return datastoreUserService
+					.getUserDatastore()
+					.then((user_datastore) => {
+						const trusted_users: SharingUser[] = [];
+						helper.createList(user_datastore!, trusted_users);
 
-					for (let i = 0; i < trusted_users.length; i++) {
-						if (
-							Object.hasOwn(groupMemberIndex, trusted_users[i].data.user_id)
-						) {
-							continue;
+						for (let i = 0; i < trusted_users.length; i++) {
+							if (
+								Object.hasOwn(groupMemberIndex, trusted_users[i].data.user_id)
+							) {
+								continue;
+							}
+							users.push({
+								id: trusted_users[i].data.user_id,
+								name: trusted_users[i].data.user_username,
+								public_key: trusted_users[i].data.user_public_key,
+								is_current_user: trusted_users[i].data.user_id === userId,
+							});
 						}
-						users.push({
-							id: trusted_users[i].data.user_id,
-							name: trusted_users[i].data.user_username,
-							public_key: trusted_users[i].data.user_public_key,
-							is_current_user: trusted_users[i].data.user_id === userId,
-						});
-					}
-					setGroupMemberIndex(groupMemberIndex);
-					setUsers(users);
-					setShares(shares);
-				});
+						setGroupMemberIndex(groupMemberIndex);
+						setUsers(users);
+						setShares(shares);
+					});
 			} else {
 				setGroupMemberIndex(groupMemberIndex);
 				setUsers(users);
@@ -201,7 +206,13 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			}
 		};
 
-		groupsService.readGroup(groupId).then(onSuccess, onError);
+		groupsService
+			.readGroup(groupId)
+			.then(onSuccess)
+			.catch(onError)
+			.finally(() => {
+				if (isSubscribed) setLoading(false);
+			});
 	};
 
 	const onNewUserCreate = (userObject: SharingUser) => {
@@ -796,6 +807,13 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			];
 		},
 	);
+	const groupAdmins = users.filter(
+		(user) => isMember(user.id) && user.group_admin && user.accepted === true,
+	);
+	const isOnlyGroupAdmin =
+		!group.forced_membership &&
+		groupAdmins.length === 1 &&
+		groupAdmins[0].is_current_user;
 
 	return (
 		<Dialog
@@ -811,6 +829,16 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 			<DialogTitle id="alert-dialog-title">{t("EDIT_GROUP")}</DialogTitle>
 			<DialogContent>
 				<Grid container>
+					{isOnlyGroupAdmin && (
+						<Grid item xs={12} sm={12} md={12}>
+							<MuiAlert
+								severity="warning"
+								style={{ marginBottom: "5px", marginTop: "5px" }}
+							>
+								{t("CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GROUP_ADMIN_PRIVILEGE")}
+							</MuiAlert>
+						</Grid>
+					)}
 					<Grid item xs={12} sm={12} md={12}>
 						<TextField
 							className={classes.textField}
@@ -845,6 +873,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 						</Tabs>
 						<TabPanel value={value} index={0} className={classes.tabPanel}>
 							<Table
+								loading={loading}
 								data={userColumnData}
 								columns={userColumns}
 								options={options}
@@ -853,6 +882,7 @@ const DialogEditGroup = (props: DialogEditGroupProps) => {
 						</TabPanel>
 						<TabPanel value={value} index={1} className={classes.tabPanel}>
 							<Table
+								loading={loading}
 								data={shareRightColumnData}
 								columns={shareRightColumns}
 								options={options}

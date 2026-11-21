@@ -44,6 +44,7 @@ const DialogTrashBin = (props: DialogTrashBinProps) => {
 	const { open, onClose, datastore } = props;
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<TrashRow[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [entriesFull, setEntriesFull] = useState<Record<string, TrashEntry>>(
 		{},
 	);
@@ -151,6 +152,7 @@ const DialogTrashBin = (props: DialogTrashBinProps) => {
 		fillRecyclingBinEntriesHelper(datastore, []);
 		setEntries(newRecyclingBinEntries);
 		setEntriesFull(newRecyclingBinEntriesFull);
+		setLoading(false);
 	};
 
 	const removeEntry = (index: string | number) => {
@@ -333,7 +335,12 @@ const DialogTrashBin = (props: DialogTrashBinProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">{t("TRASH_BIN")}</DialogTitle>
 			<DialogContent>
-				<Table<TrashRow> data={entries} columns={columns} options={options} />
+				<Table<TrashRow>
+					data={entries}
+					loading={loading}
+					columns={columns}
+					options={options}
+				/>
 			</DialogContent>
 			<DialogActions>
 				<ButtonDanger
