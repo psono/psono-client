@@ -209,7 +209,7 @@ package-safari-extension:
   except:
     - schedules
   stage: package
-  image: macos-26-xcode-26
+  image: macos-27-xcode-27
   tags:
     - saas-macos-medium-m1
   dependencies:
@@ -245,7 +245,7 @@ deploy-safari:
   except:
     - schedules
   stage: deploy
-  image: macos-26-xcode-26
+  image: macos-27-xcode-27
   tags:
     - saas-macos-medium-m1
   dependencies:
