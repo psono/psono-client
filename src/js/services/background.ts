@@ -60,7 +60,6 @@ const alreadyFilledMaxAllowed: Record<string, number> = {};
 
 const gpgMessages: Record<string, GpgMessage> = {};
 
-let numTabs: number;
 let clearFillPasswordTimeout: ReturnType<typeof setTimeout> | undefined;
 let clearFillElsterCertificateTimeout:
 	| ReturnType<typeof setTimeout>
@@ -165,21 +164,8 @@ function activateAfterStore() {
 	// browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
 	// browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
 
-	if (typeof browser.tabs !== "undefined") {
-		// count tabs to logout on browser close
-		browser.tabs.query({ currentWindow: true }, (tabs) => {
-			numTabs = tabs.length;
-		});
-		browser.tabs.onCreated.addListener((tab) => {
-			numTabs++;
-		});
-		browser.tabs.onRemoved.addListener((tabId) => {
-			numTabs--;
-			if (numTabs === 0 && !getStore().getState().user.trustDevice) {
-				if (vaultLock.getConfiguration()?.enabled) lockAllSessions();
-				else user.logout();
-			}
-		});
+	if (TARGET !== "chrome" && typeof browser.tabs !== "undefined") {
+		browser.tabs.onRemoved.addListener(onTabRemoved);
 	}
 
 	// create the context menu once the translations are loaded
@@ -230,6 +216,16 @@ function onTabUpdated(
 
 function onWindowFocusChanged(windowId: number) {
 	if (windowId >= 0) void updateBadgeCounter();
+}
+
+function onTabRemoved() {
+	// Query all windows: an in-memory counter can drift or reset on MV3 wake-up.
+	browser.tabs.query({}, (tabs) => {
+		if (browser.runtime.lastError || !tabs || tabs.length > 0) return;
+		if (getStore().getState().user.trustDevice) return;
+		if (vaultLock.getConfiguration()?.enabled) lockAllSessions();
+		else user.logout();
+	});
 }
 
 /** Bind the toolbar to the current store, including asynchronous unlock restores. */
@@ -2213,6 +2209,7 @@ const backgroundService = {
 	watchBrowserActionState,
 	onTabActivated,
 	onTabUpdated,
+	onTabRemoved,
 	onWindowFocusChanged,
 	onMessage,
 	approveIframeLogin,

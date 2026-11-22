@@ -38,6 +38,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 		backgroundService.onTabUpdated(tabId, changeInfo, tab),
 	);
 });
+chrome.tabs.onRemoved.addListener(() => {
+	runAfterInitialization(() => backgroundService.onTabRemoved());
+});
 chrome.windows.onFocusChanged.addListener((windowId) => {
 	runAfterInitialization(() =>
 		backgroundService.onWindowFocusChanged(windowId),
