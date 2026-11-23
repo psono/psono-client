@@ -5,6 +5,57 @@ describe("Service: helper test suite", () => {
 		expect(helperService).toBeDefined();
 	});
 
+	describe("metadata search", () => {
+		it.each([
+			["Fenix", "QA Fênix 東京"],
+			["FÊNIX", "QA Fenix 東京"],
+			["fEn", "QA Fênix 東京"],
+			["Fenix", "QA Fe\u0302nix 東京"],
+			["Fe\u0302nix", "QA Fênix 東京"],
+			["cafe", "Café"],
+			["tieng", "Tiếng Việt"],
+		])("matches Latin accents: %s in %s", (query, name) => {
+			expect(helperService.getPasswordFilter(query)({ name })).toBe(true);
+		});
+
+		it.each([
+			{ name: "Fênix" },
+			{ name: "Entry", description: "Fênix" },
+			{ name: "Entry", tags: ["Fênix"] },
+			{ name: "Entry", urlfilter: "fênix.example" },
+		])("folds accents in searchable metadata: %j", (entry) => {
+			expect(helperService.getPasswordFilter("fenix")(entry)).toBe(true);
+		});
+
+		it("folds accents in the folder path passed as additional information", () => {
+			expect(
+				helperService.getPasswordFilter("fenix")({ name: "Entry" }, "/Fênix/"),
+			).toBe(true);
+		});
+
+		it.each([
+			["東京都", "QA Fênix 東京都", true],
+			["密码管理器", "QA 密码管理器", true],
+			["がっこう", "QA がっこう", true],
+			["か\u3099っこう", "QA がっこう", true],
+			["がっこう", "QA か\u3099っこう", true],
+			["かっこう", "QA がっこう", false],
+			["ハスワート", "QA パスワード", false],
+			["mima", "QA 密码管理器", false],
+			["密码管理器", "QA 密碼管理器", false],
+		])("preserves non-Latin matching: %s in %s", (query, name, expected) => {
+			expect(helperService.getPasswordFilter(query)({ name })).toBe(expected);
+		});
+
+		it("requires all search words and rejects absent terms", () => {
+			const entry = { name: "QA Fênix 東京都" };
+			expect(helperService.getPasswordFilter("fenix 東京都")(entry)).toBe(true);
+			expect(helperService.getPasswordFilter("fenix nonexistent")(entry)).toBe(
+				false,
+			);
+		});
+	});
+
 	it("parse_url www domain", () => {
 		expect(
 			helperService.parseUrl("https://www.example.com/url-part/#is-not-part"),

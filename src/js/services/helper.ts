@@ -755,12 +755,24 @@ function isUrlFilterMatch(
 }
 
 /**
- * Returns a test function that can be used to filter according to the name and urlfilter
+ * Folds Latin accents for search while preserving meaningful marks in other scripts,
+ * such as Japanese dakuten. Recompose so equivalent Unicode spellings match.
+ */
+function normalizeSearchText(value: string): string {
+	return value
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
+		.normalize("NFC");
+}
+
+/**
+ * Returns a test function that can be used to filter searchable metadata
  *
  * @param {string} test Testable string
  */
 function getPasswordFilter(test: string): PasswordFilter {
-	const searchStrings = test.toLowerCase().split(" ");
+	const searchStrings = normalizeSearchText(test).split(" ");
 
 	function filter(
 		datastore_entry: SearchableEntry,
@@ -780,35 +792,36 @@ function getPasswordFilter(test: string): PasswordFilter {
 			if (
 				Object.hasOwn(datastore_entry, "name") &&
 				datastore_entry["name"] &&
-				datastore_entry["name"].toLowerCase().indexOf(searchStrings[ii]) > -1
+				normalizeSearchText(datastore_entry["name"]).includes(searchStrings[ii])
 			) {
 				containCounter++;
 			} else if (
 				Object.hasOwn(datastore_entry, "description") &&
 				datastore_entry["description"] &&
-				datastore_entry["description"]
-					.toLowerCase()
-					.indexOf(searchStrings[ii]) > -1
+				normalizeSearchText(datastore_entry["description"]).includes(
+					searchStrings[ii],
+				)
 			) {
 				containCounter++;
 			} else if (
 				additionalInfo &&
-				additionalInfo.toLowerCase().indexOf(searchStrings[ii]) > -1
+				normalizeSearchText(additionalInfo).includes(searchStrings[ii])
 			) {
 				containCounter++;
 			} else if (
 				Object.hasOwn(datastore_entry, "tags") &&
 				datastore_entry["tags"] &&
 				datastore_entry["tags"].some((tag) =>
-					tag.toLowerCase().includes(searchStrings[ii]),
+					normalizeSearchText(tag).includes(searchStrings[ii]),
 				)
 			) {
 				containCounter++;
 			} else if (
 				Object.hasOwn(datastore_entry, "urlfilter") &&
 				datastore_entry["urlfilter"] &&
-				datastore_entry["urlfilter"].toLowerCase().indexOf(searchStrings[ii]) >
-					-1
+				normalizeSearchText(datastore_entry["urlfilter"]).includes(
+					searchStrings[ii],
+				)
 			) {
 				containCounter++;
 			} else if (

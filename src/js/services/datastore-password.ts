@@ -2182,7 +2182,11 @@ function modifyTreeForSearch(
 		return;
 	}
 
-	if (newValue.length < 3) {
+	// A single Han or kana character can be a meaningful search term.
+	if (
+		newValue.length < 3 &&
+		!/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(newValue)
+	) {
 		newValue = "";
 	}
 

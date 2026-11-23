@@ -490,6 +490,112 @@ describe("Service: datastorePasswordService test suite #1", () => {
 	});
 });
 
+describe("Service: datastorePasswordService - search", () => {
+	it.each([
+		"東",
+		"東京",
+		"密",
+		"あ",
+		"ア",
+		"ｱ",
+		"が",
+		"𠮷",
+		"a東",
+	])("filters immediately for a short Han or kana query: %s", (query) => {
+		const datastore: Datastore = {
+			items: [
+				{ id: "match", name: `${query} entry` },
+				{ id: "other", name: "Other entry" },
+			],
+		};
+
+		datastorePasswordService.modifyTreeForSearch(query, datastore);
+
+		expect(datastore.items!.map((item) => item.hidden)).toEqual([false, true]);
+		expect(datastore.expanded_temporary).toBe(true);
+	});
+
+	it.each([
+		"",
+		"a",
+		"ab",
+		"é",
+		"Ж",
+		"。",
+		"ー",
+		"😀",
+	])("keeps the minimum length for other short queries: %s", (query) => {
+		const datastore: Datastore = {
+			items: [
+				{ id: "match", name: `${query} entry` },
+				{ id: "other", name: "Other entry" },
+			],
+		};
+
+		datastorePasswordService.modifyTreeForSearch(query, datastore);
+
+		expect(datastore.items!.map((item) => item.hidden)).toEqual([false, false]);
+		expect(datastore.expanded_temporary).toBe(false);
+	});
+
+	it("still filters Latin queries with at least three characters", () => {
+		const datastore: Datastore = {
+			items: [
+				{ id: "match", name: "Fênix" },
+				{ id: "other", name: "Other entry" },
+			],
+		};
+
+		datastorePasswordService.modifyTreeForSearch("fen", datastore);
+
+		expect(datastore.items!.map((item) => item.hidden)).toEqual([false, true]);
+	});
+
+	it("applies short Han queries recursively and restores entries when cleared", () => {
+		const matchingFolder: DatastoreFolder = {
+			id: "matching-folder",
+			name: "東京",
+			items: [{ id: "folder-entry", name: "Entry in matching folder" }],
+		};
+		const otherFolder: DatastoreFolder = {
+			id: "other-folder",
+			name: "Other folder",
+			items: [
+				{ id: "match", name: "東京 account" },
+				{ id: "other", name: "Other entry" },
+			],
+		};
+		const datastore: Datastore = { folders: [matchingFolder, otherFolder] };
+
+		datastorePasswordService.modifyTreeForSearch("東", datastore);
+
+		expect(matchingFolder.hidden).toBe(false);
+		expect(matchingFolder.items![0].hidden).toBe(false);
+		expect(otherFolder.hidden).toBe(false);
+		expect(otherFolder.items!.map((item) => item.hidden)).toEqual([
+			false,
+			true,
+		]);
+
+		datastorePasswordService.modifyTreeForSearch("京阪", datastore);
+
+		expect(datastore.hidden).toBe(true);
+		expect(matchingFolder.hidden).toBe(true);
+		expect(otherFolder.hidden).toBe(true);
+
+		datastorePasswordService.modifyTreeForSearch("", datastore);
+
+		expect(datastore.hidden).toBe(false);
+		expect(matchingFolder.hidden).toBe(false);
+		expect(otherFolder.hidden).toBe(false);
+		expect(otherFolder.items!.map((item) => item.hidden)).toEqual([
+			false,
+			false,
+		]);
+		expect(otherFolder.expanded_temporary).toBe(false);
+	});
+});
+
 describe("Service: datastorePasswordService share_index", () => {
 	it("onShareAdded moves all nested share paths into the new share", () => {
 		const datastore: Datastore = {
