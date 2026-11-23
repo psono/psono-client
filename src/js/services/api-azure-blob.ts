@@ -20,12 +20,14 @@ function call(
 		req.headers = headers;
 	}
 
-	return new Promise<Response>((resolve, reject) => {
-		const onSuccess = (data: Response) => resolve(data);
-
-		const onError = (data: unknown) => reject(data);
-
-		fetch(signedUrl + endpoint, req).then(onSuccess, onError);
+	return fetch(signedUrl + endpoint, req).then((response) => {
+		if (!response.ok) {
+			throw Object.assign(
+				new Error(`Storage request failed (HTTP ${response.status})`),
+				{ status: response.status },
+			);
+		}
+		return response;
 	});
 }
 

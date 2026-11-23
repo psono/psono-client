@@ -3,7 +3,6 @@
  */
 
 import type { ApiResponse, HttpMethod } from "../../types/api";
-import converterService from "./converter";
 
 function call(
 	fileserverUrl: string,
@@ -21,12 +20,14 @@ function call(
 		req.headers = headers;
 	}
 
-	return new Promise<Response>((resolve, reject) => {
-		const onSuccess = (data: Response) => resolve(data);
-
-		const onError = (data: unknown) => reject(data);
-
-		fetch(fileserverUrl + endpoint, req).then(onSuccess, onError);
+	return fetch(fileserverUrl + endpoint, req).then((response) => {
+		if (!response.ok) {
+			throw Object.assign(
+				new Error(`Fileserver request failed (HTTP ${response.status})`),
+				{ status: response.status },
+			);
+		}
+		return response;
 	});
 }
 
@@ -94,21 +95,9 @@ function download(
 		endpoint,
 		JSON.stringify(data),
 		headers,
-	).then(
-		async (data) => ({
-			data: await data.arrayBuffer(),
-		}),
-		(data: unknown) => {
-			// Preserve the legacy Axios binary-error shape when a caller supplies it.
-			const error = data as { status: number; data: unknown };
-			if (error.status === 400) {
-				error.data = JSON.parse(
-					converterService.bytesToString(error.data as Uint8Array),
-				);
-			}
-			return Promise.reject(data);
-		},
-	);
+	).then(async (data) => ({
+		data: await data.arrayBuffer(),
+	}));
 }
 
 /**

@@ -1,4 +1,5 @@
 import { Grid } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -49,6 +50,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 		useState<FileDestination | null>(null);
 	const [uploading, setUploading] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
+	const [uploadError, setUploadError] = useState(false);
 
 	const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -73,6 +75,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 
 		setUploading(true);
 		setUploadProgress(0);
+		setUploadError(false);
 
 		try {
 			const newAttachment = await uploadAttachment(
@@ -89,7 +92,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 			onClose(newAttachment);
 		} catch (error) {
 			console.error("File upload error:", error);
-			notification.push("file_upload_error", t("FILE_UPLOAD_FAILED"));
+			setUploadError(true);
 			setUploading(false);
 			setUploadProgress(0);
 		}
@@ -101,6 +104,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 			setFileName("");
 			setFileDestination(null);
 			setUploadProgress(0);
+			setUploadError(false);
 			onClose(null);
 		}
 	};
@@ -116,6 +120,7 @@ const DialogAddAttachment = (props: DialogAddAttachmentProps) => {
 		>
 			<DialogTitle id="alert-dialog-title">{t("ADD_ATTACHMENT")}</DialogTitle>
 			<DialogContent>
+				{uploadError && <Alert severity="error">{t("UPLOAD_FAILED")}</Alert>}
 				<Grid container>
 					<Grid item xs={12} sm={12} md={12}>
 						<SelectFieldFileDestination

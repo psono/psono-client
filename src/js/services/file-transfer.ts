@@ -160,12 +160,6 @@ function uploadShard(
 		fileserver = shard["fileserver"][0];
 	}
 
-	const onError = (result: unknown) => Promise.reject(errorData(result));
-
-	// The fileserver upload returns a native Response; the historical .data
-	// projection therefore resolves undefined rather than the Response itself.
-	const onSuccess = (result: Response & { data?: undefined }) => result.data;
-
 	return apiFileserver
 		.upload(
 			fileserver["fileserver_url"],
@@ -174,7 +168,7 @@ function uploadShard(
 			ticketEncrypted.text,
 			ticketEncrypted.nonce,
 		)
-		.then(onSuccess, onError);
+		.then(() => undefined);
 }
 
 /**

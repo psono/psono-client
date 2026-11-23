@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import type { EntryItem, EntrySecretData } from "../../../types/entry-ui";
 import secretService, { SecretChangedError } from "../../services/secret";
+import { uploadAttachment } from "../../services/attachment";
 import offlineCache, {
 	CACHE_REFRESH_DELAY,
 } from "../../services/offline-cache";
@@ -13,6 +14,18 @@ jest.mock("react-i18next", () => ({
 	useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock("../../i18n", () => ({ t: (key: string) => key }));
+jest.mock("../../services/attachment", () => ({ uploadAttachment: jest.fn() }));
+jest.mock(
+	"../select-field/file-destination",
+	() => (props: { onChange: (value: unknown) => void }) => (
+		<button
+			type="button"
+			onClick={() => props.onChange({ id: "shard", destination_type: "shard" })}
+		>
+			SELECT_STORAGE
+		</button>
+	),
+);
 jest.mock("../../services/store", () => ({
 	getStore: () => ({
 		getState: () => ({
@@ -132,6 +145,7 @@ describe("DialogEditEntry", () => {
 		});
 		container.remove();
 		jest.useRealTimers();
+		jest.restoreAllMocks();
 	});
 
 	async function renderEdit(
@@ -180,6 +194,73 @@ describe("DialogEditEntry", () => {
 		await act(async () => button("SAVE").click());
 		return jest.mocked(secretService.writeSecret).mock.calls[0][2];
 	}
+
+	it("preserves the credential and existing attachments after upload failure, cancel, and reopening", async () => {
+		jest.spyOn(console, "error").mockImplementation(() => {});
+		jest.mocked(uploadAttachment).mockRejectedValueOnce(new Error("HTTP 500"));
+		const original: EntrySecretData = {
+			website_password_title: "Original credential",
+			website_password_username: "original-user",
+			website_password_password: "original-password",
+			website_password_url: "https://example.com",
+			website_password_notes: "Original notes",
+			attachments: [
+				{
+					file_id: "existing",
+					filename: "existing.txt",
+					file_size: 7,
+					file_secret_key: "key",
+					file_chunks: [{ hash: "hash", position: 1 }],
+					file_shard_id: "shard",
+					file_repository_id: null,
+				},
+			],
+		};
+		await renderEdit(original, { type: "website_password" });
+		act(() => button("ADD_DOT_DOT_DOT").click());
+		act(() => {
+			Array.from(document.querySelectorAll<HTMLElement>('[role="menuitem"]'))
+				.find((element) => element.textContent === "ADD_ATTACHMENT")!
+				.click();
+		});
+		act(() => button("SELECT_STORAGE").click());
+		act(() => {
+			const file =
+				document.querySelector<HTMLInputElement>('input[type="file"]')!;
+			Object.defineProperty(file, "files", {
+				value: [new File(["new"], "new.txt")],
+			});
+			Simulate.change(file);
+		});
+		await act(async () => button("ADD").click());
+		expect(document.querySelector('[role="alert"]')?.textContent).toBe(
+			"UPLOAD_FAILED",
+		);
+		expect(secretService.writeSecret).not.toHaveBeenCalled();
+		expect(onEdit).not.toHaveBeenCalled();
+		act(() => {
+			Array.from(
+				document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button'),
+			)
+				.find((element) => element.textContent === "CLOSE")!
+				.click();
+		});
+		expect(document.body.textContent).toContain("existing.txt");
+		expect(document.body.textContent).not.toContain("new.txt");
+		expect(await save()).toMatchObject(original);
+		act(() => {
+			ReactDOM.unmountComponentAtNode(container);
+		});
+		await renderEdit(original, { type: "website_password" });
+		expect(input("websitePasswordTitle").value).toBe(
+			original.website_password_title,
+		);
+		expect(input("websitePasswordUsername").value).toBe(
+			original.website_password_username,
+		);
+		expect(document.body.textContent).toContain("existing.txt");
+		expect(document.body.textContent).not.toContain("new.txt");
+	});
 
 	it("hides the URI and TOTP parameters when editing an existing TOTP", async () => {
 		await renderEdit(secret);

@@ -30,7 +30,6 @@ import React, { useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import type {
-	AuthErrorData,
 	ConnectionAuthenticationReference,
 	ConnectionType,
 } from "../../../types/auth";
@@ -59,6 +58,7 @@ import browserClientService from "../../services/browser-client";
 import connectionCredentialsService from "../../services/connection-credentials";
 import converterService from "../../services/converter";
 import cryptoLibrary from "../../services/crypto-library";
+import fileLinkService from "../../services/file-link";
 import fileRepositoryService from "../../services/file-repository";
 import fileTransferService from "../../services/file-transfer";
 import helperService from "../../services/helper";
@@ -603,6 +603,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 				fileSecretKey: string,
 				chunkPosition: number,
 				resolve: (chunk: UploadedEntryChunk) => void,
+				reject: (error: unknown) => void,
 			) => {
 				cryptoLibrary
 					.encryptFile(bytes, fileSecretKey)
@@ -640,11 +641,10 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 										chunk_position: chunkPosition,
 										hash_checksum: hashChecksum,
 									}),
-								() => {
-									setErrors(["UPLOAD_FAILED"]);
-								},
+								reject,
 							);
-					});
+					})
+					.catch(reject);
 			};
 
 			const readFileChunk = (
@@ -657,16 +657,27 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 					fileSecretKey: string,
 					chunkPosition: number,
 					resolve: (chunk: UploadedEntryChunk) => void,
+					reject: (error: unknown) => void,
 				) => void,
 				fileSecretKey: string,
 				chunkPosition: number,
 				resolve: (chunk: UploadedEntryChunk) => void,
+				reject: (error: unknown) => void,
 			) => {
 				const fileReader = new FileReader();
 
-				fileReader.onloadend = (event) => {
+				fileReader.onerror = () => reject(fileReader.error);
+				fileReader.onabort = () => reject(new Error("File read aborted"));
+				fileReader.onload = (event) => {
 					const bytes = new Uint8Array(event.target!.result as ArrayBuffer);
-					onLoadEnd(bytes, chunkSize, fileSecretKey, chunkPosition, resolve);
+					onLoadEnd(
+						bytes,
+						chunkSize,
+						fileSecretKey,
+						chunkPosition,
+						resolve,
+						reject,
+					);
 				};
 
 				const file_slice = file.slice(
@@ -713,6 +724,7 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 						fileSecretKey,
 						chunkPosition,
 						onReadFileChunkComplete,
+						reject,
 					);
 				}
 
@@ -729,39 +741,32 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 				data["file_transfer_secret_key"],
 				fileSecretKey,
 				fileChunkSize,
-			).then((chunks) => {
-				const uploadResult: UploadedEntryFile = {
-					file_chunks: chunks,
-					file_id: data["file_id"],
-					file_secret_key: fileSecretKey,
-					file_size: file!.size,
-				};
-				if (shard && Object.hasOwn(shard, "id")) {
-					uploadResult["file_shard_id"] = shard["id"];
-				}
-				if (fileRepository && Object.hasOwn(fileRepository, "id")) {
-					uploadResult["file_repository_id"] = fileRepository["id"];
-				}
+			)
+				.then((chunks) => {
+					const uploadResult: UploadedEntryFile = {
+						file_chunks: chunks,
+						file_id: data["file_id"],
+						file_secret_key: fileSecretKey,
+						file_size: file!.size,
+					};
+					if (shard && Object.hasOwn(shard, "id")) {
+						uploadResult["file_shard_id"] = shard["id"];
+					}
+					if (fileRepository && Object.hasOwn(fileRepository, "id")) {
+						uploadResult["file_repository_id"] = fileRepository["id"];
+					}
 
-				setProcessing(false);
-				openRequests = 0;
-				closedRequests = 0;
-				setPercentageComplete(0);
+					setProcessing(false);
+					openRequests = 0;
+					closedRequests = 0;
+					setPercentageComplete(0);
 
-				return uploadResult;
-			});
-
-		const onError = (data: AuthErrorData) => {
-			if (
-				Object.hasOwn(data, "non_field_errors") &&
-				data.non_field_errors!.length > 0
-			) {
-				return Promise.reject(data.non_field_errors);
-			} else {
-				console.log(data);
-				alert("Error, should not happen.");
-			}
-		};
+					return uploadResult;
+				})
+				.catch(async (error: unknown) => {
+					await fileLinkService.deleteFileLink(linkId).catch(() => {});
+					throw error;
+				});
 
 		const chunkCount = Math.ceil(file!.size / fileChunkSize);
 
@@ -779,10 +784,11 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 				parentDatastoreId,
 				parentShareId,
 			)
-			.then(onSuccess, onError);
+			.then(onSuccess);
 	};
 
 	const onCreate = (close: boolean, authenticationValidated = false) => {
+		setErrors([]);
 		const selectedAuthentication =
 			type === "ssh_connection"
 				? sshConnectionAuthentication
@@ -1131,25 +1137,31 @@ const DialogNewEntry = (props: DialogNewEntryProps) => {
 		}
 
 		if (item.type === "file") {
-			fileUpload(item["id"]).then((data) => {
-				item["file_chunks"] = data!.file_chunks;
-				item["file_id"] = data!.file_id;
-				item["file_secret_key"] = data!.file_secret_key;
-				item["file_size"] = data!.file_size;
-				if (Object.hasOwn(data!, "file_shard_id")) {
-					item["file_shard_id"] = data!.file_shard_id;
-				}
-				if (Object.hasOwn(data!, "file_repository_id")) {
-					item["file_repository_id"] = data!.file_repository_id;
-				}
-				item["file_size"] = data!.file_size;
-				props.onCreate!(item, close);
-			});
+			fileUpload(item["id"])
+				.then((data) => {
+					item["file_chunks"] = data!.file_chunks;
+					item["file_id"] = data!.file_id;
+					item["file_secret_key"] = data!.file_secret_key;
+					item["file_size"] = data!.file_size;
+					if (Object.hasOwn(data!, "file_shard_id")) {
+						item["file_shard_id"] = data!.file_shard_id;
+					}
+					if (Object.hasOwn(data!, "file_repository_id")) {
+						item["file_repository_id"] = data!.file_repository_id;
+					}
+					item["file_size"] = data!.file_size;
+					props.onCreate!(item, close);
+				})
+				.catch(() => {
+					setProcessing(false);
+					setPercentageComplete(0);
+					setErrors(["UPLOAD_FAILED"]);
+				});
 		} else {
 			setProcessing(true);
 			const onError = (result: unknown) => {
 				setProcessing(false);
-				setErrors(["FILE_UPLOAD_FAILED"]);
+				setErrors(["UPLOAD_FAILED"]);
 			};
 
 			const onSuccess = async (data: CreatedSecret | void) => {
