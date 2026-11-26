@@ -1818,6 +1818,10 @@ function readShare(
 		headers,
 		sessionSecretKey,
 		mode,
+		(response) => {
+			// Cleanup uses live reads and treats a rejected share as lost access.
+			if (mode === "refresh" && response.status === 400) throw { status: 400 };
+		},
 	);
 }
 
@@ -1829,7 +1833,11 @@ function readShare(
  *
  * @returns {Promise} promise
  */
-function readShares(token: AuthToken, sessionSecretKey: SessionSecretKey) {
+function readShares(
+	token: AuthToken,
+	sessionSecretKey: SessionSecretKey,
+	mode: CacheMode = "network-first",
+) {
 	const endpoint = "/share/";
 	const method = "GET";
 	const data = null;
@@ -1843,6 +1851,7 @@ function readShares(token: AuthToken, sessionSecretKey: SessionSecretKey) {
 		data,
 		headers,
 		sessionSecretKey,
+		mode,
 	);
 }
 

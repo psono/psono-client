@@ -118,6 +118,17 @@ describe("API client: transport compatibility", () => {
 		).toBeGreaterThan(0);
 	});
 
+	it("exposes HTTP 400 share reads by status so cleanup can skip them", async () => {
+		respond('{"text":"ciphertext","nonce":"response-nonce"}', 400);
+		jest
+			.mocked(cryptoLibrary.decryptData)
+			.mockReturnValue('{"non_field_errors":["NO_PERMISSION_OR_NOT_EXIST"]}');
+		await expect(
+			apiClient.readShare("token", "key", "denied-share", "refresh"),
+		).rejects.toEqual({ status: 400 });
+		expect(offlineCache.get).not.toHaveBeenCalled();
+	});
+
 	it("sends a shared RP ID without substituting the extension registration origin", async () => {
 		respond('{"text":"ciphertext","nonce":"response-nonce"}');
 		const origin = "chrome-extension://eljmjmgjkbmpmfljlmklcfineebidmlo";

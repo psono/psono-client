@@ -260,6 +260,7 @@ export interface OfflineWriteError {
 }
 export interface CacheMetadata {
 	id?: string;
+	link_id?: string;
 	write_date?: string;
 	shares?: CacheMetadata[];
 	secrets?: CacheMetadata[];

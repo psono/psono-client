@@ -29,6 +29,7 @@ import optionsBlueprintService from "../../services/options-blueprint";
 import { getStore } from "../../services/store";
 import userService from "../../services/user";
 import { LockSettings } from "../../components/vault-lock";
+import LinkCleanup from "../../components/link-cleanup";
 
 const useStyles = makeStyles((theme) => ({
 	checked: {
@@ -301,6 +302,9 @@ const SettingsGeneralView = (props: SettingsViewProps) => {
 				setErrors={setMsgs}
 				severity={"info"}
 			/>
+			<Grid item xs={12}>
+				<LinkCleanup />
+			</Grid>
 		</Grid>
 	);
 };
