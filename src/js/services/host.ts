@@ -15,7 +15,7 @@ import type {
 	HostCheckResult,
 	KnownHostCheck,
 } from "../../types/host";
-import type { KnownHost } from "../../types/state";
+import type { KnownHost, ServerState } from "../../types/state";
 
 /**
  * Returns all known hosts
@@ -58,6 +58,24 @@ function isCE() {
 function supportsGateway() {
 	const server = getStore().getState().server;
 	return server.type === "EE" && server.gateway === true;
+}
+
+/** Last tagged releases without link IDs in metadata: CE v7.5.12, EE v7.5.13. */
+function supportsSecretLinkCleanup(
+	server: Pick<ServerState, "type" | "version">,
+): boolean {
+	const lastUnsupportedVersion =
+		server.type === "CE"
+			? "7.5.12"
+			: server.type === "EE"
+				? "7.5.13"
+				: undefined;
+	return (
+		lastUnsupportedVersion !== undefined &&
+		typeof server.version === "string" &&
+		/^v?\d+\.\d+\.\d+(?:[-+\s]|$)/.test(server.version) &&
+		semverCompare(server.version, lastUnsupportedVersion) > 0
+	);
 }
 /**
  * Returns whether the current's server version is greater (or equal) than the current specified one
@@ -453,6 +471,7 @@ const hostService = {
 	isCE: isCE,
 	isEE: isEE,
 	supportsGateway: supportsGateway,
+	supportsSecretLinkCleanup: supportsSecretLinkCleanup,
 	isNewerOrEqualVersionThan: isNewerOrEqualVersionThan,
 	getCurrentHostUrl: getCurrentHostUrl,
 	checkKnownHosts: checkKnownHosts,

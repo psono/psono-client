@@ -7,6 +7,8 @@ import browser from "./browser";
 import browserClient from "./browser-client";
 import storage from "./storage";
 import * as storeService from "./store";
+import user from "./user";
+import vaultLock, * as vaultLockService from "./vault-lock";
 
 jest.mock("./browser", () => ({
 	__esModule: true,
@@ -23,7 +25,7 @@ jest.mock("./browser", () => ({
 	},
 }));
 
-describe("background badge tab switches", () => {
+describe("background tabs", () => {
 	// Chrome supports callback overloads as well as the Promise signatures that
 	// jest.mocked infers from its types. These handlers use the callback API.
 	const getTab = browser.tabs.get as unknown as jest.Mock<
@@ -151,5 +153,107 @@ describe("background badge tab switches", () => {
 		activated({ tabId: firstTab.id, windowId: 1 });
 		await settle();
 		expect(browserClient.setBadgeText).toHaveBeenLastCalledWith("2");
+	});
+
+	describe("logout on browser close", () => {
+		beforeEach(() => {
+			jest.spyOn(user, "logout").mockResolvedValue({ response: "success" });
+			jest.spyOn(vaultLock, "getConfiguration").mockReturnValue(undefined);
+			jest
+				.spyOn(vaultLockService, "lockAllSessions")
+				.mockImplementation(() => {});
+		});
+
+		const removalListener = () => {
+			background.activateAfterStore();
+			return jest.mocked(browser.tabs.onRemoved.addListener).mock.calls[0][0];
+		};
+
+		it("keeps the session with tabs in other windows and logs out only after the last tab closes", () => {
+			let tabs = Array.from({ length: 11 }, (_, id) => ({
+				id,
+				windowId: id < 3 ? 1 : 2,
+			})) as chrome.tabs.Tab[];
+			queryTabs.mockImplementation((query, callback) => {
+				callback(
+					query.currentWindow ? tabs.filter((tab) => tab.windowId === 1) : tabs,
+				);
+			});
+			const removed = removalListener();
+			for (const tabId of [3, 4, 5]) {
+				tabs = tabs.filter((tab) => tab.id !== tabId);
+				removed(tabId, { windowId: 2, isWindowClosing: false });
+			}
+			expect(user.logout).not.toHaveBeenCalled();
+			expect(vaultLockService.lockAllSessions).not.toHaveBeenCalled();
+
+			for (const tab of [...tabs]) {
+				expect(user.logout).not.toHaveBeenCalled();
+				tabs = tabs.filter((remaining) => remaining.id !== tab.id);
+				removed(tab.id!, { windowId: tab.windowId, isWindowClosing: true });
+			}
+			expect(user.logout).toHaveBeenCalledTimes(1);
+			expect(vaultLockService.lockAllSessions).not.toHaveBeenCalled();
+		});
+
+		it("preserves trusted sessions without making later untrusted close detection drift", () => {
+			const state = storeService.getStore().getState();
+			state.user.trustDevice = true;
+			let tabs = [1, 2, 3].map((id) => ({
+				id,
+				windowId: id === 1 ? 1 : 2,
+			})) as chrome.tabs.Tab[];
+			queryTabs.mockImplementation((query, callback) => {
+				callback(
+					query.currentWindow ? tabs.filter((tab) => tab.windowId === 1) : tabs,
+				);
+			});
+			const removed = removalListener();
+			for (const tab of [...tabs]) {
+				tabs = tabs.filter((remaining) => remaining.id !== tab.id);
+				removed(tab.id!, { windowId: tab.windowId, isWindowClosing: true });
+			}
+			expect(user.logout).not.toHaveBeenCalled();
+			expect(vaultLockService.lockAllSessions).not.toHaveBeenCalled();
+
+			const newTab = { id: 4, windowId: 3 } as chrome.tabs.Tab;
+			tabs = [newTab];
+			for (const [created] of jest.mocked(browser.tabs.onCreated.addListener)
+				.mock.calls) {
+				created(newTab);
+			}
+			state.user.trustDevice = false;
+			tabs = [];
+			removed(newTab.id!, { windowId: newTab.windowId, isWindowClosing: true });
+			expect(user.logout).toHaveBeenCalledTimes(1);
+		});
+
+		it("locks instead of logging out when vault locking is enabled", () => {
+			jest.spyOn(vaultLock, "getConfiguration").mockReturnValue({
+				enabled: true,
+			} as ReturnType<typeof vaultLock.getConfiguration>);
+			const removed = removalListener();
+			removed(1, { windowId: 1, isWindowClosing: true });
+			expect(vaultLockService.lockAllSessions).toHaveBeenCalledTimes(1);
+			expect(user.logout).not.toHaveBeenCalled();
+		});
+
+		it("does not treat a failed tab query as an empty browser", () => {
+			const removed = removalListener();
+			queryTabs.mockImplementation((_query, callback) => {
+				Object.defineProperty(browser.runtime, "lastError", {
+					configurable: true,
+					value: { message: "Tab query failed" },
+				});
+				try {
+					callback([]);
+				} finally {
+					delete browser.runtime.lastError;
+				}
+			});
+			removed(1, { windowId: 1, isWindowClosing: true });
+			expect(user.logout).not.toHaveBeenCalled();
+			expect(vaultLockService.lockAllSessions).not.toHaveBeenCalled();
+		});
 	});
 });

@@ -274,6 +274,60 @@ describe("Service: host test suite", () => {
 			expect(hostService.supportsGateway()).toBe(false);
 		});
 	});
+	describe("supportsSecretLinkCleanup", () => {
+		it.each([
+			["CE", "7.5.12", "7.5.13"],
+			["EE", "7.5.13", "7.5.14"],
+		])("requires %s to be newer than its latest tag %s", (type, latest, next) => {
+			for (const version of [
+				undefined,
+				"",
+				"unknown",
+				"5.4.0",
+				"7.5.11",
+				latest,
+				`v${latest}`,
+				`${latest} (Build newer)`,
+				`${latest}+build`,
+				`${latest}-rc.1`,
+			]) {
+				expect(hostService.supportsSecretLinkCleanup({ type, version })).toBe(
+					false,
+				);
+			}
+			for (const version of [
+				next,
+				`v${next}`,
+				`${next} (Build abcdef)`,
+				"7.6.0",
+				"7.10.0",
+				"8.0.0",
+			]) {
+				expect(hostService.supportsSecretLinkCleanup({ type, version })).toBe(
+					true,
+				);
+			}
+		});
+		it("uses separate CE and EE thresholds", () => {
+			expect(
+				hostService.supportsSecretLinkCleanup({
+					type: "CE",
+					version: "7.5.13",
+				}),
+			).toBe(true);
+			expect(
+				hostService.supportsSecretLinkCleanup({
+					type: "EE",
+					version: "7.5.13",
+				}),
+			).toBe(false);
+		});
+		it("hides cleanup until a recognized server edition is known", () => {
+			expect(
+				hostService.supportsSecretLinkCleanup({ type: "", version: "7.6.0" }),
+			).toBe(false);
+		});
+	});
 	describe("semverCompare", () => {
 		it("semverCompare exists", () => {
 			expect(hostService.semverCompare).toBeDefined();

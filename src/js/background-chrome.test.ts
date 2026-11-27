@@ -13,6 +13,7 @@ jest.mock("./services/background", () => ({
 		watchBrowserActionState: jest.fn(),
 		onTabActivated: jest.fn(),
 		onTabUpdated: jest.fn(),
+		onTabRemoved: jest.fn(),
 		onWindowFocusChanged: jest.fn(),
 		onMessage: jest.fn(),
 	},
@@ -55,6 +56,7 @@ describe("Chrome worker message startup", () => {
 				tabs: {
 					onActivated: { addListener: jest.fn() },
 					onUpdated: { addListener: jest.fn() },
+					onRemoved: { addListener: jest.fn() },
 				},
 				windows: { onFocusChanged: { addListener: jest.fn() } },
 			},
@@ -142,6 +144,7 @@ describe("Chrome worker message startup", () => {
 		expect(background.watchBrowserActionState).toHaveBeenCalledTimes(1);
 		expect(chrome.tabs.onActivated.addListener).toHaveBeenCalledTimes(1);
 		expect(chrome.tabs.onUpdated.addListener).toHaveBeenCalledTimes(1);
+		expect(chrome.tabs.onRemoved.addListener).toHaveBeenCalledTimes(1);
 	});
 
 	it("registers tab-switch wake-up listeners before hydration and handles the switch without a popup message", async () => {
@@ -177,6 +180,20 @@ describe("Chrome worker message startup", () => {
 		expect(respond).toHaveBeenCalledWith({
 			error: "Vault initialization failed",
 		});
+	});
+
+	it("registers tab-removal wake-up handling before hydration and checks only after initialization", async () => {
+		require("./background-chrome");
+		expect(chrome.tabs.onRemoved.addListener).toHaveBeenCalledTimes(1);
+		const removed = jest.mocked(chrome.tabs.onRemoved.addListener).mock
+			.calls[0][0];
+		removed(42, { windowId: 1, isWindowClosing: true });
+		expect(background.onTabRemoved).not.toHaveBeenCalled();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		finishInitialization(store);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(background.activateAfterStore).toHaveBeenCalledTimes(1);
+		expect(background.onTabRemoved).toHaveBeenCalledTimes(1);
 	});
 
 	it("leaves offscreen messages to their owning document", () => {

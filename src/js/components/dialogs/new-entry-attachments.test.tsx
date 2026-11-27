@@ -291,7 +291,8 @@ describe("attachments during entry creation", () => {
 		jest.mocked(uploadAttachment).mockRejectedValueOnce(new Error("offline"));
 		await act(async () => click("SAVE"));
 		expect(onCreate).not.toHaveBeenCalled();
-		expect(document.body.textContent).toContain("FILE_UPLOAD_FAILED");
+		expect(secretService.writeSecret).not.toHaveBeenCalled();
+		expect(document.body.textContent).toContain("UPLOAD_FAILED");
 		await act(async () => click("SAVE"));
 		expect(secretService.createSecret).toHaveBeenCalledTimes(1);
 		expect(onCreate).toHaveBeenCalledTimes(1);

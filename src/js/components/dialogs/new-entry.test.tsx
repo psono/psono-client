@@ -4,6 +4,9 @@ import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import type { EntrySecretData } from "../../../types/entry-ui";
 import secretService from "../../services/secret";
+import fileTransferService from "../../services/file-transfer";
+import cryptoLibrary from "../../services/crypto-library";
+import apiClient from "../../services/api-client";
 import DialogNewEntry from "./new-entry";
 
 jest.mock("react-i18next", () => ({
@@ -31,6 +34,9 @@ jest.mock("../../services/offline-cache", () => ({ isActive: () => false }));
 jest.mock("../../services/file-transfer", () => ({
 	...jest.requireActual("../../services/file-transfer").default,
 	readShards: jest.fn().mockResolvedValue([]),
+	createFile: jest.fn(),
+	upload: jest.fn(),
+	deleteFile: jest.fn(),
 }));
 jest.mock("../../services/file-repository", () => ({
 	...jest.requireActual("../../services/file-repository").default,
@@ -53,9 +59,21 @@ jest.mock("../select-field/entry-type", () => {
 		>
 			<option value="website_password">Website password</option>
 			<option value="totp">Authenticator</option>
+			<option value="file">File</option>
 		</select>
 	);
 });
+jest.mock(
+	"../select-field/file-destination",
+	() => (props: { onChange: (value: unknown) => void }) => (
+		<button
+			type="button"
+			onClick={() => props.onChange({ id: "shard", destination_type: "shard" })}
+		>
+			SELECT_STORAGE
+		</button>
+	),
+);
 
 const theme = createTheme({
 	palette: { checked: { main: "#008000" }, greyText: { main: "#808080" } },
@@ -138,6 +156,7 @@ describe("DialogNewEntry", () => {
 			ReactDOM.unmountComponentAtNode(container);
 		});
 		container.remove();
+		jest.restoreAllMocks();
 	});
 
 	function renderNewTotp() {
@@ -157,6 +176,64 @@ describe("DialogNewEntry", () => {
 		change("entryType", "totp");
 		change("totpTitle", secret.totp_title!);
 	}
+
+	it.each([
+		false,
+		true,
+	])("cleans up the standalone file link and remains retryable (cleanup fails: %s)", async (cleanupFails) => {
+		renderNewTotp();
+		change("entryType", "file");
+		act(() => button("SELECT_STORAGE").click());
+		act(() => {
+			const fileInput =
+				document.querySelector<HTMLInputElement>('input[type="file"]')!;
+			Object.defineProperty(fileInput, "files", {
+				value: [new File(["content"], "example.txt")],
+			});
+			Simulate.change(fileInput);
+		});
+		jest
+			.spyOn(FileReader.prototype, "readAsArrayBuffer")
+			.mockImplementation(function (this: FileReader) {
+				Object.defineProperty(this, "result", {
+					value: new Uint8Array([1, 2, 3]).buffer,
+				});
+				this.dispatchEvent(new ProgressEvent("load"));
+			});
+		jest
+			.spyOn(cryptoLibrary, "encryptFile")
+			.mockResolvedValue(new Uint8Array([4, 5, 6]));
+		jest.mocked(fileTransferService.createFile).mockResolvedValue({
+			file_id: "file",
+			file_transfer_id: "transfer",
+			file_transfer_secret_key: "key",
+		});
+		const deleteFileLink = jest.spyOn(apiClient, "deleteFileLink");
+		if (cleanupFails)
+			deleteFileLink.mockRejectedValueOnce(new Error("offline"));
+		else deleteFileLink.mockResolvedValueOnce({ data: {} });
+		jest
+			.mocked(fileTransferService.upload)
+			.mockRejectedValueOnce(new Error("HTTP 500"));
+		await act(async () => button("SAVE").click());
+		expect(onCreate).not.toHaveBeenCalled();
+		const linkId = jest.mocked(fileTransferService.createFile).mock.calls[0][4];
+		expect(linkId).toEqual(expect.any(String));
+		expect(deleteFileLink).toHaveBeenCalledWith(undefined, undefined, linkId);
+		expect(deleteFileLink).toHaveBeenCalledTimes(1);
+		expect(fileTransferService.deleteFile).not.toHaveBeenCalled();
+		expect(document.body.textContent).toContain("UPLOAD_FAILED");
+		expect(button("SAVE").disabled).toBe(false);
+		jest.mocked(fileTransferService.upload).mockResolvedValue(undefined);
+		await act(async () => button("SAVE").click());
+		expect(fileTransferService.createFile).toHaveBeenCalledTimes(2);
+		expect(onCreate).toHaveBeenCalledTimes(1);
+		expect(onCreate).toHaveBeenCalledWith(
+			expect.objectContaining({ type: "file", file_id: "file" }),
+			false,
+		);
+		expect(deleteFileLink).toHaveBeenCalledTimes(1);
+	});
 
 	it("creates a standalone TOTP from a URI with standard defaults", async () => {
 		renderNewTotp();
