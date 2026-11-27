@@ -789,12 +789,31 @@ function moveItem(
 		}
 
 		let timeout = 0;
+		const linkUpdates: Promise<unknown>[] = [];
+		// The caller reloads the datastore when this move resolves. A cached
+		// reload makes the vault read-only, so finish every link request first.
+		const scheduleLinkUpdate = (
+			callback: () => Promise<unknown>,
+			delay: number,
+		) => {
+			linkUpdates.push(
+				new Promise<unknown>((resolve, reject) => {
+					setTimeout(() => {
+						try {
+							resolve(callback());
+						} catch (error) {
+							reject(error);
+						}
+					}, delay);
+				}),
+			);
+		};
 
 		// adjust the links for every child_share (and therefore update the rights)
 		for (i = child_shares.length - 1; i >= 0; i--) {
 			((child_share) => {
 				timeout = timeout + 50;
-				setTimeout(() => {
+				scheduleLinkUpdate(() => {
 					closest_share_info = shareService.getClosestParentShare(
 						target_path_copy.concat(child_share.path),
 						datastore,
@@ -803,13 +822,17 @@ function moveItem(
 					) as ClosestParentShare;
 					closest_parent = closest_share_info["closest_share"];
 
-					shareLinkService.onShareMoved(child_share.share.id, closest_parent);
+					return shareLinkService.onShareMoved(
+						child_share.share.id,
+						closest_parent,
+					);
 				}, timeout);
 			})(child_shares[i]);
 		}
 
 		// if parent_share or parent_datastore did not change, then we are done here
 		if (!check_if_parent_changed(element, target)) {
+			await Promise.all(linkUpdates);
 			return;
 		}
 
@@ -820,7 +843,7 @@ function moveItem(
 				if (onOpenRequest) {
 					onOpenRequest();
 				}
-				setTimeout(() => {
+				scheduleLinkUpdate(() => {
 					closest_share_info = shareService.getClosestParentShare(
 						target_path_copy2.concat(secret_link.path),
 						datastore,
@@ -840,7 +863,7 @@ function moveItem(
 							onClosedRequest();
 						}
 					};
-					secretLinkService
+					return secretLinkService
 						.onSecretMoved(secret_link.id, closest_parent)
 						.then(onSuccess, onError);
 				}, timeout);
@@ -851,7 +874,7 @@ function moveItem(
 		for (i = file_links.length - 1; i >= 0; i--) {
 			((file_link) => {
 				timeout = timeout + 50;
-				setTimeout(() => {
+				scheduleLinkUpdate(() => {
 					closest_share_info = shareService.getClosestParentShare(
 						target_path_copy2.concat(file_link.path),
 						datastore,
@@ -859,7 +882,7 @@ function moveItem(
 						0,
 					) as ClosestParentShare;
 					closest_parent = closest_share_info["closest_share"];
-					fileLinkService.onFileMoved(file_link.id, closest_parent);
+					return fileLinkService.onFileMoved(file_link.id, closest_parent);
 				}, timeout);
 			})(file_links[i]);
 		}
@@ -889,6 +912,7 @@ function moveItem(
 			new_parent_share_id,
 			new_parent_datastore_id,
 		);
+		await Promise.all(linkUpdates);
 	};
 
 	if (datastoreType === "password") {

@@ -2,7 +2,10 @@ import cryptoLibrary from "./crypto-library";
 import datastoreService from "./datastore";
 import datastorePasswordService from "./datastore-password";
 import datastoreUserService from "./datastore-user";
+import fileLinkService from "./file-link";
+import secretLinkService from "./secret-link";
 import secretService from "./secret";
+import shareLinkService from "./share-link";
 import shareService from "./share";
 import widgetService from "./widget";
 import type { WidgetManager } from "./widget";
@@ -33,6 +36,11 @@ describe("Service: widgetService - moveItem test suite", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		global.alert = jest.fn();
+		jest.spyOn(secretLinkService, "onSecretMoved").mockResolvedValue(undefined);
+		jest.spyOn(fileLinkService, "onFileMoved").mockResolvedValue(undefined);
+		jest
+			.spyOn(shareLinkService, "onShareMoved")
+			.mockResolvedValue({ data: {} });
 
 		// Spy on only the specific methods that make external API calls
 		getPasswordDatastoreSpy = jest.spyOn(
